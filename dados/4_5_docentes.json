@@ -1,0 +1,2659 @@
+{
+  "metadata": {
+    "fonte": "Censo Escolar INEP — Tabela_Docente_2025 + QT_DOC microdados",
+    "uf": "RS",
+    "gerado_em": "2026-05-17T12:20:24.477536"
+  },
+  "labels": {
+    "QT_DOC_BAS_FEM": "Feminino",
+    "QT_DOC_BAS_MASC": "Masculino",
+    "QT_DOC_BAS_ND": "Nao Declarado",
+    "QT_DOC_BAS_BRANCA": "Branca",
+    "QT_DOC_BAS_PRETA": "Preta",
+    "QT_DOC_BAS_PARDA": "Parda",
+    "QT_DOC_BAS_AMARELA": "Amarela",
+    "QT_DOC_BAS_INDIGENA": "Indigena",
+    "QT_DOC_BAS_0_24": "Ate 24",
+    "QT_DOC_BAS_25_29": "25-29",
+    "QT_DOC_BAS_30_39": "30-39",
+    "QT_DOC_BAS_40_49": "40-49",
+    "QT_DOC_BAS_50_54": "50-54",
+    "QT_DOC_BAS_55_59": "55-59",
+    "QT_DOC_BAS_60_MAIS": "60+",
+    "QT_DOC_BAS_ESCO_EF": "Ens. Fundamental",
+    "QT_DOC_BAS_ESCO_EM": "Ens. Medio",
+    "QT_DOC_BAS_ESCO_SUP_GRAD": "Superior",
+    "QT_DOC_BAS_ESCO_SUP_GRAD_LICEN": "Licenciatura",
+    "QT_DOC_BAS_ESCO_SUP_GRAD_SLICEN": "Sup. sem Licenciatura",
+    "QT_DOC_BAS_ESCO_SUP_POS_ESPEC": "Especializacao",
+    "QT_DOC_BAS_ESCO_SUP_POS_MESTRA": "Mestrado",
+    "QT_DOC_BAS_ESCO_SUP_POS_DOUTO": "Doutorado",
+    "QT_DOC_BAS_ESCO_SUP_POS_NENHUM": "Sem Pos",
+    "QT_DOC_BAS_VINCULO_CONCUR": "Concursado",
+    "QT_DOC_BAS_VINCULO_CONTRA": "Contratado",
+    "QT_DOC_BAS_VINCULO_TERCEIR": "Terceirizado",
+    "QT_DOC_BAS_VINCULO_CLT": "CLT",
+    "QT_DOC_INF": "Infantil",
+    "QT_DOC_FUND_AI": "Fund. AI",
+    "QT_DOC_FUND_AF": "Fund. AF",
+    "QT_DOC_MED": "Medio",
+    "QT_DOC_EJA": "EJA",
+    "QT_DOC_ESP": "Especial"
+  },
+  "serie_temporal_total": {
+    "2019": {
+      "QT_DOC_BAS": 49585,
+      "Infantil": 165,
+      "Fund. AI": 9977,
+      "Fund. AF": 24130,
+      "Medio": 23586,
+      "EJA": 6498,
+      "Especial": 40678
+    },
+    "2020": {
+      "QT_DOC_BAS": 48698,
+      "Infantil": 138,
+      "Fund. AI": 13744,
+      "Fund. AF": 23977,
+      "Medio": 23321,
+      "EJA": 5565,
+      "Especial": 40555
+    },
+    "2021": {
+      "QT_DOC_BAS": 47828,
+      "Infantil": 121,
+      "Fund. AI": 11479,
+      "Fund. AF": 23583,
+      "Medio": 23733,
+      "EJA": 4705,
+      "Especial": 39710
+    },
+    "2022": {
+      "QT_DOC_BAS": 48759,
+      "Infantil": 124,
+      "Fund. AI": 11329,
+      "Fund. AF": 24171,
+      "Medio": 24638,
+      "EJA": 4712,
+      "Especial": 40785
+    },
+    "2023": {
+      "QT_DOC_BAS": 47555,
+      "Infantil": 127,
+      "Fund. AI": 11503,
+      "Fund. AF": 23106,
+      "Medio": 24384,
+      "EJA": 4672,
+      "Especial": 40406
+    },
+    "2024": {
+      "QT_DOC_BAS": 46340,
+      "Infantil": 123,
+      "Fund. AI": 11172,
+      "Fund. AF": 21944,
+      "Medio": 24444,
+      "EJA": 4264,
+      "Especial": 40111
+    }
+  },
+  "perfil_2025": {
+    "total": 46878,
+    "por_sexo": {
+      "Feminino": 35500,
+      "Masculino": 11378,
+      "Nao Declarado": 6127
+    },
+    "por_raca": {
+      "Branca": 36527,
+      "Preta": 1801,
+      "Parda": 1997,
+      "Amarela": 19,
+      "Indigena": 407
+    },
+    "por_faixa_etaria": {
+      "Ate 24": 514,
+      "25-29": 3397,
+      "30-39": 10579,
+      "40-49": 16668,
+      "50-54": 6701,
+      "55-59": 4775,
+      "60+": 4244
+    },
+    "por_escolaridade": {
+      "Ens. Fundamental": 131,
+      "Ens. Medio": 2440,
+      "Superior": 44307,
+      "Licenciatura": 42296,
+      "Sup. sem Licenciatura": 2019
+    },
+    "por_pos": {
+      "Especializacao": 20813,
+      "Mestrado": 1709,
+      "Doutorado": 301,
+      "Sem Pos": 22325
+    },
+    "por_vinculo": {
+      "Concursado": 14662,
+      "Contratado": 32112,
+      "Terceirizado": 2,
+      "CLT": 166
+    },
+    "por_etapa": {
+      "Infantil": 148,
+      "Fund. AI": 11111,
+      "Fund. AF": 22003,
+      "Medio": 24625,
+      "EJA": 4620,
+      "Especial": 41029
+    }
+  },
+  "por_municipio_2025": {
+    "4300034": {
+      "escolas": 2,
+      "docentes": 20
+    },
+    "4300059": {
+      "escolas": 3,
+      "docentes": 24
+    },
+    "4300109": {
+      "escolas": 2,
+      "docentes": 55
+    },
+    "4300208": {
+      "escolas": 3,
+      "docentes": 48
+    },
+    "4300307": {
+      "escolas": 2,
+      "docentes": 24
+    },
+    "4300406": {
+      "escolas": 19,
+      "docentes": 473
+    },
+    "4300455": {
+      "escolas": 2,
+      "docentes": 32
+    },
+    "4300471": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4300505": {
+      "escolas": 3,
+      "docentes": 31
+    },
+    "4300554": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4300570": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4300604": {
+      "escolas": 17,
+      "docentes": 634
+    },
+    "4300638": {
+      "escolas": 2,
+      "docentes": 31
+    },
+    "4300646": {
+      "escolas": 1,
+      "docentes": 29
+    },
+    "4300661": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4300703": {
+      "escolas": 3,
+      "docentes": 41
+    },
+    "4300802": {
+      "escolas": 4,
+      "docentes": 70
+    },
+    "4300851": {
+      "escolas": 2,
+      "docentes": 21
+    },
+    "4300877": {
+      "escolas": 2,
+      "docentes": 23
+    },
+    "4300901": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4301008": {
+      "escolas": 1,
+      "docentes": 29
+    },
+    "4301057": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4301073": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4301107": {
+      "escolas": 2,
+      "docentes": 44
+    },
+    "4301206": {
+      "escolas": 2,
+      "docentes": 39
+    },
+    "4301305": {
+      "escolas": 8,
+      "docentes": 176
+    },
+    "4301404": {
+      "escolas": 6,
+      "docentes": 64
+    },
+    "4301503": {
+      "escolas": 2,
+      "docentes": 34
+    },
+    "4301552": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4301602": {
+      "escolas": 19,
+      "docentes": 510
+    },
+    "4301636": {
+      "escolas": 1,
+      "docentes": 29
+    },
+    "4301651": {
+      "escolas": 3,
+      "docentes": 46
+    },
+    "4301701": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4301750": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4301800": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4301859": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4301875": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4301909": {
+      "escolas": 6,
+      "docentes": 62
+    },
+    "4301925": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4301958": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4302006": {
+      "escolas": 3,
+      "docentes": 48
+    },
+    "4302055": {
+      "escolas": 3,
+      "docentes": 23
+    },
+    "4302105": {
+      "escolas": 21,
+      "docentes": 423
+    },
+    "4302154": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4302204": {
+      "escolas": 1,
+      "docentes": 26
+    },
+    "4302220": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4302238": {
+      "escolas": 2,
+      "docentes": 15
+    },
+    "4302253": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4302303": {
+      "escolas": 3,
+      "docentes": 64
+    },
+    "4302352": {
+      "escolas": 3,
+      "docentes": 39
+    },
+    "4302378": {
+      "escolas": 2,
+      "docentes": 34
+    },
+    "4302402": {
+      "escolas": 3,
+      "docentes": 53
+    },
+    "4302451": {
+      "escolas": 5,
+      "docentes": 61
+    },
+    "4302501": {
+      "escolas": 5,
+      "docentes": 45
+    },
+    "4302584": {
+      "escolas": 2,
+      "docentes": 19
+    },
+    "4302600": {
+      "escolas": 2,
+      "docentes": 36
+    },
+    "4302659": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4302709": {
+      "escolas": 3,
+      "docentes": 80
+    },
+    "4302808": {
+      "escolas": 9,
+      "docentes": 186
+    },
+    "4302907": {
+      "escolas": 5,
+      "docentes": 74
+    },
+    "4303004": {
+      "escolas": 22,
+      "docentes": 491
+    },
+    "4303103": {
+      "escolas": 13,
+      "docentes": 459
+    },
+    "4303202": {
+      "escolas": 4,
+      "docentes": 32
+    },
+    "4303301": {
+      "escolas": 2,
+      "docentes": 26
+    },
+    "4303400": {
+      "escolas": 3,
+      "docentes": 42
+    },
+    "4303509": {
+      "escolas": 12,
+      "docentes": 257
+    },
+    "4303558": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4303608": {
+      "escolas": 3,
+      "docentes": 40
+    },
+    "4303673": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4303707": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4303806": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4303905": {
+      "escolas": 5,
+      "docentes": 114
+    },
+    "4304002": {
+      "escolas": 2,
+      "docentes": 32
+    },
+    "4304101": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4304200": {
+      "escolas": 6,
+      "docentes": 115
+    },
+    "4304309": {
+      "escolas": 1,
+      "docentes": 34
+    },
+    "4304358": {
+      "escolas": 6,
+      "docentes": 89
+    },
+    "4304408": {
+      "escolas": 8,
+      "docentes": 177
+    },
+    "4304507": {
+      "escolas": 15,
+      "docentes": 271
+    },
+    "4304606": {
+      "escolas": 36,
+      "docentes": 978
+    },
+    "4304614": {
+      "escolas": 1,
+      "docentes": 6
+    },
+    "4304622": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4304630": {
+      "escolas": 4,
+      "docentes": 190
+    },
+    "4304655": {
+      "escolas": 3,
+      "docentes": 26
+    },
+    "4304663": {
+      "escolas": 5,
+      "docentes": 95
+    },
+    "4304671": {
+      "escolas": 2,
+      "docentes": 32
+    },
+    "4304689": {
+      "escolas": 3,
+      "docentes": 28
+    },
+    "4304697": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4304705": {
+      "escolas": 16,
+      "docentes": 323
+    },
+    "4304713": {
+      "escolas": 2,
+      "docentes": 21
+    },
+    "4304804": {
+      "escolas": 5,
+      "docentes": 111
+    },
+    "4304853": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4304903": {
+      "escolas": 6,
+      "docentes": 73
+    },
+    "4304952": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4305009": {
+      "escolas": 4,
+      "docentes": 74
+    },
+    "4305108": {
+      "escolas": 55,
+      "docentes": 1287
+    },
+    "4305116": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4305124": {
+      "escolas": 2,
+      "docentes": 39
+    },
+    "4305132": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4305157": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4305173": {
+      "escolas": 5,
+      "docentes": 59
+    },
+    "4305207": {
+      "escolas": 3,
+      "docentes": 51
+    },
+    "4305306": {
+      "escolas": 3,
+      "docentes": 42
+    },
+    "4305355": {
+      "escolas": 8,
+      "docentes": 147
+    },
+    "4305371": {
+      "escolas": 2,
+      "docentes": 20
+    },
+    "4305405": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4305439": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4305447": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4305454": {
+      "escolas": 2,
+      "docentes": 68
+    },
+    "4305504": {
+      "escolas": 3,
+      "docentes": 33
+    },
+    "4305587": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4305603": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4305702": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4305801": {
+      "escolas": 4,
+      "docentes": 50
+    },
+    "4305835": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4305850": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4305871": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4305900": {
+      "escolas": 1,
+      "docentes": 40
+    },
+    "4305934": {
+      "escolas": 1,
+      "docentes": 5
+    },
+    "4305959": {
+      "escolas": 1,
+      "docentes": 6
+    },
+    "4305975": {
+      "escolas": 1,
+      "docentes": 6
+    },
+    "4306007": {
+      "escolas": 9,
+      "docentes": 80
+    },
+    "4306056": {
+      "escolas": 2,
+      "docentes": 53
+    },
+    "4306072": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4306106": {
+      "escolas": 17,
+      "docentes": 406
+    },
+    "4306130": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4306205": {
+      "escolas": 4,
+      "docentes": 56
+    },
+    "4306304": {
+      "escolas": 4,
+      "docentes": 46
+    },
+    "4306320": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4306353": {
+      "escolas": 3,
+      "docentes": 28
+    },
+    "4306379": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4306403": {
+      "escolas": 3,
+      "docentes": 90
+    },
+    "4306429": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4306452": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4306502": {
+      "escolas": 1,
+      "docentes": 31
+    },
+    "4306551": {
+      "escolas": 2,
+      "docentes": 20
+    },
+    "4306601": {
+      "escolas": 13,
+      "docentes": 196
+    },
+    "4306700": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4306734": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4306759": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4306767": {
+      "escolas": 6,
+      "docentes": 77
+    },
+    "4306809": {
+      "escolas": 5,
+      "docentes": 104
+    },
+    "4306908": {
+      "escolas": 5,
+      "docentes": 121
+    },
+    "4306924": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4306932": {
+      "escolas": 2,
+      "docentes": 42
+    },
+    "4306957": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4306973": {
+      "escolas": 3,
+      "docentes": 24
+    },
+    "4307005": {
+      "escolas": 21,
+      "docentes": 568
+    },
+    "4307054": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4307104": {
+      "escolas": 2,
+      "docentes": 45
+    },
+    "4307203": {
+      "escolas": 2,
+      "docentes": 18
+    },
+    "4307302": {
+      "escolas": 3,
+      "docentes": 47
+    },
+    "4307401": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4307450": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4307500": {
+      "escolas": 5,
+      "docentes": 107
+    },
+    "4307559": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4307609": {
+      "escolas": 3,
+      "docentes": 73
+    },
+    "4307708": {
+      "escolas": 10,
+      "docentes": 230
+    },
+    "4307807": {
+      "escolas": 8,
+      "docentes": 149
+    },
+    "4307815": {
+      "escolas": 3,
+      "docentes": 23
+    },
+    "4307831": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4307864": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4307906": {
+      "escolas": 11,
+      "docentes": 198
+    },
+    "4308003": {
+      "escolas": 3,
+      "docentes": 45
+    },
+    "4308052": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4308078": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4308102": {
+      "escolas": 4,
+      "docentes": 66
+    },
+    "4308201": {
+      "escolas": 4,
+      "docentes": 88
+    },
+    "4308250": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4308300": {
+      "escolas": 2,
+      "docentes": 65
+    },
+    "4308409": {
+      "escolas": 2,
+      "docentes": 39
+    },
+    "4308433": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4308458": {
+      "escolas": 2,
+      "docentes": 29
+    },
+    "4308508": {
+      "escolas": 13,
+      "docentes": 252
+    },
+    "4308607": {
+      "escolas": 10,
+      "docentes": 130
+    },
+    "4308656": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4308706": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4308805": {
+      "escolas": 4,
+      "docentes": 59
+    },
+    "4308854": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4308904": {
+      "escolas": 5,
+      "docentes": 75
+    },
+    "4309001": {
+      "escolas": 3,
+      "docentes": 63
+    },
+    "4309050": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4309100": {
+      "escolas": 6,
+      "docentes": 126
+    },
+    "4309126": {
+      "escolas": 2,
+      "docentes": 24
+    },
+    "4309159": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4309209": {
+      "escolas": 25,
+      "docentes": 688
+    },
+    "4309258": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4309308": {
+      "escolas": 15,
+      "docentes": 324
+    },
+    "4309407": {
+      "escolas": 5,
+      "docentes": 85
+    },
+    "4309506": {
+      "escolas": 2,
+      "docentes": 53
+    },
+    "4309555": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4309571": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4309605": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4309654": {
+      "escolas": 4,
+      "docentes": 49
+    },
+    "4309704": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4309753": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4309803": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4309902": {
+      "escolas": 2,
+      "docentes": 22
+    },
+    "4309951": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4310009": {
+      "escolas": 4,
+      "docentes": 96
+    },
+    "4310108": {
+      "escolas": 4,
+      "docentes": 99
+    },
+    "4310207": {
+      "escolas": 28,
+      "docentes": 575
+    },
+    "4310306": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4310330": {
+      "escolas": 2,
+      "docentes": 59
+    },
+    "4310363": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4310405": {
+      "escolas": 2,
+      "docentes": 27
+    },
+    "4310413": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4310439": {
+      "escolas": 3,
+      "docentes": 34
+    },
+    "4310462": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4310504": {
+      "escolas": 5,
+      "docentes": 79
+    },
+    "4310538": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4310553": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4310579": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4310603": {
+      "escolas": 9,
+      "docentes": 228
+    },
+    "4310652": {
+      "escolas": 2,
+      "docentes": 28
+    },
+    "4310702": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4310751": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4310801": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4310850": {
+      "escolas": 1,
+      "docentes": 28
+    },
+    "4310876": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4310900": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4311007": {
+      "escolas": 7,
+      "docentes": 127
+    },
+    "4311106": {
+      "escolas": 2,
+      "docentes": 45
+    },
+    "4311122": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4311130": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4311155": {
+      "escolas": 5,
+      "docentes": 61
+    },
+    "4311205": {
+      "escolas": 10,
+      "docentes": 144
+    },
+    "4311239": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4311254": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4311270": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4311304": {
+      "escolas": 15,
+      "docentes": 217
+    },
+    "4311403": {
+      "escolas": 14,
+      "docentes": 279
+    },
+    "4311429": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4311502": {
+      "escolas": 3,
+      "docentes": 60
+    },
+    "4311601": {
+      "escolas": 3,
+      "docentes": 53
+    },
+    "4311627": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4311643": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4311700": {
+      "escolas": 2,
+      "docentes": 28
+    },
+    "4311718": {
+      "escolas": 2,
+      "docentes": 50
+    },
+    "4311734": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4311759": {
+      "escolas": 3,
+      "docentes": 44
+    },
+    "4311775": {
+      "escolas": 4,
+      "docentes": 65
+    },
+    "4311791": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4311809": {
+      "escolas": 4,
+      "docentes": 133
+    },
+    "4311908": {
+      "escolas": 2,
+      "docentes": 15
+    },
+    "4311981": {
+      "escolas": 2,
+      "docentes": 12
+    },
+    "4312005": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4312054": {
+      "escolas": 4,
+      "docentes": 33
+    },
+    "4312104": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4312138": {
+      "escolas": 4,
+      "docentes": 26
+    },
+    "4312153": {
+      "escolas": 1,
+      "docentes": 27
+    },
+    "4312179": {
+      "escolas": 2,
+      "docentes": 12
+    },
+    "4312203": {
+      "escolas": 3,
+      "docentes": 32
+    },
+    "4312252": {
+      "escolas": 2,
+      "docentes": 37
+    },
+    "4312302": {
+      "escolas": 3,
+      "docentes": 60
+    },
+    "4312351": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4312377": {
+      "escolas": 2,
+      "docentes": 14
+    },
+    "4312385": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4312401": {
+      "escolas": 18,
+      "docentes": 337
+    },
+    "4312427": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4312443": {
+      "escolas": 2,
+      "docentes": 21
+    },
+    "4312450": {
+      "escolas": 1,
+      "docentes": 25
+    },
+    "4312476": {
+      "escolas": 1,
+      "docentes": 22
+    },
+    "4312500": {
+      "escolas": 3,
+      "docentes": 51
+    },
+    "4312609": {
+      "escolas": 1,
+      "docentes": 23
+    },
+    "4312617": {
+      "escolas": 2,
+      "docentes": 26
+    },
+    "4312625": {
+      "escolas": 2,
+      "docentes": 19
+    },
+    "4312658": {
+      "escolas": 2,
+      "docentes": 48
+    },
+    "4312674": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4312708": {
+      "escolas": 3,
+      "docentes": 67
+    },
+    "4312757": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4312807": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4312906": {
+      "escolas": 1,
+      "docentes": 28
+    },
+    "4312955": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4313003": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4313011": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4313037": {
+      "escolas": 1,
+      "docentes": 25
+    },
+    "4313060": {
+      "escolas": 2,
+      "docentes": 62
+    },
+    "4313086": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4313102": {
+      "escolas": 4,
+      "docentes": 50
+    },
+    "4313201": {
+      "escolas": 5,
+      "docentes": 106
+    },
+    "4313300": {
+      "escolas": 5,
+      "docentes": 104
+    },
+    "4313334": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4313359": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4313375": {
+      "escolas": 3,
+      "docentes": 63
+    },
+    "4313391": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4313409": {
+      "escolas": 29,
+      "docentes": 708
+    },
+    "4313425": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4313441": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4313466": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4313490": {
+      "escolas": 1,
+      "docentes": 25
+    },
+    "4313508": {
+      "escolas": 9,
+      "docentes": 276
+    },
+    "4313607": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4313656": {
+      "escolas": 4,
+      "docentes": 43
+    },
+    "4313706": {
+      "escolas": 12,
+      "docentes": 317
+    },
+    "4313805": {
+      "escolas": 2,
+      "docentes": 51
+    },
+    "4313904": {
+      "escolas": 7,
+      "docentes": 189
+    },
+    "4313953": {
+      "escolas": 2,
+      "docentes": 38
+    },
+    "4314001": {
+      "escolas": 3,
+      "docentes": 47
+    },
+    "4314027": {
+      "escolas": 2,
+      "docentes": 31
+    },
+    "4314035": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4314050": {
+      "escolas": 5,
+      "docentes": 115
+    },
+    "4314068": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4314076": {
+      "escolas": 1,
+      "docentes": 26
+    },
+    "4314100": {
+      "escolas": 40,
+      "docentes": 882
+    },
+    "4314134": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4314159": {
+      "escolas": 1,
+      "docentes": 25
+    },
+    "4314175": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4314209": {
+      "escolas": 2,
+      "docentes": 51
+    },
+    "4314308": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4314407": {
+      "escolas": 53,
+      "docentes": 1355
+    },
+    "4314423": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4314456": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4314464": {
+      "escolas": 3,
+      "docentes": 16
+    },
+    "4314472": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4314498": {
+      "escolas": 2,
+      "docentes": 34
+    },
+    "4314506": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4314548": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4314555": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4314605": {
+      "escolas": 10,
+      "docentes": 147
+    },
+    "4314704": {
+      "escolas": 8,
+      "docentes": 78
+    },
+    "4314753": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4314779": {
+      "escolas": 2,
+      "docentes": 24
+    },
+    "4314787": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4314803": {
+      "escolas": 4,
+      "docentes": 96
+    },
+    "4314902": {
+      "escolas": 241,
+      "docentes": 5569
+    },
+    "4315008": {
+      "escolas": 2,
+      "docentes": 25
+    },
+    "4315057": {
+      "escolas": 1,
+      "docentes": 11
+    },
+    "4315073": {
+      "escolas": 2,
+      "docentes": 15
+    },
+    "4315107": {
+      "escolas": 4,
+      "docentes": 81
+    },
+    "4315131": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4315149": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4315156": {
+      "escolas": 3,
+      "docentes": 39
+    },
+    "4315172": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4315206": {
+      "escolas": 2,
+      "docentes": 25
+    },
+    "4315305": {
+      "escolas": 7,
+      "docentes": 166
+    },
+    "4315313": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4315321": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4315354": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4315404": {
+      "escolas": 11,
+      "docentes": 149
+    },
+    "4315453": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4315503": {
+      "escolas": 4,
+      "docentes": 68
+    },
+    "4315552": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4315602": {
+      "escolas": 30,
+      "docentes": 878
+    },
+    "4315701": {
+      "escolas": 13,
+      "docentes": 214
+    },
+    "4315750": {
+      "escolas": 2,
+      "docentes": 23
+    },
+    "4315800": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4315909": {
+      "escolas": 2,
+      "docentes": 41
+    },
+    "4315958": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4316006": {
+      "escolas": 2,
+      "docentes": 56
+    },
+    "4316105": {
+      "escolas": 5,
+      "docentes": 67
+    },
+    "4316204": {
+      "escolas": 1,
+      "docentes": 32
+    },
+    "4316303": {
+      "escolas": 3,
+      "docentes": 41
+    },
+    "4316402": {
+      "escolas": 9,
+      "docentes": 204
+    },
+    "4316428": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4316436": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4316451": {
+      "escolas": 5,
+      "docentes": 85
+    },
+    "4316477": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4316501": {
+      "escolas": 4,
+      "docentes": 33
+    },
+    "4316600": {
+      "escolas": 3,
+      "docentes": 62
+    },
+    "4316709": {
+      "escolas": 2,
+      "docentes": 36
+    },
+    "4316733": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4316758": {
+      "escolas": 1,
+      "docentes": 30
+    },
+    "4316808": {
+      "escolas": 18,
+      "docentes": 460
+    },
+    "4316907": {
+      "escolas": 40,
+      "docentes": 1186
+    },
+    "4316956": {
+      "escolas": 2,
+      "docentes": 34
+    },
+    "4316972": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4317004": {
+      "escolas": 2,
+      "docentes": 44
+    },
+    "4317103": {
+      "escolas": 25,
+      "docentes": 528
+    },
+    "4317202": {
+      "escolas": 16,
+      "docentes": 346
+    },
+    "4317251": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4317301": {
+      "escolas": 4,
+      "docentes": 126
+    },
+    "4317400": {
+      "escolas": 13,
+      "docentes": 269
+    },
+    "4317509": {
+      "escolas": 20,
+      "docentes": 439
+    },
+    "4317558": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4317608": {
+      "escolas": 23,
+      "docentes": 302
+    },
+    "4317707": {
+      "escolas": 4,
+      "docentes": 65
+    },
+    "4317756": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4317806": {
+      "escolas": 4,
+      "docentes": 88
+    },
+    "4317905": {
+      "escolas": 3,
+      "docentes": 52
+    },
+    "4317954": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4318002": {
+      "escolas": 13,
+      "docentes": 348
+    },
+    "4318051": {
+      "escolas": 2,
+      "docentes": 19
+    },
+    "4318101": {
+      "escolas": 5,
+      "docentes": 93
+    },
+    "4318200": {
+      "escolas": 12,
+      "docentes": 138
+    },
+    "4318309": {
+      "escolas": 12,
+      "docentes": 249
+    },
+    "4318408": {
+      "escolas": 8,
+      "docentes": 123
+    },
+    "4318424": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4318432": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4318440": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4318457": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4318465": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4318481": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4318499": {
+      "escolas": 1,
+      "docentes": 7
+    },
+    "4318507": {
+      "escolas": 4,
+      "docentes": 110
+    },
+    "4318606": {
+      "escolas": 2,
+      "docentes": 31
+    },
+    "4318614": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4318622": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4318705": {
+      "escolas": 27,
+      "docentes": 661
+    },
+    "4318804": {
+      "escolas": 7,
+      "docentes": 171
+    },
+    "4318903": {
+      "escolas": 17,
+      "docentes": 267
+    },
+    "4319000": {
+      "escolas": 5,
+      "docentes": 94
+    },
+    "4319109": {
+      "escolas": 2,
+      "docentes": 18
+    },
+    "4319125": {
+      "escolas": 1,
+      "docentes": 20
+    },
+    "4319158": {
+      "escolas": 2,
+      "docentes": 35
+    },
+    "4319208": {
+      "escolas": 3,
+      "docentes": 45
+    },
+    "4319307": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4319356": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4319364": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4319372": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4319406": {
+      "escolas": 2,
+      "docentes": 59
+    },
+    "4319505": {
+      "escolas": 7,
+      "docentes": 139
+    },
+    "4319604": {
+      "escolas": 5,
+      "docentes": 121
+    },
+    "4319703": {
+      "escolas": 1,
+      "docentes": 6
+    },
+    "4319711": {
+      "escolas": 2,
+      "docentes": 19
+    },
+    "4319737": {
+      "escolas": 3,
+      "docentes": 37
+    },
+    "4319752": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4319802": {
+      "escolas": 2,
+      "docentes": 51
+    },
+    "4319901": {
+      "escolas": 7,
+      "docentes": 204
+    },
+    "4320008": {
+      "escolas": 17,
+      "docentes": 383
+    },
+    "4320107": {
+      "escolas": 5,
+      "docentes": 74
+    },
+    "4320206": {
+      "escolas": 3,
+      "docentes": 67
+    },
+    "4320230": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4320263": {
+      "escolas": 4,
+      "docentes": 57
+    },
+    "4320305": {
+      "escolas": 2,
+      "docentes": 33
+    },
+    "4320321": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4320354": {
+      "escolas": 2,
+      "docentes": 24
+    },
+    "4320404": {
+      "escolas": 5,
+      "docentes": 65
+    },
+    "4320453": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4320503": {
+      "escolas": 4,
+      "docentes": 37
+    },
+    "4320552": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4320578": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4320602": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4320651": {
+      "escolas": 1,
+      "docentes": 15
+    },
+    "4320677": {
+      "escolas": 1,
+      "docentes": 16
+    },
+    "4320701": {
+      "escolas": 3,
+      "docentes": 72
+    },
+    "4320800": {
+      "escolas": 12,
+      "docentes": 236
+    },
+    "4320859": {
+      "escolas": 2,
+      "docentes": 30
+    },
+    "4320909": {
+      "escolas": 2,
+      "docentes": 60
+    },
+    "4321006": {
+      "escolas": 4,
+      "docentes": 87
+    },
+    "4321105": {
+      "escolas": 4,
+      "docentes": 86
+    },
+    "4321204": {
+      "escolas": 11,
+      "docentes": 256
+    },
+    "4321303": {
+      "escolas": 9,
+      "docentes": 191
+    },
+    "4321329": {
+      "escolas": 1,
+      "docentes": 17
+    },
+    "4321352": {
+      "escolas": 1,
+      "docentes": 23
+    },
+    "4321402": {
+      "escolas": 10,
+      "docentes": 149
+    },
+    "4321436": {
+      "escolas": 2,
+      "docentes": 33
+    },
+    "4321451": {
+      "escolas": 3,
+      "docentes": 85
+    },
+    "4321469": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4321477": {
+      "escolas": 4,
+      "docentes": 46
+    },
+    "4321493": {
+      "escolas": 2,
+      "docentes": 17
+    },
+    "4321501": {
+      "escolas": 10,
+      "docentes": 232
+    },
+    "4321600": {
+      "escolas": 6,
+      "docentes": 159
+    },
+    "4321626": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4321634": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4321667": {
+      "escolas": 4,
+      "docentes": 76
+    },
+    "4321709": {
+      "escolas": 1,
+      "docentes": 31
+    },
+    "4321808": {
+      "escolas": 6,
+      "docentes": 99
+    },
+    "4321832": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4321857": {
+      "escolas": 1,
+      "docentes": 23
+    },
+    "4321907": {
+      "escolas": 3,
+      "docentes": 116
+    },
+    "4321956": {
+      "escolas": 4,
+      "docentes": 46
+    },
+    "4322004": {
+      "escolas": 8,
+      "docentes": 102
+    },
+    "4322103": {
+      "escolas": 3,
+      "docentes": 36
+    },
+    "4322152": {
+      "escolas": 1,
+      "docentes": 13
+    },
+    "4322186": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4322202": {
+      "escolas": 4,
+      "docentes": 98
+    },
+    "4322251": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4322301": {
+      "escolas": 2,
+      "docentes": 31
+    },
+    "4322327": {
+      "escolas": 1,
+      "docentes": 14
+    },
+    "4322343": {
+      "escolas": 1,
+      "docentes": 10
+    },
+    "4322350": {
+      "escolas": 2,
+      "docentes": 14
+    },
+    "4322376": {
+      "escolas": 1,
+      "docentes": 24
+    },
+    "4322400": {
+      "escolas": 29,
+      "docentes": 736
+    },
+    "4322509": {
+      "escolas": 11,
+      "docentes": 317
+    },
+    "4322525": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4322533": {
+      "escolas": 2,
+      "docentes": 35
+    },
+    "4322541": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4322558": {
+      "escolas": 1,
+      "docentes": 12
+    },
+    "4322608": {
+      "escolas": 19,
+      "docentes": 321
+    },
+    "4322707": {
+      "escolas": 4,
+      "docentes": 66
+    },
+    "4322806": {
+      "escolas": 2,
+      "docentes": 37
+    },
+    "4322855": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4322905": {
+      "escolas": 1,
+      "docentes": 23
+    },
+    "4323002": {
+      "escolas": 28,
+      "docentes": 819
+    },
+    "4323101": {
+      "escolas": 2,
+      "docentes": 39
+    },
+    "4323200": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4323309": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4323358": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4323408": {
+      "escolas": 1,
+      "docentes": 21
+    },
+    "4323457": {
+      "escolas": 1,
+      "docentes": 19
+    },
+    "4323507": {
+      "escolas": 1,
+      "docentes": 18
+    },
+    "4323606": {
+      "escolas": 1,
+      "docentes": 8
+    },
+    "4323705": {
+      "escolas": 2,
+      "docentes": 18
+    },
+    "4323754": {
+      "escolas": 2,
+      "docentes": 19
+    },
+    "4323770": {
+      "escolas": 1,
+      "docentes": 9
+    },
+    "4323804": {
+      "escolas": 1,
+      "docentes": 24
+    }
+  },
+  "razao_aluno_professor": {
+    "2019": {
+      "geral": 16.9
+    },
+    "2020": {
+      "geral": 16.3
+    },
+    "2021": {
+      "geral": 15.7
+    },
+    "2022": {
+      "geral": 15.9
+    },
+    "2023": {
+      "geral": 15.5
+    },
+    "2024": {
+      "geral": 15.0
+    }
+  },
+  "lookup_municipios": {
+    "4300034": "Aceguá",
+    "4300059": "Água Santa",
+    "4300109": "Agudo",
+    "4300208": "Ajuricaba",
+    "4300307": "Alecrim",
+    "4300406": "Alegrete",
+    "4300455": "Alegria",
+    "4300471": "Almirante Tamandaré do Sul",
+    "4300505": "Alpestre",
+    "4300554": "Alto Alegre",
+    "4300570": "Alto Feliz",
+    "4300604": "Alvorada",
+    "4300638": "Amaral Ferrador",
+    "4300646": "Ametista do Sul",
+    "4300661": "André da Rocha",
+    "4300703": "Anta Gorda",
+    "4300802": "Antônio Prado",
+    "4300851": "Arambaré",
+    "4300877": "Araricá",
+    "4300901": "Aratiba",
+    "4301008": "Arroio do Meio",
+    "4301057": "Arroio do Sal",
+    "4301073": "Arroio do Padre",
+    "4301107": "Arroio dos Ratos",
+    "4301206": "Arroio do Tigre",
+    "4301305": "Arroio Grande",
+    "4301404": "Arvorezinha",
+    "4301503": "Augusto Pestana",
+    "4301552": "Áurea",
+    "4301602": "Bagé",
+    "4301636": "Balneário Pinhal",
+    "4301651": "Barão",
+    "4301701": "Barão de Cotegipe",
+    "4301750": "Barão do Triunfo",
+    "4301800": "Barracão",
+    "4301859": "Barra do Guarita",
+    "4301875": "Barra do Quaraí",
+    "4301909": "Barra do Ribeiro",
+    "4301925": "Barra do Rio Azul",
+    "4301958": "Barra Funda",
+    "4302006": "Barros Cassal",
+    "4302055": "Benjamin Constant do Sul",
+    "4302105": "Bento Gonçalves",
+    "4302154": "Boa Vista das Missões",
+    "4302204": "Boa Vista do Buricá",
+    "4302220": "Boa Vista do Cadeado",
+    "4302238": "Boa Vista do Incra",
+    "4302253": "Boa Vista do Sul",
+    "4302303": "Bom Jesus",
+    "4302352": "Bom Princípio",
+    "4302378": "Bom Progresso",
+    "4302402": "Bom Retiro do Sul",
+    "4302451": "Boqueirão do Leão",
+    "4302501": "Bossoroca",
+    "4302584": "Bozano",
+    "4302600": "Braga",
+    "4302659": "Brochier",
+    "4302709": "Butiá",
+    "4302808": "Caçapava do Sul",
+    "4302907": "Cacequi",
+    "4303004": "Cachoeira do Sul",
+    "4303103": "Cachoeirinha",
+    "4303202": "Cacique Doble",
+    "4303301": "Caibaté",
+    "4303400": "Caiçara",
+    "4303509": "Camaquã",
+    "4303558": "Camargo",
+    "4303608": "Cambará do Sul",
+    "4303673": "Campestre da Serra",
+    "4303707": "Campina das Missões",
+    "4303806": "Campinas do Sul",
+    "4303905": "Campo Bom",
+    "4304002": "Campo Novo",
+    "4304101": "Campos Borges",
+    "4304200": "Candelária",
+    "4304309": "Cândido Godói",
+    "4304358": "Candiota",
+    "4304408": "Canela",
+    "4304507": "Canguçu",
+    "4304606": "Canoas",
+    "4304614": "Canudos do Vale",
+    "4304622": "Capão Bonito do Sul",
+    "4304630": "Capão da Canoa",
+    "4304655": "Capão do Cipó",
+    "4304663": "Capão do Leão",
+    "4304671": "Capivari do Sul",
+    "4304689": "Capela de Santana",
+    "4304697": "Capitão",
+    "4304705": "Carazinho",
+    "4304713": "Caraá",
+    "4304804": "Carlos Barbosa",
+    "4304853": "Carlos Gomes",
+    "4304903": "Casca",
+    "4304952": "Caseiros",
+    "4305009": "Catuípe",
+    "4305108": "Caxias do Sul",
+    "4305116": "Centenário",
+    "4305124": "Cerrito",
+    "4305132": "Cerro Branco",
+    "4305157": "Cerro Grande",
+    "4305173": "Cerro Grande do Sul",
+    "4305207": "Cerro Largo",
+    "4305306": "Chapada",
+    "4305355": "Charqueadas",
+    "4305371": "Charrua",
+    "4305405": "Chiapetta",
+    "4305439": "Chuí",
+    "4305447": "Chuvisca",
+    "4305454": "Cidreira",
+    "4305504": "Ciríaco",
+    "4305587": "Colinas",
+    "4305603": "Colorado",
+    "4305702": "Condor",
+    "4305801": "Constantina",
+    "4305835": "Coqueiro Baixo",
+    "4305850": "Coqueiros do Sul",
+    "4305871": "Coronel Barros",
+    "4305900": "Coronel Bicaco",
+    "4305934": "Coronel Pilar",
+    "4305959": "Cotiporã",
+    "4305975": "Coxilha",
+    "4306007": "Crissiumal",
+    "4306056": "Cristal",
+    "4306072": "Cristal do Sul",
+    "4306106": "Cruz Alta",
+    "4306130": "Cruzaltense",
+    "4306205": "Cruzeiro do Sul",
+    "4306304": "David Canabarro",
+    "4306320": "Derrubadas",
+    "4306353": "Dezesseis de Novembro",
+    "4306379": "Dilermando de Aguiar",
+    "4306403": "Dois Irmãos",
+    "4306429": "Dois Irmãos das Missões",
+    "4306452": "Dois Lajeados",
+    "4306502": "Dom Feliciano",
+    "4306551": "Dom Pedro de Alcântara",
+    "4306601": "Dom Pedrito",
+    "4306700": "Dona Francisca",
+    "4306734": "Doutor Maurício Cardoso",
+    "4306759": "Doutor Ricardo",
+    "4306767": "Eldorado do Sul",
+    "4306809": "Encantado",
+    "4306908": "Encruzilhada do Sul",
+    "4306924": "Engenho Velho",
+    "4306932": "Entre-Ijuís",
+    "4306957": "Entre Rios do Sul",
+    "4306973": "Erebango",
+    "4307005": "Erechim",
+    "4307054": "Ernestina",
+    "4307104": "Herval",
+    "4307203": "Erval Grande",
+    "4307302": "Erval Seco",
+    "4307401": "Esmeralda",
+    "4307450": "Esperança do Sul",
+    "4307500": "Espumoso",
+    "4307559": "Estação",
+    "4307609": "Estância Velha",
+    "4307708": "Esteio",
+    "4307807": "Estrela",
+    "4307815": "Estrela Velha",
+    "4307831": "Eugênio de Castro",
+    "4307864": "Fagundes Varela",
+    "4307906": "Farroupilha",
+    "4308003": "Faxinal do Soturno",
+    "4308052": "Faxinalzinho",
+    "4308078": "Fazenda Vilanova",
+    "4308102": "Feliz",
+    "4308201": "Flores da Cunha",
+    "4308250": "Floriano Peixoto",
+    "4308300": "Fontoura Xavier",
+    "4308409": "Formigueiro",
+    "4308433": "Forquetinha",
+    "4308458": "Fortaleza dos Valos",
+    "4308508": "Frederico Westphalen",
+    "4308607": "Garibaldi",
+    "4308656": "Garruchos",
+    "4308706": "Gaurama",
+    "4308805": "General Câmara",
+    "4308854": "Gentil",
+    "4308904": "Getúlio Vargas",
+    "4309001": "Giruá",
+    "4309050": "Glorinha",
+    "4309100": "Gramado",
+    "4309126": "Gramado dos Loureiros",
+    "4309159": "Gramado Xavier",
+    "4309209": "Gravataí",
+    "4309258": "Guabiju",
+    "4309308": "Guaíba",
+    "4309407": "Guaporé",
+    "4309506": "Guarani das Missões",
+    "4309555": "Harmonia",
+    "4309571": "Herveiras",
+    "4309605": "Horizontina",
+    "4309654": "Hulha Negra",
+    "4309704": "Humaitá",
+    "4309753": "Ibarama",
+    "4309803": "Ibiaçá",
+    "4309902": "Ibiraiaras",
+    "4309951": "Ibirapuitã",
+    "4310009": "Ibirubá",
+    "4310108": "Igrejinha",
+    "4310207": "Ijuí",
+    "4310306": "Ilópolis",
+    "4310330": "Imbé",
+    "4310363": "Imigrante",
+    "4310405": "Independência",
+    "4310413": "Inhacorá",
+    "4310439": "Ipê",
+    "4310462": "Ipiranga do Sul",
+    "4310504": "Iraí",
+    "4310538": "Itaara",
+    "4310553": "Itacurubi",
+    "4310579": "Itapuca",
+    "4310603": "Itaqui",
+    "4310652": "Itati",
+    "4310702": "Itatiba do Sul",
+    "4310751": "Ivorá",
+    "4310801": "Ivoti",
+    "4310850": "Jaboticaba",
+    "4310876": "Jacuizinho",
+    "4310900": "Jacutinga",
+    "4311007": "Jaguarão",
+    "4311106": "Jaguari",
+    "4311122": "Jaquirana",
+    "4311130": "Jari",
+    "4311155": "Jóia",
+    "4311205": "Júlio de Castilhos",
+    "4311239": "Lagoa Bonita do Sul",
+    "4311254": "Lagoão",
+    "4311270": "Lagoa dos Três Cantos",
+    "4311304": "Lagoa Vermelha",
+    "4311403": "Lajeado",
+    "4311429": "Lajeado do Bugre",
+    "4311502": "Lavras do Sul",
+    "4311601": "Liberato Salzano",
+    "4311627": "Lindolfo Collor",
+    "4311643": "Linha Nova",
+    "4311700": "Machadinho",
+    "4311718": "Maçambará",
+    "4311734": "Mampituba",
+    "4311759": "Manoel Viana",
+    "4311775": "Maquiné",
+    "4311791": "Maratá",
+    "4311809": "Marau",
+    "4311908": "Marcelino Ramos",
+    "4311981": "Mariana Pimentel",
+    "4312005": "Mariano Moro",
+    "4312054": "Marques de Souza",
+    "4312104": "Mata",
+    "4312138": "Mato Castelhano",
+    "4312153": "Mato Leitão",
+    "4312179": "Mato Queimado",
+    "4312203": "Maximiliano de Almeida",
+    "4312252": "Minas do Leão",
+    "4312302": "Miraguaí",
+    "4312351": "Montauri",
+    "4312377": "Monte Alegre dos Campos",
+    "4312385": "Monte Belo do Sul",
+    "4312401": "Montenegro",
+    "4312427": "Mormaço",
+    "4312443": "Morrinhos do Sul",
+    "4312450": "Morro Redondo",
+    "4312476": "Morro Reuter",
+    "4312500": "Mostardas",
+    "4312609": "Muçum",
+    "4312617": "Muitos Capões",
+    "4312625": "Muliterno",
+    "4312658": "Não-Me-Toque",
+    "4312674": "Nicolau Vergueiro",
+    "4312708": "Nonoai",
+    "4312757": "Nova Alvorada",
+    "4312807": "Nova Araçá",
+    "4312906": "Nova Bassano",
+    "4312955": "Nova Boa Vista",
+    "4313003": "Nova Bréscia",
+    "4313011": "Nova Candelária",
+    "4313037": "Nova Esperança do Sul",
+    "4313060": "Nova Hartz",
+    "4313086": "Nova Pádua",
+    "4313102": "Nova Palma",
+    "4313201": "Nova Petrópolis",
+    "4313300": "Nova Prata",
+    "4313334": "Nova Ramada",
+    "4313359": "Nova Roma do Sul",
+    "4313375": "Nova Santa Rita",
+    "4313391": "Novo Cabrais",
+    "4313409": "Novo Hamburgo",
+    "4313425": "Novo Machado",
+    "4313441": "Novo Tiradentes",
+    "4313466": "Novo Xingu",
+    "4313490": "Novo Barreiro",
+    "4313508": "Osório",
+    "4313607": "Paim Filho",
+    "4313656": "Palmares do Sul",
+    "4313706": "Palmeira das Missões",
+    "4313805": "Palmitinho",
+    "4313904": "Panambi",
+    "4313953": "Pantano Grande",
+    "4314001": "Paraí",
+    "4314027": "Paraíso do Sul",
+    "4314035": "Pareci Novo",
+    "4314050": "Parobé",
+    "4314068": "Passa Sete",
+    "4314076": "Passo do Sobrado",
+    "4314100": "Passo Fundo",
+    "4314134": "Paulo Bento",
+    "4314159": "Paverama",
+    "4314175": "Pedras Altas",
+    "4314209": "Pedro Osório",
+    "4314308": "Pejuçara",
+    "4314407": "Pelotas",
+    "4314423": "Picada Café",
+    "4314456": "Pinhal",
+    "4314464": "Pinhal da Serra",
+    "4314472": "Pinhal Grande",
+    "4314498": "Pinheirinho do Vale",
+    "4314506": "Pinheiro Machado",
+    "4314548": "Pinto Bandeira",
+    "4314555": "Pirapó",
+    "4314605": "Piratini",
+    "4314704": "Planalto",
+    "4314753": "Poço das Antas",
+    "4314779": "Pontão",
+    "4314787": "Ponte Preta",
+    "4314803": "Portão",
+    "4314902": "Porto Alegre",
+    "4315008": "Porto Lucena",
+    "4315057": "Porto Mauá",
+    "4315073": "Porto Vera Cruz",
+    "4315107": "Porto Xavier",
+    "4315131": "Pouso Novo",
+    "4315149": "Presidente Lucena",
+    "4315156": "Progresso",
+    "4315172": "Protásio Alves",
+    "4315206": "Putinga",
+    "4315305": "Quaraí",
+    "4315313": "Quatro Irmãos",
+    "4315321": "Quevedos",
+    "4315354": "Quinze de Novembro",
+    "4315404": "Redentora",
+    "4315453": "Relvado",
+    "4315503": "Restinga Sêca",
+    "4315552": "Rio dos Índios",
+    "4315602": "Rio Grande",
+    "4315701": "Rio Pardo",
+    "4315750": "Riozinho",
+    "4315800": "Roca Sales",
+    "4315909": "Rodeio Bonito",
+    "4315958": "Rolador",
+    "4316006": "Rolante",
+    "4316105": "Ronda Alta",
+    "4316204": "Rondinha",
+    "4316303": "Roque Gonzales",
+    "4316402": "Rosário do Sul",
+    "4316428": "Sagrada Família",
+    "4316436": "Saldanha Marinho",
+    "4316451": "Salto do Jacuí",
+    "4316477": "Salvador das Missões",
+    "4316501": "Salvador do Sul",
+    "4316600": "Sananduva",
+    "4316709": "Santa Bárbara do Sul",
+    "4316733": "Santa Cecília do Sul",
+    "4316758": "Santa Clara do Sul",
+    "4316808": "Santa Cruz do Sul",
+    "4316907": "Santa Maria",
+    "4316956": "Santa Maria do Herval",
+    "4316972": "Santa Margarida do Sul",
+    "4317004": "Santana da Boa Vista",
+    "4317103": "Sant'Ana do Livramento",
+    "4317202": "Santa Rosa",
+    "4317251": "Santa Tereza",
+    "4317301": "Santa Vitória do Palmar",
+    "4317400": "Santiago",
+    "4317509": "Santo Ângelo",
+    "4317558": "Santo Antônio do Palma",
+    "4317608": "Santo Antônio da Patrulha",
+    "4317707": "Santo Antônio das Missões",
+    "4317756": "Santo Antônio do Planalto",
+    "4317806": "Santo Augusto",
+    "4317905": "Santo Cristo",
+    "4317954": "Santo Expedito do Sul",
+    "4318002": "São Borja",
+    "4318051": "São Domingos do Sul",
+    "4318101": "São Francisco de Assis",
+    "4318200": "São Francisco de Paula",
+    "4318309": "São Gabriel",
+    "4318408": "São Jerônimo",
+    "4318424": "São João da Urtiga",
+    "4318432": "São João do Polêsine",
+    "4318440": "São Jorge",
+    "4318457": "São José das Missões",
+    "4318465": "São José do Herval",
+    "4318481": "São José do Hortêncio",
+    "4318499": "São José do Inhacorá",
+    "4318507": "São José do Norte",
+    "4318606": "São José do Ouro",
+    "4318614": "São José do Sul",
+    "4318622": "São José dos Ausentes",
+    "4318705": "São Leopoldo",
+    "4318804": "São Lourenço do Sul",
+    "4318903": "São Luiz Gonzaga",
+    "4319000": "São Marcos",
+    "4319109": "São Martinho",
+    "4319125": "São Martinho da Serra",
+    "4319158": "São Miguel das Missões",
+    "4319208": "São Nicolau",
+    "4319307": "São Paulo das Missões",
+    "4319356": "São Pedro da Serra",
+    "4319364": "São Pedro das Missões",
+    "4319372": "São Pedro do Butiá",
+    "4319406": "São Pedro do Sul",
+    "4319505": "São Sebastião do Caí",
+    "4319604": "São Sepé",
+    "4319703": "São Valentim",
+    "4319711": "São Valentim do Sul",
+    "4319737": "São Valério do Sul",
+    "4319752": "São Vendelino",
+    "4319802": "São Vicente do Sul",
+    "4319901": "Sapiranga",
+    "4320008": "Sapucaia do Sul",
+    "4320107": "Sarandi",
+    "4320206": "Seberi",
+    "4320230": "Sede Nova",
+    "4320263": "Segredo",
+    "4320305": "Selbach",
+    "4320321": "Senador Salgado Filho",
+    "4320354": "Sentinela do Sul",
+    "4320404": "Serafina Corrêa",
+    "4320453": "Sério",
+    "4320503": "Sertão",
+    "4320552": "Sertão Santana",
+    "4320578": "Sete de Setembro",
+    "4320602": "Severiano de Almeida",
+    "4320651": "Silveira Martins",
+    "4320677": "Sinimbu",
+    "4320701": "Sobradinho",
+    "4320800": "Soledade",
+    "4320859": "Tabaí",
+    "4320909": "Tapejara",
+    "4321006": "Tapera",
+    "4321105": "Tapes",
+    "4321204": "Taquara",
+    "4321303": "Taquari",
+    "4321329": "Taquaruçu do Sul",
+    "4321352": "Tavares",
+    "4321402": "Tenente Portela",
+    "4321436": "Terra de Areia",
+    "4321451": "Teutônia",
+    "4321469": "Tio Hugo",
+    "4321477": "Tiradentes do Sul",
+    "4321493": "Toropi",
+    "4321501": "Torres",
+    "4321600": "Tramandaí",
+    "4321626": "Travesseiro",
+    "4321634": "Três Arroios",
+    "4321667": "Três Cachoeiras",
+    "4321709": "Três Coroas",
+    "4321808": "Três de Maio",
+    "4321832": "Três Forquilhas",
+    "4321857": "Três Palmeiras",
+    "4321907": "Três Passos",
+    "4321956": "Trindade do Sul",
+    "4322004": "Triunfo",
+    "4322103": "Tucunduva",
+    "4322152": "Tunas",
+    "4322186": "Tupanci do Sul",
+    "4322202": "Tupanciretã",
+    "4322251": "Tupandi",
+    "4322301": "Tuparendi",
+    "4322327": "Turuçu",
+    "4322343": "Ubiretama",
+    "4322350": "União da Serra",
+    "4322376": "Unistalda",
+    "4322400": "Uruguaiana",
+    "4322509": "Vacaria",
+    "4322525": "Vale Verde",
+    "4322533": "Vale do Sol",
+    "4322541": "Vale Real",
+    "4322558": "Vanini",
+    "4322608": "Venâncio Aires",
+    "4322707": "Vera Cruz",
+    "4322806": "Veranópolis",
+    "4322855": "Vespasiano Corrêa",
+    "4322905": "Viadutos",
+    "4323002": "Viamão",
+    "4323101": "Vicente Dutra",
+    "4323200": "Victor Graeff",
+    "4323309": "Vila Flores",
+    "4323358": "Vila Lângaro",
+    "4323408": "Vila Maria",
+    "4323457": "Vila Nova do Sul",
+    "4323507": "Vista Alegre",
+    "4323606": "Vista Alegre do Prata",
+    "4323705": "Vista Gaúcha",
+    "4323754": "Vitória das Missões",
+    "4323770": "Westfália",
+    "4323804": "Xangri-lá"
+  }
+}

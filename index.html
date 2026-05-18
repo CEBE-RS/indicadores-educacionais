@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Painel de Indicadores Educacionais do Rio Grande do Sul — Censo Escolar 2019-2025">
+  <title>Indicadores Educacionais RS — SEDUC-RS / UNESCO</title>
+  <link rel="stylesheet" href="css/styles.css?v=7">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="img/logo_rs.avif" alt="Governo do RS" class="sidebar-logo" onerror="this.style.display='none'">
+      <div class="sidebar-title">
+        <span class="sidebar-title-main">Indicadores Educacionais</span>
+        <span class="sidebar-title-sub">SEDUC-RS / UNESCO</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">NAVEGAÇÃO</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-tab active" data-view="home" id="tab-home"><img class="nav-icon" src="img/icons/nav_home.png" alt="" onerror="this.style.display='none'"> Início</button>
+        <button class="sidebar-tab" data-view="acesso" id="tab-acesso"><img class="nav-icon" src="img/icons/nav_acesso.png" alt="" onerror="this.style.display='none'"> Acesso e Matrículas</button>
+        <button class="sidebar-tab" data-view="infra" id="tab-infra"><img class="nav-icon" src="img/icons/nav_infra.png" alt="" onerror="this.style.display='none'"> Infraestrutura e Docência</button>
+        <button class="sidebar-tab" data-view="fluxo" id="tab-fluxo"><img class="nav-icon" src="img/icons/nav_fluxo.png" alt="" onerror="this.style.display='none'"> Fluxo e Rendimento</button>
+        <button class="sidebar-tab" data-view="desempenho" id="tab-desempenho"><img class="nav-icon" src="img/icons/nav_ideb.png" alt="" onerror="this.style.display='none'"> IDEB / SAEB</button>
+      </nav>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">FILTROS</div>
+      <div class="sidebar-filters">
+        <label class="filter-label">Ano de referência</label>
+        <select id="sel-ano" class="filter-select"></select>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        Painel de Indicadores Educacionais<br>
+        Secretaria da Educação do RS
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main" id="main-content">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span>Carregando dados do Censo Escolar...</span>
+    </div>
+  </main>
+
+  <script src="js/app.js?v=12"></script>
+</body>
+
+</html>

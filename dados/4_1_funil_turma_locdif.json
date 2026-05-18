@@ -1,0 +1,343 @@
+{
+  "metadata": {
+    "fonte": "Censo Escolar INEP",
+    "uf": "RS",
+    "gerado_em": "2026-05-16T14:11:27.488732"
+  },
+  "funil_por_serie": {
+    "2023": {
+      "1_ano": 137252,
+      "2_ano": 144808,
+      "3_ano": 150492,
+      "4_ano": 139177,
+      "5_ano": 138996,
+      "6_ano": 146292,
+      "7_ano": 139667,
+      "8_ano": 131959,
+      "9_ano": 127151,
+      "em_1": 3774,
+      "em_2": 2113,
+      "em_3": 1746,
+      "em_4": 1302
+    },
+    "2024": {
+      "1_ano": 138291,
+      "2_ano": 136418,
+      "3_ano": 155587,
+      "4_ano": 145022,
+      "5_ano": 138506,
+      "6_ano": 142428,
+      "7_ano": 141204,
+      "8_ano": 131714,
+      "9_ano": 120499,
+      "em_1": 3617,
+      "em_2": 2066,
+      "em_3": 1955,
+      "em_4": 1105
+    }
+  },
+  "tamanho_turma": {
+    "2019": {
+      "Educacao Basica": {
+        "matriculas": 2294325,
+        "turmas": 120125,
+        "media_alunos": 19.1
+      },
+      "Ed. Infantil": {
+        "matriculas": 458003,
+        "turmas": 32664,
+        "media_alunos": 14.0
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 706894,
+        "turmas": 35161,
+        "media_alunos": 20.1
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 573849,
+        "turmas": 29252,
+        "media_alunos": 19.6
+      },
+      "Ens. Medio": {
+        "matriculas": 335437,
+        "turmas": 13729,
+        "media_alunos": 24.4
+      },
+      "EJA": {
+        "matriculas": 136932,
+        "turmas": 5852,
+        "media_alunos": 23.4
+      }
+    },
+    "2020": {
+      "Educacao Basica": {
+        "matriculas": 2242547,
+        "turmas": 118937,
+        "media_alunos": 18.9
+      },
+      "Ed. Infantil": {
+        "matriculas": 445991,
+        "turmas": 32912,
+        "media_alunos": 13.6
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 708920,
+        "turmas": 35312,
+        "media_alunos": 20.1
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 560389,
+        "turmas": 28468,
+        "media_alunos": 19.7
+      },
+      "Ens. Medio": {
+        "matriculas": 343314,
+        "turmas": 13711,
+        "media_alunos": 25.0
+      },
+      "EJA": {
+        "matriculas": 102191,
+        "turmas": 5218,
+        "media_alunos": 19.6
+      }
+    },
+    "2021": {
+      "Educacao Basica": {
+        "matriculas": 2201511,
+        "turmas": 118955,
+        "media_alunos": 18.5
+      },
+      "Ed. Infantil": {
+        "matriculas": 415377,
+        "turmas": 32463,
+        "media_alunos": 12.8
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 699664,
+        "turmas": 35773,
+        "media_alunos": 19.6
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 558328,
+        "turmas": 28274,
+        "media_alunos": 19.7
+      },
+      "Ens. Medio": {
+        "matriculas": 346363,
+        "turmas": 14443,
+        "media_alunos": 24.0
+      },
+      "EJA": {
+        "matriculas": 90235,
+        "turmas": 4547,
+        "media_alunos": 19.8
+      }
+    },
+    "2022": {
+      "Educacao Basica": {
+        "matriculas": 2266494,
+        "turmas": 122891,
+        "media_alunos": 18.4
+      },
+      "Ed. Infantil": {
+        "matriculas": 450603,
+        "turmas": 34714,
+        "media_alunos": 13.0
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 711492,
+        "turmas": 36594,
+        "media_alunos": 19.4
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 552052,
+        "turmas": 28310,
+        "media_alunos": 19.5
+      },
+      "Ens. Medio": {
+        "matriculas": 365084,
+        "turmas": 15184,
+        "media_alunos": 24.0
+      },
+      "EJA": {
+        "matriculas": 94551,
+        "turmas": 4517,
+        "media_alunos": 20.9
+      }
+    },
+    "2023": {
+      "Educacao Basica": {
+        "matriculas": 2272051,
+        "turmas": 123186,
+        "media_alunos": 18.4
+      },
+      "Ed. Infantil": {
+        "matriculas": 466814,
+        "turmas": 35028,
+        "media_alunos": 13.3
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 710725,
+        "turmas": 36557,
+        "media_alunos": 19.4
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 545069,
+        "turmas": 28126,
+        "media_alunos": 19.4
+      },
+      "Ens. Medio": {
+        "matriculas": 349367,
+        "turmas": 15212,
+        "media_alunos": 23.0
+      },
+      "EJA": {
+        "matriculas": 89172,
+        "turmas": 4457,
+        "media_alunos": 20.0
+      }
+    },
+    "2024": {
+      "Educacao Basica": {
+        "matriculas": 2227679,
+        "turmas": 123305,
+        "media_alunos": 18.1
+      },
+      "Ed. Infantil": {
+        "matriculas": 464512,
+        "turmas": 35787,
+        "media_alunos": 13.0
+      },
+      "Fund. Anos Iniciais": {
+        "matriculas": 713824,
+        "turmas": 36981,
+        "media_alunos": 19.3
+      },
+      "Fund. Anos Finais": {
+        "matriculas": 535845,
+        "turmas": 27739,
+        "media_alunos": 19.3
+      },
+      "Ens. Medio": {
+        "matriculas": 331216,
+        "turmas": 14995,
+        "media_alunos": 22.1
+      },
+      "EJA": {
+        "matriculas": 77226,
+        "turmas": 4248,
+        "media_alunos": 18.2
+      }
+    }
+  },
+  "localizacao_diferenciada": {
+    "2019": {
+      "Area de Assentamento": {
+        "escolas": 63,
+        "matriculas": 5242
+      },
+      "Terra Indigena": {
+        "escolas": 92,
+        "matriculas": 6369
+      },
+      "Quilombola": {
+        "escolas": 62,
+        "matriculas": 8379
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9806,
+        "matriculas": 2274335
+      }
+    },
+    "2020": {
+      "Area de Assentamento": {
+        "escolas": 66,
+        "matriculas": 4985
+      },
+      "Terra Indigena": {
+        "escolas": 84,
+        "matriculas": 6186
+      },
+      "Quilombola": {
+        "escolas": 61,
+        "matriculas": 7568
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9729,
+        "matriculas": 2223808
+      }
+    },
+    "2021": {
+      "Area de Assentamento": {
+        "escolas": 65,
+        "matriculas": 4763
+      },
+      "Terra Indigena": {
+        "escolas": 87,
+        "matriculas": 6306
+      },
+      "Quilombola": {
+        "escolas": 62,
+        "matriculas": 7454
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9674,
+        "matriculas": 2182988
+      }
+    },
+    "2022": {
+      "Area de Assentamento": {
+        "escolas": 67,
+        "matriculas": 4629
+      },
+      "Terra Indigena": {
+        "escolas": 88,
+        "matriculas": 6403
+      },
+      "Quilombola": {
+        "escolas": 61,
+        "matriculas": 7287
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9709,
+        "matriculas": 2248175
+      }
+    },
+    "2023": {
+      "Area de Assentamento": {
+        "escolas": 64,
+        "matriculas": 4221
+      },
+      "Terra Indigena": {
+        "escolas": 97,
+        "matriculas": 6137
+      },
+      "Quilombola": {
+        "escolas": 52,
+        "matriculas": 5642
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9757,
+        "matriculas": 2255307
+      }
+    },
+    "2024": {
+      "Area de Assentamento": {
+        "escolas": 64,
+        "matriculas": 4136
+      },
+      "Terra Indigena": {
+        "escolas": 93,
+        "matriculas": 5746
+      },
+      "Quilombola": {
+        "escolas": 48,
+        "matriculas": 5225
+      },
+      "Nenhuma (urbana/rural regular)": {
+        "escolas": 9789,
+        "matriculas": 2211214
+      }
+    }
+  }
+}
