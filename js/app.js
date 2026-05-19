@@ -181,9 +181,31 @@ function sectionBanner(icon, title, subtitle) {
   return `<div class="section-banner">
     <div class="section-banner-bg"></div>
     <div class="section-banner-content">
-      <div class="section-banner-icon"><img src="${icon}" alt=""></div>
-      <h2>${title}${subtitle ? `<span>${subtitle}</span>` : ''}</h2>
-      <span id="mun-filter-slot"></span>
+      <div class="section-banner-left">
+        <div class="section-banner-icon"><img src="${icon}" alt=""></div>
+        <h2>${title}${subtitle ? `<span>${subtitle}</span>` : ''}</h2>
+      </div>
+      <div class="section-banner-right">
+        <span id="mun-filter-slot"></span>
+        <div class="banner-filters">
+          <div class="banner-filter-group">
+            <label class="banner-filter-label">Ano</label>
+            <select id="sel-ano" class="banner-filter-select"></select>
+          </div>
+          <div class="banner-filter-group">
+            <label class="banner-filter-label">CRE</label>
+            <select id="sel-cre" class="banner-filter-select">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="banner-filter-group">
+            <label class="banner-filter-label">Município</label>
+            <select id="sel-mun" class="banner-filter-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
