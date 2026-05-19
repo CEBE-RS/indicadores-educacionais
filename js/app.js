@@ -25,13 +25,17 @@ const S = {
   ftl: null,
   fluxo: null,
   geo: null,
+  creGeo: null,      // CRE polygons GeoJSON
+  creLookup: null,   // { mun_to_cre, cre_list }
   map: null,
   mapLayer: null,
+  mapMode: 'mun',   // 'mun' | 'cre'
   charts: [],
   anoSel: null,
   depSel: 'Estadual',
-  munSel: null,   // selected municipality code for filtering
-  munSelFluxo: null, // selected municipality for Fluxo tab
+  munSel: null,
+  munSelFluxo: null,
+  creSel: null,      // selected CRE code e.g. '06'
 };
 
 const FONTE_CENSO = 'Fonte: INEP — Censo Escolar da Educação Básica';
@@ -308,6 +312,10 @@ function renderAcesso() {
       <div class="map-container">
         <div class="map-toolbar">
           <h3>Mapa — <span id="map-ano-label">${anoSel}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="btn-layer-cre">CREs</button>
+          </div>
           <select id="sel-map-metric">
             <option value="mat_total">Matrículas Totais</option>
             <option value="escolas">Escolas</option>
@@ -2510,24 +2518,175 @@ function buildLocDif() {
   }
 }
 
+function buildCreLayer(anoSel, metric) {
+  if (!S.creGeo || !S.map) return;
+  if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+
+  const munToCre = S.creLookup?.mun_to_cre || {};
+  const d = S.data;
+
+  // Aggregate municipality data by CRE
+  const creData = {};
+  const munData = d.por_municipio?.[anoSel] || {};
+  for (const [cod, val] of Object.entries(munData)) {
+    const cre = munToCre[cod]?.cod_cre;
+    if (!cre) continue;
+    if (!creData[cre]) creData[cre] = { total: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+    creData[cre].total += (val[metric] || 0);
+    creData[cre].count += 1;
+  }
+
+  const values = Object.values(creData).map(v => v.total).filter(v => v > 0);
+  const maxVal = values.length ? Math.max(...values) : 1;
+
+  function getColor(v) {
+    const t = v / maxVal;
+    if (t > 0.8) return '#005A32';
+    if (t > 0.6) return '#238B45';
+    if (t > 0.4) return '#41AB5D';
+    if (t > 0.2) return '#74C476';
+    return '#C7E9C0';
+  }
+
+  S.mapLayer = L.geoJSON(S.creGeo, {
+    style: feature => {
+      const cod = feature.properties.cod_cre;
+      const val = creData[cod]?.total || 0;
+      return { fillColor: getColor(val), weight: 2, color: '#fff', fillOpacity: .75 };
+    },
+    onEachFeature: (feature, layer) => {
+      const cod = feature.properties.cod_cre;
+      const nome = feature.properties.nome_cre || cod;
+      const val = creData[cod]?.total || 0;
+      const munCount = creData[cod]?.count || 0;
+      layer.bindTooltip(`<strong>${nome}</strong><br>${metric === 'escolas' ? 'Escolas' : 'Matrículas'}: ${val.toLocaleString('pt-BR')}<br>${munCount} municípios`, { sticky: true });
+      layer.on('click', () => {
+        S.creSel = cod;
+        const selCre = document.getElementById('sel-cre');
+        if (selCre) selCre.value = cod;
+        populateMunDropdown(cod);
+        refreshActiveTab();
+      });
+    }
+  }).addTo(S.map);
+}
+
 function bindMapMetric(d, anos) {
   const selMetric = document.getElementById('sel-map-metric');
   if (selMetric) {
     selMetric.addEventListener('change', () => {
       const anoSel = S.anoSel || anos[anos.length - 1];
-      buildMap(d, anoSel, selMetric.value);
+      if (S.mapMode === 'cre') buildCreLayer(anoSel, selMetric.value);
+      else buildMap(d, anoSel, selMetric.value);
+    });
+  }
+
+  // Layer toggle
+  const btnMun = document.getElementById('btn-layer-mun');
+  const btnCre = document.getElementById('btn-layer-cre');
+  if (btnMun && btnCre) {
+    btnMun.addEventListener('click', () => {
+      S.mapMode = 'mun';
+      btnMun.classList.add('active'); btnCre.classList.remove('active');
+      buildMap(d, S.anoSel || anos[anos.length - 1], selMetric?.value || 'mat_total');
+    });
+    btnCre.addEventListener('click', () => {
+      S.mapMode = 'cre';
+      btnCre.classList.add('active'); btnMun.classList.remove('active');
+      buildCreLayer(S.anoSel || anos[anos.length - 1], selMetric?.value || 'mat_total');
     });
   }
 }
 
+
 function bindSidebarFilters() {
   const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.addEventListener('change', e => {
+      S.anoSel = e.target.value;
+      const activeTab = document.querySelector('.sidebar-tab.active');
+      if (activeTab) activeTab.click();
+    });
+  }
+}
 
-  selAno.addEventListener('change', e => {
+/** Populate topbar CRE dropdown */
+function populateCreDropdown() {
+  const selCre = document.getElementById('sel-cre');
+  if (!selCre || !S.creLookup) return;
+  const list = S.creLookup.cre_list || [];
+  selCre.innerHTML = '<option value="">Todas as CREs</option>' +
+    list.map(c => `<option value="${c.cod_cre}">${c.nome_cre}</option>`).join('');
+}
+
+/** Populate municipality dropdown, optionally filtered by CRE */
+function populateMunDropdown(creCod) {
+  const selMun = document.getElementById('sel-mun');
+  if (!selMun || !S.data) return;
+  const lookup = S.data.lookup_municipios || {};
+  const munToCre = S.creLookup?.mun_to_cre || {};
+
+  let entries = Object.entries(lookup).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+  if (creCod) {
+    entries = entries.filter(([cod]) => munToCre[cod]?.cod_cre === creCod);
+  }
+
+  selMun.innerHTML = '<option value="">Todos os municípios</option>' +
+    entries.map(([cod, nome]) => `<option value="${cod}">${nome}</option>`).join('');
+}
+
+/** Bind topbar filter interactions */
+function bindTopbarFilters() {
+  const selAno = document.getElementById('sel-ano');
+  const selCre = document.getElementById('sel-cre');
+  const selMun = document.getElementById('sel-mun');
+
+  if (selAno) selAno.addEventListener('change', e => {
     S.anoSel = e.target.value;
-    const activeTab = document.querySelector('.sidebar-tab.active');
-    if (activeTab) activeTab.click();
+    S.munSel = null;
+    if (selMun) selMun.value = '';
+    refreshActiveTab();
   });
+
+  if (selCre) selCre.addEventListener('change', e => {
+    S.creSel = e.target.value || null;
+    S.munSel = null;
+    if (selMun) selMun.value = '';
+    populateMunDropdown(S.creSel);
+    refreshActiveTab();
+  });
+
+  if (selMun) selMun.addEventListener('change', e => {
+    S.munSel = e.target.value || null;
+    refreshActiveTab();
+  });
+
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (hamburger && sidebar && overlay) {
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('visible');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
+    });
+    // Close sidebar when a nav tab is clicked on mobile
+    document.querySelectorAll('.sidebar-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+      });
+    });
+  }
+}
+
+function refreshActiveTab() {
+  const activeTab = document.querySelector('.sidebar-tab.active');
+  if (activeTab) activeTab.click();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2538,7 +2697,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup] = await Promise.all([
       fetch('dados/4_1_acesso_matriculas.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infraestrutura.json'),
@@ -2546,24 +2705,34 @@ async function init() {
       fetch('dados/4_1_funil_turma_locdif.json'),
       fetch('dados/4_6_saeb.json'),
       fetch('dados/4_3_fluxo_rendimento.json'),
+      fetch('dados/rs_cres.geojson'),
+      fetch('dados/rs_cre_lookup.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
-    if (respGeo.ok) S.geo = await respGeo.json();
-    if (respInfra.ok) S.infra = await respInfra.json();
-    if (respDoc.ok) S.doc = await respDoc.json();
-    if (respFtl.ok) S.ftl = await respFtl.json();
-    if (respSaeb.ok) S.saeb = await respSaeb.json();
-    if (respFluxo.ok) S.fluxo = await respFluxo.json();
+    if (respGeo.ok)       S.geo       = await respGeo.json();
+    if (respInfra.ok)     S.infra     = await respInfra.json();
+    if (respDoc.ok)       S.doc       = await respDoc.json();
+    if (respFtl.ok)       S.ftl       = await respFtl.json();
+    if (respSaeb.ok)      S.saeb      = await respSaeb.json();
+    if (respFluxo.ok)     S.fluxo     = await respFluxo.json();
+    if (respCreGeo.ok)    S.creGeo    = await respCreGeo.json();
+    if (respCreLookup.ok) S.creLookup = await respCreLookup.json();
 
-    // Populate sidebar year select
+    // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();
     const selAno = document.getElementById('sel-ano');
-    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anos[anos.length - 1] ? 'selected' : ''}>${a}</option>`).join('');
-    S.anoSel = anos[anos.length - 1];
+    if (selAno) {
+      selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anos[anos.length - 1] ? 'selected' : ''}>${a}</option>`).join('');
+      S.anoSel = anos[anos.length - 1];
+    }
 
-    // metadata loaded
+    // Populate CRE + municipality dropdowns
+    populateCreDropdown();
+    populateMunDropdown(null);
+
     bindSidebarFilters();
+    bindTopbarFilters();
     renderHome();
   } catch (err) {
     document.getElementById('main-content').innerHTML = `
@@ -2575,4 +2744,3 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-

@@ -1,0 +1,2110 @@
+{
+  "mun_to_cre": {
+    "4316204": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4308003": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4307831": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4316006": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4307815": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4307807": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4307906": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4307864": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4307203": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4315354": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4315453": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4323606": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4323457": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4315404": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4323408": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4307054": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4323507": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4315321": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4315313": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4315305": {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    "4307104": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4323804": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4307450": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4315602": {
+      "cod_cre": "18",
+      "nome_cre": "18 CRE - Rio Grande"
+    },
+    "4307401": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4315701": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4307500": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4323705": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4315503": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4307302": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4323770": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4323754": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4315552": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4323101": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4306734": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4314902": {
+      "cod_cre": "01",
+      "nome_cre": "01 CRE - Porto Alegre"
+    },
+    "4314753": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4306700": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4306551": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4322905": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4314704": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4323002": {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    "4314803": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4314787": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4314779": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4306601": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4315131": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4323309": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4315107": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4306932": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4306924": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4306908": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4315206": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4323358": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4307005": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4315172": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4315156": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4323200": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4315149": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4306973": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4315008": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4306957": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4306809": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4306767": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4315073": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4306759": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4315057": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4322558": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4322541": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4322533": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4322525": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4322509": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4322608": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4306130": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4314423": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4314407": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4306205": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4322400": {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    "4314209": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4322376": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4306007": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4314308": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4306106": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4306072": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4322806": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4306056": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4314605": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4306429": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4306403": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4306379": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4322855": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4306502": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4306452": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4314498": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4306304": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4314472": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4314464": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4314456": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4314555": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4314548": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4322707": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4306353": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4314506": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4306320": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4322004": {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    "4313805": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4322103": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4313904": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4305702": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4321907": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4313706": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4305504": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4321956": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4305603": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4305587": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4322301": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4314100": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4322251": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4314076": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4305900": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4314068": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4314175": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4305871": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4322350": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4322343": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4314159": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4322327": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4305975": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4305959": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4314134": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4322152": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4305934": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4313953": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4314050": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4314035": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4314027": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4322202": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4305850": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4305835": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4322186": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4314001": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4305801": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4313334": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4305157": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4321501": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4321493": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4305132": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4313300": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4305124": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4321600": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4305116": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4305108": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4313409": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4313391": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4305207": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4313375": {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    "4313359": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4321402": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4305173": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4313201": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4305009": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4321352": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4321477": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4321469": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4321451": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4321436": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4305405": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4321857": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4305371": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4305355": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4321832": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4313656": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4321808": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4305454": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4305447": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4321667": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4305439": {
+      "cod_cre": "18",
+      "nome_cre": "18 CRE - Rio Grande"
+    },
+    "4313607": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4313466": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4321634": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4321626": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4313441": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4313425": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4321709": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4313508": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4313490": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4305306": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4321006": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4312807": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4304630": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4304622": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4304614": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304606": {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    "4304705": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4304697": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304689": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4304671": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4304663": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4312708": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4304655": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4320859": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304507": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4312674": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4312658": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4312757": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4320909": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4313086": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4313060": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4313037": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4304853": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4321329": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4321303": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304952": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4313102": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4312955": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4304903": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4321105": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4312906": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4321204": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4304713": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4313011": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4313003": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304804": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4320503": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4312302": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4304101": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4320578": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4312385": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4320552": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4312377": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4312351": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4312179": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4320354": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4304002": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4312153": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4320453": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4312138": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4312252": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4320404": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4312203": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4304358": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4320800": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4312625": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4312617": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4312609": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4304408": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4312450": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4312443": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4312427": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4320602": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4312401": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4320701": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4304200": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4312500": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4320677": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4304309": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4320651": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4312476": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4311809": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4311791": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4303608": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4311775": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4311759": {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    "4303673": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4320008": {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    "4311643": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4311627": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4311734": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4303558": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4319901": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4311718": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4311700": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4303509": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4320230": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4312054": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4320206": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4320321": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4320305": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4312104": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4320263": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4303905": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4320107": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4311908": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4303707": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4312005": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4311981": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4303806": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4303103": {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    "4311270": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4311254": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4311239": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4319505": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4319364": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4319356": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4311304": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4311155": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4319307": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4311130": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4311122": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4319406": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4311205": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4319372": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4303004": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4319737": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4319711": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4319703": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4311502": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4319802": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4311601": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4319752": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4303400": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4319604": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4311429": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4311403": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4303202": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4303301": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4302584": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4310751": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4310850": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4302659": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4319000": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4310801": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4310652": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4302600": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4318804": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4302451": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4310603": {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    "4318903": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4310702": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4302501": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4319208": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4311007": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4302808": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4311106": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4302907": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4319109": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4310900": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4302709": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4310876": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4319158": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4319125": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4318465": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4318457": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4318440": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4318432": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4318424": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4318408": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4302055": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4310330": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4318499": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4318481": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4310306": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4302105": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4318309": {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    "4301958": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4310108": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4301925": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4301909": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4310207": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4302006": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4318705": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4310504": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4302303": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4310579": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4302402": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4310553": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4302378": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4310538": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4310405": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4302352": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4302204": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4310363": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4310462": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4302154": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4318622": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4310439": {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    "4318614": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4318606": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4302253": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4317954": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4310413": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4302238": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4302220": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4309753": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4317905": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4301552": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4309704": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4318002": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4301636": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4309803": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4301602": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4317806": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4309605": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4301404": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4301503": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4309654": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4318200": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4310009": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4301800": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4301875": {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    "4301859": {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    "4318051": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4301701": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4301651": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4309951": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4318101": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4301750": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4309902": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4301057": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4317400": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4309209": {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    "4317509": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4301008": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4309308": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4301107": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4309258": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4317301": {
+      "cod_cre": "18",
+      "nome_cre": "18 CRE - Rio Grande"
+    },
+    "4309126": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4301073": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4309100": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4300901": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4300877": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4309159": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4309506": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4301305": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4317756": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4309571": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4309555": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4317707": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4317558": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4317608": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4309407": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4301206": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4316907": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4308706": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4300505": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4308805": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4316972": {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    "4316956": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4300604": {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    "4300570": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4308607": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4300554": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4316758": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4300406": {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    "4308656": {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    "4300471": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4316808": {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    "4300455": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4300802": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4317251": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4309050": {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    "4300851": {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    "4317202": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4309001": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4308854": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4300661": {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    "4317004": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4300646": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4300638": {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    "4317103": {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    "4308904": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4300703": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4316402": {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    "4300034": {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    "4308201": {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    "4316477": {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    "4316451": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4316436": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4316428": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4308250": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4300059": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4308102": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4308078": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4308052": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4316303": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4308458": {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    "4308433": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4316733": {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    "4316709": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    },
+    "4308508": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4300307": {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    "4316501": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4308300": {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    "4316600": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4300109": {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    "4308409": {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    "4300208": {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    "4315909": {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    "4307708": {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    "4315958": {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    "4315750": {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    "4307559": {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    "4315800": {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    "4307609": {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    "4316105": {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    }
+  },
+  "cre_list": [
+    {
+      "cod_cre": "01",
+      "nome_cre": "01 CRE - Porto Alegre"
+    },
+    {
+      "cod_cre": "02",
+      "nome_cre": "02 CRE - São Leopoldo"
+    },
+    {
+      "cod_cre": "03",
+      "nome_cre": "03 CRE - Estrela"
+    },
+    {
+      "cod_cre": "04",
+      "nome_cre": "04 CRE - Caxias do Sul"
+    },
+    {
+      "cod_cre": "05",
+      "nome_cre": "05 CRE - Pelotas"
+    },
+    {
+      "cod_cre": "06",
+      "nome_cre": "06 CRE - Santa Cruz do Sul"
+    },
+    {
+      "cod_cre": "07",
+      "nome_cre": "07 CRE - Passo Fundo"
+    },
+    {
+      "cod_cre": "08",
+      "nome_cre": "08 CRE - Santa Maria"
+    },
+    {
+      "cod_cre": "09",
+      "nome_cre": "09 CRE - Cruz Alta"
+    },
+    {
+      "cod_cre": "10",
+      "nome_cre": "10 CRE - Uruguaiana"
+    },
+    {
+      "cod_cre": "11",
+      "nome_cre": "11 CRE - Osório"
+    },
+    {
+      "cod_cre": "12",
+      "nome_cre": "12 CRE - Guaíba"
+    },
+    {
+      "cod_cre": "13",
+      "nome_cre": "13 CRE - Bagé"
+    },
+    {
+      "cod_cre": "14",
+      "nome_cre": "14 CRE - Santo Ângelo"
+    },
+    {
+      "cod_cre": "15",
+      "nome_cre": "15 CRE - Erechim"
+    },
+    {
+      "cod_cre": "16",
+      "nome_cre": "16 CRE - Bento Gonçalves"
+    },
+    {
+      "cod_cre": "17",
+      "nome_cre": "17 CRE - Santa Rosa"
+    },
+    {
+      "cod_cre": "18",
+      "nome_cre": "18 CRE - Rio Grande"
+    },
+    {
+      "cod_cre": "19",
+      "nome_cre": "19 CRE - Santana do Livramento"
+    },
+    {
+      "cod_cre": "20",
+      "nome_cre": "20 CRE - Palmeira das Missões"
+    },
+    {
+      "cod_cre": "21",
+      "nome_cre": "21 CRE - Três Passos"
+    },
+    {
+      "cod_cre": "23",
+      "nome_cre": "23 CRE - Vacaria"
+    },
+    {
+      "cod_cre": "24",
+      "nome_cre": "24 CRE - Cachoeira do Sul"
+    },
+    {
+      "cod_cre": "25",
+      "nome_cre": "25 CRE - Soledade"
+    },
+    {
+      "cod_cre": "27",
+      "nome_cre": "27 CRE - Canoas"
+    },
+    {
+      "cod_cre": "28",
+      "nome_cre": "28 CRE - Gravataí"
+    },
+    {
+      "cod_cre": "32",
+      "nome_cre": "32 CRE - São Luiz Gonzaga"
+    },
+    {
+      "cod_cre": "35",
+      "nome_cre": "35 CRE - São Borja"
+    },
+    {
+      "cod_cre": "36",
+      "nome_cre": "36 CRE - Ijuí"
+    },
+    {
+      "cod_cre": "39",
+      "nome_cre": "39 CRE - Carazinho"
+    }
+  ]
+}
