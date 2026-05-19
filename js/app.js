@@ -196,6 +196,29 @@ function getRedeLabel() {
   return 'Rede Estadual';
 }
 
+/** Returns array of municipality codes belonging to a CRE */
+function getCreMuns(creCod) {
+  if (!S.creLookup || !creCod) return [];
+  return Object.entries(S.creLookup.mun_to_cre)
+    .filter(([, v]) => v.cod_cre === creCod)
+    .map(([cod]) => cod);
+}
+
+/** Aggregates municipality data for a CRE (sums numeric keys) */
+function aggregateCre(d, ano, creCod) {
+  const muns = getCreMuns(creCod);
+  const munData = d.por_municipio[ano] || {};
+  const result = {};
+  for (const cod of muns) {
+    const m = munData[cod];
+    if (!m) continue;
+    for (const [k, v] of Object.entries(m)) {
+      if (typeof v === 'number') result[k] = (result[k] || 0) + v;
+    }
+  }
+  return result;
+}
+
 function renderAcesso() {
   const d = S.data;
   const anos = Object.keys(d.serie_temporal).sort();
@@ -606,9 +629,15 @@ function buildCharts(d, anos, anoSel) {
 function buildMunTable(d, ano) {
   const mun = d.por_municipio[ano];
   const lookup = d.lookup_municipios || {};
+  const munToCre = S.creLookup?.mun_to_cre || {};
   if (!mun) return;
 
+  // If a CRE is selected, show only its municipalities
+  const creFilter = S.creSel;
+  const creMuns = creFilter ? new Set(getCreMuns(creFilter)) : null;
+
   const rows = Object.entries(mun)
+    .filter(([cod]) => !creMuns || creMuns.has(cod))
     .map(([cod, v]) => ({ cod, nome: lookup[cod] || `Cód. ${cod}`, ...v }))
     .sort((a, b) => b.mat_total - a.mat_total);
 
@@ -650,13 +679,13 @@ function buildMunTable(d, ano) {
   });
 
   // If already filtered, apply
-  if (S.munSel) {
+  if (S.munSel || S.creSel) {
     const anoSel = S.anoSel || Object.keys(d.serie_temporal).sort().pop();
     applyMunFilter(d, anoSel, lookup);
   }
 }
 
-/** Apply municipality filter — update KPIs, charts, map highlight, badge */
+/** Apply CRE or municipality filter — update KPIs, charts, map highlight, badge */
 function applyMunFilter(d, anoSel, lookup) {
   const anos = Object.keys(d.serie_temporal).sort();
   const tbody = document.getElementById('mun-tbody');
@@ -674,11 +703,22 @@ function applyMunFilter(d, anoSel, lookup) {
         S.munSel = null;
         applyMunFilter(d, anoSel, lookup);
       });
+    } else if (S.creSel) {
+      const creName = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`;
+      slot.innerHTML = `<span class="mun-filter-badge" id="mun-clear-badge">🏫 ${creName} <span class="close">✕</span></span>`;
+      document.getElementById('mun-clear-badge').addEventListener('click', () => {
+        S.creSel = null;
+        const selCre = document.getElementById('sel-cre');
+        if (selCre) selCre.value = '';
+        populateMunDropdown(null);
+        applyMunFilter(d, anoSel, lookup);
+      });
     } else {
       slot.innerHTML = '';
     }
   }
 
+  // ── Specific municipality selected ──
   if (S.munSel) {
     const munData = d.por_municipio[anoSel]?.[S.munSel];
     if (!munData) return;
@@ -780,6 +820,86 @@ function applyMunFilter(d, anoSel, lookup) {
 
     // ── Zoom map to municipality ──
     zoomToMunicipality(S.munSel);
+
+  } else if (S.creSel) {
+    // ── CRE selected: aggregate all its municipalities ──
+    const creData = aggregateCre(d, anoSel, S.creSel);
+    const creDataPrev = anos[anos.indexOf(anoSel) - 1]
+      ? aggregateCre(d, anos[anos.indexOf(anoSel) - 1], S.creSel) : null;
+    const creName = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`;
+    const munCount = getCreMuns(S.creSel).length;
+
+    const pctFn = (c, o) => (c != null && o != null && o !== 0) ? ((c - o) / o * 100) : null;
+    const absFn = (c, o) => (c != null && o != null) ? (c - o) : null;
+    const prevAno = anos[anos.indexOf(anoSel) - 1] || null;
+    const refLabel = prevAno ? `vs ${prevAno}` : '';
+
+    // KPIs
+    const strip = document.getElementById('kpi-strip');
+    const kpis = [
+      { label: 'Escolas', key: 'escolas', icon: 'img/icons/escola.png' },
+      { label: 'Matrículas', key: 'mat_total', icon: 'img/icons/matriculas.png' },
+      { label: 'Ed. Infantil', key: 'mat_infantil', icon: 'img/icons/infantil.png' },
+      { label: 'Fundamental', key: 'mat_fundamental', icon: 'img/icons/fundamental.png' },
+      { label: 'Ens. Médio', key: 'mat_medio', icon: 'img/icons/medio.png' },
+      { label: 'EJA', key: 'mat_eja', icon: 'img/icons/eja.png' },
+    ];
+    if (strip) {
+      strip.innerHTML = kpis.map((k, i) => {
+        const val = creData[k.key] ?? 0;
+        const prev = creDataPrev?.[k.key];
+        const pct = pctFn(val, prev);
+        const abs = absFn(val, prev);
+        const cls = deltaClass(pct);
+        const arrow = deltaArrow(pct);
+        const absStr = abs != null ? (abs >= 0 ? '+' : '') + formatNum(abs) : '';
+        return `<div class="kpi-card accent-green" style="animation-delay:${i * 80}ms">
+          <div class="kpi-top"><span class="kpi-label">${k.label}</span><img class="kpi-icon" src="${k.icon}" alt=""></div>
+          <div class="kpi-body"><span class="kpi-value">${formatNum(val)}</span></div>
+          <div class="kpi-footer">
+            <span class="kpi-delta ${cls}">${arrow} ${pct !== null ? (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%' : ''}</span>
+            <span class="kpi-abs">${absStr} ${refLabel}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Charts
+    destroyCharts();
+    const setTitle = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+    setTitle('title-serie', `Evolução de Matrículas — ${creName} (${anos[0]}–${anoSel})`);
+    setTitle('title-etapa', `Matrículas por Etapa — ${creName} — ${anoSel}`);
+
+    // Série temporal CRE
+    const serieChart = document.getElementById('chart-serie');
+    if (serieChart) {
+      const creSeries = anos.map(a => aggregateCre(d, a, S.creSel).mat_total || 0);
+      S.charts.push(new Chart(serieChart, {
+        type: 'line',
+        data: { labels: anos, datasets: [{ label: creName, data: creSeries, borderColor: COLORS.pri, backgroundColor: COLORS.pri + '18', fill: true, tension: .35, pointRadius: 4, borderWidth: 2 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_LINE } }
+      }));
+    }
+
+    // Por etapa CRE
+    const etapaChart = document.getElementById('chart-etapa');
+    if (etapaChart) {
+      const etapas = ['Infantil', 'Fundamental', 'Médio', 'EJA'];
+      const etapaKeys = ['mat_infantil', 'mat_fundamental', 'mat_medio', 'mat_eja'];
+      const etapaCores = [COLORS.infantil, COLORS.fundamental, COLORS.medio, COLORS.eja];
+      const etapaData = etapaKeys.map(k => creData[k] || 0);
+      S.charts.push(new Chart(etapaChart, {
+        type: 'bar',
+        data: { labels: etapas, datasets: [{ label: `Matrículas ${anoSel}`, data: etapaData, backgroundColor: etapaCores.map(c => c + 'CC'), borderColor: etapaCores, borderWidth: 1.5, borderRadius: 4 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_BAR },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaData) * 1.15 } } }
+      }));
+    }
+
+    buildMunChartsFallback(d, anoSel);
+    buildFaixaEtaria(d, anoSel);
+    buildNoturno(d, anos, anoSel);
+    buildEdEspecial(d, anos, anoSel);
 
   } else {
     // Restore full state
