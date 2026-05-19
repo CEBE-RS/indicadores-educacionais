@@ -29,6 +29,7 @@ const S = {
   creLookup: null,   // { mun_to_cre, cre_list }
   map: null,
   mapLayer: null,
+  mapLegend: null,  // Leaflet legend control
   mapMode: 'mun',   // 'mun' | 'cre'
   charts: [],
   anoSel: null,
@@ -234,96 +235,6 @@ function renderAcesso() {
     ${sectionBanner('img/icons/nav_acesso.png', 'Acesso e Matrículas', redeLabel)}
     <div class="kpi-strip" id="kpi-strip"></div>
 
-    <!-- ═══ EIXO: Panorama da Rede ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
-      <span class="section-divider-text">Panorama da Rede</span>
-      <span class="section-divider-line"></span>
-    </div>
-
-    <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
-      <div class="chart-card d1">
-        <div class="chart-title" id="title-serie">Evolução de Matrículas — ${redeLabel} (${anos[0]}–${anoSel})</div>
-        <div style="height:200px"><canvas id="chart-serie"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d2">
-        <div class="chart-title" id="title-etapa">Matrículas por Etapa — ${anoSel}</div>
-        <div style="height:200px"><canvas id="chart-etapa"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d3">
-        <div class="chart-title" id="title-faixa">Matrículas por Faixa Etária — ${anoSel}</div>
-        <div style="height:200px"><canvas id="chart-faixa"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-    </div>
-
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="chart-card">
-        <div class="chart-title" id="title-integral">Educação Integral — Evolução</div>
-        <div id="integral-delta" style="font-size:11px;color:#00AB4E;font-weight:600;margin:2px 0"></div>
-        <div style="height:200px"><canvas id="chart-integral"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title" id="title-noturno">Matrículas Noturnas — Evolução</div>
-        <div style="height:200px"><canvas id="chart-noturno"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-    </div>
-
-    <!-- ═══ EIXO: Recortes Sociais ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/social.png" alt=""></span>
-      <span class="section-divider-text">Recortes Sociais</span>
-      <span class="section-divider-line"></span>
-    </div>
-
-    <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
-      <div class="chart-card d4">
-        <div class="chart-title" id="title-raca">Evolução por Raça/Cor — ${redeLabel}</div>
-        <div id="raca-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px 0;font-size:10px"></div>
-        <div style="height:210px"><canvas id="chart-raca"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d5">
-        <div class="chart-title" id="title-sexo">Distribuição por Sexo</div>
-        <div style="height:220px"><canvas id="chart-sexo"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d6">
-        <div class="chart-title" id="title-locdif">Localização Diferenciada — Matrículas</div>
-        <div style="height:220px"><canvas id="chart-locdif-bar"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-    </div>
-
-    <!-- ═══ EIXO: Educação Especial ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/acessibilidade.png" alt=""></span>
-      <span class="section-divider-text">Educação Especial</span>
-      <span class="section-divider-line"></span>
-    </div>
-
-    <div class="charts-grid g3">
-      <div class="chart-card d7">
-        <div class="chart-title" id="title-esp-evo">Alunos da Ed. Especial — Evolução</div>
-        <div style="height:200px"><canvas id="chart-esp-evo"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d8">
-        <div class="chart-title" id="title-esp-tipo">Classes Comuns vs Exclusivas — ${anoSel}</div>
-        <div style="height:200px"><canvas id="chart-esp-tipo"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d9">
-        <div class="chart-title" id="title-esp-etapa">Ed. Especial (Classes Comuns) por Etapa — ${anoSel}</div>
-        <div style="height:200px"><canvas id="chart-esp-etapa"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-    </div>
-
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
@@ -331,7 +242,7 @@ function renderAcesso() {
       <span class="section-divider-line"></span>
     </div>
 
-    <div class="map-table-row d7">
+    <div class="map-table-row d1">
       <div class="map-container">
         <div class="map-toolbar">
           <h3>Mapa — <span id="map-ano-label">${anoSel}</span></h3>
@@ -367,6 +278,96 @@ function renderAcesso() {
             <tbody id="mun-tbody"></tbody>
           </table>
         </div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Panorama da Rede ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Panorama da Rede</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
+      <div class="chart-card d2">
+        <div class="chart-title" id="title-serie">Evolução de Matrículas — ${redeLabel} (${anos[0]}–${anoSel})</div>
+        <div style="height:200px"><canvas id="chart-serie"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d3">
+        <div class="chart-title" id="title-etapa">Matrículas por Etapa — ${anoSel}</div>
+        <div style="height:200px"><canvas id="chart-etapa"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d4">
+        <div class="chart-title" id="title-faixa">Matrículas por Faixa Etária — ${anoSel}</div>
+        <div style="height:200px"><canvas id="chart-faixa"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title" id="title-integral">Educação Integral — Evolução</div>
+        <div id="integral-delta" style="font-size:11px;color:#00AB4E;font-weight:600;margin:2px 0"></div>
+        <div style="height:200px"><canvas id="chart-integral"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title" id="title-noturno">Matrículas Noturnas — Evolução</div>
+        <div style="height:200px"><canvas id="chart-noturno"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Recortes Sociais ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/social.png" alt=""></span>
+      <span class="section-divider-text">Recortes Sociais</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
+      <div class="chart-card d5">
+        <div class="chart-title" id="title-raca">Evolução por Raça/Cor — ${redeLabel}</div>
+        <div id="raca-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px 0;font-size:10px"></div>
+        <div style="height:210px"><canvas id="chart-raca"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d6">
+        <div class="chart-title" id="title-sexo">Distribuição por Sexo</div>
+        <div style="height:220px"><canvas id="chart-sexo"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d7">
+        <div class="chart-title" id="title-locdif">Localização Diferenciada — Matrículas</div>
+        <div style="height:220px"><canvas id="chart-locdif-bar"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Educação Especial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/acessibilidade.png" alt=""></span>
+      <span class="section-divider-text">Educação Especial</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid g3">
+      <div class="chart-card d8">
+        <div class="chart-title" id="title-esp-evo">Alunos da Ed. Especial — Evolução</div>
+        <div style="height:200px"><canvas id="chart-esp-evo"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d9">
+        <div class="chart-title" id="title-esp-tipo">Classes Comuns vs Exclusivas — ${anoSel}</div>
+        <div style="height:200px"><canvas id="chart-esp-tipo"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d10">
+        <div class="chart-title" id="title-esp-etapa">Ed. Especial (Classes Comuns) por Etapa — ${anoSel}</div>
+        <div style="height:200px"><canvas id="chart-esp-etapa"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
     </div>
@@ -1150,6 +1151,7 @@ function buildMap(d, ano, metric) {
     return div;
   };
   legend.addTo(S.map);
+  S.mapLegend = legend;  // store so buildCreLayer can remove it
 
   // Attribution
   L.control.attribution({ prefix: 'Leaflet | IBGE 2025' }).addTo(S.map);
@@ -2648,6 +2650,8 @@ function buildLocDif() {
 function buildCreLayer(anoSel, metric) {
   if (!S.creGeo || !S.map) return;
   if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+  // Remove old legend and rebuild for CRE scale
+  if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
 
   const munToCre = S.creLookup?.mun_to_cre || {};
   const d = S.data;
@@ -2665,14 +2669,16 @@ function buildCreLayer(anoSel, metric) {
 
   const values = Object.values(creData).map(v => v.total).filter(v => v > 0);
   const maxVal = values.length ? Math.max(...values) : 1;
+  const CRE_SCALE = ['#C7E9C0', '#74C476', '#41AB5D', '#238B45', '#005A32'];
+  const breaks = [0, 0.2, 0.4, 0.6, 0.8].map(t => Math.round(t * maxVal));
 
   function getColor(v) {
     const t = v / maxVal;
-    if (t > 0.8) return '#005A32';
-    if (t > 0.6) return '#238B45';
-    if (t > 0.4) return '#41AB5D';
-    if (t > 0.2) return '#74C476';
-    return '#C7E9C0';
+    if (t > 0.8) return CRE_SCALE[4];
+    if (t > 0.6) return CRE_SCALE[3];
+    if (t > 0.4) return CRE_SCALE[2];
+    if (t > 0.2) return CRE_SCALE[1];
+    return CRE_SCALE[0];
   }
 
   S.mapLayer = L.geoJSON(S.creGeo, {
@@ -2696,6 +2702,22 @@ function buildCreLayer(anoSel, metric) {
       });
     }
   }).addTo(S.map);
+
+  // Build CRE legend with correct scale
+  const METRIC_LABELS = { mat_total: 'Matrículas', escolas: 'Escolas', mat_fundamental: 'Fundamental', mat_medio: 'Médio', mat_infantil: 'Infantil', mat_eja: 'EJA' };
+  const creLegend = L.control({ position: 'bottomleft' });
+  creLegend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `<h4>${METRIC_LABELS[metric] || metric} (CREs)</h4>`;
+    for (let i = CRE_SCALE.length - 1; i >= 0; i--) {
+      const lo = formatNum(breaks[i]);
+      const hi = i < CRE_SCALE.length - 1 ? formatNum(breaks[i + 1] - 1) : '+';
+      div.innerHTML += `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${CRE_SCALE[i]}"></div><span>${lo}${hi !== '+' ? ' – ' + hi : '+'}</span></div>`;
+    }
+    return div;
+  };
+  creLegend.addTo(S.map);
+  S.mapLegend = creLegend;
 }
 
 function bindMapMetric(d, anos) {
