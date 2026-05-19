@@ -1970,6 +1970,9 @@ function renderSaeb() {
 
 function renderHome() {
   const main = document.getElementById('main-content');
+  // Hide topbar on home
+  const topbar = document.getElementById('topbar');
+  if (topbar) topbar.style.display = 'none';
   destroyCharts();
   destroyMap();
   document.body.classList.add('sidebar-hidden');
@@ -2305,6 +2308,10 @@ function initNav() {
       const view = tab.dataset.view;
 
       if (view === 'home') { renderHome(); return; }
+
+      // Show topbar on data sections
+      const topbar = document.getElementById('topbar');
+      if (topbar) topbar.style.display = 'flex';
 
       document.body.classList.remove('sidebar-hidden');
 

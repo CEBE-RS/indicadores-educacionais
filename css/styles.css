@@ -249,6 +249,7 @@ body.sidebar-hidden .sidebar {
 
 /* ── Top Filter Bar ── */
 .topbar {
+  display: none; /* shown only on data sections via JS */
   position: sticky;
   top: 0;
   z-index: 100;
