@@ -232,8 +232,10 @@ function renderAcesso() {
   destroyMap();
 
   main.innerHTML = `
-    ${sectionBanner('img/icons/nav_acesso.png', 'Acesso e Matrículas', redeLabel)}
-    <div class="kpi-strip" id="kpi-strip"></div>
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/nav_acesso.png', 'Acesso e Matrículas', redeLabel)}
+      <div class="kpi-strip" id="kpi-strip"></div>
+    </div>
 
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
@@ -2092,9 +2094,6 @@ function renderSaeb() {
 
 function renderHome() {
   const main = document.getElementById('main-content');
-  // Hide topbar on home
-  const topbar = document.getElementById('topbar');
-  if (topbar) topbar.style.display = 'none';
   destroyCharts();
   destroyMap();
   document.body.classList.add('sidebar-hidden');
@@ -2430,10 +2429,6 @@ function initNav() {
       const view = tab.dataset.view;
 
       if (view === 'home') { renderHome(); return; }
-
-      // Show topbar on data sections
-      const topbar = document.getElementById('topbar');
-      if (topbar) topbar.style.display = 'flex';
 
       document.body.classList.remove('sidebar-hidden');
 

@@ -22,11 +22,39 @@
   <!-- ══ SIDEBAR ══ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <img src="img/logo_rs.avif" alt="Governo do RS" class="sidebar-logo" onerror="this.style.display='none'">
-      <div class="sidebar-title">
-        <span class="sidebar-title-main">Indicadores Educacionais</span>
-        <span class="sidebar-title-sub">SEDUC-RS / UNESCO</span>
+
+      <!-- Title row -->
+      <div class="sidebar-header-top">
+        <button class="hamburger" id="hamburger" aria-label="Menu" style="display:none">
+          <span></span><span></span><span></span>
+        </button>
+        <img src="img/logo_rs.avif" alt="Governo do RS" class="sidebar-logo" onerror="this.style.display='none'">
+        <div class="sidebar-title">
+          <span class="sidebar-title-main">Indicadores Educacionais</span>
+          <span class="sidebar-title-sub">SEDUC-RS / UNESCO</span>
+        </div>
       </div>
+
+      <!-- Filters -->
+      <div class="sidebar-filters-inline" id="sidebar-filters-panel">
+        <div class="sidebar-filter-row">
+          <span class="sidebar-filter-label">Ano</span>
+          <select id="sel-ano" class="sidebar-filter-select"></select>
+        </div>
+        <div class="sidebar-filter-row">
+          <span class="sidebar-filter-label">CRE</span>
+          <select id="sel-cre" class="sidebar-filter-select">
+            <option value="">Todas as CREs</option>
+          </select>
+        </div>
+        <div class="sidebar-filter-row">
+          <span class="sidebar-filter-label">Município</span>
+          <select id="sel-mun" class="sidebar-filter-select">
+            <option value="">Todos os municípios</option>
+          </select>
+        </div>
+      </div>
+
     </div>
 
     <div class="sidebar-section">
@@ -51,33 +79,7 @@
   <!-- ══ MAIN ══ -->
   <main class="main" id="main-wrapper">
 
-    <!-- ── Top Filter Bar ── -->
-    <div class="topbar" id="topbar">
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-
-      <span class="topbar-label">Ano</span>
-      <select id="sel-ano" class="topbar-select"></select>
-
-      <div class="topbar-divider"></div>
-
-      <span class="topbar-label">CRE</span>
-      <select id="sel-cre" class="topbar-select">
-        <option value="">Todas as CREs</option>
-      </select>
-
-      <div class="topbar-divider"></div>
-
-      <span class="topbar-label">Município</span>
-      <select id="sel-mun" class="topbar-select">
-        <option value="">Todos os municípios</option>
-      </select>
-
-      <div id="topbar-filter-badge"></div>
-    </div>
-
-    <!-- ── Scrollable Content ── -->
+    <!-- Scrollable Content -->
     <div class="main-scroll" id="main-content">
       <div class="loading" id="loading">
         <div class="spinner"></div>
