@@ -4,7 +4,7 @@
     "indicadores": "Taxas de Rendimento + Distorcao Idade-Serie",
     "uf": "RS",
     "rede": "Estadual",
-    "gerado_em": "2026-05-17T18:04:45.243039"
+    "gerado_em": "2026-05-24T07:54:39.172851"
   },
   "serie_temporal": {
     "2019": {
@@ -41855,10 +41855,10 @@
     }
   },
   "tdi_estadual": {
-    "tdi_fund": 9.0,
-    "tdi_fund_ai": 3.8,
-    "tdi_fund_af": 12.9,
-    "tdi_med": 15.2
+    "tdi_fund": 12.8,
+    "tdi_fund_ai": 7.4,
+    "tdi_fund_af": 18.0,
+    "tdi_med": 20.2
   },
   "tdi_por_municipio": {
     "4300034": {
@@ -45343,5 +45343,13 @@
     "4323770": "Westfália",
     "4323804": "Xangri-lá"
   },
-  "tdi_ano": "2025"
+  "tdi_ano": "2025",
+  "tdi_serie_temporal": {
+    "2025": {
+      "tdi_fund": 12.8,
+      "tdi_fund_ai": 7.4,
+      "tdi_fund_af": 18.0,
+      "tdi_med": 20.2
+    }
+  }
 }

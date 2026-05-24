@@ -343,6 +343,8 @@ body.sidebar-hidden .sidebar {
   z-index: 500;
   /* Force a new stacking context */
   isolation: isolate;
+  /* Allow dropdowns to overflow out of this container */
+  overflow: visible;
   /* Solid opaque background — no bleed-through */
   background: var(--bg);
   /* Top padding absorbs the removed padding-top from .main-scroll */
@@ -392,6 +394,8 @@ body.sidebar-hidden .sidebar {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  position: relative;
+  z-index: 10;
 }
 
 .banner-filter-label {
@@ -426,6 +430,59 @@ body.sidebar-hidden .sidebar {
   background: #003D22;
   color: #fff;
 }
+
+/* ── Searchable Municipality Dropdown ── */
+.searchable-select {
+  position: relative;
+}
+.mun-search-input {
+  width: 160px !important;
+  max-width: 200px !important;
+}
+.mun-search-input::placeholder {
+  color: rgba(255,255,255,.45);
+  font-weight: 400;
+}
+.mun-dropdown-list {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 220px;
+  max-height: 350px;
+  overflow-y: auto;
+  background: #003D22;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 0 0 6px 6px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.mun-dd-item {
+  padding: 6px 10px;
+  font-size: 11px;
+  color: rgba(255,255,255,.85);
+  cursor: pointer;
+  transition: background .1s;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.mun-dd-item:hover {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+.mun-dd-item.active {
+  background: var(--pri-light);
+  color: #fff;
+  font-weight: 600;
+}
+.mun-dd-info {
+  padding: 5px 10px;
+  font-size: 10px;
+  color: rgba(255,255,255,.4);
+  font-style: italic;
+}
+.mun-dropdown-list::-webkit-scrollbar { width: 5px; }
+.mun-dropdown-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 3px; }
 
 /* ── KPI Strip ── */
 .kpi-strip {
@@ -593,12 +650,13 @@ body.sidebar-hidden .sidebar {
 .section-banner {
   position: relative;
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 6px;
   padding: 14px 20px;
   background: linear-gradient(135deg, #003D22 0%, #005A32 60%, #007A45 100%);
   animation: fadeUp .4s ease forwards;
   opacity: 0;
+  z-index: 10;
 }
 
 /* Compact when inside sticky container */
@@ -606,6 +664,7 @@ body.sidebar-hidden .sidebar {
   padding: 10px 18px;
   margin-bottom: 4px;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  z-index: 10; /* Above kpi-strip so dropdowns overlay KPI cards */
 }
 .section-sticky .kpi-strip {
   margin-bottom: 4px;
@@ -657,23 +716,32 @@ body.sidebar-hidden .sidebar {
   margin-left: 8px;
 }
 
-/* ── Municipality filter badge ── */
-.mun-filter-badge {
+/* ── Filter chips (active filter badges inline in banner) ── */
+.filter-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 5px;
+  padding: 3px 10px;
   background: var(--accent);
   color: var(--text);
   font-size: 11px;
   font-weight: 700;
   border-radius: 14px;
   cursor: pointer;
-  margin-left: auto;
+  transition: background .15s, transform .1s;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
 }
-
-.mun-filter-badge:hover { background: #FFD54F; }
-.mun-filter-badge .close { font-size: 14px; line-height: 1; }
+.filter-chip:hover {
+  background: #FFD54F;
+  transform: scale(1.03);
+}
+.filter-chip .close {
+  font-size: 13px;
+  line-height: 1;
+  opacity: .7;
+}
+.filter-chip:hover .close { opacity: 1; }
 
 /* ── Clickable table rows ── */
 #mun-tbody tr { cursor: pointer; transition: background .15s; }
@@ -748,6 +816,57 @@ body.sidebar-hidden .sidebar {
   margin-top: 2px;
 }
 
+/* Badge for charts with state-level-only data (not filterable by municipality) */
+.badge-estadual {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #795548;
+  background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
+  border: 1px solid rgba(255,203,4,.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin: 0 0 4px;
+  display: inline-block;
+  letter-spacing: .2px;
+}
+
+/* ── Active Filters Strip ── */
+.active-filters-strip {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  border-bottom: 2px solid var(--pri);
+  flex-wrap: wrap;
+  animation: slideDown .25s ease;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.afs-label {
+  font-size: 11px; font-weight: 700; color: var(--pri-dark);
+}
+.afs-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500;
+  color: #fff; background: var(--pri);
+  border-radius: 20px; padding: 3px 10px;
+  animation: fadeIn .2s ease;
+}
+.afs-chip strong { font-weight: 700; }
+.afs-clear {
+  background: none; border: none; color: rgba(255,255,255,.8); cursor: pointer;
+  font-size: 14px; font-weight: 700; line-height: 1; padding: 0 2px;
+  transition: color .15s;
+}
+.afs-clear:hover { color: #fff; }
+.afs-clear-all {
+  font-size: 10px; font-weight: 600; color: var(--pri-dark);
+  background: rgba(255,255,255,.7); border: 1px solid var(--pri);
+  border-radius: 12px; padding: 2px 10px; cursor: pointer;
+  transition: all .15s;
+}
+.afs-clear-all:hover { background: #fff; }
+
 .export-btn {
   position: absolute;
   top: 6px;
@@ -770,6 +889,58 @@ body.sidebar-hidden .sidebar {
 
 .chart-card:hover .export-btn { opacity: 1; }
 .export-btn:hover { background: var(--bg); color: var(--pri); }
+
+/* ── Filter awareness badges ── */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-light);
+  background: rgba(0,90,50,.06);
+  border: 1px solid rgba(0,90,50,.1);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.filter-badge.active {
+  color: var(--pri);
+  background: rgba(0,90,50,.1);
+  border-color: rgba(0,90,50,.2);
+}
+.filter-badge.warn {
+  color: #B57D00;
+  background: rgba(255,193,7,.1);
+  border-color: rgba(255,193,7,.2);
+}
+/* "Não filtrado" overlay — when a filter is active but doesn't affect this chart */
+.chart-card.not-filtered {
+  opacity: .75;
+  transition: opacity .3s;
+}
+.chart-card.not-filtered:hover {
+  opacity: 1;
+}
+.not-filtered-badge {
+  position: absolute;
+  top: 6px;
+  right: 30px;
+  font-size: 8px;
+  font-weight: 600;
+  color: #B57D00;
+  background: rgba(255,193,7,.1);
+  border: 1px solid rgba(255,193,7,.2);
+  border-radius: 3px;
+  padding: 2px 6px;
+  z-index: 2;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
 
 /* ── Section Title ── */
 .section-title {
@@ -1120,14 +1291,14 @@ body.sidebar-hidden .sidebar {
 .home-content {
   position: relative;
   z-index: 1;
-  padding: 48px 40px 60px;
+  padding: 36px 40px 40px;
   max-width: 1100px;
   margin: 0 auto;
 }
 
 .home-hero {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 28px;
   animation: fadeSlideUp .7s ease both;
 }
 
