@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "Microdados SAEB/INEP",
     "recorte": "Rede Privada RS",
-    "gerado_em": "2026-05-26T15:00:04.837297"
+    "gerado_em": "2026-05-26T15:18:28.192336"
   },
   "serie_temporal": {
     "2013": {
@@ -29,5 +29,7 @@
     "2023": {
       "n_escolas_total": 0
     }
-  }
+  },
+  "por_municipio": {},
+  "lookup_municipios": {}
 }

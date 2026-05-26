@@ -2907,7 +2907,153 @@ function renderSaeb() {
       }
     }));
   }
+
+  // ── SAEB Map + Municipality Table (if per-municipality data available) ──
+  const saebBuildMunSection = () => {
+    const porMun = saeb.por_municipio || {};
+    const anosComMun = Object.keys(porMun).sort();
+    if (anosComMun.length === 0) return;
+
+    const anoMapa = anosComMun[anosComMun.length - 1]; // most recent with mun data
+    const munData = porMun[anoMapa] || {};
+    const lookup = saeb.lookup_municipios || {};
+
+    // Insert map + table HTML after existing charts
+    const mapSection = document.createElement('div');
+    mapSection.innerHTML = `
+      <div class="section-divider">
+        <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+        <span class="section-divider-text">Mapa SAEB por Município — 9º Ano EF LP (${anoMapa})</span>
+        <span class="section-divider-line"></span>
+      </div>
+      <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="chart-card" style="min-height:370px">
+          <div id="saeb-map-leaflet" style="height:360px;border-radius:8px"></div>
+        </div>
+        <div class="chart-card" style="max-height:400px;overflow:auto">
+          <div class="chart-title">Ranking Municipal — SAEB ${anoMapa}</div>
+          <div style="margin-bottom:6px">
+            <input type="text" id="saeb-mun-search" placeholder="Buscar município..." style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:Inter">
+          </div>
+          <table class="data-table" id="saeb-mun-table">
+            <thead><tr>
+              <th>#</th><th>Município</th><th>LP 5EF</th><th>MT 5EF</th><th>LP 9EF</th><th>MT 9EF</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text-sec);padding:4px 8px;font-style:italic">
+        ℹ️ Dados municipais disponíveis apenas para anos com TS_MUNICÍPIO publicado pelo INEP (${anosComMun.join(', ')}).
+        2023 usa código de município fictício nos microdados.
+      </div>`;
+    document.getElementById('main-content').appendChild(mapSection);
+
+    // Build table
+    const tbody = document.querySelector('#saeb-mun-table tbody');
+    let entries = Object.entries(munData);
+    if (S.creSel && S.creLookup?.mun_to_cre) {
+      entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
+    }
+    if (S.munSel) {
+      entries = entries.filter(([cod]) => cod === S.munSel);
+    }
+    entries.sort((a, b) => (b[1]?.['9EF']?.media_lp || 0) - (a[1]?.['9EF']?.media_lp || 0));
+    tbody.innerHTML = entries.map(([cod, md], i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${lookup[cod] || cod}</td>
+        <td><strong>${md['5EF']?.media_lp?.toFixed(1) ?? '—'}</strong></td>
+        <td>${md['5EF']?.media_mt?.toFixed(1) ?? '—'}</td>
+        <td><strong>${md['9EF']?.media_lp?.toFixed(1) ?? '—'}</strong></td>
+        <td>${md['9EF']?.media_mt?.toFixed(1) ?? '—'}</td>
+      </tr>`).join('');
+
+    document.getElementById('saeb-mun-search')?.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tr.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+
+    // Build map
+    if (!S.geo) return;
+    const SAEB_MAP_BREAKS = [
+      { min: 0,   max: 200, color: '#C62828', label: '< 200 (Muito Crítico)' },
+      { min: 200, max: 220, color: '#E65100', label: '200–220 (Crítico)' },
+      { min: 220, max: 240, color: '#F9A825', label: '220–240 (Atenção)' },
+      { min: 240, max: 260, color: '#66BB6A', label: '240–260 (Adequado)' },
+      { min: 260, max: 999, color: '#2E7D32', label: '> 260 (Avançado)' },
+    ];
+    function getSaebColor(v) {
+      for (const b of SAEB_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+      return '#f0f0f0';
+    }
+
+    destroyMap();
+    S.map = L.map('saeb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+      const nome = props.nome || props.cod_mun;
+      if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados SAEB</div>`; return; }
+      this._div.innerHTML = `
+        <h4>${nome}</h4>
+        ${md['5EF'] ? `<div class="info-row"><span class="info-label">5EF LP</span><span class="info-value">${md['5EF'].media_lp?.toFixed(1)}</span></div>
+        <div class="info-row"><span class="info-label">5EF MT</span><span class="info-value">${md['5EF'].media_mt?.toFixed(1)}</span></div>` : ''}
+        ${md['9EF'] ? `<div class="info-row"><span class="info-label">9EF LP</span><span class="info-value">${md['9EF'].media_lp?.toFixed(1)}</span></div>
+        <div class="info-row"><span class="info-label">9EF MT</span><span class="info-value">${md['9EF'].media_mt?.toFixed(1)}</span></div>` : ''}
+        ${md['EM'] ? `<div class="info-row"><span class="info-label">EM LP</span><span class="info-value">${md['EM'].media_lp?.toFixed(1)}</span></div>
+        <div class="info-row"><span class="info-label">EM MT</span><span class="info-value">${md['EM'].media_mt?.toFixed(1)}</span></div>` : ''}`;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        const v = md?.['9EF']?.media_lp || 0;
+        return { fillColor: v > 0 ? getSaebColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        layer.on({
+          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+        });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>SAEB 9º EF LP</h4>' +
+        SAEB_MAP_BREAKS.slice().reverse().map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      return div;
+    };
+    legend.addTo(S.map);
+  };
+
+  saebBuildMunSection();
   injectExportButtons();
+
+  // Re-populate topbar filters
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && S.creSel) selCre.value = S.creSel;
+  const selMun = document.getElementById('sel-mun');
+  if (selMun && S.munSel) selMun.value = S.munSel;
+  bindTopbarFilters();
+  bindRedeToggle();
 }
 
 // ══════════════════════════════════════════════════════════
