@@ -2662,6 +2662,21 @@ function renderSaeb() {
   destroyCharts();
   destroyMap();
 
+  // Guard: no SAEB data for this rede
+  if (!saeb || !Object.keys(saeb.serie_temporal || {}).length) {
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados SAEB não disponíveis para a Rede ${getRedeLabel()}</p>
+        <p style="font-size:0.85rem;margin-top:8px;">Escolas ${getRedeLabel().toLowerCase()} não participaram do SAEB nos anos disponíveis.</p>
+      </div>`;
+    bindRedeToggle();
+    return;
+  }
+
   const anos = Object.keys(saeb.serie_temporal).sort();
   const ultimo = anos[anos.length - 1];
   const primeiro = anos[0];
@@ -2678,11 +2693,12 @@ function renderSaeb() {
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', 'Rede Estadual do RS', {redeToggle: false})}
+      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', getRedeLabel() + ' do RS')}
+      ${redeToggleHTML()}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
     <div style="font-size:10px;color:var(--text-sec);padding:2px 8px 8px;font-weight:500;font-style:italic">
-      ℹ️ Dados SAEB disponíveis apenas para escolas públicas — microdados não distinguem rede estadual/municipal.
+      ℹ️ SAEB: "Estadual" = todas escolas públicas (est+mun+fed). Dados de escolas privadas disponíveis apenas 2013–2017.
     </div>
 
     <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
@@ -4086,11 +4102,11 @@ function initNav() {
       document.body.classList.remove('sidebar-hidden');
 
       if (view === 'acesso' && S.data) { renderAcesso(); }
-      else if (view === 'fluxo' && S.fluxo) { renderFluxo(); }
+      else if (view === 'fluxo') { renderFluxo(); }
       else if (view === 'infra' && S.infra) { renderInfra(); }
       else if (view === 'docencia' && S.doc) { renderDocencia(); }
-      else if (view === 'desempenho' && S.saeb) { renderSaeb(); }
-      else if (view === 'inse' && S.inse) { renderInse(); }
+      else if (view === 'desempenho') { renderSaeb(); }
+      else if (view === 'inse') { renderInse(); }
       else {
         const main = document.getElementById('main-content');
         destroyCharts(); destroyMap();
