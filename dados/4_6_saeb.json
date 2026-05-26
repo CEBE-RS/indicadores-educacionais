@@ -1,31 +1,10 @@
 {
   "metadata": {
     "fonte": "Microdados SAEB/INEP",
-    "recorte": "Rede Estadual RS (TP_DEPENDENCIA=2)",
-    "gerado_em": "2026-05-17T12:39:10.448904"
+    "recorte": "Rede Estadual RS",
+    "gerado_em": "2026-05-26T06:33:46.817191"
   },
   "serie_temporal": {
-    "2023": {
-      "n_escolas_total": 4095,
-      "5EF": {
-        "media_lp": 215.7,
-        "media_mt": 226.1,
-        "n_escolas": 2816,
-        "label": "5º Ano EF"
-      },
-      "9EF": {
-        "media_lp": 263.4,
-        "media_mt": 260.8,
-        "n_escolas": 2101,
-        "label": "9º Ano EF"
-      },
-      "EM": {
-        "media_lp": 286.7,
-        "media_mt": 282.5,
-        "n_escolas": 539,
-        "label": "Ens. Médio"
-      }
-    },
     "2013": {
       "n_escolas_total": 3108,
       "5EF": {
@@ -116,6 +95,27 @@
         "media_lp": 287.9,
         "media_mt": 289.8,
         "n_escolas": 144,
+        "label": "Ens. Médio"
+      }
+    },
+    "2023": {
+      "n_escolas_total": 4095,
+      "5EF": {
+        "media_lp": 215.7,
+        "media_mt": 226.1,
+        "n_escolas": 2816,
+        "label": "5º Ano EF"
+      },
+      "9EF": {
+        "media_lp": 263.4,
+        "media_mt": 260.8,
+        "n_escolas": 2101,
+        "label": "9º Ano EF"
+      },
+      "EM": {
+        "media_lp": 286.7,
+        "media_mt": 282.5,
+        "n_escolas": 539,
         "label": "Ens. Médio"
       }
     }

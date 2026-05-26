@@ -39,6 +39,10 @@ const S = {
 
   creSel: null,      // selected CRE code e.g. '06'
   etapaSel: null,     // selected etapa filter: 'mat_infantil', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja', or null (all)
+
+  // Multi-rede support
+  redeSel: 'estadual',   // current network: estadual, municipal, federal, filantropica, privada, todas
+  redeCache: {},         // { estadual: { acesso: data, infra: data }, ... }
 };
 
 const FONTE_CENSO = 'Fonte: INEP — Censo Escolar da Educação Básica';
@@ -63,6 +67,16 @@ const DL_LINE = { display: true, anchor: 'end', align: 'top', offset: 3, font: {
 
 const DL_DONUT = { display: true, font: { family: 'Inter', size: 10, weight: '700' }, color: '#fff', formatter: (v, ctx) => { const t = ctx.dataset.data.reduce((a,b) => a+b, 0); const p = (v/t*100); return p >= 5 ? p.toFixed(0) + '%' : ''; } };
 const DL_NONE = { display: false };
+
+// Network labels
+const REDE_LABELS = {
+  estadual: 'Rede Estadual',
+  municipal: 'Rede Municipal',
+  federal: 'Rede Federal',
+  filantropica: 'Rede Filantrópica',
+  privada: 'Rede Privada',
+  todas: 'Todas as Redes',
+};
 
 // Bold presets for rate/score sections (Fluxo, SAEB) — bigger labels for better readability
 const DL_LINE_BOLD = { display: true, anchor: 'end', align: 'top', offset: 4, font: { family: 'Inter', size: 11, weight: '700' }, color: '#333', formatter: v => v != null ? v.toFixed(1) + '%' : '', clamp: true };
@@ -191,14 +205,17 @@ function injectExportButtons() {
 // RENDER — ACESSO E MATRÍCULAS
 // ══════════════════════════════════════════════════════════
 
-/** Reusable section banner */
-function sectionBanner(icon, title, subtitle) {
+/** Reusable section banner — with rede toggle for Acesso and Infra */
+function sectionBanner(icon, title, subtitle, opts = {}) {
+  // Store flag for external use
+  sectionBanner._lastShowToggle = opts.redeToggle !== false;
+
   return `<div class="section-banner">
     <div class="section-banner-bg"></div>
     <div class="section-banner-content">
       <div class="section-banner-left">
         <div class="section-banner-icon"><img src="${icon}" alt=""></div>
-        <h2>${title}${subtitle ? `<span>${subtitle}</span>` : ''}</h2>
+        <h2>${title}<span id="rede-subtitle">${subtitle || ''}</span></h2>
         <span id="mun-filter-slot" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:12px"></span>
       </div>
       <div class="section-banner-right">
@@ -229,13 +246,111 @@ function sectionBanner(icon, title, subtitle) {
   </div>`;
 }
 
+/** Returns the rede toggle strip HTML (call after sectionBanner) */
+function redeToggleHTML() {
+  if (!sectionBanner._lastShowToggle) return '';
+  return `<div class="rede-toggle-strip" id="rede-toggle">
+    ${Object.entries(REDE_LABELS).map(([k, label]) =>
+      `<button class="rede-toggle-btn${k === S.redeSel ? ' active' : ''}" data-rede="${k}">${label.replace('Rede ','')}</button>`
+    ).join('')}
+  </div>`;
+}
+
 function getRedeData(d, ano) {
-  // Data is pre-filtered for Rede Estadual via ETL
+  // Data is filtered per rede via ETL — just read serie_temporal
   return d.serie_temporal[ano] || {};
 }
 
 function getRedeLabel() {
-  return 'Rede Estadual';
+  return REDE_LABELS[S.redeSel] || 'Rede Estadual';
+}
+
+/** Lazy-load JSON data for a given rede. Returns cached if already loaded. */
+async function loadRedeData(rede) {
+  if (S.redeCache[rede]?.acesso && S.redeCache[rede]?.infra) {
+    return S.redeCache[rede];
+  }
+  // Fetch all data sources in parallel; 404s handled gracefully
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse'];
+  const urls = [
+    `dados/4_1_acesso_${rede}.json`,
+    `dados/4_5_infra_${rede}.json`,
+    `dados/4_3_fluxo_${rede}.json`,
+    `dados/4_6_saeb_${rede}.json`,
+    `dados/4_7_inse_${rede}.json`,
+  ];
+  const responses = await Promise.all(urls.map(u => fetch(u).catch(() => null)));
+  const result = {};
+  for (let i = 0; i < keys.length; i++) {
+    const r = responses[i];
+    result[keys[i]] = (r && r.ok) ? await r.json() : null;
+  }
+  S.redeCache[rede] = result;
+  return result;
+}
+
+/** Show/hide loading overlay */
+function showRedeLoading(rede) {
+  let el = document.getElementById('rede-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'rede-loading';
+    el.className = 'rede-loading-overlay';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<div class="rede-loading-box"><div class="spinner"></div><p>Carregando ${REDE_LABELS[rede] || rede}...</p></div>`;
+  el.style.display = 'flex';
+}
+function hideRedeLoading() {
+  const el = document.getElementById('rede-loading');
+  if (el) el.style.display = 'none';
+}
+
+/** Switch to a new network — loads data if needed, swaps pointers, refreshes view */
+async function switchRede(rede) {
+  if (rede === S.redeSel && S.redeCache[rede]?.acesso) return;
+  showRedeLoading(rede);
+  try {
+    const cached = await loadRedeData(rede);
+    S.redeSel = rede;
+    if (cached.acesso) {
+      S.data = cached.acesso;
+      // Re-populate year dropdown for this rede
+      const anos = Object.keys(S.data.serie_temporal).sort();
+      const selAno = document.getElementById('sel-ano');
+      if (selAno) {
+        selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anos[anos.length - 1] ? 'selected' : ''}>${a}</option>`).join('');
+        S.anoSel = anos[anos.length - 1];
+      }
+      // Re-populate municipality dropdown
+      populateMunDropdown(S.creSel);
+    }
+    if (cached.infra) S.infra = cached.infra;
+    if (cached.fluxo) S.fluxo = cached.fluxo;
+    if (cached.saeb) S.saeb = cached.saeb;
+    if (cached.inse) S.inse = cached.inse;
+    // Update rede toggle active state
+    document.querySelectorAll('.rede-toggle-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.rede === rede);
+    });
+    // Update subtitle
+    const sub = document.getElementById('rede-subtitle');
+    if (sub) sub.textContent = getRedeLabel() + ' do RS';
+    refreshActiveTab();
+  } finally {
+    hideRedeLoading();
+  }
+}
+
+/** Bind rede toggle buttons (called after each section render) */
+function bindRedeToggle() {
+  const toggle = document.getElementById('rede-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', e => {
+    const btn = e.target.closest('.rede-toggle-btn');
+    if (!btn || btn.dataset.rede === S.redeSel) return;
+    switchRede(btn.dataset.rede);
+  });
 }
 
 const ETAPA_MAP = { mat_infantil: 'Infantil', mat_fund_ai: 'Fund. AI', mat_fund_af: 'Fund. AF', mat_medio: 'Médio', mat_eja: 'EJA' };
@@ -341,6 +456,7 @@ function renderAcesso() {
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_acesso.png', 'Acesso e Matrículas', redeLabel)}
+      ${redeToggleHTML()}
       <div class="kpi-strip" id="kpi-strip"></div>
     </div>
 
@@ -515,6 +631,7 @@ function renderAcesso() {
 
   // Re-bind filter event listeners
   bindTopbarFilters();
+  bindRedeToggle();
   bindFilters(d, anos);
   updateActiveFilters();
   updateFilterAwareness();
@@ -1115,9 +1232,9 @@ function applyMunFilter(d, anoSel, lookup) {
     buildLocDif();
     // Reset chart titles
     const setTitle = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-    setTitle('title-serie', `Evolução de Matrículas — Rede Estadual (${anos[0]}–${anoSel})`);
+    setTitle('title-serie', `Evolução de Matrículas — ${getRedeLabel()} (${anos[0]}–${anoSel})`);
     setTitle('title-etapa', `Matrículas por Etapa — ${anoSel}`);
-    setTitle('title-raca', `Evolução por Raça/Cor — Rede Estadual`);
+    setTitle('title-raca', `Evolução por Raça/Cor — ${getRedeLabel()}`);
     setTitle('title-sexo', `Distribuição por Sexo`);
     setTitle('title-faixa', `Matrículas por Faixa Etária — ${anoSel}`);
     setTitle('title-noturno', `Matrículas Noturnas — Evolução`);
@@ -1461,7 +1578,8 @@ function renderInfra() {
   const su = infra.serie_temporal[anoAtual];
 
   main.innerHTML = `
-    ${sectionBanner('img/icons/nav_infra.png', 'Infraestrutura', 'Rede Estadual do RS')}
+    ${sectionBanner('img/icons/nav_infra.png', 'Infraestrutura', getRedeLabel() + ' do RS')}
+    ${redeToggleHTML()}
 
     <!-- KPIs Premium -->
     <div class="kpi-strip" id="infra-kpis"></div>
@@ -1558,6 +1676,7 @@ function renderInfra() {
   const selCre = document.getElementById('sel-cre');
   if (selCre && S.creSel) selCre.value = S.creSel;
   bindTopbarFilters();
+  bindRedeToggle();
   injectExportButtons();
 }
 
@@ -1966,7 +2085,7 @@ function renderDocencia() {
   destroyMap();
 
   main.innerHTML = `
-    ${sectionBanner('img/icons/sec_docentes.png', 'Docência', 'Rede Estadual do RS')}
+    ${sectionBanner('img/icons/sec_docentes.png', 'Docência', 'Rede Estadual do RS', {redeToggle: false})}
 
     <div class="kpi-strip" id="doc-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
 
@@ -2068,6 +2187,7 @@ function renderDocencia() {
   const selCre = document.getElementById('sel-cre');
   if (selCre && S.creSel) selCre.value = S.creSel;
   bindTopbarFilters();
+  bindRedeToggle();
   injectExportButtons();
 }
 
@@ -2417,7 +2537,7 @@ function renderDesigualdades() {
   const ultimo = anos[anos.length - 1];
 
   main.innerHTML = `
-    ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades', 'Recortes Socioeconômicos')}
+    ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades', 'Recortes Socioeconômicos', {redeToggle: false})}
     <div class="filter-bar">
       <label>Ano:</label>
       <select id="sel-desig-ano">
@@ -2558,11 +2678,11 @@ function renderSaeb() {
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', 'Rede Estadual do RS')}
+      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', 'Rede Estadual do RS', {redeToggle: false})}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
     <div style="font-size:10px;color:var(--text-sec);padding:2px 8px 8px;font-weight:500;font-style:italic">
-      ℹ️ Dados SAEB disponíveis apenas no nível estadual — filtros por CRE/Município não se aplicam a esta seção.
+      ℹ️ Dados SAEB disponíveis apenas para escolas públicas — microdados não distinguem rede estadual/municipal.
     </div>
 
     <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
@@ -2911,6 +3031,20 @@ const FLUXO_MAP_METRICS = [
 
 function renderFluxo() {
   const f = S.fluxo;
+  if (!f || !Object.keys(f.serie_temporal || {}).length) {
+    const main = document.getElementById('main-content');
+    destroyCharts(); destroyMap();
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/nav_fluxo.png', 'Fluxo e Rendimento', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados de Fluxo e Rendimento não disponíveis para a Rede ${getRedeLabel()}</p>
+      </div>`;
+    bindRedeToggle();
+    return;
+  }
   const anos = Object.keys(f.serie_temporal).sort();
   const anoSel = anos.includes(S.anoSel) ? S.anoSel : anos[anos.length - 1];
   const lookup = f.lookup_municipios || {};
@@ -2918,7 +3052,7 @@ function renderFluxo() {
   destroyCharts(); destroyMap();
 
   // Determine current data source (state / CRE / municipality)
-  let st, tdiSrc, geoLabel = 'Rede Estadual';
+  let st, tdiSrc, geoLabel = getRedeLabel();
   if (S.munSel && f.por_municipio[anoSel]?.[S.munSel]) {
     st = f.por_municipio[anoSel][S.munSel];
     tdiSrc = f.tdi_por_municipio?.[S.munSel] || f.tdi_estadual || {};
@@ -2936,6 +3070,7 @@ function renderFluxo() {
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_fluxo.png', 'Fluxo e Rendimento', geoLabel)}
+      ${redeToggleHTML()}
       <div id="fluxo-kpi-strip" class="kpi-strip" style="grid-template-columns:repeat(6,1fr)"></div>
     </div>
 
@@ -3052,6 +3187,7 @@ function renderFluxo() {
   const selCre = document.getElementById('sel-cre');
   if (selCre && S.creSel) selCre.value = S.creSel;
   bindTopbarFilters();
+  bindRedeToggle();
   updateActiveFilters();
 }
 
@@ -3437,6 +3573,19 @@ function renderInse() {
   destroyCharts();
   destroyMap();
 
+  // Guard: no INSE data for this rede
+  if (!inse || !inse.metadata?.anos_disponiveis?.length) {
+    main.innerHTML = `
+      ${sectionBanner('img/icons/nav_desigualdades.png', 'Contexto Socioeconômico', getRedeLabel() + ' do RS')}
+      ${redeToggleHTML()}
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados INSE não disponíveis para a Rede ${getRedeLabel()}</p>
+        <p style="font-size:0.85rem;margin-top:8px;">O INEP não publica dados INSE para esta categoria de rede.</p>
+      </div>`;
+    bindRedeToggle();
+    return;
+  }
+
   const anos = inse.metadata.anos_disponiveis;
   const ultimo = anos[anos.length - 1];
   const primeiro = anos[0];
@@ -3455,7 +3604,7 @@ function renderInse() {
     ? Math.abs(sp.urbana.media - sp.rural.media) : null;
 
   // Geo label
-  let geoLabel = 'Rede Estadual do RS';
+  let geoLabel = getRedeLabel() + ' do RS';
   if (S.creSel) {
     const creObj = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel);
     geoLabel = creObj ? creObj.nome_cre : `CRE ${S.creSel}`;
@@ -3468,6 +3617,7 @@ function renderInse() {
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_desigualdades.png', 'Contexto Socioeconômico', geoLabel)}
+      ${redeToggleHTML()}
       <div class="kpi-strip" id="inse-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
 
@@ -3921,6 +4071,7 @@ function renderInse() {
   const selMun = document.getElementById('sel-mun');
   if (selMun && S.munSel) selMun.value = S.munSel;
   bindTopbarFilters();
+  bindRedeToggle();
 }
 
 function initNav() {
@@ -4460,9 +4611,9 @@ async function init() {
 
   try {
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse] = await Promise.all([
-      fetch('dados/4_1_acesso_matriculas.json'),
+      fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
-      fetch('dados/4_5_infraestrutura.json'),
+      fetch('dados/4_5_infra_estadual.json'),
       fetch('dados/4_5_docentes.json'),
       fetch('dados/4_1_funil_turma_locdif.json'),
       fetch('dados/4_6_saeb.json'),
@@ -4483,6 +4634,9 @@ async function init() {
     if (respCreLookup.ok) S.creLookup = await respCreLookup.json();
     if (respInse.ok)      S.inse      = await respInse.json();
 
+    // Seed rede cache with initial estadual data
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse };
+
     // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();
     const selAno = document.getElementById('sel-ano');
@@ -4497,6 +4651,7 @@ async function init() {
 
     bindSidebarFilters();
     bindTopbarFilters();
+  bindRedeToggle();
     renderHome();
   } catch (err) {
     document.getElementById('main-content').innerHTML = `
