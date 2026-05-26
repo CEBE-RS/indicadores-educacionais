@@ -2657,10 +2657,19 @@ function buildDesigCharts(ftl, ano) {
 const FONTE_SAEB = 'Fonte: Microdados SAEB — INEP';
 
 function renderSaeb() {
-  const saeb = S.saeb;
   const main = document.getElementById('main-content');
   destroyCharts();
   destroyMap();
+  main.innerHTML = `
+    ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', 'Rede Estadual do RS', {redeToggle: false})}
+    <div style="text-align:center;padding:80px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">🔧</div>
+      <p style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Seção em Atualização</p>
+      <p style="font-size:0.9rem;color:var(--text-sec);max-width:480px;margin:0 auto;">
+        Estamos aprimorando os indicadores de desempenho IDEB/SAEB com novos filtros por rede, município e CRE. Em breve esta seção estará disponível com dados atualizados.
+      </p>
+    </div>`;
+  return;
 
   // Guard: no SAEB data for this rede
   if (!saeb || !Object.keys(saeb.serie_temporal || {}).length) {
@@ -3730,10 +3739,19 @@ const INSE_NIVEL_COLORS = {
 };
 
 function renderInse() {
-  const inse = S.inse;
   const main = document.getElementById('main-content');
   destroyCharts();
   destroyMap();
+  main.innerHTML = `
+    ${sectionBanner('img/icons/nav_desigualdades.png', 'Contexto Socioeconômico', 'Rede Estadual do RS', {redeToggle: false})}
+    <div style="text-align:center;padding:80px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">🔧</div>
+      <p style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Seção em Atualização</p>
+      <p style="font-size:0.9rem;color:var(--text-sec);max-width:480px;margin:0 auto;">
+        Estamos aprimorando os indicadores de contexto socioeconômico (INSE) com novos filtros por rede, município e CRE. Em breve esta seção estará disponível com dados atualizados.
+      </p>
+    </div>`;
+  return;
 
   // Guard: no INSE data for this rede
   if (!inse || !inse.metadata?.anos_disponiveis?.length) {
