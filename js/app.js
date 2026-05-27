@@ -26,6 +26,7 @@ const S = {
   fluxo: null,
   inse: null,
   icg: null,       // 4_8_icg.json — Complexidade de Gestão
+  afd: null,       // 4_9_afd.json — Adequação da Formação Docente
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -272,7 +273,7 @@ async function loadRedeData(rede) {
     return S.redeCache[rede];
   }
   // Fetch all data sources in parallel; 404s handled gracefully
-  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg'];
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd'];
   const urls = [
     `dados/4_1_acesso_${rede}.json`,
     `dados/4_5_infra_${rede}.json`,
@@ -280,6 +281,7 @@ async function loadRedeData(rede) {
     `dados/4_6_saeb_${rede}.json`,
     `dados/4_7_inse_${rede}.json`,
     `dados/4_8_icg_${rede}.json`,
+    `dados/4_9_afd_${rede}.json`,
   ];
   const responses = await Promise.all(urls.map(u => fetch(u).catch(() => null)));
   const result = {};
@@ -332,6 +334,7 @@ async function switchRede(rede) {
     if (cached.saeb) S.saeb = cached.saeb;
     if (cached.inse) S.inse = cached.inse;
     if (cached.icg) S.icg = cached.icg;
+    if (cached.afd) S.afd = cached.afd;
     // Update rede toggle active state
     document.querySelectorAll('.rede-toggle-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.rede === rede);
@@ -3090,9 +3093,9 @@ function renderHome() {
     { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão',
       desc: 'Indicador de complexidade da gestão escolar — porte, turnos, etapas e série histórica 2013–2025.',
       status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Adequação da Formação Docente',
+    { view: 'afd', icon: 'img/icons/sec_docentes.png', title: 'Adequação da Formação Docente',
       desc: 'Percentual de docentes com formação adequada à disciplina que lecionam, por etapa e grupo.',
-      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
+      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
   ];
 
   main.innerHTML = `
@@ -4948,6 +4951,574 @@ function renderIcg() {
   updateActiveFilters();
 }
 
+// ══════════════════════════════════════════════════════════
+// ADEQUAÇÃO DA FORMAÇÃO DOCENTE (AFD)
+// ══════════════════════════════════════════════════════════
+
+const FONTE_AFD = 'Fonte: INEP — Indicador de Adequação da Formação Docente';
+
+const AFD_GROUPS = {
+  g1: { label: 'G1 — Licenciatura na área', short: 'G1', color: '#43A047' },
+  g2: { label: 'G2 — Bacharelado na área', short: 'G2', color: '#66BB6A' },
+  g3: { label: 'G3 — Licenciatura em outra área', short: 'G3', color: '#FFCB04' },
+  g4: { label: 'G4 — Outra formação superior', short: 'G4', color: '#FB8C00' },
+  g5: { label: 'G5 — Sem curso superior', short: 'G5', color: '#E53935' },
+};
+
+const AFD_ETAPAS = [
+  { key: 'ed_inf', label: 'Ed. Infantil', short: 'Infantil' },
+  { key: 'fund_total', label: 'Fundamental (Total)', short: 'Fund.' },
+  { key: 'fund_ai', label: 'Fund. Anos Iniciais', short: 'AI' },
+  { key: 'fund_af', label: 'Fund. Anos Finais', short: 'AF' },
+  { key: 'medio', label: 'Ensino Médio', short: 'Médio' },
+  { key: 'eja_fund', label: 'EJA Fundamental', short: 'EJA F' },
+  { key: 'eja_medio', label: 'EJA Médio', short: 'EJA M' },
+];
+
+function renderAfd() {
+  const main = document.getElementById('main-content');
+  destroyCharts(); destroyMap();
+
+  const afd = S.afd;
+  if (!afd) {
+    main.innerHTML = `<div class="placeholder-view"><div style="font-size:40px;opacity:.3">📊</div><div style="font-size:15px;font-weight:600">Adequação da Formação Docente</div><div style="font-size:11px;opacity:.7">Dados em preparação</div></div>`;
+    return;
+  }
+
+  const anos = Object.keys(afd.serie_temporal).sort();
+  const ultimo = anos[anos.length - 1];
+  const primeiro = anos[0];
+  const st = afd.serie_temporal[ultimo];
+  const lookup = afd.lookup_municipios || {};
+
+  // KPI data
+  const g1Fund = st.fund_total?.g1 ?? '—';
+  const g1Med = st.medio?.g1 ?? '—';
+  const g5All = (() => {
+    const etapas = ['fund_total', 'medio', 'eja_fund', 'eja_medio'].filter(e => st[e]);
+    if (!etapas.length) return '—';
+    return (etapas.reduce((s, e) => s + (st[e].g5 || 0), 0) / etapas.length).toFixed(1);
+  })();
+
+  // displayData for charts (filtered by geo)
+  const displayData = S.munSel
+    ? (afd.por_municipio?.[ultimo]?.[S.munSel] || st)
+    : (S.creSel ? (() => {
+        const creMuns = getCreMuns(S.creSel);
+        const agg = { total_escolas: 0 };
+        const munYear = afd.por_municipio?.[ultimo] || {};
+        for (const cod of creMuns) {
+          const m = munYear[cod]; if (!m) continue;
+          agg.total_escolas += m.total_escolas || 0;
+          for (const et of AFD_ETAPAS) {
+            if (!m[et.key]) continue;
+            if (!agg[et.key]) agg[et.key] = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, _n: 0 };
+            for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] += m[et.key][`g${g}`] || 0;
+            agg[et.key]._n++;
+          }
+        }
+        for (const et of AFD_ETAPAS) {
+          if (agg[et.key] && agg[et.key]._n > 0) {
+            for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] = +(agg[et.key][`g${g}`] / agg[et.key]._n).toFixed(1);
+          }
+        }
+        return agg;
+      })() : st);
+
+  main.innerHTML = `
+    <div class="topbar" id="topbar">
+      <button class="topbar-toggle" id="topbar-toggle" aria-label="Menu">☰</button>
+      <div class="topbar-section">
+        <select id="sel-ano">${anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('')}</select>
+      </div>
+      <div class="topbar-section">
+        <select id="sel-cre"><option value="">Todas as CREs</option></select>
+        <select id="sel-mun"><option value="">Todos os municípios</option></select>
+      </div>
+      <div class="topbar-section" id="topbar-rede-section">
+        <select id="sel-rede">
+          <option value="estadual" selected>Rede Estadual</option>
+          <option value="municipal">Rede Municipal</option>
+          <option value="federal">Rede Federal</option>
+          <option value="privada">Rede Privada</option>
+          <option value="todas">Todas as Redes</option>
+        </select>
+      </div>
+      <div id="active-filters-bar" class="active-filters-bar"></div>
+    </div>
+
+    <div class="content-scroll">
+
+    <!-- ═══ Info Block ═══ -->
+    <div class="info-block" style="margin:16px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <div style="padding:20px 24px;border-right:1px solid rgba(0,90,50,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <img src="img/icons/sec_docentes.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Adequação da Formação Docente</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
+            Classifica as <strong>docências</strong> em 5 grupos conforme a formação do professor
+            em relação à disciplina que leciona. Baseado nos dados do <strong>Censo Escolar</strong> (INEP).
+          </p>
+          <div style="background:rgba(0,171,78,.08);border:1px solid rgba(0,171,78,.2);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#1B5E20;line-height:1.7">
+              <strong>Meta 15 do PNE:</strong> 100% dos docentes com formação em licenciatura
+              na área em que atuam — <strong>G1 = 100%</strong> é o cenário ideal.
+            </p>
+          </div>
+        </div>
+        <div style="padding:20px 24px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Grupos</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr;gap:6px">
+            ${Object.entries(AFD_GROUPS).map(([k, g]) => `
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:14px;height:14px;border-radius:3px;background:${g.color};flex-shrink:0"></div>
+                <span style="font-size:11px;color:#333;line-height:1.3"><strong>${g.short}</strong> — ${g.label.split('— ')[1]}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KPIs ═══ -->
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-card">
+        <div class="kpi-label">G1 — Fundamental</div>
+        <div class="kpi-value" style="color:#43A047">${typeof g1Fund === 'number' ? g1Fund.toFixed(1) + '%' : g1Fund}</div>
+        <div class="kpi-sub">Licenciatura na área (${ultimo})</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">G1 — Ensino Médio</div>
+        <div class="kpi-value" style="color:#43A047">${typeof g1Med === 'number' ? g1Med.toFixed(1) + '%' : g1Med}</div>
+        <div class="kpi-sub">Licenciatura na área (${ultimo})</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">G5 — Sem Superior</div>
+        <div class="kpi-value" style="color:#E53935">${g5All}%</div>
+        <div class="kpi-sub">Média geral (${ultimo})</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Escolas Analisadas</div>
+        <div class="kpi-value">${formatNum(st.total_escolas)}</div>
+        <div class="kpi-sub">Rede estadual — ${ultimo}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Distribuição por Grupo ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Distribuição por Grupo — ${ultimo}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${ultimo})</div>
+        <div style="height:280px"><canvas id="afd-chart-etapa"></canvas></div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Evolução Temporal ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+      <span class="section-divider-text">Evolução Temporal (${primeiro}–${ultimo})</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Evolução do % G1 (Formação Adequada) — por Etapa</div>
+        <div style="height:260px"><canvas id="afd-chart-g1-evol"></canvas></div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Evolução G5 (Sem Superior) — por Etapa</div>
+        <div style="height:260px"><canvas id="afd-chart-g5-evol"></canvas></div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Composição — Fundamental (% empilhado)</div>
+        <div style="height:220px"><canvas id="afd-chart-stack-fund"></canvas></div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Composição — Ensino Médio (% empilhado)</div>
+        <div style="height:220px"><canvas id="afd-chart-stack-med"></canvas></div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Distribuição Territorial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">Distribuição Territorial — ${ultimo}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="map-table-row d1">
+      <div class="map-container">
+        <div class="map-toolbar">
+          <h3>Mapa — % G1 Fundamental <span id="afd-map-ano">${ultimo}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="afd-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="afd-btn-layer-cre">CREs</button>
+          </div>
+        </div>
+        <div id="afd-map-leaflet" style="height:380px;border-radius:8px"></div>
+      </div>
+      <div class="table-wrapper" id="afd-table-wrapper">
+        <div class="table-header">
+          <h3>Tabela de Municípios — AFD</h3>
+          <input type="text" class="table-search" id="afd-mun-search" placeholder="Buscar...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="afd-mun-table">
+            <thead><tr>
+              <th>#</th><th>Município</th><th>Escolas</th>
+              <th>G1</th><th>G2</th><th>G3</th><th>G4</th><th>G5</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_AFD}</div>
+      </div>
+    </div>
+
+    </div><!-- /content-scroll -->
+  `;
+
+  // ── Chart 1: Stacked bar by etapa (latest year) ──
+  const etapaEl = document.getElementById('afd-chart-etapa');
+  if (etapaEl) {
+    const etapasWithData = AFD_ETAPAS.filter(e => displayData[e.key]);
+    const gKeys = ['g1','g2','g3','g4','g5'];
+    S.charts.push(new Chart(etapaEl, {
+      type: 'bar',
+      data: {
+        labels: etapasWithData.map(e => e.short),
+        datasets: gKeys.map(gk => ({
+          label: AFD_GROUPS[gk].short,
+          data: etapasWithData.map(e => displayData[e.key]?.[gk] || 0),
+          backgroundColor: AFD_GROUPS[gk].color + 'CC',
+          borderColor: AFD_GROUPS[gk].color,
+          borderWidth: 0.5,
+        }))
+      },
+      options: { ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 10 }, boxWidth: 10, padding: 6 } },
+          datalabels: { display: ctx => ctx.dataset.data[ctx.dataIndex] >= 8, color: '#fff', font: { family: 'Inter', size: 9, weight: '700' }, formatter: v => v.toFixed(0) + '%' } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } },
+          y: { stacked: true, max: 100, grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' } } }
+      }
+    }));
+  }
+
+  // ── Geo-aware time series helper ──
+  const afdGeoSeries = (anos) => {
+    if (!S.munSel && !S.creSel) return anos.map(a => afd.serie_temporal[a]);
+    return anos.map(a => {
+      const munYear = afd.por_municipio?.[a] || {};
+      if (S.munSel) return munYear[S.munSel] || null;
+      if (S.creSel) {
+        const creMuns = getCreMuns(S.creSel);
+        const agg = { total_escolas: 0 };
+        for (const cod of creMuns) {
+          const m = munYear[cod]; if (!m) continue;
+          agg.total_escolas += m.total_escolas || 0;
+          for (const et of AFD_ETAPAS) {
+            if (!m[et.key]) continue;
+            if (!agg[et.key]) agg[et.key] = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, _n: 0 };
+            for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] += m[et.key][`g${g}`] || 0;
+            agg[et.key]._n++;
+          }
+        }
+        for (const et of AFD_ETAPAS) {
+          if (agg[et.key]?._n > 0) {
+            for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] = +(agg[et.key][`g${g}`] / agg[et.key]._n).toFixed(1);
+          }
+        }
+        return agg;
+      }
+      return afd.serie_temporal[a];
+    });
+  };
+  const geoTs = afdGeoSeries(anos);
+
+  // ── Chart 2: G1 evolution by etapa (line) ──
+  const g1El = document.getElementById('afd-chart-g1-evol');
+  if (g1El) {
+    const mainEtapas = AFD_ETAPAS.filter(e => ['fund_total','fund_af','medio','eja_fund'].includes(e.key));
+    const etapaColors = { fund_total: COLORS.pri, fund_af: '#F57C00', medio: COLORS.red, eja_fund: COLORS.federal };
+    S.charts.push(new Chart(g1El, {
+      type: 'line',
+      data: {
+        labels: anos,
+        datasets: mainEtapas.map(e => ({
+          label: e.short,
+          data: geoTs.map(s => s?.[e.key]?.g1 ?? null),
+          borderColor: etapaColors[e.key] || '#999',
+          tension: .3, pointRadius: 3, borderWidth: 2,
+        }))
+      },
+      options: { ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6 } },
+          datalabels: { display: false } },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 0, max: 100, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' } } }
+      }
+    }));
+  }
+
+  // ── Chart 3: G5 evolution by etapa (line) ──
+  const g5El = document.getElementById('afd-chart-g5-evol');
+  if (g5El) {
+    const mainEtapas = AFD_ETAPAS.filter(e => ['fund_total','fund_af','medio','eja_fund'].includes(e.key));
+    const etapaColors = { fund_total: COLORS.pri, fund_af: '#F57C00', medio: COLORS.red, eja_fund: COLORS.federal };
+    S.charts.push(new Chart(g5El, {
+      type: 'line',
+      data: {
+        labels: anos,
+        datasets: mainEtapas.map(e => ({
+          label: e.short,
+          data: geoTs.map(s => s?.[e.key]?.g5 ?? null),
+          borderColor: etapaColors[e.key] || '#999',
+          borderDash: [4, 3],
+          tension: .3, pointRadius: 3, borderWidth: 2,
+        }))
+      },
+      options: { ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6 } },
+          datalabels: { display: false } },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: 30, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' } } }
+      }
+    }));
+  }
+
+  // ── Chart 4 & 5: Stacked % evolution for Fund and Medio ──
+  ['fund_total', 'medio'].forEach((etKey, idx) => {
+    const elId = idx === 0 ? 'afd-chart-stack-fund' : 'afd-chart-stack-med';
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const gKeys = ['g1','g2','g3','g4','g5'];
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: anos,
+        datasets: gKeys.map(gk => ({
+          label: AFD_GROUPS[gk].short,
+          data: geoTs.map(s => s?.[etKey]?.[gk] || 0),
+          backgroundColor: AFD_GROUPS[gk].color + 'CC',
+          borderColor: AFD_GROUPS[gk].color,
+          borderWidth: 0.5,
+        }))
+      },
+      options: { ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 9 }, boxWidth: 8, padding: 4 } },
+          datalabels: { display: false } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } },
+          y: { stacked: true, max: 100, grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' } } }
+      }
+    }));
+  });
+
+  // ── Map: AFD by municipality ──
+  const AFD_MAP_BREAKS = [
+    { min: 0,   max: 30, color: '#E53935', label: '< 30% (Crítico)' },
+    { min: 30,  max: 50, color: '#FB8C00', label: '30–50%' },
+    { min: 50,  max: 70, color: '#FFCB04', label: '50–70%' },
+    { min: 70,  max: 85, color: '#66BB6A', label: '70–85%' },
+    { min: 85,  max: 101, color: '#2E7D32', label: '> 85% (Adequado)' },
+  ];
+  function getAfdColor(v) {
+    for (const b of AFD_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+    return '#f0f0f0';
+  }
+
+  const afdBuildMap = () => {
+    if (!S.geo) return;
+    const mapEl = document.getElementById('afd-map-leaflet');
+    if (!mapEl) return;
+    const munData = afd.por_municipio[ultimo] || {};
+
+    destroyMap();
+    S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+      const nome = props.nome || props.cod_mun;
+      if (!md || !md.fund_total) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados AFD</div>`; return; }
+      this._div.innerHTML = `
+        <h4>${nome}</h4>
+        <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.total_escolas}</span></div>
+        <div class="info-row"><span class="info-label">G1 Fund.</span><span class="info-value" style="color:#43A047">${md.fund_total?.g1?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">G1 Médio</span><span class="info-value" style="color:#43A047">${md.medio?.g1?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">G5</span><span class="info-value" style="color:#E53935">${md.fund_total?.g5?.toFixed(1) ?? '—'}%</span></div>
+      `;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        const v = md?.fund_total?.g1 || 0;
+        return { fillColor: v > 0 ? getAfdColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        layer.on({
+          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
+        });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>% G1 Fund. (Adequado)</h4>' +
+        AFD_MAP_BREAKS.slice().reverse().map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
+
+  // ── CRE layer for AFD map ──
+  const afdBuildCreMap = () => {
+    if (!S.creGeo || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    const munToCre = S.creLookup?.mun_to_cre || {};
+    const munData = afd.por_municipio[ultimo] || {};
+    const creData = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creData[cre]) creData[cre] = { sumG1: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+      if (v.fund_total?.g1 != null) { creData[cre].sumG1 += v.fund_total.g1; creData[cre].count++; }
+    }
+    for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumG1 / c.count : 0;
+
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const cod = feature.properties.cod_cre;
+        const avg = creData[cod]?.avg || 0;
+        return { fillColor: avg > 0 ? getAfdColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_cre;
+        const nome = feature.properties.nome_cre || cod;
+        const d = creData[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>G1 Fund.: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
+        layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+      }
+    }).addTo(S.map);
+
+    const creLegend = L.control({ position: 'bottomleft' });
+    creLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>% G1 Fund. (CREs)</h4>' +
+        AFD_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      return div;
+    };
+    creLegend.addTo(S.map);
+    S.mapLegend = creLegend;
+  };
+
+  // ── Table: Municipality ranking ──
+  const afdBuildMunTable = () => {
+    const tbody = document.querySelector('#afd-mun-table tbody');
+    if (!tbody) return;
+    const munData = afd.por_municipio[ultimo] || {};
+    let entries = Object.entries(munData);
+    if (S.creSel && S.creLookup?.mun_to_cre) entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
+    if (S.munSel) entries = entries.filter(([cod]) => cod === S.munSel);
+    entries.sort((a, b) => (b[1].fund_total?.g1 || 0) - (a[1].fund_total?.g1 || 0));
+
+    tbody.innerHTML = entries.map(([cod, md], i) => {
+      const ft = md.fund_total || {};
+      return `
+        <tr style="cursor:pointer" data-cod="${cod}">
+          <td>${i + 1}</td>
+          <td>${lookup[cod] || cod}</td>
+          <td>${md.total_escolas}</td>
+          ${['g1','g2','g3','g4','g5'].map(gk => {
+            const v = ft[gk] ?? 0;
+            return `<td style="color:${AFD_GROUPS[gk].color};font-weight:${v >= 30 ? '700' : '400'}">${v.toFixed(0)}%</td>`;
+          }).join('')}
+        </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('tr[data-cod]').forEach(tr => {
+      tr.addEventListener('click', () => { S.munSel = S.munSel === tr.dataset.cod ? null : tr.dataset.cod; refreshActiveTab(); });
+    });
+
+    const searchEl = document.getElementById('afd-mun-search');
+    if (searchEl) searchEl.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tr.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+  };
+
+  // Build everything
+  afdBuildMap();
+  afdBuildMunTable();
+  injectExportButtons();
+
+  // Bind AFD map layer toggle
+  const afdBtnMun = document.getElementById('afd-btn-layer-mun');
+  const afdBtnCre = document.getElementById('afd-btn-layer-cre');
+  if (afdBtnMun && afdBtnCre) {
+    afdBtnMun.addEventListener('click', () => {
+      afdBtnMun.classList.add('active'); afdBtnCre.classList.remove('active');
+      afdBuildMap();
+    });
+    afdBtnCre.addEventListener('click', () => {
+      afdBtnCre.classList.add('active'); afdBtnMun.classList.remove('active');
+      afdBuildCreMap();
+    });
+  }
+
+  // Re-populate topbar filters
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && S.creSel) selCre.value = S.creSel;
+  const selMunEl = document.getElementById('sel-mun');
+  if (selMunEl && S.munSel) selMunEl.value = S.munSel;
+  bindTopbarFilters();
+  bindRedeToggle();
+  updateActiveFilters();
+}
+
 function initNav() {
   document.querySelectorAll('.sidebar-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -4966,6 +5537,7 @@ function initNav() {
       else if (view === 'desempenho') { renderSaeb(); }
       else if (view === 'inse') { renderInse(); }
       else if (view === 'icg') { renderIcg(); }
+      else if (view === 'afd') { renderAfd(); }
       else {
         const main = document.getElementById('main-content');
         destroyCharts(); destroyMap();
@@ -5485,7 +6057,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -5497,6 +6069,7 @@ async function init() {
       fetch('dados/rs_cre_lookup.json'),
       fetch('dados/4_7_inse.json'),
       fetch('dados/4_8_icg.json'),
+      fetch('dados/4_9_afd.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -5510,9 +6083,10 @@ async function init() {
     if (respCreLookup.ok) S.creLookup = await respCreLookup.json();
     if (respInse.ok)      S.inse      = await respInse.json();
     if (respIcg.ok)       S.icg       = await respIcg.json();
+    if (respAfd.ok)       S.afd       = await respAfd.json();
 
     // Seed rede cache with initial estadual data
-    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg };
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd };
 
     // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();
