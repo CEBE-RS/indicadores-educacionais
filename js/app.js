@@ -2736,8 +2736,11 @@ function renderSaeb() {
       ${redeToggleHTML()}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
-    <div style="font-size:10px;color:var(--text-sec);padding:2px 8px 8px;font-weight:500;font-style:italic">
-      ℹ️ SAEB: "Estadual" = todas escolas públicas (est+mun+fed). Dados de escolas privadas disponíveis apenas 2013–2017.
+    <div style="background:var(--card-bg);border-left:3px solid var(--pri);border-radius:0 8px 8px 0;padding:10px 14px;margin:0 8px 10px;font-size:11px;color:var(--text-sec);line-height:1.5">
+      <strong style="color:var(--text-pri)">📋 Nota Metodológica</strong><br>
+      • <strong>Até 2015</strong>, o SAEB era composto por duas avaliações: a <em>ANEB</em> (amostral, incluindo EM) e a <em>Prova Brasil/ANRESC</em> (censitária, apenas 5º e 9º ano EF de escolas públicas). O Ensino Médio era avaliado por <strong>amostra</strong>, resultando em menor número de escolas com dados individuais.<br>
+      • <strong>A partir de 2017</strong>, a <em>Portaria INEP nº 447/2017</em> tornou o SAEB <strong>censitário para o Ensino Médio</strong>, avaliando todas as escolas públicas com ≥10 alunos na 3ª série. Isso explica o salto no número de escolas EM avaliadas (de ~60-80 em 2013/15 para ~1.000 em 2017).<br>
+      • <strong>"Estadual"</strong> neste painel = todas as escolas públicas (estaduais + municipais + federais), pois os microdados SAEB usam apenas a flag IN_PUBLICA (0/1).
     </div>
 
     <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
