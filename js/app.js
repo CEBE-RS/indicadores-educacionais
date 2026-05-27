@@ -2763,18 +2763,30 @@ function renderSaeb() {
     <!-- ═══ EIXO: Comparativo ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-      <span class="section-divider-text">Comparativo ${primeiro} vs ${ultimo}</span>
+      <span class="section-divider-text">Comparativo entre Edições</span>
       <span class="section-divider-line"></span>
     </div>
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Proficiência ${primeiro} vs ${ultimo} — Língua Portuguesa</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+          <div id="saeb-comp-title-lp" class="chart-title" style="margin:0">Língua Portuguesa — Comparativo</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
+            <label>Ano base:</label>
+            <select id="sel-saeb-comp-base" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
+              ${anos.map(a => `<option value="${a}" ${a === primeiro ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+            <label>vs</label>
+            <select id="sel-saeb-comp-end" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
+              ${anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+          </div>
+        </div>
         <div style="height:200px"><canvas id="chart-saeb-comp-lp"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Proficiência ${primeiro} vs ${ultimo} — Matemática</div>
+        <div id="saeb-comp-title-mt" class="chart-title">Matemática — Comparativo</div>
         <div style="height:200px"><canvas id="chart-saeb-comp-mt"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
@@ -2866,8 +2878,11 @@ function renderSaeb() {
         plugins: {
           ...CHART_DEFAULTS.plugins,
           datalabels: {
-            display: true, anchor: 'end', align: 'top', offset: 4,
-            font: { family: 'Inter', size: 11, weight: '700' },
+            display: true,
+            anchor: ctx => ctx.datasetIndex === 1 ? 'start' : 'end',
+            align: ctx => ctx.datasetIndex === 1 ? 'bottom' : 'top',
+            offset: 3,
+            font: { family: 'Inter', size: 9.5, weight: '700' },
             color: ctx => etapaCores[ctx.datasetIndex],
             formatter: v => v?.toFixed(1) ?? '',
           },
@@ -2884,44 +2899,67 @@ function renderSaeb() {
   buildLine('chart-saeb-lp', 'media_lp');
   buildLine('chart-saeb-mt', 'media_mt');
 
-  // ── Comparison bars: first vs last ──
-  function buildCompBar(canvasId, field) {
-    const el = document.getElementById(canvasId);
-    if (!el) return;
+  // ── Comparison bars: user-selectable years ──
+  function buildSaebCompCharts(anoBase, anoComp) {
+    // Destroy only comp charts
+    S.charts = S.charts.filter(c => {
+      if (c.canvas?.id === 'chart-saeb-comp-lp' || c.canvas?.id === 'chart-saeb-comp-mt') { c.destroy(); return false; }
+      return true;
+    });
 
-    const etsAvail = etapas.filter(et => saeb.serie_temporal[ultimo]?.[et] && saeb.serie_temporal[primeiro]?.[et]);
-    const labels = etsAvail.map(et => etapaLabels[etapas.indexOf(et)]);
-    const dataFirst = etsAvail.map(et => saeb.serie_temporal[primeiro]?.[et]?.[field] || 0);
-    const dataLast = etsAvail.map(et => saeb.serie_temporal[ultimo]?.[et]?.[field] || 0);
+    ['media_lp', 'media_mt'].forEach(field => {
+      const canvasId = field === 'media_lp' ? 'chart-saeb-comp-lp' : 'chart-saeb-comp-mt';
+      const el = document.getElementById(canvasId);
+      if (!el) return;
 
-    S.charts.push(new Chart(el, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: primeiro, data: dataFirst, backgroundColor: 'rgba(180,180,180,.5)', borderColor: '#999', borderWidth: 1, borderRadius: 4, barPercentage: .7 },
-          { label: ultimo, data: dataLast, backgroundColor: COLORS.pri + 'CC', borderColor: COLORS.pri, borderWidth: 1, borderRadius: 4, barPercentage: .7 },
-        ]
-      },
-      options: {
-        ...CHART_DEFAULTS,
-        plugins: {
-          ...CHART_DEFAULTS.plugins,
-          datalabels: {
-            display: true, anchor: 'end', align: 'top', offset: 3,
-            font: { family: 'Inter', size: 11, weight: '700' },
-            color: '#333',
-            formatter: v => v?.toFixed(1) ?? '',
-          },
+      const etsAvail = etapas.filter(et => saeb.serie_temporal[anoComp]?.[et] || saeb.serie_temporal[anoBase]?.[et]);
+      const labels = etsAvail.map(et => etapaLabels[etapas.indexOf(et)]);
+      const dataBase = etsAvail.map(et => saeb.serie_temporal[anoBase]?.[et]?.[field] || 0);
+      const dataComp = etsAvail.map(et => saeb.serie_temporal[anoComp]?.[et]?.[field] || 0);
+
+      S.charts.push(new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: anoBase, data: dataBase, backgroundColor: 'rgba(180,180,180,.5)', borderColor: '#999', borderWidth: 1, borderRadius: 4, barPercentage: .7 },
+            { label: anoComp, data: dataComp, backgroundColor: COLORS.pri + 'CC', borderColor: COLORS.pri, borderWidth: 1, borderRadius: 4, barPercentage: .7 },
+          ]
         },
-        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false,
-          ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 20 } } }
-      }
-    }));
+        options: {
+          ...CHART_DEFAULTS,
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            datalabels: {
+              display: true, anchor: 'end', align: 'top', offset: 3,
+              font: { family: 'Inter', size: 11, weight: '700' },
+              color: '#333',
+              formatter: v => v?.toFixed(1) ?? '',
+            },
+          },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false,
+            ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 20 } } }
+        }
+      }));
+    });
+
+    // Update titles
+    const titleLp = document.getElementById('saeb-comp-title-lp');
+    if (titleLp) titleLp.textContent = `Língua Portuguesa — ${anoBase} vs ${anoComp}`;
+    const titleMt = document.getElementById('saeb-comp-title-mt');
+    if (titleMt) titleMt.textContent = `Matemática — ${anoBase} vs ${anoComp}`;
   }
 
-  buildCompBar('chart-saeb-comp-lp', 'media_lp');
-  buildCompBar('chart-saeb-comp-mt', 'media_mt');
+  buildSaebCompCharts(primeiro, ultimo);
+
+  // Bind year selectors
+  const selCompBase = document.getElementById('sel-saeb-comp-base');
+  const selCompEnd = document.getElementById('sel-saeb-comp-end');
+  if (selCompBase && selCompEnd) {
+    const onCompChange = () => buildSaebCompCharts(selCompBase.value, selCompEnd.value);
+    selCompBase.addEventListener('change', onCompChange);
+    selCompEnd.addEventListener('change', onCompChange);
+  }
 
   // ── Schools evaluated bar chart ──
   const escolasEl = document.getElementById('chart-saeb-escolas');
