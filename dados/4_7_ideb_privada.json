@@ -1,0 +1,171 @@
+{
+  "metadata": {
+    "fonte": "IDEB/INEP — Divulgação 2023",
+    "recorte": "Rede Privada RS",
+    "gerado_em": "2026-05-27T16:09:29.931569",
+    "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)"
+  },
+  "serie_temporal": {
+    "2017": {
+      "EM": {
+        "ideb": 6.03,
+        "nota_saeb": 6.34,
+        "rendimento": 0.9518,
+        "n_escolas": 28
+      }
+    }
+  },
+  "por_municipio": {
+    "2017": {
+      "4300604": {
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4303004": {
+        "EM": {
+          "ideb": 6.3,
+          "n_escolas": 2
+        }
+      },
+      "4304200": {
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4304606": {
+        "EM": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        }
+      },
+      "4304705": {
+        "EM": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        }
+      },
+      "4305009": {
+        "EM": {
+          "ideb": 3.8,
+          "n_escolas": 1
+        }
+      },
+      "4305108": {
+        "EM": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        }
+      },
+      "4306106": {
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4307005": {
+        "EM": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        }
+      },
+      "4310801": {
+        "EM": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        }
+      },
+      "4311403": {
+        "EM": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        }
+      },
+      "4313300": {
+        "EM": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        }
+      },
+      "4313409": {
+        "EM": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        }
+      },
+      "4314902": {
+        "EM": {
+          "ideb": 5.54,
+          "n_escolas": 5
+        }
+      },
+      "4315602": {
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4315800": {
+        "EM": {
+          "ideb": 6.25,
+          "n_escolas": 2
+        }
+      },
+      "4317103": {
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4317202": {
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4320404": {
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4321808": {
+        "EM": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        }
+      },
+      "4322806": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      }
+    }
+  },
+  "lookup_municipios": {
+    "4300604": "Alvorada",
+    "4303004": "Cachoeira do Sul",
+    "4304200": "Candelária",
+    "4304606": "Canoas",
+    "4304705": "Carazinho",
+    "4305009": "Catuípe",
+    "4305108": "Caxias do Sul",
+    "4306106": "Cruz Alta",
+    "4307005": "Erechim",
+    "4310801": "Ivoti",
+    "4311403": "Lajeado",
+    "4313300": "Nova Prata",
+    "4313409": "Novo Hamburgo",
+    "4314902": "Porto Alegre",
+    "4315602": "Rio Grande",
+    "4315800": "Roca Sales",
+    "4317103": "Sant'Ana do Livramento",
+    "4317202": "Santa Rosa",
+    "4320404": "Serafina Corrêa",
+    "4321808": "Três de Maio",
+    "4322806": "Veranópolis"
+  }
+}
