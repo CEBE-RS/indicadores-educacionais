@@ -3373,7 +3373,7 @@ function renderHome() {
       status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
     { view: 'fluxo', icon: 'img/icons/nav_fluxo.png', title: 'Fluxo e Rendimento',
       desc: 'Taxas de aprovação, reprovação, abandono e distorção idade-série.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
+      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB',
       desc: 'Proficiências em Língua Portuguesa e Matemática — série histórica 2013–2023.',
       status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
