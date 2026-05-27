@@ -3376,10 +3376,10 @@ function renderHome() {
       status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB',
       desc: 'Proficiências em Língua Portuguesa e Matemática — série histórica 2013–2023.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
+      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB',
       desc: 'Índice de Desenvolvimento da Educação Básica — evolução, metas projetadas e decomposição N×P.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
+      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
   ];
 
   main.innerHTML = `
