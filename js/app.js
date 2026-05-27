@@ -4981,7 +4981,15 @@ function renderAfd() {
 
   const afd = S.afd;
   if (!afd) {
-    main.innerHTML = `<div class="placeholder-view"><div style="font-size:40px;opacity:.3">📊</div><div style="font-size:15px;font-weight:600">Adequação da Formação Docente</div><div style="font-size:11px;opacity:.7">Dados em preparação</div></div>`;
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/sec_docentes.png', 'Adequação da Formação Docente', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados de Adequação da Formação Docente não disponíveis para a ${getRedeLabel()}</p>
+      </div>`;
+    bindRedeToggle();
     return;
   }
 
@@ -4991,16 +4999,6 @@ function renderAfd() {
   const st = afd.serie_temporal[ultimo];
   const lookup = afd.lookup_municipios || {};
 
-  // KPI data
-  const g1Fund = st.fund_total?.g1 ?? '—';
-  const g1Med = st.medio?.g1 ?? '—';
-  const g5All = (() => {
-    const etapas = ['fund_total', 'medio', 'eja_fund', 'eja_medio'].filter(e => st[e]);
-    if (!etapas.length) return '—';
-    return (etapas.reduce((s, e) => s + (st[e].g5 || 0), 0) / etapas.length).toFixed(1);
-  })();
-
-  // displayData for charts (filtered by geo)
   const displayData = S.munSel
     ? (afd.por_municipio?.[ultimo]?.[S.munSel] || st)
     : (S.creSel ? (() => {
@@ -5025,41 +5023,36 @@ function renderAfd() {
         return agg;
       })() : st);
 
+  // Geo label
+  let geoLabel = getRedeLabel() + ' do RS';
+  if (S.munSel && lookup[S.munSel]) geoLabel = lookup[S.munSel];
+  else if (S.creSel) geoLabel = (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre) || `CRE ${S.creSel}`;
+
   main.innerHTML = `
-    <div class="topbar" id="topbar">
-      <button class="topbar-toggle" id="topbar-toggle" aria-label="Menu">☰</button>
-      <div class="topbar-section">
-        <select id="sel-ano">${anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('')}</select>
-      </div>
-      <div class="topbar-section">
-        <select id="sel-cre"><option value="">Todas as CREs</option></select>
-        <select id="sel-mun"><option value="">Todos os municípios</option></select>
-      </div>
-      <div class="topbar-section" id="topbar-rede-section">
-        <select id="sel-rede">
-          <option value="estadual" selected>Rede Estadual</option>
-          <option value="municipal">Rede Municipal</option>
-          <option value="federal">Rede Federal</option>
-          <option value="privada">Rede Privada</option>
-          <option value="todas">Todas as Redes</option>
-        </select>
-      </div>
-      <div id="active-filters-bar" class="active-filters-bar"></div>
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/sec_docentes.png', 'Adequação da Formação Docente', geoLabel)}
+      ${redeToggleHTML()}
+      <div class="kpi-strip" id="afd-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
 
-    <div class="content-scroll">
+    <!-- ═══ BLOCO INFORMATIVO: O que é o AFD? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
+      <span class="section-divider-text">O que é o AFD?</span>
+      <span class="section-divider-line"></span>
+    </div>
 
-    <!-- ═══ Info Block ═══ -->
-    <div class="info-block" style="margin:16px 0">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
-        <div style="padding:20px 24px;border-right:1px solid rgba(0,90,50,.06)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
             <img src="img/icons/sec_docentes.png" alt="" style="width:20px;height:20px">
-            <span style="font-size:14px;font-weight:700;color:var(--pri)">Adequação da Formação Docente</span>
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
           </div>
-          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
-            Classifica as <strong>docências</strong> em 5 grupos conforme a formação do professor
-            em relação à disciplina que leciona. Baseado nos dados do <strong>Censo Escolar</strong> (INEP).
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            Classifica as <strong>docências</strong> (par professor × disciplina) em <strong>5 grupos</strong>
+            conforme a adequação da formação do professor à disciplina que leciona.
+            Baseado nos dados do <strong>Censo Escolar</strong> (INEP).
           </p>
           <div style="background:rgba(0,171,78,.08);border:1px solid rgba(0,171,78,.2);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0;color:#1B5E20;line-height:1.7">
@@ -5068,44 +5061,24 @@ function renderAfd() {
             </p>
           </div>
         </div>
-        <div style="padding:20px 24px">
+        <div style="padding:20px 24px;border-left:1px solid rgba(0,90,50,.06)">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
             <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
             <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Grupos</span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr;gap:6px">
-            ${Object.entries(AFD_GROUPS).map(([k, g]) => `
-              <div style="display:flex;align-items:center;gap:8px">
-                <div style="width:14px;height:14px;border-radius:3px;background:${g.color};flex-shrink:0"></div>
-                <span style="font-size:11px;color:#333;line-height:1.3"><strong>${g.short}</strong> — ${g.label.split('— ')[1]}</span>
-              </div>
-            `).join('')}
-          </div>
+          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
+            <thead>
+              <tr><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Grupo</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Descrição</th></tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#43A047;vertical-align:middle;margin-right:6px"></span>G1</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Licenciatura na mesma área que leciona</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#66BB6A;vertical-align:middle;margin-right:6px"></span>G2</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Bacharelado na área, sem licenciatura</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#FFCB04;vertical-align:middle;margin-right:6px"></span>G3</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Licenciatura em outra área</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#FB8C00;vertical-align:middle;margin-right:6px"></span>G4</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Outra formação superior</td></tr>
+              <tr><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#E53935;vertical-align:middle;margin-right:6px"></span>G5</td><td style="padding:5px 8px">Sem curso superior completo</td></tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-    </div>
-
-    <!-- ═══ KPIs ═══ -->
-    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
-      <div class="kpi-card">
-        <div class="kpi-label">G1 — Fundamental</div>
-        <div class="kpi-value" style="color:#43A047">${typeof g1Fund === 'number' ? g1Fund.toFixed(1) + '%' : g1Fund}</div>
-        <div class="kpi-sub">Licenciatura na área (${ultimo})</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">G1 — Ensino Médio</div>
-        <div class="kpi-value" style="color:#43A047">${typeof g1Med === 'number' ? g1Med.toFixed(1) + '%' : g1Med}</div>
-        <div class="kpi-sub">Licenciatura na área (${ultimo})</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">G5 — Sem Superior</div>
-        <div class="kpi-value" style="color:#E53935">${g5All}%</div>
-        <div class="kpi-sub">Média geral (${ultimo})</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Escolas Analisadas</div>
-        <div class="kpi-value">${formatNum(st.total_escolas)}</div>
-        <div class="kpi-sub">Rede estadual — ${ultimo}</div>
       </div>
     </div>
 
@@ -5192,9 +5165,33 @@ function renderAfd() {
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
     </div>
-
-    </div><!-- /content-scroll -->
   `;
+
+  // ── KPIs (standard kpi-strip pattern) ──
+  const strip = document.getElementById('afd-kpis');
+  if (strip) {
+    const g3General = (() => {
+      const etapas = ['fund_total', 'medio'].filter(e => displayData[e]);
+      if (!etapas.length) return 0;
+      return (etapas.reduce((s, e) => s + (displayData[e].g3 || 0), 0) / etapas.length).toFixed(1);
+    })();
+    const kpis = [
+      { label: `G1 Fundamental (${ultimo})`, value: displayData.fund_total?.g1 != null ? displayData.fund_total.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.fund_total?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
+      { label: `G1 Ens. Médio (${ultimo})`, value: displayData.medio?.g1 != null ? displayData.medio.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.medio?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
+      { label: 'G3 — Outra Licenciatura', value: g3General + '%', icon: 'img/icons/politicas.png', accent: parseFloat(g3General) > 25 ? 'red' : 'green', noFormat: true },
+      { label: `Escolas (${ultimo})`, value: displayData.total_escolas || st.total_escolas || 0, icon: 'img/icons/escola.png', accent: 'green' },
+    ];
+    strip.innerHTML = kpis.map((k, i) => `
+      <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="">
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">${k.noFormat ? k.value : formatNum(k.value)}</span>
+        </div>
+      </div>`).join('');
+  }
 
   // ── Chart 1: Stacked bar by etapa (latest year) ──
   const etapaEl = document.getElementById('afd-chart-etapa');
