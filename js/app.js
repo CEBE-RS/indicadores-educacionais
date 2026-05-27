@@ -25,6 +25,7 @@ const S = {
   ftl: null,
   fluxo: null,
   inse: null,
+  icg: null,       // 4_8_icg.json — Complexidade de Gestão
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -271,13 +272,14 @@ async function loadRedeData(rede) {
     return S.redeCache[rede];
   }
   // Fetch all data sources in parallel; 404s handled gracefully
-  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse'];
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg'];
   const urls = [
     `dados/4_1_acesso_${rede}.json`,
     `dados/4_5_infra_${rede}.json`,
     `dados/4_3_fluxo_${rede}.json`,
     `dados/4_6_saeb_${rede}.json`,
     `dados/4_7_inse_${rede}.json`,
+    `dados/4_8_icg_${rede}.json`,
   ];
   const responses = await Promise.all(urls.map(u => fetch(u).catch(() => null)));
   const result = {};
@@ -329,6 +331,7 @@ async function switchRede(rede) {
     if (cached.fluxo) S.fluxo = cached.fluxo;
     if (cached.saeb) S.saeb = cached.saeb;
     if (cached.inse) S.inse = cached.inse;
+    if (cached.icg) S.icg = cached.icg;
     // Update rede toggle active state
     document.querySelectorAll('.rede-toggle-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.rede === rede);
@@ -3084,6 +3087,12 @@ function renderHome() {
     { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico (INSE)',
       desc: 'Indicador de Nível Socioeconômico — perfil das famílias, distribuição por nível e evolução 2019–2023.',
       status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
+    { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão',
+      desc: 'Indicador de complexidade da gestão escolar — porte, turnos, etapas e série histórica 2013–2025.',
+      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
+    { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Adequação da Formação Docente',
+      desc: 'Percentual de docentes com formação adequada à disciplina que lecionam, por etapa e grupo.',
+      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
   ];
 
   main.innerHTML = `
@@ -3105,7 +3114,7 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="home-grid" style="grid-template-columns:repeat(4,1fr)">
           ${sections.map(s => `
             <div class="home-card" data-nav="${s.view}" style="--card-accent:${s.accent}">
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
@@ -3904,7 +3913,13 @@ function renderInse() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card" style="min-height:400px">
-        <div class="chart-title">INSE Médio por Município</div>
+        <div class="chart-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          INSE Médio por Município
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="inse-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="inse-btn-layer-cre">CREs</button>
+          </div>
+        </div>
         <div id="inse-map-leaflet" style="height:380px;border-radius:8px"></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
@@ -4171,6 +4186,63 @@ function renderInse() {
       return div;
     };
     legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
+
+  // ── CRE layer for INSE map ──
+  const inseBuildCreMap = () => {
+    if (!S.creGeo || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+    const munToCre = S.creLookup?.mun_to_cre || {};
+    const munData = inse.por_municipio[ultimo] || {};
+
+    // Aggregate by CRE
+    const creData = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creData[cre]) creData[cre] = { sumInse: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+      if (v.inse) { creData[cre].sumInse += v.inse; creData[cre].count += 1; }
+    }
+    for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumInse / c.count : 0;
+
+    const INSE_MAP_BREAKS = [
+      { min: 0,   max: 5.0, color: '#E53935', label: '< 5.0 (Vulnerável)' },
+      { min: 5.0, max: 5.3, color: '#FB8C00', label: '5.0–5.3' },
+      { min: 5.3, max: 5.5, color: '#66BB6A', label: '5.3–5.5' },
+      { min: 5.5, max: 99,  color: '#2E7D32', label: '> 5.5 (Alto)' },
+    ];
+    function getColor(v) {
+      for (const b of INSE_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+      return '#f0f0f0';
+    }
+
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const cod = feature.properties.cod_cre;
+        const avg = creData[cod]?.avg || 0;
+        return { fillColor: avg > 0 ? getColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_cre;
+        const nome = feature.properties.nome_cre || cod;
+        const d = creData[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>INSE Médio: ${d?.avg?.toFixed(2) ?? '—'}<br>${d?.count || 0} municípios`, { sticky: true });
+        layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>INSE Médio (CREs)</h4>' +
+        INSE_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
   };
 
   // ── Table: Municipality ranking ──
@@ -4219,7 +4291,21 @@ function renderInse() {
   inseBuildGapChart();
   inseBuildMap();
   inseBuildMunTable();
-  addExportButtons();
+  injectExportButtons();
+
+  // Bind INSE map layer toggle
+  const inseBtnMun = document.getElementById('inse-btn-layer-mun');
+  const inseBtnCre = document.getElementById('inse-btn-layer-cre');
+  if (inseBtnMun && inseBtnCre) {
+    inseBtnMun.addEventListener('click', () => {
+      inseBtnMun.classList.add('active'); inseBtnCre.classList.remove('active');
+      inseBuildMap();
+    });
+    inseBtnCre.addEventListener('click', () => {
+      inseBtnCre.classList.add('active'); inseBtnMun.classList.remove('active');
+      inseBuildCreMap();
+    });
+  }
 
   // Re-populate topbar filters (destroyed by innerHTML)
   const selAno = document.getElementById('sel-ano');
@@ -4234,6 +4320,632 @@ function renderInse() {
   if (selMun && S.munSel) selMun.value = S.munSel;
   bindTopbarFilters();
   bindRedeToggle();
+}
+
+// ══════════════════════════════════════════════════════════
+// COMPLEXIDADE DE GESTÃO (ICG)
+// ══════════════════════════════════════════════════════════
+
+const FONTE_ICG = 'Fonte: INEP — Indicador de Complexidade de Gestão da Escola';
+
+const ICG_COLORS = {
+  1: '#43A047',  // simples — verde
+  2: '#66BB6A',
+  3: '#FFCB04',  // médio — amarelo
+  4: '#FB8C00',  // complexo — laranja
+  5: '#EE302F',  // muito complexo — vermelho
+  6: '#C62828',  // extremamente complexo
+};
+const ICG_LABELS = {
+  1: 'Nível 1 — Baixa',
+  2: 'Nível 2',
+  3: 'Nível 3 — Média',
+  4: 'Nível 4',
+  5: 'Nível 5 — Alta',
+  6: 'Nível 6 — Muito Alta',
+};
+const ICG_SHORT = { 1: 'Nível 1', 2: 'Nível 2', 3: 'Nível 3', 4: 'Nível 4', 5: 'Nível 5', 6: 'Nível 6' };
+
+function renderIcg() {
+  const icg = S.icg;
+  const main = document.getElementById('main-content');
+  destroyCharts();
+  destroyMap();
+
+  // Guard: no ICG data
+  if (!icg || !icg.metadata?.anos_disponiveis?.length) {
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/escola.png', 'Complexidade de Gestão', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados de Complexidade de Gestão não disponíveis para a ${getRedeLabel()}</p>
+      </div>`;
+    bindRedeToggle();
+    return;
+  }
+
+  const anos = icg.metadata.anos_disponiveis;
+  const ultimo = anos[anos.length - 1];
+  const primeiro = anos[0];
+  const su = icg.serie_temporal[ultimo];
+
+  // Geo-aware data
+  let displayData = su;
+  let geoLabel = getRedeLabel() + ' do RS';
+  if (S.munSel && icg.por_municipio?.[ultimo]?.[S.munSel]) {
+    displayData = icg.por_municipio[ultimo][S.munSel];
+    geoLabel = icg.lookup_municipios[S.munSel] || S.munSel;
+  } else if (S.creSel) {
+    const creMuns = getCreMuns(S.creSel);
+    // Aggregate CRE
+    const agg = { total_escolas: 0 };
+    for (let n = 1; n <= 6; n++) agg[`nivel_${n}`] = { count: 0, pct: 0 };
+    const munYear = icg.por_municipio?.[ultimo] || {};
+    for (const cod of creMuns) {
+      const m = munYear[cod];
+      if (!m) continue;
+      agg.total_escolas += m.total_escolas || 0;
+      for (let n = 1; n <= 6; n++) agg[`nivel_${n}`].count += m[`nivel_${n}`]?.count || 0;
+    }
+    if (agg.total_escolas > 0) {
+      for (let n = 1; n <= 6; n++) agg[`nivel_${n}`].pct = +(agg[`nivel_${n}`].count / agg.total_escolas * 100).toFixed(1);
+      let wSum = 0;
+      for (let n = 1; n <= 6; n++) wSum += n * agg[`nivel_${n}`].count;
+      agg.nivel_medio = +(wSum / agg.total_escolas).toFixed(2);
+      displayData = agg;
+    }
+    const creObj = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel);
+    geoLabel = creObj ? creObj.nome_cre : `CRE ${S.creSel}`;
+  }
+
+  // KPI helpers
+  const predominante = (() => {
+    let best = null, bestPct = 0;
+    for (let n = 1; n <= 6; n++) {
+      const p = displayData[`nivel_${n}`]?.pct || 0;
+      if (p > bestPct) { bestPct = p; best = n; }
+    }
+    return best;
+  })();
+  const altaComplexidade = (displayData.nivel_5?.count || 0) + (displayData.nivel_6?.count || 0);
+  const altaPct = displayData.total_escolas > 0 ? (altaComplexidade / displayData.total_escolas * 100).toFixed(1) : 0;
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/escola.png', 'Complexidade de Gestão', geoLabel)}
+      ${redeToggleHTML()}
+      <div class="kpi-strip" id="icg-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+    </div>
+
+    <!-- ═══ BLOCO INFORMATIVO: O que é o ICG? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
+      <span class="section-divider-text">O que é o ICG?</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/escola.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            O <strong>ICG (Indicador de Complexidade de Gestão da Escola)</strong> resume, em uma única medida,
+            as informações de <strong>porte</strong> (nº de matrículas), <strong>turnos de funcionamento</strong>,
+            <strong>quantidade de etapas</strong> e <strong>complexidade das etapas ofertadas</strong>.
+          </p>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <img src="img/icons/sec_evolucao.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Metodologia</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
+            Calculado por <strong>Teoria de Resposta ao Item (TRI)</strong> a partir de 4 variáveis do Censo Escolar,
+            gerando um escore contínuo classificado em <strong>6 níveis</strong> — do Nível 1 (gestão simples)
+            ao Nível 6 (gestão muito complexa).
+          </p>
+          <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
+              <strong style="color:#E65100">⚠ Atenção:</strong> Não é um indicador de <em>qualidade</em> — é de <strong>contexto</strong>.
+              Uma escola Nível 6 não é "pior" que Nível 1; ela é mais <em>complexa de gerir</em>
+              (mais turnos, mais etapas, mais alunos).
+            </p>
+          </div>
+        </div>
+        <div style="padding:20px 24px;border-left:1px solid rgba(0,90,50,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/escola.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Níveis</span>
+          </div>
+          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
+            <thead>
+              <tr><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Nível</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Porte</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Turnos</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Etapa mais alta</th></tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[1]};vertical-align:middle;margin-right:6px"></span>1</td><td style="padding:5px 8px;border-bottom:1px solid #eee">< 50</td><td style="padding:5px 8px;border-bottom:1px solid #eee">1</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ed. Infantil / AI</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[2]};vertical-align:middle;margin-right:6px"></span>2</td><td style="padding:5px 8px;border-bottom:1px solid #eee">50–300</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ed. Infantil / AI</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[3]};vertical-align:middle;margin-right:6px"></span>3</td><td style="padding:5px 8px;border-bottom:1px solid #eee">50–500</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Anos Finais</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[4]};vertical-align:middle;margin-right:6px"></span>4</td><td style="padding:5px 8px;border-bottom:1px solid #eee">150–1.000</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2–3</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ens. Médio / Prof.</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[5]};vertical-align:middle;margin-right:6px"></span>5</td><td style="padding:5px 8px;border-bottom:1px solid #eee">150–1.000</td><td style="padding:5px 8px;border-bottom:1px solid #eee">3</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Com EJA</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[6]};vertical-align:middle;margin-right:6px"></span>6</td><td style="padding:5px 8px">> 500</td><td style="padding:5px 8px">3</td><td style="padding:5px 8px;color:#666">4+ etapas + EJA</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Distribuição por Nível ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Distribuição por Nível — ${ultimo}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Distribuição por Nível de Complexidade — ${ultimo}</div>
+        <div style="height:240px"><canvas id="icg-chart-dist"></canvas></div>
+        <div class="chart-source">${FONTE_ICG}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Evolução Temporal ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+      <span class="section-divider-text">Evolução Temporal (${primeiro}–${ultimo})</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Nível Médio de Complexidade — Evolução</div>
+        <div style="height:220px"><canvas id="icg-chart-nivel-medio"></canvas></div>
+        <div class="chart-source">${FONTE_ICG}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Distribuição por Nível — Evolução (% empilhado)</div>
+        <div style="height:220px"><canvas id="icg-chart-evol"></canvas></div>
+        <div class="chart-source">${FONTE_ICG}</div>
+      </div>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Nível Médio — Urbana vs Rural <span class="badge-estadual">Nível Estadual</span></div>
+        <div style="height:220px"><canvas id="icg-chart-urbrur"></canvas></div>
+        <div class="chart-source">${FONTE_ICG}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Distribuição Territorial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">Distribuição Territorial — ${ultimo}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="map-table-row d1">
+      <div class="map-container">
+        <div class="map-toolbar">
+          <h3>Mapa — Nível Médio ICG <span id="icg-map-ano">${ultimo}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="icg-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="icg-btn-layer-cre">CREs</button>
+          </div>
+        </div>
+        <div id="icg-map-leaflet" style="height:380px;border-radius:8px"></div>
+      </div>
+      <div class="table-wrapper" id="icg-table-wrapper">
+        <div class="table-header">
+          <h3>Tabela de Municípios — ICG</h3>
+          <input type="text" class="table-search" id="icg-mun-search" placeholder="Buscar...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="icg-mun-table">
+            <thead><tr>
+              <th>#</th><th>Município</th><th>Escolas</th>
+              <th>Nível Médio</th><th>N1</th><th>N2</th><th>N3</th><th>N4</th><th>N5</th><th>N6</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_ICG}</div>
+      </div>
+    </div>
+  `;
+
+  // ── KPIs ──
+  const strip = document.getElementById('icg-kpis');
+  if (strip) {
+    const kpis = [
+      { label: `Escolas (${ultimo})`, value: displayData.total_escolas || 0, icon: 'img/icons/escola.png', accent: 'green' },
+      { label: 'Nível Médio', value: displayData.nivel_medio?.toFixed(2) || '—', icon: 'img/icons/panorama.png', accent: 'green', noFormat: true },
+      { label: 'Nível Predominante', value: predominante ? `Nível ${predominante} (${displayData[`nivel_${predominante}`]?.pct}%)` : '—', icon: 'img/icons/escola.png', accent: predominante && predominante >= 4 ? 'red' : 'green', noFormat: true },
+      { label: 'Alta Complexidade (N5+N6)', value: `${altaComplexidade} (${altaPct}%)`, icon: 'img/icons/sec_saeb.png', accent: parseFloat(altaPct) > 20 ? 'red' : 'green', noFormat: true },
+    ];
+    strip.innerHTML = kpis.map((k, i) => `
+      <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="">
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">${k.noFormat ? k.value : formatNum(k.value)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Chart 1: Distribution bar ──
+  const distEl = document.getElementById('icg-chart-dist');
+  if (distEl) {
+    const niveis = [1,2,3,4,5,6];
+    S.charts.push(new Chart(distEl, {
+      type: 'bar',
+      data: {
+        labels: niveis.map(n => ICG_SHORT[n]),
+        datasets: [{
+          label: 'Escolas',
+          data: niveis.map(n => displayData[`nivel_${n}`]?.count || 0),
+          backgroundColor: niveis.map(n => ICG_COLORS[n] + 'CC'),
+          borderColor: niveis.map(n => ICG_COLORS[n]),
+          borderWidth: 1.5, borderRadius: 4,
+        }]
+      },
+      options: { ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false },
+          datalabels: { display: true, anchor: 'end', align: 'end', font: { family: 'Inter', size: 11, weight: '700' }, color: '#333',
+            formatter: (v, ctx) => { const t = ctx.dataset.data.reduce((a,b) => a + b, 0); return v > 0 ? `${formatNum(v)} (${(v/t*100).toFixed(0)}%)` : ''; }
+          }
+        },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, grace: '20%' } }
+      }
+    }));
+  }
+
+  // ── Helper: build geo-aware time series per year ──
+  // Returns array of objects like serie_temporal[ano] but filtered by current CRE/mun
+  const icgGeoSeries = (anos) => {
+    // No filter → use full state-level data
+    if (!S.munSel && !S.creSel) return anos.map(a => icg.serie_temporal[a]);
+
+    return anos.map(a => {
+      const munYear = icg.por_municipio?.[a] || {};
+
+      // Single municipality
+      if (S.munSel) return munYear[S.munSel] || null;
+
+      // CRE: aggregate all municipalities in CRE
+      if (S.creSel) {
+        const creMuns = getCreMuns(S.creSel);
+        const agg = { total_escolas: 0 };
+        for (let n = 1; n <= 6; n++) agg[`nivel_${n}`] = { count: 0, pct: 0 };
+        for (const cod of creMuns) {
+          const m = munYear[cod];
+          if (!m) continue;
+          agg.total_escolas += m.total_escolas || 0;
+          for (let n = 1; n <= 6; n++) agg[`nivel_${n}`].count += m[`nivel_${n}`]?.count || 0;
+        }
+        if (agg.total_escolas === 0) return null;
+        for (let n = 1; n <= 6; n++) agg[`nivel_${n}`].pct = +(agg[`nivel_${n}`].count / agg.total_escolas * 100).toFixed(1);
+        let wSum = 0;
+        for (let n = 1; n <= 6; n++) wSum += n * agg[`nivel_${n}`].count;
+        agg.nivel_medio = +(wSum / agg.total_escolas).toFixed(2);
+        return agg;
+      }
+      return icg.serie_temporal[a];
+    });
+  };
+
+  const geoTs = icgGeoSeries(anos);
+  const geoFilterActive = !!(S.munSel || S.creSel);
+  const geoFilterLabel = S.munSel
+    ? (icg.lookup_municipios[S.munSel] || S.munSel)
+    : (S.creSel ? (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`) : '');
+
+  // ── Chart 3: Nível médio evolução (line) ──
+  const nivelMedioEl = document.getElementById('icg-chart-nivel-medio');
+  if (nivelMedioEl) {
+    const nivelMedioData = geoTs.map(s => s?.nivel_medio || null);
+    // Auto-scale y axis
+    const validVals = nivelMedioData.filter(v => v != null);
+    const yMin = validVals.length ? Math.max(1, Math.floor(Math.min(...validVals) - 0.5)) : 1;
+    const yMax = validVals.length ? Math.min(6, Math.ceil(Math.max(...validVals) + 0.5)) : 6;
+
+    S.charts.push(new Chart(nivelMedioEl, {
+      type: 'line',
+      data: {
+        labels: anos,
+        datasets: [{
+          label: geoFilterActive ? geoFilterLabel : 'Nível Médio',
+          data: nivelMedioData,
+          borderColor: COLORS.pri, backgroundColor: COLORS.pri + '18',
+          fill: true, tension: .35, pointRadius: 5, borderWidth: 2.5,
+        }]
+      },
+      options: { ...CHART_DEFAULTS, layout: { padding: { top: 25 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: geoFilterActive, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 8 } },
+          datalabels: { ...DL_LINE_BOLD, formatter: v => v != null ? v.toFixed(2) : '' } },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: yMin, max: yMax } }
+      }
+    }));
+  }
+
+  // ── Chart 4: Stacked % evolution ──
+  const evolEl = document.getElementById('icg-chart-evol');
+  if (evolEl) {
+    const niveis = [1,2,3,4,5,6];
+    S.charts.push(new Chart(evolEl, {
+      type: 'bar',
+      data: {
+        labels: anos,
+        datasets: niveis.map(n => ({
+          label: ICG_SHORT[n],
+          data: geoTs.map(s => s?.[`nivel_${n}`]?.pct || 0),
+          backgroundColor: ICG_COLORS[n] + 'CC',
+          borderColor: ICG_COLORS[n],
+          borderWidth: 0.5,
+        }))
+      },
+      options: { ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 9 }, boxWidth: 8, padding: 4 } },
+          datalabels: { display: false } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } },
+          y: { stacked: true, max: 100, grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' } } }
+      }
+    }));
+  }
+
+  // ── Chart 5: Urbana vs Rural (state-level only — breakdown not available sub-state) ──
+  const urbRurEl = document.getElementById('icg-chart-urbrur');
+  if (urbRurEl) {
+    const urbData = anos.map(a => icg.serie_temporal[a]?.urbana?.nivel_medio || null);
+    const rurData = anos.map(a => icg.serie_temporal[a]?.rural?.nivel_medio || null);
+    S.charts.push(new Chart(urbRurEl, {
+      type: 'line',
+      data: {
+        labels: anos,
+        datasets: [
+          { label: 'Urbana', data: urbData, borderColor: COLORS.pri, tension: .3, pointRadius: 5, borderWidth: 2.5 },
+          { label: 'Rural', data: rurData, borderColor: COLORS.red, borderDash: [5,5], tension: .3, pointRadius: 5, borderWidth: 2.5 },
+        ]
+      },
+      options: { ...CHART_DEFAULTS, layout: { padding: { top: 25, bottom: 20 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          datalabels: { ...DL_LINE_BOLD, formatter: v => v != null ? v.toFixed(2) : '' },
+          legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 8 } } },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 1, max: 5 } }
+      }
+    }));
+  }
+
+  // ── Map: ICG by municipality ──
+  const icgBuildMap = () => {
+    if (!S.geo) return;
+    const mapEl = document.getElementById('icg-map-leaflet');
+    if (!mapEl) return;
+
+    const munData = icg.por_municipio[ultimo] || {};
+
+    const ICG_MAP_BREAKS = [
+      { min: 0,   max: 2.0, color: '#43A047', label: '< 2.0 (Baixa)' },
+      { min: 2.0, max: 3.0, color: '#66BB6A', label: '2.0–3.0' },
+      { min: 3.0, max: 3.5, color: '#FFCB04', label: '3.0–3.5 (Média)' },
+      { min: 3.5, max: 4.0, color: '#FB8C00', label: '3.5–4.0' },
+      { min: 4.0, max: 99,  color: '#E53935', label: '> 4.0 (Alta)' },
+    ];
+
+    function getColor(v) {
+      for (const b of ICG_MAP_BREAKS) {
+        if (v >= b.min && v < b.max) return b.color;
+      }
+      return '#f0f0f0';
+    }
+
+    destroyMap();
+    S.map = L.map('icg-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+      const nome = props.nome || props.cod_mun;
+      if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados ICG</div>`; return; }
+      this._div.innerHTML = `
+        <h4>${nome}</h4>
+        <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.total_escolas}</span></div>
+        <div class="info-row"><span class="info-label">Nível Médio</span><span class="info-value">${md.nivel_medio?.toFixed(2) ?? '—'}</span></div>
+        <div class="info-row"><span class="info-label">N5+N6 (%)</span><span class="info-value">${(((md.nivel_5?.count||0)+(md.nivel_6?.count||0))/md.total_escolas*100).toFixed(0)}%</span></div>
+      `;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        const v = md?.nivel_medio || 0;
+        return { fillColor: v > 0 ? getColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        layer.on({
+          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
+        });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>Nível Médio ICG</h4>' +
+        ICG_MAP_BREAKS.slice().reverse().map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
+
+  // ── CRE layer for ICG map ──
+  const icgBuildCreMap = () => {
+    if (!S.creGeo || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+    const munToCre = S.creLookup?.mun_to_cre || {};
+    const munData = icg.por_municipio[ultimo] || {};
+
+    const creData = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creData[cre]) creData[cre] = { sumNm: 0, totalEsc: 0, nome: munToCre[cod]?.nome_cre || cre };
+      if (v.nivel_medio && v.total_escolas) {
+        creData[cre].sumNm += v.nivel_medio * v.total_escolas;
+        creData[cre].totalEsc += v.total_escolas;
+      }
+    }
+    for (const c of Object.values(creData)) c.avg = c.totalEsc > 0 ? c.sumNm / c.totalEsc : 0;
+
+    const ICG_CRE_BREAKS = [
+      { min: 0,   max: 2.0, color: '#43A047', label: '< 2.0 (Baixa)' },
+      { min: 2.0, max: 3.0, color: '#66BB6A', label: '2.0–3.0' },
+      { min: 3.0, max: 3.5, color: '#FFCB04', label: '3.0–3.5 (Média)' },
+      { min: 3.5, max: 4.0, color: '#FB8C00', label: '3.5–4.0' },
+      { min: 4.0, max: 99,  color: '#E53935', label: '> 4.0 (Alta)' },
+    ];
+    function getColor(v) {
+      for (const b of ICG_CRE_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+      return '#f0f0f0';
+    }
+
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const cod = feature.properties.cod_cre;
+        const avg = creData[cod]?.avg || 0;
+        return { fillColor: avg > 0 ? getColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_cre;
+        const nome = feature.properties.nome_cre || cod;
+        const d = creData[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>Nível Médio: ${d?.avg?.toFixed(2) ?? '—'}<br>${d?.totalEsc || 0} escolas`, { sticky: true });
+        layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+      }
+    }).addTo(S.map);
+
+    const creLegend = L.control({ position: 'bottomleft' });
+    creLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>Nível Médio ICG (CREs)</h4>' +
+        ICG_CRE_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      return div;
+    };
+    creLegend.addTo(S.map);
+    S.mapLegend = creLegend;
+  };
+
+  // ── Table: Municipality ranking ──
+  const icgBuildMunTable = () => {
+    const tbody = document.querySelector('#icg-mun-table tbody');
+    if (!tbody) return;
+    const munData = icg.por_municipio[ultimo] || {};
+    const lookup = icg.lookup_municipios || {};
+
+    let entries = Object.entries(munData);
+    if (S.creSel && S.creLookup?.mun_to_cre) {
+      entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
+    }
+    if (S.munSel) {
+      entries = entries.filter(([cod]) => cod === S.munSel);
+    }
+    entries.sort((a, b) => (b[1].nivel_medio || 0) - (a[1].nivel_medio || 0));
+
+    const nivelMedioColor = v => {
+      if (v >= 4) return '#C62828';
+      if (v >= 3.5) return '#FB8C00';
+      if (v >= 3) return '#FFCB04';
+      return '#43A047';
+    };
+
+    tbody.innerHTML = entries.map(([cod, md], i) => {
+      const pcts = [1,2,3,4,5,6].map(n => md.total_escolas > 0 ? (md[`nivel_${n}`]?.count || 0) / md.total_escolas * 100 : 0);
+      const pctColor = (v, n) => {
+        if (v === 0) return '#ccc';
+        return ICG_COLORS[n];
+      };
+      return `
+        <tr style="cursor:pointer" data-cod="${cod}">
+          <td>${i + 1}</td>
+          <td>${lookup[cod] || cod}</td>
+          <td>${md.total_escolas}</td>
+          <td><strong style="color:${nivelMedioColor(md.nivel_medio)}">${md.nivel_medio?.toFixed(2) ?? '—'}</strong></td>
+          ${pcts.map((p, idx) => `<td style="color:${pctColor(p, idx+1)};font-weight:${p >= 30 ? '700' : '400'}">${p.toFixed(0)}%</td>`).join('')}
+        </tr>`;
+    }).join('');
+
+    // Click to filter
+    tbody.querySelectorAll('tr[data-cod]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        S.munSel = S.munSel === tr.dataset.cod ? null : tr.dataset.cod;
+        refreshActiveTab();
+      });
+    });
+
+    // Search
+    document.getElementById('icg-mun-search')?.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tr.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+  };
+
+  // Build everything
+  icgBuildMap();
+  icgBuildMunTable();
+  injectExportButtons();
+
+  // Bind ICG map layer toggle
+  const icgBtnMun = document.getElementById('icg-btn-layer-mun');
+  const icgBtnCre = document.getElementById('icg-btn-layer-cre');
+  if (icgBtnMun && icgBtnCre) {
+    icgBtnMun.addEventListener('click', () => {
+      icgBtnMun.classList.add('active'); icgBtnCre.classList.remove('active');
+      icgBuildMap();
+    });
+    icgBtnCre.addEventListener('click', () => {
+      icgBtnCre.classList.add('active'); icgBtnMun.classList.remove('active');
+      icgBuildCreMap();
+    });
+  }
+
+  // Re-populate topbar filters
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && S.creSel) selCre.value = S.creSel;
+  const selMunEl = document.getElementById('sel-mun');
+  if (selMunEl && S.munSel) selMunEl.value = S.munSel;
+  bindTopbarFilters();
+  bindRedeToggle();
+  updateActiveFilters();
 }
 
 function initNav() {
@@ -4253,6 +4965,7 @@ function initNav() {
       else if (view === 'docencia' && S.doc) { renderDocencia(); }
       else if (view === 'desempenho') { renderSaeb(); }
       else if (view === 'inse') { renderInse(); }
+      else if (view === 'icg') { renderIcg(); }
       else {
         const main = document.getElementById('main-content');
         destroyCharts(); destroyMap();
@@ -4772,7 +5485,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -4783,6 +5496,7 @@ async function init() {
       fetch('dados/rs_cres.geojson'),
       fetch('dados/rs_cre_lookup.json'),
       fetch('dados/4_7_inse.json'),
+      fetch('dados/4_8_icg.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -4795,9 +5509,10 @@ async function init() {
     if (respCreGeo.ok)    S.creGeo    = await respCreGeo.json();
     if (respCreLookup.ok) S.creLookup = await respCreLookup.json();
     if (respInse.ok)      S.inse      = await respInse.json();
+    if (respIcg.ok)       S.icg       = await respIcg.json();
 
     // Seed rede cache with initial estadual data
-    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse };
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg };
 
     // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();
