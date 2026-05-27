@@ -2684,22 +2684,55 @@ function renderSaeb() {
   }
 
   const anos = Object.keys(saeb.serie_temporal).sort();
-  const ultimo = anos[anos.length - 1];
+  const ultimo = (S.anoSel && anos.includes(S.anoSel)) ? S.anoSel : anos[anos.length - 1];
   const primeiro = anos[0];
   const su = saeb.serie_temporal[ultimo];
+  const lookup = saeb.lookup_municipios || {};
+
+  // Geo-aware data for KPIs
+  let displaySu = su;
+  let geoLabel = getRedeLabel() + ' do RS';
+  if (S.munSel && saeb.por_municipio) {
+    // Find closest year with mun data
+    const munAnos = Object.keys(saeb.por_municipio).sort();
+    const munAno = munAnos.includes(ultimo) ? ultimo : munAnos[munAnos.length - 1];
+    const md = saeb.por_municipio[munAno]?.[S.munSel];
+    if (md) { displaySu = md; geoLabel = lookup[S.munSel] || S.munSel; }
+  } else if (S.creSel && saeb.por_municipio) {
+    const creMuns = getCreMuns(S.creSel);
+    const munAnos = Object.keys(saeb.por_municipio).sort();
+    const munAno = munAnos.includes(ultimo) ? ultimo : munAnos[munAnos.length - 1];
+    const munYear = saeb.por_municipio[munAno] || {};
+    const agg = {};
+    let count = 0;
+    for (const cod of creMuns) {
+      const m = munYear[cod]; if (!m) continue; count++;
+      for (const et of ['5EF', '9EF', 'EM']) {
+        if (!m[et]) continue;
+        if (!agg[et]) agg[et] = { media_lp: 0, media_mt: 0, _n: 0 };
+        agg[et].media_lp += m[et].media_lp || 0;
+        agg[et].media_mt += m[et].media_mt || 0;
+        agg[et]._n++;
+      }
+    }
+    for (const et of Object.keys(agg)) {
+      if (agg[et]._n > 0) { agg[et].media_lp = +(agg[et].media_lp / agg[et]._n).toFixed(1); agg[et].media_mt = +(agg[et].media_mt / agg[et]._n).toFixed(1); }
+    }
+    if (count > 0) { displaySu = agg; geoLabel = (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre) || `CRE ${S.creSel}`; }
+  }
 
   // KPI data
   const kpis = [];
-  if (su['5EF']) kpis.push({ label: '5º EF — LP', val: su['5EF'].media_lp, accent: 'green', icon: 'img/icons/fundamental.png' });
-  if (su['5EF']) kpis.push({ label: '5º EF — MT', val: su['5EF'].media_mt, accent: 'green', icon: 'img/icons/fundamental.png' });
-  if (su['9EF']) kpis.push({ label: '9º EF — LP', val: su['9EF'].media_lp, accent: 'blue', icon: 'img/icons/fundamental.png' });
-  if (su['9EF']) kpis.push({ label: '9º EF — MT', val: su['9EF'].media_mt, accent: 'blue', icon: 'img/icons/fundamental.png' });
-  if (su['EM']) kpis.push({ label: 'EM — LP', val: su['EM'].media_lp, accent: 'red', icon: 'img/icons/medio.png' });
-  if (su['EM']) kpis.push({ label: 'EM — MT', val: su['EM'].media_mt, accent: 'red', icon: 'img/icons/medio.png' });
+  if (displaySu['5EF']) kpis.push({ label: '5º EF — LP', val: displaySu['5EF'].media_lp, accent: 'green', icon: 'img/icons/fundamental.png' });
+  if (displaySu['5EF']) kpis.push({ label: '5º EF — MT', val: displaySu['5EF'].media_mt, accent: 'green', icon: 'img/icons/fundamental.png' });
+  if (displaySu['9EF']) kpis.push({ label: '9º EF — LP', val: displaySu['9EF'].media_lp, accent: 'blue', icon: 'img/icons/fundamental.png' });
+  if (displaySu['9EF']) kpis.push({ label: '9º EF — MT', val: displaySu['9EF'].media_mt, accent: 'blue', icon: 'img/icons/fundamental.png' });
+  if (displaySu['EM']) kpis.push({ label: 'EM — LP', val: displaySu['EM'].media_lp, accent: 'red', icon: 'img/icons/medio.png' });
+  if (displaySu['EM']) kpis.push({ label: 'EM — MT', val: displaySu['EM'].media_mt, accent: 'red', icon: 'img/icons/medio.png' });
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', getRedeLabel() + ' do RS')}
+      ${sectionBanner('img/icons/nav_ideb.png', 'IDEB / SAEB', geoLabel)}
       ${redeToggleHTML()}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
@@ -3052,6 +3085,10 @@ function renderSaeb() {
   injectExportButtons();
 
   // Re-populate topbar filters
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('');
+  }
   populateCreDropdown();
   populateMunDropdown(S.creSel || null);
   const selCre = document.getElementById('sel-cre');
@@ -3060,6 +3097,7 @@ function renderSaeb() {
   if (selMun && S.munSel) selMun.value = S.munSel;
   bindTopbarFilters();
   bindRedeToggle();
+  updateActiveFilters();
 }
 
 // ══════════════════════════════════════════════════════════
