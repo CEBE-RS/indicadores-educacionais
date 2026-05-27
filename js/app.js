@@ -3401,7 +3401,7 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="home-grid" style="grid-template-columns:repeat(5,1fr)">
           ${sections.map(s => `
             <div class="home-card" data-nav="${s.view}" style="--card-accent:${s.accent}">
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
