@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "Microdados SAEB/INEP",
     "recorte": "Rede Todas RS",
-    "gerado_em": "2026-05-26T15:19:37.961340"
+    "gerado_em": "2026-05-27T15:33:15.241251"
   },
   "serie_temporal": {
     "2013": {
@@ -18,6 +18,12 @@
         "media_mt": 254.5,
         "n_escolas": 2362,
         "label": "9º Ano EF"
+      },
+      "EM": {
+        "media_lp": 289.5,
+        "media_mt": 305.8,
+        "n_escolas": 123,
+        "label": "Ens. Médio"
       }
     },
     "2015": {
@@ -33,6 +39,12 @@
         "media_mt": 257.6,
         "n_escolas": 1888,
         "label": "9º Ano EF"
+      },
+      "EM": {
+        "media_lp": 288.9,
+        "media_mt": 290.3,
+        "n_escolas": 100,
+        "label": "Ens. Médio"
       }
     },
     "2017": {

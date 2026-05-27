@@ -2,14 +2,26 @@
   "metadata": {
     "fonte": "Microdados SAEB/INEP",
     "recorte": "Rede Privada RS",
-    "gerado_em": "2026-05-26T15:18:28.192336"
+    "gerado_em": "2026-05-27T15:31:16.748415"
   },
   "serie_temporal": {
     "2013": {
-      "n_escolas_total": 76
+      "n_escolas_total": 76,
+      "EM": {
+        "media_lp": 309.6,
+        "media_mt": 329.9,
+        "n_escolas": 45,
+        "label": "Ens. Médio"
+      }
     },
     "2015": {
-      "n_escolas_total": 87
+      "n_escolas_total": 87,
+      "EM": {
+        "media_lp": 315.5,
+        "media_mt": 317.4,
+        "n_escolas": 42,
+        "label": "Ens. Médio"
+      }
     },
     "2017": {
       "n_escolas_total": 80,
