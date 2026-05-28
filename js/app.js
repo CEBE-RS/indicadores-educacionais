@@ -4588,7 +4588,9 @@ function renderInse() {
   const anos = inse.metadata.anos_disponiveis;
   const ultimo = anos[anos.length - 1];
   const primeiro = anos[0];
-  const su = inse.serie_temporal[ultimo];
+  // Respect year filter: use S.anoSel if it's valid for INSE, otherwise use ultimo
+  const anoAtual = (S.anoSel && anos.includes(S.anoSel)) ? S.anoSel : ultimo;
+  const su = inse.serie_temporal[anoAtual];
   const sp = inse.serie_temporal[primeiro];
 
   // KPI values
@@ -4695,18 +4697,18 @@ function renderInse() {
     <!-- ═══ EIXO: Distribuição por Nível ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-      <span class="section-divider-text">Distribuição por Nível Socioeconômico (${ultimo})</span>
+      <span class="section-divider-text">Distribuição por Nível Socioeconômico (${anoAtual})</span>
       <span class="section-divider-line"></span>
     </div>
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Escolas por Nível INSE — ${geoLabel} (${ultimo})</div>
+        <div class="chart-title">Escolas por Nível INSE — ${geoLabel} (${anoAtual})</div>
         <div style="height:260px"><canvas id="inse-chart-dist"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Distribuição dos Alunos por Nível INSE (${ultimo})</div>
+        <div class="chart-title">Distribuição dos Alunos por Nível INSE (${anoAtual})</div>
         <div style="height:260px"><canvas id="inse-chart-alunos"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
@@ -4722,20 +4724,46 @@ function renderInse() {
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
         <div class="chart-title">INSE Médio — Evolução (${primeiro}–${ultimo})</div>
-        <div style="height:220px"><canvas id="inse-chart-evol"></canvas></div>
+        <div style="height:240px"><canvas id="inse-chart-evol"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Gap Urbana–Rural — Evolução (${primeiro}–${ultimo})</div>
-        <div style="height:220px"><canvas id="inse-chart-gap"></canvas></div>
+        <div style="height:240px"><canvas id="inse-chart-gap"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Evolução dos Níveis INSE — Proporção de Escolas (${primeiro}–${ultimo})</div>
+        <div style="height:260px"><canvas id="inse-chart-stacked"></canvas></div>
+        <div class="chart-source">${FONTE_INSE}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Urbana × Rural — INSE Médio por Edição (${primeiro}–${ultimo})</div>
+        <div style="height:260px"><canvas id="inse-chart-ur-detail"></canvas></div>
+        <div class="chart-source">${FONTE_INSE}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Comparativo entre CREs ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">INSE Médio por CRE — ${anoAtual}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:10px">
+      <div class="chart-title">Comparativo INSE por Coordenadoria Regional de Educação (${anoAtual})</div>
+      <div style="height:320px"><canvas id="inse-chart-cre"></canvas></div>
+      <div class="chart-source">${FONTE_INSE}</div>
     </div>
 
     <!-- ═══ EIXO: Mapa + Tabela ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_mapa.png" alt=""></span>
-      <span class="section-divider-text">Mapa e Ranking Municipal — INSE (${ultimo})</span>
+      <span class="section-divider-text">Mapa e Ranking Municipal — INSE (${anoAtual})</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -4823,8 +4851,8 @@ function renderInse() {
 
     // Get data for selected scope
     let dist = su.dist_niveis_escolas;
-    if (S.munSel && inse.por_municipio[ultimo]?.[S.munSel]) {
-      dist = inse.por_municipio[ultimo][S.munSel].dist_niveis;
+    if (S.munSel && inse.por_municipio[anoAtual]?.[S.munSel]) {
+      dist = inse.por_municipio[anoAtual][S.munSel].dist_niveis;
     }
 
     const niveis = Object.keys(INSE_NIVEL_COLORS);
@@ -4947,7 +4975,7 @@ function renderInse() {
     const mapEl = document.getElementById('inse-map-leaflet');
     if (!mapEl) return;
 
-    const munData = inse.por_municipio[ultimo] || {};
+    const munData = inse.por_municipio[anoAtual] || {};
 
     // Fixed breaks for INSE (not quantile — semantic)
     const INSE_MAP_BREAKS = [
@@ -5024,7 +5052,7 @@ function renderInse() {
     if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
 
     const munToCre = S.creLookup?.mun_to_cre || {};
-    const munData = inse.por_municipio[ultimo] || {};
+    const munData = inse.por_municipio[anoAtual] || {};
 
     // Aggregate by CRE
     const creData = {};
@@ -5078,7 +5106,7 @@ function renderInse() {
     const tbody = document.querySelector('#inse-mun-table tbody');
     if (!tbody) return;
 
-    const munData = inse.por_municipio[ultimo] || {};
+    const munData = inse.por_municipio[anoAtual] || {};
     const lookup = inse.lookup_municipios || {};
 
     // Filter by CRE if selected
@@ -5112,11 +5140,120 @@ function renderInse() {
     });
   };
 
+
+  // ── Chart 5: Stacked level evolution ──
+  const inseBuildStackedChart = () => {
+    const el = document.getElementById('inse-chart-stacked');
+    if (!el) return;
+    const niveis = Object.keys(INSE_NIVEL_COLORS);
+    const datasets = niveis.map(n => ({
+      label: n.replace('Nível ', ''),
+      data: anos.map(a => {
+        const d = inse.serie_temporal[a]?.dist_niveis_escolas?.[n];
+        return d ? d.pct : 0;
+      }),
+      backgroundColor: INSE_NIVEL_COLORS[n],
+      borderRadius: 2,
+    }));
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: { labels: anos, datasets },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 10 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, position: 'bottom', labels: { font: { family: 'Inter', size: 9, weight: '600' }, boxWidth: 10, padding: 6 } },
+          datalabels: { display: ctx => ctx.dataset.data[ctx.dataIndex] > 5, color: '#fff', font: { family: 'Inter', size: 9, weight: '700' }, formatter: v => v.toFixed(0) + '%' }
+        },
+        scales: {
+          x: { ...CHART_DEFAULTS.scales.x, stacked: true },
+          y: { ...CHART_DEFAULTS.scales.y, stacked: true, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } }
+        }
+      }
+    }));
+  };
+
+  // ── Chart 6: Urban × Rural INSE by year (grouped bars) ──
+  const inseBuildUrbanRuralDetail = () => {
+    const el = document.getElementById('inse-chart-ur-detail');
+    if (!el) return;
+    const urbVals = anos.map(a => inse.serie_temporal[a]?.urbana?.media || null);
+    const rurVals = anos.map(a => inse.serie_temporal[a]?.rural?.media || null);
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: anos,
+        datasets: [
+          { label: 'Urbana', data: urbVals, backgroundColor: COLORS.pri + 'CC', borderRadius: 6, barPercentage: 0.6, categoryPercentage: 0.7 },
+          { label: 'Rural', data: rurVals, backgroundColor: COLORS.red + 'CC', borderRadius: 6, barPercentage: 0.6, categoryPercentage: 0.7 },
+        ]
+      },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 25 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10 } },
+          datalabels: { display: true, anchor: 'end', align: 'end', font: { family: 'Inter', size: 11, weight: '700' }, color: '#333', formatter: v => v != null ? v.toFixed(2) : '' }
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, min: 4.0, max: 6.0, grace: '5%' }
+        }
+      }
+    }));
+  };
+
+  // ── Chart 7: CRE comparison ──
+  const inseBuildCreChart = () => {
+    const el = document.getElementById('inse-chart-cre');
+    if (!el || !S.creLookup) return;
+    const munToCre = S.creLookup.mun_to_cre || {};
+    const munData = inse.por_municipio[anoAtual] || {};
+    const creAgg = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creAgg[cre]) creAgg[cre] = { sum: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+      if (v.inse) { creAgg[cre].sum += v.inse; creAgg[cre].count += 1; }
+    }
+    const sorted = Object.entries(creAgg)
+      .map(([cod, v]) => ({ cod, nome: v.nome.replace(/^\d+[\s.-]*(?:CRE)?\s*/i, ''), avg: v.count > 0 ? v.sum / v.count : 0, n: v.count }))
+      .filter(v => v.avg > 0)
+      .sort((a, b) => b.avg - a.avg);
+
+    const INSE_MAP_BREAKS = [
+      { min: 0, max: 5.0, color: '#E53935' }, { min: 5.0, max: 5.3, color: '#FB8C00' },
+      { min: 5.3, max: 5.5, color: '#66BB6A' }, { min: 5.5, max: 99, color: '#2E7D32' },
+    ];
+    const getColor = v => { for (const b of INSE_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; } return '#ccc'; };
+
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(v => v.nome),
+        datasets: [{ label: 'INSE Médio', data: sorted.map(v => v.avg), backgroundColor: sorted.map(v => getColor(v.avg)), borderRadius: 4 }]
+      },
+      options: {
+        ...CHART_DEFAULTS, indexAxis: 'y', layout: { padding: { right: 60 } },
+        plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false },
+          datalabels: { display: true, anchor: 'end', align: 'end', font: { family: 'Inter', size: 10, weight: '700' }, color: '#333', formatter: v => v.toFixed(2) }
+        },
+        scales: {
+          x: { display: false, min: 4.5 },
+          y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10, weight: '600' }, autoSkip: false } }
+        }
+      }
+    }));
+  };
+
   // Build all
   inseBuildDistChart();
   inseBuildAlunosChart();
   inseBuildEvolChart();
   inseBuildGapChart();
+  inseBuildStackedChart();
+  inseBuildUrbanRuralDetail();
+  inseBuildCreChart();
   inseBuildMap();
   inseBuildMunTable();
   injectExportButtons();
@@ -5138,7 +5275,7 @@ function renderInse() {
   // Re-populate topbar filters (destroyed by innerHTML)
   const selAno = document.getElementById('sel-ano');
   if (selAno) {
-    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('');
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoAtual ? 'selected' : ''}>${a}</option>`).join('');
   }
   populateCreDropdown();
   populateMunDropdown(S.creSel || null);
