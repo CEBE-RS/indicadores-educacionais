@@ -2740,10 +2740,77 @@ function renderSaeb() {
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
 
-    <div style="background:var(--card-bg);border-left:3px solid var(--pri);border-radius:0 8px 8px 0;padding:10px 14px;margin:0 8px 10px;font-size:11px;color:var(--text-sec);line-height:1.5">
-      <strong style="color:var(--text-pri)">📋 Nota Metodológica</strong><br>
-      • <strong>Até 2015</strong>, o SAEB era composto pela <em>ANEB</em> (amostral, incluindo EM) e pela <em>Prova Brasil</em> (censitária, EF). A partir de <strong>2017</strong>, a <em>Portaria INEP nº 447/2017</em> tornou o SAEB <strong>censitário para o EM</strong>.<br>
-      • <strong>"Estadual"</strong> neste painel = todas as escolas públicas (estaduais + municipais + federais), pois os microdados SAEB usam apenas a flag IN_PUBLICA (0/1).
+    <!-- ═══ BLOCO INFORMATIVO: O que é o SAEB? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+      <span class="section-divider-text">O que é o SAEB?</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/sec_saeb.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            O <strong>SAEB (Sistema de Avaliação da Educação Básica)</strong> é a principal avaliação
+            externa da educação brasileira, aplicada pelo INEP a cada 2 anos. Mede a
+            <strong>proficiência</strong> dos estudantes em <strong>Língua Portuguesa</strong> e
+            <strong>Matemática</strong> em três etapas: 5º e 9º ano do EF e 3ª série do EM.
+          </p>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <img src="img/icons/sec_evolucao.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Metodologia</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
+            As notas são calculadas pela <strong>Teoria de Resposta ao Item (TRI)</strong>,
+            garantindo comparabilidade entre edições. A escala é única e contínua
+            (tipicamente <strong>0–500 pontos</strong>), onde cada nível representa habilidades específicas.
+          </p>
+          <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
+              <strong style="color:#E65100">⚠ Nota:</strong> <strong>Até 2015</strong>, o SAEB era composto pela
+              <em>ANEB</em> (amostral, incluindo EM) e pela <em>Prova Brasil</em> (censitária, EF).
+              A partir de <strong>2017</strong> (<em>Portaria INEP nº 447/2017</em>), tornou-se
+              <strong>censitário para o EM</strong>, ampliando significativamente a cobertura.
+            </p>
+          </div>
+        </div>
+        <div style="padding:20px 24px;border-left:1px solid rgba(0,90,50,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Proficiência</span>
+          </div>
+          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Faixa (9º EF LP)</th>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Nível</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#2E7D32;vertical-align:middle;margin-right:6px"></span>> 325</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Proficiente / Avançado</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#66BB6A;vertical-align:middle;margin-right:6px"></span>275–325</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Básico</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#F9A825;vertical-align:middle;margin-right:6px"></span>225–275</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Insuficiente</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#C62828;vertical-align:middle;margin-right:6px"></span>< 225</td><td style="padding:5px 8px">Muito Crítico</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
+              <strong>Atenção:</strong> <em>"Estadual"</em> neste painel = todas as escolas <strong>públicas</strong>
+              (estaduais + municipais + federais), pois os microdados SAEB usam apenas a flag IN_PUBLICA (0/1).
+            </p>
+          </div>
+          <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
+            <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
+              <strong>2023:</strong> O INEP <strong>mascarou</strong> o código de município nos microdados.
+              Dados municipais disponíveis apenas até 2021.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
@@ -2757,12 +2824,12 @@ function renderSaeb() {
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
         <div class="chart-title">Língua Portuguesa — Evolução por Etapa</div>
-        <div style="height:240px"><canvas id="chart-saeb-lp"></canvas></div>
+        <div style="height:300px"><canvas id="chart-saeb-lp"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Matemática — Evolução por Etapa</div>
-        <div style="height:240px"><canvas id="chart-saeb-mt"></canvas></div>
+        <div style="height:300px"><canvas id="chart-saeb-mt"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
     </div>
@@ -2884,11 +2951,15 @@ function renderSaeb() {
         ...CHART_DEFAULTS,
         plugins: {
           ...CHART_DEFAULTS.plugins,
+          legend: {
+            display: true, position: 'top',
+            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 12, usePointStyle: true },
+          },
           datalabels: {
             display: true,
             anchor: ctx => ctx.datasetIndex === 1 ? 'start' : 'end',
             align: ctx => ctx.datasetIndex === 1 ? 'bottom' : 'top',
-            offset: 3,
+            offset: 5,
             font: { family: 'Inter', size: 9.5, weight: '700' },
             color: ctx => etapaCores[ctx.datasetIndex],
             formatter: v => v?.toFixed(1) ?? '',
@@ -2937,6 +3008,10 @@ function renderSaeb() {
           ...CHART_DEFAULTS,
           plugins: {
             ...CHART_DEFAULTS.plugins,
+            legend: {
+              display: true,
+              labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10 },
+            },
             datalabels: {
               display: true, anchor: 'end', align: 'top', offset: 3,
               font: { family: 'Inter', size: 11, weight: '700' },
@@ -2987,6 +3062,7 @@ function renderSaeb() {
       options: {
         ...CHART_DEFAULTS,
         plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10 } },
           datalabels: DL_BAR },
       }
     }));
@@ -3146,8 +3222,26 @@ function renderSaeb() {
 }
 
 // ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 // IDEB
 // ══════════════════════════════════════════════════════════
+
+const IDEB_BREAKS = [
+  { min: 7.0, max: 99,  color: '#1B5E20', label: '≥ 7,0 (Excelente)' },
+  { min: 6.0, max: 7.0, color: '#43A047', label: '6,0–6,9 (Bom)' },
+  { min: 5.0, max: 6.0, color: '#FFCB04', label: '5,0–5,9 (Regular)' },
+  { min: 4.0, max: 5.0, color: '#FB8C00', label: '4,0–4,9 (Alerta)' },
+  { min: 0,   max: 4.0, color: '#E53935', label: '< 4,0 (Crítico)' },
+];
+
+function getIdebColor(v) {
+  if (v == null || v === 0) return '#f0f0f0';
+  if (v >= 7.0) return '#1B5E20';
+  if (v >= 6.0) return '#43A047';
+  if (v >= 5.0) return '#FFCB04';
+  if (v >= 4.0) return '#FB8C00';
+  return '#E53935';
+}
 
 function renderIdeb() {
   const ideb = S.ideb;
@@ -3155,6 +3249,7 @@ function renderIdeb() {
   destroyCharts();
   destroyMap();
 
+  // Guard: no IDEB data for this rede
   if (!ideb || !Object.keys(ideb.serie_temporal || {}).length) {
     main.innerHTML = `
       <div class="section-sticky">
@@ -3170,59 +3265,277 @@ function renderIdeb() {
 
   const anos = Object.keys(ideb.serie_temporal).sort();
   const ultimo = anos[anos.length - 1];
-  const penultimo = anos.length >= 2 ? anos[anos.length - 2] : null;
-  const su = ideb.serie_temporal[ultimo] || {};
-  const prev = penultimo ? (ideb.serie_temporal[penultimo] || {}) : {};
+  const lookup = ideb.lookup_municipios || {};
+  S.idebEtapa = S.idebEtapa || 'AI';
 
-  // KPIs
-  const etapaMap = { AI: { label: 'Anos Iniciais', icon: 'img/icons/fundamental.png', accent: 'green' }, AF: { label: 'Anos Finais', icon: 'img/icons/fundamental.png', accent: 'blue' }, EM: { label: 'Ensino Médio', icon: 'img/icons/medio.png', accent: 'red' } };
-  const kpis = [];
-  for (const [ek, cfg] of Object.entries(etapaMap)) {
-    const d = su[ek];
-    if (!d) continue;
-    const p = prev[ek];
-    const delta = p ? +(d.ideb - p.ideb).toFixed(2) : null;
-    kpis.push({ label: `IDEB ${cfg.label}`, val: d.ideb?.toFixed(1), accent: cfg.accent, icon: cfg.icon, sub: delta !== null ? `${delta >= 0 ? '+' : ''}${delta} vs ${penultimo}` : `${d.n_escolas} escolas`, meta: d.meta });
+  // ── Geo-aware helper ──
+  const getGeoData = (ano) => {
+    if (S.munSel && ideb.por_municipio?.[ano]?.[S.munSel]) {
+      return ideb.por_municipio[ano][S.munSel];
+    }
+    if (S.creSel) {
+      const creMuns = getCreMuns(S.creSel);
+      const munYear = ideb.por_municipio?.[ano] || {};
+      const agg = {};
+      for (const et of ['AI', 'AF', 'EM']) {
+        let sumIdeb = 0, sumEsc = 0;
+        for (const cod of creMuns) {
+          const m = munYear[cod]?.[et];
+          if (m && m.ideb != null) {
+            sumIdeb += m.ideb * (m.n_escolas || 1);
+            sumEsc += m.n_escolas || 1;
+          }
+        }
+        if (sumEsc > 0) agg[et] = { ideb: +(sumIdeb / sumEsc).toFixed(2), n_escolas: sumEsc };
+      }
+      return Object.keys(agg).length ? agg : null;
+    }
+    return ideb.serie_temporal[ano];
+  };
+
+  // ── Geo label ──
+  let geoLabel = getRedeLabel() + ' do RS';
+  const isStateLevel = !S.munSel && !S.creSel;
+  if (S.munSel && lookup[S.munSel]) geoLabel = lookup[S.munSel];
+  else if (S.creSel) {
+    const creObj = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel);
+    geoLabel = creObj ? creObj.nome_cre : `CRE ${S.creSel}`;
   }
 
-  const geoLabel = getRedeLabel() + ' do RS';
+  // ── Year selection (anoSel) ──
+  const anoSel = anos.includes(S.anoSel) ? S.anoSel : ultimo;
+  const anoIdx = anos.indexOf(anoSel);
+  const penultimo = anoIdx > 0 ? anos[anoIdx - 1] : null;
 
+  const lastData = getGeoData(anoSel) || {};
+  const prevData = penultimo ? (getGeoData(penultimo) || {}) : {};
+
+  // ── KPIs ──
+  const etapaMap = {
+    AI: { label: 'Anos Iniciais', icon: 'img/icons/fundamental.png', accent: 'green' },
+    AF: { label: 'Anos Finais', icon: 'img/icons/fundamental.png', accent: 'blue' },
+    EM: { label: 'Ensino Médio', icon: 'img/icons/medio.png', accent: 'red' },
+  };
+  const idebEtapas = ['AI', 'AF', 'EM'];
+  const idebLabels = ['Anos Iniciais', 'Anos Finais', 'Ens. Médio'];
+  const idebCores = [COLORS.pri, '#1565C0', COLORS.red];
+
+  const kpis = [];
+  for (const [ek, cfg] of Object.entries(etapaMap)) {
+    const d = lastData[ek];
+    if (!d) continue;
+    const p = prevData[ek];
+    const delta = p ? +(d.ideb - p.ideb).toFixed(2) : null;
+    // Sparkline
+    const sparkVals = anos.map(a => getGeoData(a)?.[ek]?.ideb ?? null).filter(v => v != null);
+    const sparkMax = sparkVals.length ? Math.max(...sparkVals) : 1;
+    const sparkMin = sparkVals.length ? Math.min(...sparkVals) : 0;
+    const sparkRange = sparkMax - sparkMin || 1;
+    const sparkColor = cfg.accent === 'green' ? COLORS.pri : cfg.accent === 'blue' ? '#1565C0' : COLORS.red;
+    const sparkPts = sparkVals.map((v, j) => `${(j / Math.max(sparkVals.length - 1, 1)) * 58 + 1},${23 - ((v - sparkMin) / sparkRange) * 20}`).join(' ');
+    const sparkline = sparkVals.length >= 2 ? `<svg class="kpi-sparkline" viewBox="0 0 60 24" width="60" height="24"><polyline points="${sparkPts}" fill="none" stroke="${sparkColor}" stroke-width="1.5" stroke-linecap="round"/></svg>` : '';
+    kpis.push({
+      label: `IDEB ${cfg.label}`, val: d.ideb?.toFixed(1), accent: cfg.accent, icon: cfg.icon, sparkline,
+      sub: delta !== null ? `${delta >= 0 ? '+' : ''}${delta} vs ${penultimo}` : `${d.n_escolas || 0} escolas`,
+    });
+  }
+
+  // ── Example calculation from state-level data ──
+  const stLast = ideb.serie_temporal[ultimo] || {};
+  const exAI = stLast.AI;
+  const exEM = stLast.EM;
+
+  // ════════════════════════════════════════════════════════════════
+  //  HTML TEMPLATE
+  // ════════════════════════════════════════════════════════════════
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_ideb.png', 'IDEB', geoLabel)}
       ${redeToggleHTML()}
-      <div class="kpi-strip" id="ideb-kpis"></div>
+      <div class="kpi-strip" id="ideb-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
     </div>
 
-    <div style="background:var(--card-bg);border-left:3px solid var(--pri);border-radius:0 8px 8px 0;padding:10px 14px;margin:0 8px 10px;font-size:11px;color:var(--text-sec);line-height:1.5">
-      <strong style="color:var(--text-pri)">📋 Nota Metodológica</strong><br>
-      • O <strong>IDEB</strong> é calculado como <strong>N × P</strong> (Nota SAEB padronizada × Indicador de Rendimento/aprovação). Varia de 0 a 10.<br>
-      • <strong>Até 2015</strong>, o SAEB era composto pela <em>ANEB</em> (amostral, incluindo EM) e pela <em>Prova Brasil</em> (censitária, EF). A partir de <strong>2017</strong>, a <em>Portaria INEP nº 447/2017</em> tornou o SAEB <strong>censitário para o EM</strong>.<br>
-      • A <strong>linha tracejada</strong> nos gráficos indica as <strong>metas projetadas</strong> pelo MEC para cada edição.
+    <!-- ═══ BLOCO INFORMATIVO: O que é o IDEB? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/nav_ideb.png" alt=""></span>
+      <span class="section-divider-text">O que é o IDEB?</span>
+      <span class="section-divider-line"></span>
     </div>
 
-    <!-- ═══ EIXO: IDEB — Evolução ═══ -->
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/nav_ideb.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            O <strong>IDEB (Índice de Desenvolvimento da Educação Básica)</strong> é o principal indicador
+            de qualidade da educação brasileira, calculado pelo INEP a cada 2 anos. Combina informações de
+            <strong>desempenho em provas padronizadas</strong> (SAEB) com <strong>fluxo escolar</strong> (aprovação).
+          </p>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <img src="img/icons/sec_saeb.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Componentes</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 8px;color:#333;line-height:1.75">
+            <strong>IDEB = N × P</strong>, onde:
+          </p>
+          <ul style="font-size:11px;margin:0 0 14px;padding-left:18px;color:#444;line-height:1.8">
+            <li><strong>N (Nota SAEB padronizada)</strong> — Média das proficiências em Língua Portuguesa e
+            Matemática do SAEB, padronizada na escala <strong>0 a 10</strong>.</li>
+            <li><strong>P (Indicador de Rendimento)</strong> — Taxa de aprovação média da etapa de ensino,
+            variando de <strong>0 a 1</strong>. Quanto maior a aprovação, maior o P.</li>
+          </ul>
+          ${exAI ? `
+          <div style="background:rgba(0,171,78,.08);border:1px solid rgba(0,171,78,.2);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0 0 6px;color:#1B5E20;font-weight:700">Exemplo de Cálculo — Rede Estadual RS (${ultimo})</p>
+            <p style="font-size:10.5px;margin:0 0 4px;color:#333;line-height:1.7">
+              <strong>Anos Iniciais:</strong> N = ${exAI.nota_saeb?.toFixed(2)} · P = ${exAI.rendimento?.toFixed(3)}
+              → IDEB = ${exAI.nota_saeb?.toFixed(2)} × ${exAI.rendimento?.toFixed(3)} = <strong>${(exAI.nota_saeb * exAI.rendimento).toFixed(2)}</strong> ≈ ${exAI.ideb?.toFixed(1)}
+            </p>
+            ${exEM ? `<p style="font-size:10.5px;margin:0;color:#333;line-height:1.7">
+              <strong>Ens. Médio:</strong> N = ${exEM.nota_saeb?.toFixed(2)} · P = ${exEM.rendimento?.toFixed(3)}
+              → IDEB = ${exEM.nota_saeb?.toFixed(2)} × ${exEM.rendimento?.toFixed(3)} = <strong>${(exEM.nota_saeb * exEM.rendimento).toFixed(2)}</strong> ≈ ${exEM.ideb?.toFixed(1)}
+            </p>` : ''}
+          </div>` : ''}
+          <p style="font-size:10px;margin:10px 0 0;color:#888;line-height:1.6">
+            Até 2015, o SAEB era composto pela <em>ANEB</em> (amostral) e <em>Prova Brasil</em> (censitária, EF).
+            A partir de 2017 (<em>Portaria INEP nº 447/2017</em>), o SAEB tornou-se censitário também para o EM.
+          </p>
+          <p style="font-size:10px;margin:6px 0 0;color:#888;line-height:1.6">
+            <strong style="color:#666">Rede Privada:</strong> O IDEB do Ensino Fundamental (AI e AF) é calculado
+            exclusivamente para escolas <strong>públicas</strong>, pois a Prova Brasil/SAEB censitário abrange
+            apenas a rede pública no EF. Escolas privadas possuem IDEB somente para o
+            <strong>Ensino Médio</strong> (a partir de 2017).
+          </p>
+        </div>
+        <div style="padding:20px 24px;border-left:1px solid rgba(0,90,50,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala e Referências</span>
+          </div>
+          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Faixa</th>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Classificação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#1B5E20;vertical-align:middle;margin-right:6px"></span>≥ 7,0</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Excelente</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#43A047;vertical-align:middle;margin-right:6px"></span>6,0 – 6,9</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Bom</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#FFCB04;vertical-align:middle;margin-right:6px"></span>5,0 – 5,9</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Regular</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#FB8C00;vertical-align:middle;margin-right:6px"></span>4,0 – 4,9</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Alerta</td></tr>
+              <tr><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#E53935;vertical-align:middle;margin-right:6px"></span>< 4,0</td><td style="padding:5px 8px">Crítico</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:9px;margin:8px 0 0;color:#999;line-height:1.5;font-style:italic">
+            * Classificação adotada para fins de visualização — não corresponde a faixas oficiais do INEP.
+          </p>
+          <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
+              <strong>Metas do PNE (Plano Nacional de Educação):</strong><br>
+              Anos Iniciais: <strong>6,0</strong> · Anos Finais: <strong>5,5</strong> · Ensino Médio: <strong>5,2</strong>
+            </p>
+          </div>
+          <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
+            <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
+              <strong>Linha tracejada</strong> nos gráficos = <strong>meta projetada</strong> pelo MEC para cada edição.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Evolução ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
       <span class="section-divider-text">IDEB — Evolução por Etapa (${anos[0]}–${ultimo})</span>
       <span class="section-divider-line"></span>
     </div>
 
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">IDEB Observado × Meta Projetada</div>
-        <div style="height:280px"><canvas id="chart-ideb-evolucao"></canvas></div>
+        <div class="chart-title">IDEB Observado × Meta Projetada — ${geoLabel}</div>
+        <div style="height:360px"><canvas id="chart-ideb-evolucao"></canvas></div>
+        <div class="chart-source">${FONTE_IDEB}</div>
+      </div>
+    </div>
+
+    ${isStateLevel ? `
+    <!-- ═══ EIXO: Decomposição N × P ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+      <span class="section-divider-text">Decomposição — Nota SAEB (N) × Aprovação (P)</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Anos Iniciais</div>
+        <div style="height:280px"><canvas id="chart-decomp-ai"></canvas></div>
         <div class="chart-source">${FONTE_IDEB}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Decomposição IDEB — Nota SAEB (N) × Rendimento (P)</div>
-        <div style="height:280px"><canvas id="chart-ideb-decomp"></canvas></div>
+        <div class="chart-title">Anos Finais</div>
+        <div style="height:280px"><canvas id="chart-decomp-af"></canvas></div>
+        <div class="chart-source">${FONTE_IDEB}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ensino Médio</div>
+        <div style="height:280px"><canvas id="chart-decomp-em"></canvas></div>
+        <div class="chart-source">${FONTE_IDEB}</div>
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- ═══ EIXO: Distribuição Territorial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="map-table-row d1">
+      <div class="map-container">
+        <div class="map-toolbar">
+          <h3>Mapa — IDEB <span id="ideb-map-ano">${anoSel}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="ideb-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="ideb-btn-layer-cre">CREs</button>
+          </div>
+          <select id="sel-ideb-map-etapa" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
+            <option value="AI" ${S.idebEtapa === 'AI' ? 'selected' : ''}>Anos Iniciais</option>
+            <option value="AF" ${S.idebEtapa === 'AF' ? 'selected' : ''}>Anos Finais</option>
+            <option value="EM" ${S.idebEtapa === 'EM' ? 'selected' : ''}>Ensino Médio</option>
+          </select>
+        </div>
+        <div style="font-size:9.5px;color:#888;padding:4px 0 2px;line-height:1.4;font-style:italic">Municípios sem escolas na etapa selecionada aparecem em cinza. Alterne a etapa acima para visualizar outros níveis.</div>
+        <div id="ideb-map-leaflet" style="height:370px;border-radius:8px"></div>
+      </div>
+      <div class="table-wrapper" id="ideb-table-wrapper">
+        <div class="table-header">
+          <h3>Tabela de Municípios — IDEB ${anoSel}</h3>
+          <input type="text" class="table-search" id="ideb-mun-search" placeholder="Buscar...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="ideb-mun-table">
+            <thead><tr>
+              <th>#</th><th>Município</th>
+              <th>AI</th><th>AF</th><th>EM</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
         <div class="chart-source">${FONTE_IDEB}</div>
       </div>
     </div>
   `;
 
-  // ── Build IDEB KPIs ──
+  // ════════════════════════════════════════════════════════════════
+  //  BUILD KPIs
+  // ════════════════════════════════════════════════════════════════
   const strip = document.getElementById('ideb-kpis');
   if (strip) {
     strip.innerHTML = kpis.map((k, i) => {
@@ -3235,58 +3548,60 @@ function renderIdeb() {
         </div>
         <div class="kpi-body">
           <span class="kpi-value">${k.val ?? '—'}</span>
+          ${k.sparkline}
         </div>
         <div class="kpi-footer">
           <span class="kpi-delta ${cls}">${k.sub || ''}</span>
-          <span class="kpi-abs">${ultimo}</span>
+          <span class="kpi-abs">${anoSel}</span>
         </div>
       </div>`;
     }).join('');
   }
 
-  // ── IDEB Charts ──
-  const idebEtapas = ['AI', 'AF', 'EM'];
-  const idebLabels = ['Anos Iniciais', 'Anos Finais', 'Ens. Médio'];
-  const idebCores = [COLORS.pri, '#1565C0', COLORS.red];
-
-  // Chart 1: Evolution with projected targets
+  // ════════════════════════════════════════════════════════════════
+  //  CHART 1: Evolution with projected targets (full-width, 360px)
+  // ════════════════════════════════════════════════════════════════
   const elEvo = document.getElementById('chart-ideb-evolucao');
   if (elEvo) {
     const datasets = [];
-    idebEtapas.forEach((et, i) => {
-      const dataObs = anos.map(a => ideb.serie_temporal[a]?.[et]?.ideb ?? null);
+    idebEtapas.forEach((et, etIdx) => {
+      const dataObs = anos.map(a => getGeoData(a)?.[et]?.ideb ?? null);
       datasets.push({
-        label: idebLabels[i], data: dataObs,
-        borderColor: idebCores[i], backgroundColor: idebCores[i] + '18',
-        borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderWidth: 2,
+        label: idebLabels[etIdx], data: dataObs, _isMeta: false, _etIdx: etIdx,
+        borderColor: idebCores[etIdx], backgroundColor: idebCores[etIdx] + '18',
+        borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 2,
         tension: .3, spanGaps: true,
       });
-      const dataMeta = anos.map(a => ideb.serie_temporal[a]?.[et]?.meta ?? null);
-      if (dataMeta.some(v => v != null)) {
-        datasets.push({
-          label: `Meta ${idebLabels[i]}`, data: dataMeta,
-          borderColor: idebCores[i] + '66', borderWidth: 1.5, borderDash: [6, 4],
-          pointRadius: 2, pointBackgroundColor: idebCores[i] + '66', tension: .3, spanGaps: true,
-        });
+      // Metas only at state level
+      if (isStateLevel) {
+        const dataMeta = anos.map(a => ideb.serie_temporal[a]?.[et]?.meta ?? null);
+        if (dataMeta.some(v => v != null)) {
+          datasets.push({
+            label: `Meta ${idebLabels[etIdx]}`, data: dataMeta, _isMeta: true, _etIdx: etIdx,
+            borderColor: idebCores[etIdx] + '55', borderWidth: 1.5, borderDash: [6, 4],
+            pointRadius: 2, pointBackgroundColor: idebCores[etIdx] + '55', tension: .3, spanGaps: true,
+          });
+        }
       }
     });
     S.charts.push(new Chart(elEvo, {
       type: 'line',
       data: { labels: anos, datasets },
       options: {
-        ...CHART_DEFAULTS,
+        ...CHART_DEFAULTS, layout: { padding: { top: 25 } },
         plugins: {
           ...CHART_DEFAULTS.plugins,
+          legend: {
+            display: true, position: 'bottom',
+            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10, usePointStyle: true },
+          },
           datalabels: {
-            display: ctx => !ctx.dataset.borderDash,
-            anchor: ctx => ctx.datasetIndex >= 2 ? 'start' : 'end',
-            align: ctx => ctx.datasetIndex >= 2 ? 'bottom' : 'top',
-            offset: 3,
+            display: ctx => !ctx.dataset._isMeta,
+            anchor: ctx => ctx.dataset._etIdx === 2 ? 'start' : 'end',
+            align: ctx => ctx.dataset._etIdx === 2 ? 'bottom' : 'top',
+            offset: 4,
             font: { family: 'Inter', size: 10, weight: '700' },
-            color: ctx => {
-              const idx = ctx.datasetIndex;
-              return idx === 0 ? idebCores[0] : idx === 2 ? idebCores[1] : idx === 4 ? idebCores[2] : '#999';
-            },
+            color: ctx => idebCores[ctx.dataset._etIdx] || '#999',
             formatter: v => v?.toFixed(1) ?? '',
           },
         },
@@ -3295,53 +3610,279 @@ function renderIdeb() {
     }));
   }
 
-  // Chart 2: Decomposition N × P (grouped bars)
-  const elDecomp = document.getElementById('chart-ideb-decomp');
-  if (elDecomp) {
-    const datasets = [];
-    idebEtapas.forEach((et, i) => {
-      const dataNota = anos.map(a => {
-        const d = ideb.serie_temporal[a]?.[et];
-        return d?.nota_saeb ? +(d.nota_saeb / 10).toFixed(2) : null;
-      });
-      const dataRend = anos.map(a => {
-        const d = ideb.serie_temporal[a]?.[et];
-        return d?.rendimento ? +(d.rendimento * 10).toFixed(2) : null;
-      });
-      datasets.push({
-        label: `N - ${idebLabels[i]}`, data: dataNota,
-        backgroundColor: idebCores[i] + 'AA', borderColor: idebCores[i],
-        borderWidth: 1, borderRadius: 3, barPercentage: .7, categoryPercentage: .8,
-      });
-      datasets.push({
-        label: `P - ${idebLabels[i]}`, data: dataRend,
-        backgroundColor: idebCores[i] + '44', borderColor: idebCores[i] + '88',
-        borderWidth: 1, borderRadius: 3, barPercentage: .7, categoryPercentage: .8,
-      });
+  // ════════════════════════════════════════════════════════════════
+  //  CHARTS 2-4: Decomposition N × P (3 separate cards, dual axis)
+  // ════════════════════════════════════════════════════════════════
+  if (isStateLevel) {
+    const decompIds = ['chart-decomp-ai', 'chart-decomp-af', 'chart-decomp-em'];
+    idebEtapas.forEach((et, etIdx) => {
+      const el = document.getElementById(decompIds[etIdx]);
+      if (!el) return;
+      const anosEt = anos.filter(a => ideb.serie_temporal[a]?.[et]?.nota_saeb != null);
+      if (anosEt.length === 0) return;
+
+      const dataN = anosEt.map(a => ideb.serie_temporal[a][et].nota_saeb);
+      const dataP = anosEt.map(a => +(ideb.serie_temporal[a][et].rendimento * 100).toFixed(1));
+
+      S.charts.push(new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: anosEt,
+          datasets: [
+            {
+              type: 'bar', label: 'Nota SAEB (N)', data: dataN, yAxisID: 'yN',
+              backgroundColor: idebCores[etIdx] + 'AA', borderColor: idebCores[etIdx],
+              borderWidth: 1.5, borderRadius: 4, barPercentage: .65, categoryPercentage: .8,
+            },
+            {
+              type: 'line', label: 'Aprovação (P%)', data: dataP, yAxisID: 'yP',
+              borderColor: idebCores[etIdx] + '88', borderWidth: 2, borderDash: [5, 3],
+              pointRadius: 3, pointBackgroundColor: '#fff', pointBorderWidth: 2,
+              tension: 0.3, fill: false,
+            }
+          ]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          layout: { padding: { top: 20 } },
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6 } },
+            datalabels: {
+              display: ctx => ctx.datasetIndex === 0,
+              anchor: 'end', align: 'end', offset: 2,
+              font: { family: 'Inter', size: 9, weight: '700' },
+              color: idebCores[etIdx],
+              formatter: v => v?.toFixed(1) ?? '',
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } },
+            yN: {
+              type: 'linear', position: 'left', min: 3, max: 8, grace: '5%',
+              title: { display: true, text: 'Nota SAEB (N)', font: { family: 'Inter', size: 9 }, color: '#666' },
+              grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 } },
+            },
+            yP: {
+              type: 'linear', position: 'right', min: 75, max: 100,
+              title: { display: true, text: 'Aprovação (%)', font: { family: 'Inter', size: 9 }, color: '#666' },
+              grid: { drawOnChartArea: false }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' },
+            },
+          },
+        },
+      }));
     });
-    S.charts.push(new Chart(elDecomp, {
-      type: 'bar',
-      data: { labels: anos, datasets },
-      options: {
-        ...CHART_DEFAULTS,
-        plugins: {
-          ...CHART_DEFAULTS.plugins,
-          datalabels: { display: false },
-          legend: { display: true, position: 'bottom', labels: { font: { size: 9 }, boxWidth: 10, padding: 6 } },
-        },
-        scales: {
-          ...CHART_DEFAULTS.scales,
-          y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 3, suggestedMax: 10,
-            title: { display: true, text: 'N (÷10) e P (×10)', font: { size: 9 } } },
-        },
-      },
-    }));
   }
 
+  // ════════════════════════════════════════════════════════════════
+  //  MAP: IDEB by municipality (choropleth)
+  // ════════════════════════════════════════════════════════════════
+  const idebBuildMap = () => {
+    if (!S.geo) return;
+    const mapEl = document.getElementById('ideb-map-leaflet');
+    if (!mapEl) return;
+
+    const munData = ideb.por_municipio?.[anoSel] || {};
+    const mapEtapa = S.idebEtapa || 'AI';
+
+    destroyMap();
+    S.map = L.map('ideb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+      const nome = props.nome || props.cod_mun;
+      if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados IDEB</div>`; return; }
+      this._div.innerHTML = `
+        <h4>${nome}</h4>
+        ${md.AI ? `<div class="info-row"><span class="info-label">IDEB AI</span><span class="info-value" style="color:${getIdebColor(md.AI.ideb)};font-weight:700">${md.AI.ideb?.toFixed(1)}</span></div>` : ''}
+        ${md.AF ? `<div class="info-row"><span class="info-label">IDEB AF</span><span class="info-value" style="color:${getIdebColor(md.AF.ideb)};font-weight:700">${md.AF.ideb?.toFixed(1)}</span></div>` : ''}
+        ${md.EM ? `<div class="info-row"><span class="info-label">IDEB EM</span><span class="info-value" style="color:${getIdebColor(md.EM.ideb)};font-weight:700">${md.EM.ideb?.toFixed(1)}</span></div>` : ''}`;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        const v = md?.[mapEtapa]?.ideb || 0;
+        return { fillColor: v > 0 ? getIdebColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        layer.on({
+          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
+        });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>IDEB ' + mapEtapa + '</h4>' +
+        IDEB_BREAKS.map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
+
+  // ── CRE layer for IDEB map ──
+  const idebBuildCreMap = () => {
+    if (!S.creGeo || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+    const munToCre = S.creLookup?.mun_to_cre || {};
+    const munData = ideb.por_municipio?.[anoSel] || {};
+    const mapEtapa = S.idebEtapa || 'AI';
+
+    const creData = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creData[cre]) creData[cre] = { sum: 0, totalEsc: 0, nome: munToCre[cod]?.nome_cre || cre };
+      const etData = v?.[mapEtapa];
+      if (etData?.ideb && etData?.n_escolas) {
+        creData[cre].sum += etData.ideb * etData.n_escolas;
+        creData[cre].totalEsc += etData.n_escolas;
+      }
+    }
+    for (const c of Object.values(creData)) c.avg = c.totalEsc > 0 ? c.sum / c.totalEsc : 0;
+
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const cod = feature.properties.cod_cre;
+        const avg = creData[cod]?.avg || 0;
+        return { fillColor: avg > 0 ? getIdebColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_cre;
+        const nome = feature.properties.nome_cre || cod;
+        const d = creData[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>IDEB ${mapEtapa}: ${d?.avg?.toFixed(1) ?? '—'}<br>${d?.totalEsc || 0} escolas`, { sticky: true });
+        layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+      }
+    }).addTo(S.map);
+
+    const creLegend = L.control({ position: 'bottomleft' });
+    creLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>IDEB ' + mapEtapa + ' (CREs)</h4>' +
+        IDEB_BREAKS.map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      return div;
+    };
+    creLegend.addTo(S.map);
+    S.mapLegend = creLegend;
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  //  TABLE: Municipality ranking
+  // ════════════════════════════════════════════════════════════════
+  const idebBuildMunTable = () => {
+    const tbody = document.querySelector('#ideb-mun-table tbody');
+    if (!tbody) return;
+    const munData = ideb.por_municipio?.[anoSel] || {};
+
+    let entries = Object.entries(munData);
+    if (S.creSel && S.creLookup?.mun_to_cre) {
+      entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
+    }
+    if (S.munSel) {
+      entries = entries.filter(([cod]) => cod === S.munSel);
+    }
+    // Sort by AI IDEB descending (fallback to AF, then EM)
+    entries.sort((a, b) => (b[1]?.AI?.ideb || b[1]?.AF?.ideb || b[1]?.EM?.ideb || 0) - (a[1]?.AI?.ideb || a[1]?.AF?.ideb || a[1]?.EM?.ideb || 0));
+
+    const colorCell = v => {
+      if (v == null) return '<td style="color:#ccc">—</td>';
+      return `<td><strong style="color:${getIdebColor(v)}">${v.toFixed(1)}</strong></td>`;
+    };
+
+    tbody.innerHTML = entries.map(([cod, md], i) => `
+      <tr style="cursor:pointer" data-cod="${cod}">
+        <td>${i + 1}</td>
+        <td>${lookup[cod] || cod}</td>
+        ${colorCell(md.AI?.ideb)}
+        ${colorCell(md.AF?.ideb)}
+        ${colorCell(md.EM?.ideb)}
+      </tr>`).join('');
+
+    // Click to filter
+    tbody.querySelectorAll('tr[data-cod]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        S.munSel = S.munSel === tr.dataset.cod ? null : tr.dataset.cod;
+        refreshActiveTab();
+      });
+    });
+
+    // Search
+    document.getElementById('ideb-mun-search')?.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tr.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  //  BUILD ALL + BIND CONTROLS
+  // ════════════════════════════════════════════════════════════════
+  idebBuildMap();
+  idebBuildMunTable();
   injectExportButtons();
+
+  // Map layer toggle
+  const idebBtnMun = document.getElementById('ideb-btn-layer-mun');
+  const idebBtnCre = document.getElementById('ideb-btn-layer-cre');
+  if (idebBtnMun && idebBtnCre) {
+    idebBtnMun.addEventListener('click', () => {
+      idebBtnMun.classList.add('active'); idebBtnCre.classList.remove('active');
+      idebBuildMap();
+    });
+    idebBtnCre.addEventListener('click', () => {
+      idebBtnCre.classList.add('active'); idebBtnMun.classList.remove('active');
+      idebBuildCreMap();
+    });
+  }
+
+  // Map etapa selector
+  document.getElementById('sel-ideb-map-etapa')?.addEventListener('change', e => {
+    S.idebEtapa = e.target.value;
+    // Rebuild active layer
+    if (idebBtnCre?.classList.contains('active')) idebBuildCreMap();
+    else idebBuildMap();
+  });
+
+  // ── Populate topbar filters with IDEB years ──
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && S.creSel) selCre.value = S.creSel;
+  const selMunEl = document.getElementById('sel-mun');
+  if (selMunEl && S.munSel) selMunEl.value = S.munSel;
+  if (S.munSel) {
+    const munInput = document.getElementById('mun-search-input');
+    if (munInput) munInput.value = lookup[S.munSel] || S.munSel;
+  }
+  bindTopbarFilters();
   bindRedeToggle();
   updateActiveFilters();
 }
+
 
 // ══════════════════════════════════════════════════════════
 // NAV TABS
@@ -3379,7 +3920,7 @@ function renderHome() {
       status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB',
       desc: 'Índice de Desenvolvimento da Educação Básica — evolução, metas projetadas e decomposição N×P.',
-      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
+      status: 'v1', statusLabel: 'V1', accent: '#00AB4E' },
   ];
 
   main.innerHTML = `
