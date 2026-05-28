@@ -2805,7 +2805,7 @@ function renderSaeb() {
           </div>
           <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
             <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
-              <strong>2023:</strong> O INEP <strong>mascarou</strong> o código de município nos microdados.
+              <strong>2023:</strong> O INEP <span style="position:relative;cursor:help;border-bottom:1px dotted #8D6E63" title="Leia-Me Microdados SAEB 2023, p. 11 — &quot;As máscaras, entendidas como códigos fictícios, foram utilizadas em todas as bases para evitar a identificação de escolas e municípios atendendo às regras de proteção de dados pessoais estabelecidas pela LGPD. No que diz respeito à padronização da máscara, o código fictício usado para cada escola ou município inicia com o dígito '6' e é o mesmo para todas as bases dos Microdados. O uso das máscaras se dá pela substituição dos códigos reais da escola e do município por códigos fictícios. O mascaramento dos códigos de Escolas e Municípios reduz significativamente a possibilidade de reidentificação dos alunos, professores, gestores escolares e municipais, por meio do cruzamento das bases disponibilizadas.&quot;"><strong>mascarou</strong> ⓘ</span> o código de município nos microdados.
               Dados municipais disponíveis apenas até 2021.
             </p>
           </div>
