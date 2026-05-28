@@ -3920,7 +3920,7 @@ function renderHome() {
       status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB',
       desc: 'Índice de Desenvolvimento da Educação Básica — evolução, metas projetadas e decomposição N×P.',
-      status: 'v1', statusLabel: 'V1', accent: '#00AB4E' },
+      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
   ];
 
   main.innerHTML = `
@@ -3948,7 +3948,7 @@ function renderHome() {
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
               <div class="home-card-title">${s.title}</div>
               <div class="home-card-desc">${s.desc}</div>
-              <span class="home-card-status ${s.status}">● ${s.statusLabel}</span>
+              <div style="text-align:center"><span class="home-card-status ${s.status}">● ${s.statusLabel}</span></div>
             </div>
           `).join('')}
         </div>
@@ -3959,8 +3959,8 @@ function renderHome() {
             Desenvolvido no âmbito do contrato UNESCO / SEDUC-RS
           </div>
           <div class="home-footer-logos">
-            <img src="img/logo_rs.avif" alt="Governo RS" style="height:48px" onerror="this.style.display='none'">
-            <img src="img/logo_cebe.png" alt="CEBE" style="height:48px" onerror="this.style.display='none'">
+            <img src="img/logo_rs.avif" alt="Governo RS" style="height:56px" onerror="this.style.display='none'">
+            <img src="img/logo_cebe.png" alt="CEBE" style="height:56px" onerror="this.style.display='none'">
           </div>
         </div>
 
