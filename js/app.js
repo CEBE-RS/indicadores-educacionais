@@ -3905,7 +3905,7 @@ function renderHome() {
       status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
     { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico (INSE)',
       desc: 'Indicador de Nível Socioeconômico — perfil das famílias, distribuição por nível e evolução 2019–2023.',
-      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
+      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
     { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Docência',
       desc: 'Perfil docente, escolaridade, vínculo e razão aluno/professor.',
       status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
@@ -3929,7 +3929,7 @@ function renderHome() {
       <div class="home-content">
 
         <div class="home-hero" style="margin-bottom:28px">
-          <div class="home-hero-badge">Secretaria da Educação do Rio Grande do Sul</div>
+          <div class="home-hero-badge">Secretaria de Estado de Educação do Rio Grande do Sul</div>
           <h1>Painel de <span>Indicadores Educacionais</span></h1>
           <p class="home-hero-sub">
             Plataforma analítica com dados abertos da rede estadual do Rio Grande do Sul
