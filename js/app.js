@@ -3894,33 +3894,15 @@ function renderHome() {
   destroyMap();
   document.body.classList.add('sidebar-hidden');
   const sections = [
-    { view: 'acesso', icon: 'img/icons/nav_acesso.png', title: 'Acesso e Matrículas',
-      desc: 'Evolução de matrículas, escolas e etapas de ensino na rede estadual do RS.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'infra', icon: 'img/icons/nav_infra.png', title: 'Infraestrutura',
-      desc: 'Infraestrutura escolar — tecnologia, espaços, acessibilidade e saneamento.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão',
-      desc: 'Indicador de complexidade da gestão escolar — porte, turnos, etapas e série histórica 2013–2025.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico (INSE)',
-      desc: 'Indicador de Nível Socioeconômico — perfil das famílias, distribuição por nível e evolução 2019–2023.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Docência',
-      desc: 'Perfil docente, escolaridade, vínculo e razão aluno/professor.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'afd', icon: 'img/icons/sec_docentes.png', title: 'Formação Docente (AFD)',
-      desc: 'Percentual de docentes com formação adequada à disciplina que lecionam, por etapa e grupo.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
-    { view: 'fluxo', icon: 'img/icons/nav_fluxo.png', title: 'Fluxo e Rendimento',
-      desc: 'Taxas de aprovação, reprovação, abandono e distorção idade-série.',
-      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
-    { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB',
-      desc: 'Proficiências em Língua Portuguesa e Matemática — série histórica 2013–2023.',
-      status: 'wip', statusLabel: 'Em construção', accent: '#FB8C00' },
-    { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB',
-      desc: 'Índice de Desenvolvimento da Educação Básica — evolução, metas projetadas e decomposição N×P.',
-      status: 'active', statusLabel: 'V1 disponível', accent: '#00AB4E' },
+    { view: 'acesso', icon: 'img/icons/nav_acesso.png', title: 'Acesso e Matrículas' },
+    { view: 'infra', icon: 'img/icons/nav_infra.png', title: 'Infraestrutura' },
+    { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão' },
+    { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico (INSE)' },
+    { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Docência' },
+    { view: 'afd', icon: 'img/icons/professor.png', title: 'Formação Docente (AFD)' },
+    { view: 'fluxo', icon: 'img/icons/sec_evolucao.png', title: 'Fluxo e Rendimento' },
+    { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB' },
+    { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB' },
   ];
 
   main.innerHTML = `
@@ -3942,13 +3924,11 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="home-grid" style="grid-template-columns:repeat(3,1fr)">
           ${sections.map(s => `
-            <div class="home-card" data-nav="${s.view}" style="--card-accent:${s.accent}">
+            <div class="home-card home-card-compact" data-nav="${s.view}">
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
               <div class="home-card-title">${s.title}</div>
-              <div class="home-card-desc">${s.desc}</div>
-              <div style="text-align:center"><span class="home-card-status ${s.status}">● ${s.statusLabel}</span></div>
             </div>
           `).join('')}
         </div>
@@ -4078,32 +4058,30 @@ function renderFluxo() {
       <span class="section-divider-text">Evolução Temporal</span>
       <span class="section-divider-line"></span>
     </div>
-    <div class="charts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card d1">
-        <div class="chart-title">Aprovação Fund. AI (%)</div>
-        <div style="height:220px"><canvas id="flx-chart-aprov-ai"></canvas></div>
-        <div class="chart-source">${FONTE_REND}</div>
-      </div>
-      <div class="chart-card d2">
-        <div class="chart-title">Aprovação Fund. AF (%)</div>
-        <div style="height:220px"><canvas id="flx-chart-aprov-af"></canvas></div>
-        <div class="chart-source">${FONTE_REND}</div>
-      </div>
-      <div class="chart-card d3">
-        <div class="chart-title">Aprovação Médio (%)</div>
-        <div style="height:220px"><canvas id="flx-chart-aprov-med"></canvas></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+          <div class="chart-title" style="margin:0">Aprovação por Etapa (%)</div>
+          <div class="flx-toggle-pills" id="flx-aprov-pills">
+            <button class="flx-pill" data-key="aprov_fund_ai" style="--pill-color:${COLORS.fundamental}">Fund. AI</button>
+            <button class="flx-pill" data-key="aprov_fund_af" style="--pill-color:${COLORS.priLight}">Fund. AF</button>
+            <button class="flx-pill active" data-key="aprov_med" style="--pill-color:${COLORS.red}">Médio</button>
+          </div>
+        </div>
+        <div style="height:340px"><canvas id="flx-chart-aprov"></canvas></div>
         <div class="chart-source">${FONTE_REND}</div>
       </div>
     </div>
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="chart-card d4">
-        <div class="chart-title">Reprovação e Abandono — Fundamental (%)</div>
-        <div style="height:220px"><canvas id="flx-chart-repab-fund"></canvas></div>
-        <div class="chart-source">${FONTE_REND}</div>
-      </div>
-      <div class="chart-card d5">
-        <div class="chart-title">Reprovação e Abandono — Médio (%)</div>
-        <div style="height:220px"><canvas id="flx-chart-repab-med"></canvas></div>
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card d2">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+          <div class="chart-title" style="margin:0">Reprovação e Abandono (%)</div>
+          <div class="flx-toggle-pills" id="flx-repab-pills">
+            <button class="flx-pill active" data-key="fund" style="--pill-color:${COLORS.yellow}">Fundamental</button>
+            <button class="flx-pill active" data-key="med" style="--pill-color:${COLORS.red}">Médio</button>
+          </div>
+        </div>
+        <div style="height:340px"><canvas id="flx-chart-repab"></canvas></div>
         <div class="chart-source">${FONTE_REND}</div>
       </div>
     </div>
@@ -4269,78 +4247,155 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
     return f.serie_temporal[ano] || {};
   };
 
-  // Filter out years where all rendimento data is null (e.g. 2019)
+  // Filter out years where all rendimento data is null
   const anosChart = anos.filter(a => {
     const d = getYearData(a);
     return d.aprov_fund != null || d.aprov_fund_ai != null || d.reprov_fund != null || d.aband_fund != null;
   });
 
-  // 1. Approval — 3 separate charts (AI / AF / Médio)
-  // Dynamic align: values ≥98 get label below point, otherwise above — avoids clipping at max:100
-  const aprovDL = (color) => ({
-    ...DL_LINE_BOLD, color, clamp: true,
-    anchor: ctx => (ctx.dataset.data[ctx.dataIndex] ?? 0) >= 98 ? 'start' : 'end',
-    align:  ctx => (ctx.dataset.data[ctx.dataIndex] ?? 0) >= 98 ? 'bottom' : 'top',
-  });
-  const aprovLineOpts = (color) => ({
-    ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
-    plugins: { ...CHART_DEFAULTS.plugins, datalabels: aprovDL(color), legend: { display: false } },
-    scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 80, max: 100 } }
-  });
-  const aprovAI = document.getElementById('flx-chart-aprov-ai');
-  if (aprovAI) {
-    S.charts.push(new Chart(aprovAI, { type:'line', data:{ labels:anosChart, datasets:[
-      { label:'Fund. AI', data:anosChart.map(a => getYearData(a).aprov_fund_ai ?? null), borderColor:COLORS.fundamental, backgroundColor:COLORS.fundamental+'22', fill:true, tension:.3, pointRadius:5, borderWidth:2.5 }
-    ]}, options: aprovLineOpts(COLORS.fundamental) }));
-  }
-  const aprovAF = document.getElementById('flx-chart-aprov-af');
-  if (aprovAF) {
-    S.charts.push(new Chart(aprovAF, { type:'line', data:{ labels:anosChart, datasets:[
-      { label:'Fund. AF', data:anosChart.map(a => getYearData(a).aprov_fund_af ?? null), borderColor:COLORS.priLight, backgroundColor:COLORS.priLight+'22', fill:true, tension:.3, pointRadius:5, borderWidth:2.5 }
-    ]}, options: aprovLineOpts(COLORS.priLight) }));
-  }
-  const aprovMed = document.getElementById('flx-chart-aprov-med');
-  if (aprovMed) {
-    S.charts.push(new Chart(aprovMed, { type:'line', data:{ labels:anosChart, datasets:[
-      { label:'Médio', data:anosChart.map(a => getYearData(a).aprov_med ?? null), borderColor:COLORS.red, backgroundColor:COLORS.red+'22', fill:true, tension:.3, pointRadius:5, borderWidth:2.5 }
-    ]}, options: { ...aprovLineOpts(COLORS.red), scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 75, max: 100 } } } }));
+  // ── 1. APPROVAL — single chart with toggleable series ──
+  const APROV_SERIES = {
+    aprov_fund_ai: { label: 'Fund. AI', color: COLORS.fundamental },
+    aprov_fund_af: { label: 'Fund. AF', color: COLORS.priLight },
+    aprov_med:     { label: 'Médio',    color: COLORS.red },
+  };
+
+  const aprovEl = document.getElementById('flx-chart-aprov');
+  if (aprovEl) {
+    // Build all datasets, but only show 'Médio' initially
+    const aprovDatasets = Object.entries(APROV_SERIES).map(([key, cfg]) => ({
+      label: cfg.label,
+      data: anosChart.map(a => getYearData(a)[key] ?? null),
+      borderColor: cfg.color,
+      backgroundColor: cfg.color + '18',
+      fill: true,
+      tension: .35,
+      pointRadius: 5,
+      borderWidth: 2.5,
+      hidden: key !== 'aprov_med',  // Only Médio visible by default
+      _flxKey: key,
+    }));
+
+    const aprovChart = new Chart(aprovEl, {
+      type: 'line',
+      data: { labels: anosChart, datasets: aprovDatasets },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 38 } },
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: false },
+          datalabels: {
+            ...DL_LINE_BOLD,
+            clamp: true,
+            anchor: ctx => (ctx.dataset.data[ctx.dataIndex] ?? 0) >= 98 ? 'start' : 'end',
+            align:  ctx => (ctx.dataset.data[ctx.dataIndex] ?? 0) >= 98 ? 'bottom' : 'top',
+            color: ctx => ctx.dataset.borderColor,
+          },
+          tooltip: {
+            enabled: true, mode: 'index', intersect: false,
+            backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family:'Inter', size:12, weight:'700' },
+            bodyFont: { family:'Inter', size:11 }, padding: 10, cornerRadius: 8,
+            callbacks: {
+              title: items => items[0]?.label || '',
+              label: item => item.raw != null ? `  ${item.dataset.label}: ${item.raw.toFixed(1)}%` : '',
+            }
+          },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, min: 60, max: 100, grace: '5%' }
+        },
+      },
+    });
+    S.charts.push(aprovChart);
+
+    // Bind pill toggles for approval chart
+    document.querySelectorAll('#flx-aprov-pills .flx-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.classList.toggle('active');
+        const key = pill.dataset.key;
+        const dsIdx = aprovChart.data.datasets.findIndex(ds => ds._flxKey === key);
+        if (dsIdx >= 0) {
+          aprovChart.data.datasets[dsIdx].hidden = !pill.classList.contains('active');
+          aprovChart.update();
+        }
+      });
+    });
   }
 
-  // 2. Reprov + Abandono — 2 charts (Fundamental / Médio)
-  // NO datalabels — only rich tooltip on hover
-  const repabBaseOpts = { ...CHART_DEFAULTS, layout: { padding: { top: 8 } },
-    plugins: { ...CHART_DEFAULTS.plugins,
-      datalabels: { display: false },
-      tooltip: {
-        enabled: true, mode: 'index', intersect: false,
-        backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family:'Inter', size:12, weight:'700' },
-        bodyFont: { family:'Inter', size:11 }, padding: 10, cornerRadius: 8,
-        callbacks: {
-          title: items => items[0]?.label || '',
-          label: item => {
-            const v = item.raw;
-            if (v == null) return '';
-            return `  ${item.dataset.label}: ${v.toFixed(1)}%`;
-          }
-        }
-      },
-      legend: { display: true, labels: { font: { family:'Inter', size:10, weight:'600' }, boxWidth:10, padding:8 } }
+  // ── 2. REPROV + ABANDON — single chart with toggleable Fund/Médio ──
+  const REPAB_SERIES = {
+    fund: {
+      reprov: { label: 'Reprov. Fund.', color: COLORS.yellow, key: 'reprov_fund', dash: [] },
+      aband:  { label: 'Aband. Fund.', color: '#999',         key: 'aband_fund', dash: [5,5] },
     },
-    scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 10, grace: '10%' } }
+    med: {
+      reprov: { label: 'Reprov. Médio', color: COLORS.red,    key: 'reprov_med', dash: [] },
+      aband:  { label: 'Aband. Médio',  color: '#333',        key: 'aband_med',  dash: [5,5] },
+    },
   };
-  const repFund = document.getElementById('flx-chart-repab-fund');
-  if (repFund) {
-    S.charts.push(new Chart(repFund, { type:'line', data:{ labels:anosChart, datasets:[
-      { label:'Reprovação', data:anosChart.map(a => getYearData(a).reprov_fund ?? null), borderColor:COLORS.yellow, borderWidth:2.5, tension:.3, pointRadius:5 },
-      { label:'Abandono', data:anosChart.map(a => getYearData(a).aband_fund ?? null), borderColor:'#999', borderDash:[5,5], borderWidth:2.5, tension:.3, pointRadius:5 },
-    ]}, options: repabBaseOpts }));
-  }
-  const repMed = document.getElementById('flx-chart-repab-med');
-  if (repMed) {
-    S.charts.push(new Chart(repMed, { type:'line', data:{ labels:anosChart, datasets:[
-      { label:'Reprovação', data:anosChart.map(a => getYearData(a).reprov_med ?? null), borderColor:COLORS.red, borderWidth:2.5, tension:.3, pointRadius:5 },
-      { label:'Abandono', data:anosChart.map(a => getYearData(a).aband_med ?? null), borderColor:'#333', borderDash:[5,5], borderWidth:2.5, tension:.3, pointRadius:5 },
-    ]}, options: repabBaseOpts }));
+
+  const repabEl = document.getElementById('flx-chart-repab');
+  if (repabEl) {
+    const repabDatasets = [];
+    for (const [group, series] of Object.entries(REPAB_SERIES)) {
+      for (const [type, cfg] of Object.entries(series)) {
+        repabDatasets.push({
+          label: cfg.label,
+          data: anosChart.map(a => getYearData(a)[cfg.key] ?? null),
+          borderColor: cfg.color,
+          borderDash: cfg.dash,
+          borderWidth: 2.5,
+          tension: .35,
+          pointRadius: 5,
+          hidden: false,  // Both visible by default
+          _flxGroup: group,
+          _flxKey: cfg.key,
+        });
+      }
+    }
+
+    const repabChart = new Chart(repabEl, {
+      type: 'line',
+      data: { labels: anosChart, datasets: repabDatasets },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 8 } },
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          datalabels: { display: false },
+          tooltip: {
+            enabled: true, mode: 'index', intersect: false,
+            backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family:'Inter', size:12, weight:'700' },
+            bodyFont: { family:'Inter', size:11 }, padding: 10, cornerRadius: 8,
+            callbacks: {
+              title: items => items[0]?.label || '',
+              label: item => item.raw != null ? `  ${item.dataset.label}: ${item.raw.toFixed(1)}%` : '',
+            }
+          },
+          legend: { display: true, labels: { font: { family:'Inter', size:10, weight:'600' }, boxWidth:10, padding:8, filter: item => !item.hidden } },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 15, grace: '10%' }
+        },
+      },
+    });
+    S.charts.push(repabChart);
+
+    // Bind pill toggles for reprov/abandon chart
+    document.querySelectorAll('#flx-repab-pills .flx-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.classList.toggle('active');
+        const group = pill.dataset.key; // 'fund' or 'med'
+        const isActive = pill.classList.contains('active');
+        repabChart.data.datasets.forEach(ds => {
+          if (ds._flxGroup === group) ds.hidden = !isActive;
+        });
+        repabChart.update();
+      });
+    });
   }
 
   // 3. Per-stage grouped bars (current year)

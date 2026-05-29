@@ -886,6 +886,39 @@ body.sidebar-hidden .sidebar {
   margin-top: 2px;
 }
 
+/* ── Fluxo Toggle Pills (series selector) ── */
+.flx-toggle-pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.flx-pill {
+  padding: 4px 12px;
+  border: 2px solid var(--pill-color, var(--pri));
+  border-radius: 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--pill-color, var(--pri));
+  cursor: pointer;
+  transition: all .2s ease;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.flx-pill:hover {
+  background: color-mix(in srgb, var(--pill-color, var(--pri)) 12%, transparent);
+  transform: translateY(-1px);
+}
+
+.flx-pill.active {
+  background: var(--pill-color, var(--pri));
+  color: #fff;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--pill-color, var(--pri)) 35%, transparent);
+}
+
 /* Badge for charts with state-level-only data (not filterable by municipality) */
 .badge-estadual {
   font-size: 8.5px;
@@ -1444,20 +1477,23 @@ body.sidebar-hidden .sidebar {
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 12px;
-  padding: 24px 20px 20px;
+  padding: 20px 22px;
   cursor: pointer;
   transition: all .25s ease;
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .home-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--card-accent, #FFCB04);
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #FFCB04, #00AB4E);
   opacity: 0;
   transition: opacity .25s;
 }
@@ -1465,7 +1501,7 @@ body.sidebar-hidden .sidebar {
 .home-card:hover {
   background: rgba(255,255,255,.14);
   border-color: rgba(255,255,255,.22);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0,0,0,.2);
 }
 
@@ -1479,7 +1515,7 @@ body.sidebar-hidden .sidebar {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 14px;
+  flex-shrink: 0;
 }
 
 .home-card-icon img {
@@ -1487,24 +1523,7 @@ body.sidebar-hidden .sidebar {
   filter: brightness(0) invert(1);
 }
 
-.home-card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; text-align: center; }
-
-.home-card-desc { font-size: 10.5px; color: rgba(255,255,255,.55); line-height: 1.55; text-align: center; }
-
-.home-card-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 14px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .3px;
-}
-
-.home-card-status.active { background: rgba(46,125,50,.3); color: #7CFC00; }
-.home-card-status.wip { background: rgba(255,203,4,.2); color: #FFCB04; }
+.home-card-title { font-size: 14px; font-weight: 700; color: #fff; text-align: left; }
 
 .home-footer {
   margin-top: 48px;
