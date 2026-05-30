@@ -27,6 +27,7 @@ const S = {
   inse: null,
   icg: null,       // 4_8_icg.json — Complexidade de Gestão
   afd: null,       // 4_9_afd.json — Adequação da Formação Docente
+  tdi: null,       // 4_10_tdi.json — Distorção Idade-Série
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -273,7 +274,7 @@ async function loadRedeData(rede) {
     return S.redeCache[rede];
   }
   // Fetch all data sources in parallel; 404s handled gracefully
-  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb'];
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb', 'tdi'];
   const urls = [
     `dados/4_1_acesso_${rede}.json`,
     `dados/4_5_infra_${rede}.json`,
@@ -283,6 +284,7 @@ async function loadRedeData(rede) {
     `dados/4_8_icg_${rede}.json`,
     `dados/4_9_afd_${rede}.json`,
     `dados/4_7_ideb_${rede}.json`,
+    `dados/4_10_tdi_${rede}.json`,
   ];
   const responses = await Promise.all(urls.map(u => fetch(u).catch(() => null)));
   const result = {};
@@ -338,6 +340,7 @@ async function switchRede(rede) {
     S.icg   = cached.icg;
     S.afd   = cached.afd;
     S.ideb  = cached.ideb;
+    S.tdi   = cached.tdi;
     // Update rede toggle active state
     document.querySelectorAll('.rede-toggle-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.rede === rede);
@@ -4094,6 +4097,7 @@ function renderHome() {
     { view: 'fluxo', icon: 'img/icons/sec_evolucao.png', title: 'Fluxo e Rendimento', desc: 'Aprovação, reprovação e abandono' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB', desc: 'Proficiência em Língua Portuguesa e Matemática' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
+    { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
   ];
 
   main.innerHTML = `
@@ -4209,7 +4213,6 @@ const FLUXO_MAP_METRICS = [
   { key: 'aprov_med', label: 'Aprovação Médio (%)', higher: true },
   { key: 'reprov_fund', label: 'Reprovação Fund. (%)', higher: false },
   { key: 'aband_med', label: 'Abandono Médio (%)', higher: false },
-  { key: 'tdi_fund', label: 'TDI Fund. (%)', higher: false, tdi: true },
 ];
 
 function renderFluxo() {
@@ -4290,23 +4293,6 @@ function renderFluxo() {
       </div>
     </div>
 
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/social.png" alt=""></span>
-      <span class="section-divider-text">Detalhamento por Etapa — ${anoSel}</span>
-      <span class="section-divider-line"></span>
-    </div>
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="chart-card d3">
-        <div class="chart-title" id="flx-title-etapa">Taxas por Etapa — ${geoLabel} — ${anoSel}</div>
-        <div style="height:220px"><canvas id="flx-chart-etapa"></canvas></div>
-        <div class="chart-source">${FONTE_REND}</div>
-      </div>
-      <div class="chart-card d4">
-        <div class="chart-title" id="flx-title-tdi">Distorção Idade-Série (%) — ${geoLabel} — ${f.tdi_ano || anoSel}</div>
-        <div style="height:220px"><canvas id="flx-chart-tdi"></canvas></div>
-        <div class="chart-source">${FONTE_REND}</div>
-      </div>
-    </div>
 
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
@@ -4578,7 +4564,7 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
               label: item => item.raw != null ? `  ${item.dataset.label}: ${item.raw.toFixed(1)}%` : '',
             }
           },
-          legend: { display: true, labels: { font: { family:'Inter', size:10, weight:'600' }, boxWidth:10, padding:8, filter: item => !item.hidden } },
+          legend: { display: true, onClick: (e, legendItem, legend) => { const idx = legendItem.datasetIndex; const ci = legend.chart; ci.getDatasetMeta(idx).hidden = !ci.getDatasetMeta(idx).hidden; ci.update(); }, labels: { font: { family:'Inter', size:10, weight:'600' }, boxWidth:10, padding:8 } },
         },
         scales: {
           ...CHART_DEFAULTS.scales,
@@ -4602,36 +4588,8 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
     });
   }
 
-  // 3. Per-stage grouped bars (current year)
-  const etapaEl = document.getElementById('flx-chart-etapa');
-  if (etapaEl) {
-    const labels = ['Fund. AI', 'Fund. AF', 'Médio'];
-    S.charts.push(new Chart(etapaEl, {
-      type: 'bar',
-      data: { labels, datasets: [
-        { label: 'Aprovação', data: [st.aprov_fund_ai, st.aprov_fund_af, st.aprov_med], backgroundColor: COLORS.pri+'CC', borderRadius: 4 },
-        { label: 'Reprovação', data: [st.reprov_fund_ai, st.reprov_fund_af, st.reprov_med], backgroundColor: COLORS.yellow+'CC', borderRadius: 4 },
-        { label: 'Abandono', data: [st.aband_fund_ai, st.aband_fund_af, st.aband_med], backgroundColor: COLORS.red+'CC', borderRadius: 4 },
-      ]},
-      options: { ...CHART_DEFAULTS,
-        plugins: { ...CHART_DEFAULTS.plugins, datalabels: DL_BAR_BOLD, legend: { display: true, labels: { font: { family:'Inter', size:11, weight:'600' }, boxWidth:10 } } },
-        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min:0, max: 100 } } }
-    }));
-  }
-
-  // 4. TDI bars
-  const tdiEl = document.getElementById('flx-chart-tdi');
-  if (tdiEl) {
-    const labels = ['Fund. AI', 'Fund. AF', 'Médio'];
-    const data = [tdiSrc.tdi_fund_ai, tdiSrc.tdi_fund_af, tdiSrc.tdi_med];
-    S.charts.push(new Chart(tdiEl, {
-      type: 'bar',
-      data: { labels, datasets: [{ label: 'TDI (%)', data, backgroundColor: [COLORS.fundamental+'CC', COLORS.priLight+'CC', COLORS.red+'CC'], borderRadius: 6 }] },
-      options: { ...CHART_DEFAULTS,
-        plugins: { ...CHART_DEFAULTS.plugins, datalabels: DL_BAR_BOLD, legend: { display: false } },
-        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: Math.max(...data.filter(v=>v!=null))*1.3 || 30 } } }
-    }));
-  }
+  // 3. (Taxas por Etapa removed)
+  // 4. (TDI removed — now has its own section)
 }
 
 /** Leaflet choropleth for Fluxo rates */
@@ -6183,15 +6141,16 @@ function renderAfd() {
   const anos = Object.keys(afd.serie_temporal).sort();
   const ultimo = anos[anos.length - 1];
   const primeiro = anos[0];
-  const st = afd.serie_temporal[ultimo];
+  const anoSel = (S.anoSel && afd.serie_temporal[S.anoSel]) ? S.anoSel : ultimo;
+  const st = afd.serie_temporal[anoSel];
   const lookup = afd.lookup_municipios || {};
 
   const displayData = S.munSel
-    ? (afd.por_municipio?.[ultimo]?.[S.munSel] || st)
+    ? (afd.por_municipio?.[anoSel]?.[S.munSel] || st)
     : (S.creSel ? (() => {
         const creMuns = getCreMuns(S.creSel);
         const agg = { total_escolas: 0 };
-        const munYear = afd.por_municipio?.[ultimo] || {};
+        const munYear = afd.por_municipio?.[anoSel] || {};
         for (const cod of creMuns) {
           const m = munYear[cod]; if (!m) continue;
           agg.total_escolas += m.total_escolas || 0;
@@ -6244,7 +6203,6 @@ function renderAfd() {
           <p style="font-size:10.5px;margin:0 0 16px;color:#555;line-height:1.7">
             <strong>Unidade de análise:</strong> cada <em>docência</em> (professor + disciplina + turma).
             Um mesmo professor pode ser classificado em grupos diferentes se lecionar mais de uma disciplina.
-            A base legal é a <strong>LDB</strong> (Lei nº 9.394/1996, art. 62) e as diretrizes do <strong>CNE</strong>.
           </p>
           <div style="background:rgba(0,171,78,.08);border:1px solid rgba(0,171,78,.2);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0;color:#1B5E20;line-height:1.7">
@@ -6281,13 +6239,13 @@ function renderAfd() {
     <!-- ═══ EIXO: Distribuição por Grupo ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
-      <span class="section-divider-text">Distribuição por Grupo — ${ultimo}</span>
+      <span class="section-divider-text">Distribuição por Grupo — ${anoSel}</span>
       <span class="section-divider-line"></span>
     </div>
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${ultimo})</div>
+        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${anoSel})</div>
         <div style="height:300px"><canvas id="afd-chart-etapa"></canvas></div>
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
@@ -6313,14 +6271,14 @@ function renderAfd() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial — ${ultimo}</span>
+      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
       <span class="section-divider-line"></span>
     </div>
 
     <div class="map-table-row d1">
       <div class="map-container">
         <div class="map-toolbar">
-          <h3>Mapa — % G1 Fundamental <span id="afd-map-ano">${ultimo}</span></h3>
+          <h3>Mapa — % G1 Fundamental <span id="afd-map-ano">${anoSel}</span></h3>
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="afd-btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="afd-btn-layer-cre">CREs</button>
@@ -6359,10 +6317,10 @@ function renderAfd() {
       return (etapas.reduce((s, e) => s + (displayData[e].g3 || 0), 0) / etapas.length).toFixed(1);
     })();
     const kpis = [
-      { label: `G1 Fundamental (${ultimo})`, value: displayData.fund_total?.g1 != null ? displayData.fund_total.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.fund_total?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
-      { label: `G1 Ens. Médio (${ultimo})`, value: displayData.medio?.g1 != null ? displayData.medio.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.medio?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
+      { label: `G1 Fundamental (${anoSel})`, value: displayData.fund_total?.g1 != null ? displayData.fund_total.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.fund_total?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
+      { label: `G1 Ens. Médio (${anoSel})`, value: displayData.medio?.g1 != null ? displayData.medio.g1.toFixed(1) + '%' : '—', icon: 'img/icons/sec_docentes.png', accent: (displayData.medio?.g1 || 0) >= 60 ? 'green' : 'red', noFormat: true },
       { label: 'G3 — Outra Licenciatura', value: g3General + '%', icon: 'img/icons/politicas.png', accent: parseFloat(g3General) > 25 ? 'red' : 'green', noFormat: true },
-      { label: `Escolas (${ultimo})`, value: displayData.total_escolas || st.total_escolas || 0, icon: 'img/icons/escola.png', accent: 'green' },
+      { label: `Escolas (${anoSel})`, value: displayData.total_escolas || st.total_escolas || 0, icon: 'img/icons/escola.png', accent: 'green' },
     ];
     strip.innerHTML = kpis.map((k, i) => `
       <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
@@ -6525,7 +6483,7 @@ function renderAfd() {
     if (!S.geo) return;
     const mapEl = document.getElementById('afd-map-leaflet');
     if (!mapEl) return;
-    const munData = afd.por_municipio[ultimo] || {};
+    const munData = afd.por_municipio[anoSel] || {};
 
     destroyMap();
     S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
@@ -6586,7 +6544,7 @@ function renderAfd() {
     if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
     if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
     const munToCre = S.creLookup?.mun_to_cre || {};
-    const munData = afd.por_municipio[ultimo] || {};
+    const munData = afd.por_municipio[anoSel] || {};
     const creData = {};
     for (const [cod, v] of Object.entries(munData)) {
       const cre = munToCre[cod]?.cod_cre;
@@ -6626,7 +6584,7 @@ function renderAfd() {
   const afdBuildMunTable = () => {
     const tbody = document.querySelector('#afd-mun-table tbody');
     if (!tbody) return;
-    const munData = afd.por_municipio[ultimo] || {};
+    const munData = afd.por_municipio[anoSel] || {};
     let entries = Object.entries(munData);
     if (S.creSel && S.creLookup?.mun_to_cre) entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
     if (S.munSel) entries = entries.filter(([cod]) => cod === S.munSel);
@@ -6682,7 +6640,448 @@ function renderAfd() {
   // Re-populate topbar filters
   const selAno = document.getElementById('sel-ano');
   if (selAno) {
-    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('');
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && S.creSel) selCre.value = S.creSel;
+  const selMunEl = document.getElementById('sel-mun');
+  if (selMunEl && S.munSel) selMunEl.value = S.munSel;
+  bindTopbarFilters();
+  bindRedeToggle();
+  updateActiveFilters();
+}
+
+// ══════════════════════════════════════════════════════════
+// DISTORÇÃO IDADE-SÉRIE (TDI)
+// ══════════════════════════════════════════════════════════
+
+const FONTE_TDI = 'Fonte: INEP — Indicador de Distorção Idade-Série';
+
+function renderTdi() {
+  const main = document.getElementById('main-content');
+  destroyCharts(); destroyMap();
+
+  const tdi = S.tdi;
+  if (!tdi) {
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/politicas.png', 'Distorção Idade-Série', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados de Distorção Idade-Série não disponíveis para a ${getRedeLabel()}</p>
+      </div>`;
+    bindRedeToggle();
+    return;
+  }
+
+  const anos = Object.keys(tdi.serie_temporal).sort();
+  const ultimo = anos[anos.length - 1];
+  const primeiro = anos[0];
+  const anoSel = (S.anoSel && tdi.serie_temporal[S.anoSel]) ? S.anoSel : ultimo;
+  const st = tdi.serie_temporal[anoSel];
+  const lookup = tdi.lookup_municipios || {};
+
+  // Geo-aware display data
+  const displayData = S.munSel
+    ? (tdi.por_municipio?.[anoSel]?.[S.munSel] || st)
+    : (S.creSel ? (() => {
+        const creMuns = getCreMuns(S.creSel);
+        const munYear = tdi.por_municipio?.[anoSel] || {};
+        const agg = { tdi_fund: [], tdi_ai: [], tdi_af: [], tdi_med: [], n_escolas: 0 };
+        for (const cod of creMuns) {
+          const m = munYear[cod]; if (!m) continue;
+          if (m.tdi_fund != null) agg.tdi_fund.push(m.tdi_fund);
+          if (m.tdi_ai != null) agg.tdi_ai.push(m.tdi_ai);
+          if (m.tdi_af != null) agg.tdi_af.push(m.tdi_af);
+          if (m.tdi_med != null) agg.tdi_med.push(m.tdi_med);
+          agg.n_escolas += m.n_escolas || 0;
+        }
+        const med = arr => arr.length ? +(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : null;
+        return { tdi_fund: med(agg.tdi_fund), tdi_ai: med(agg.tdi_ai), tdi_af: med(agg.tdi_af), tdi_med: med(agg.tdi_med), n_escolas: agg.n_escolas };
+      })() : st);
+
+  // Geo label
+  let geoLabel = getRedeLabel() + ' do RS';
+  if (S.munSel && lookup[S.munSel]) geoLabel = lookup[S.munSel];
+  else if (S.creSel) geoLabel = (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre) || `CRE ${S.creSel}`;
+
+  // Previous year for delta
+  const anoIdx = anos.indexOf(anoSel);
+  const anoPrev = anoIdx > 0 ? anos[anoIdx - 1] : null;
+  const stPrev = anoPrev ? tdi.serie_temporal[anoPrev] : null;
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/politicas.png', 'Distorção Idade-Série', geoLabel)}
+      ${redeToggleHTML()}
+      <div class="kpi-strip" id="tdi-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
+    </div>
+
+    <!-- ═══ BLOCO INFORMATIVO: O que é a TDI? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/politicas.png" alt=""></span>
+      <span class="section-divider-text">O que é a TDI?</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
+      <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <img src="img/icons/politicas.png" alt="" style="width:20px;height:20px">
+          <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+        </div>
+        <p style="font-size:11.5px;margin:0 0 12px;color:#333;line-height:1.75">
+          A <strong>Taxa de Distorção Idade-Série (TDI)</strong> indica o percentual de alunos com <strong>idade superior à recomendada</strong>
+          para a série que frequentam. Um aluno é considerado em situação de distorção quando sua idade é
+          <strong>2 anos ou mais</strong> acima da idade ideal para a série.
+        </p>
+        <p style="font-size:9px;margin:10px 0 0;color:#999;line-height:1.5;font-style:italic">
+          Fonte: INEP — Censo Escolar da Educação Básica.
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Evolução Temporal ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/politicas.png" alt=""></span>
+      <span class="section-divider-text">Evolução Temporal (${primeiro}–${ultimo})</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title" id="tdi-evol-title">Taxa de Distorção Idade-Série — Evolução</div>
+        <p style="font-size:10px;color:#777;margin:4px 0 2px;font-style:italic">💡 Clique na legenda para ocultar/exibir etapas</p>
+        <div style="height:300px"><canvas id="tdi-chart-evol"></canvas></div>
+        <div class="chart-source">${FONTE_TDI}</div>
+      </div>
+    </div>
+
+
+
+    <!-- ═══ EIXO: Distribuição Territorial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="map-table-row d1">
+      <div class="map-container">
+        <div class="map-toolbar">
+          <h3>Mapa — TDI Fundamental <span id="tdi-map-ano">${anoSel}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="tdi-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="tdi-btn-layer-cre">CREs</button>
+          </div>
+        </div>
+        <div id="tdi-map-leaflet" style="height:380px;border-radius:8px"></div>
+      </div>
+      <div class="table-wrapper" id="tdi-table-wrapper">
+        <div class="table-header">
+          <h3>Tabela de Municípios — TDI</h3>
+          <input type="text" class="table-search" id="tdi-mun-search" placeholder="Buscar...">
+        </div>
+        <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:0 0 6px 6px;border-top:1px dashed rgba(255,203,4,.3)">
+          📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção.
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="tdi-mun-table">
+            <thead><tr>
+              <th style="cursor:pointer" data-sort-key="rank"># ↕</th><th style="cursor:pointer" data-sort-key="nome">Município ↕</th><th style="cursor:pointer" data-sort-key="n_escolas">Esc. ↕</th>
+              <th style="cursor:pointer" data-sort-key="tdi_fund">Fund. ↕</th><th style="cursor:pointer" data-sort-key="tdi_ai">AI ↕</th><th style="cursor:pointer" data-sort-key="tdi_af">AF ↕</th><th style="cursor:pointer" data-sort-key="tdi_med">Médio ↕</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_TDI}</div>
+      </div>
+    </div>
+  `;
+
+  // ── KPIs ──
+  const strip = document.getElementById('tdi-kpis');
+  if (strip) {
+    const deltaFn = (cur, prev) => (cur != null && prev != null) ? +(cur - prev).toFixed(1) : null;
+    const kpis = [
+      { label: `TDI Anos Iniciais (${anoSel})`, value: displayData.tdi_ai, delta: deltaFn(displayData.tdi_ai, stPrev?.tdi_ai), icon: 'img/icons/infantil.png' },
+      { label: `TDI Anos Finais (${anoSel})`, value: displayData.tdi_af, delta: deltaFn(displayData.tdi_af, stPrev?.tdi_af), icon: 'img/icons/fundamental.png' },
+      { label: `TDI Ens. Médio (${anoSel})`, value: displayData.tdi_med, delta: deltaFn(displayData.tdi_med, stPrev?.tdi_med), icon: 'img/icons/medio.png' },
+    ];
+    strip.innerHTML = kpis.map((k, i) => {
+      const val = k.value != null ? k.value.toFixed(1) + '%' : '—';
+      const accent = k.value == null ? 'green' : k.value > 20 ? 'red' : k.value > 10 ? 'yellow' : 'green';
+      const dSign = k.delta > 0 ? '+' : '';
+      // For TDI, decrease is good (invert arrow logic)
+      const dClass = k.delta == null ? 'neutral' : k.delta > 0 ? 'down' : k.delta < 0 ? 'up' : 'neutral';
+      const dArrow = k.delta == null ? '' : k.delta > 0 ? '↑' : k.delta < 0 ? '↓' : '→';
+      return `
+      <div class="kpi-card accent-${accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="">
+        </div>
+        <div class="kpi-body"><span class="kpi-value">${val}</span></div>
+        ${k.delta != null ? `<div class="kpi-footer"><span class="kpi-delta ${dClass}">${dArrow} ${dSign}${k.delta.toFixed(1)}pp</span><span class="kpi-abs">vs ${anoPrev}</span></div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ── Geo-aware time series helper ──
+  const tdiGeoSeries = (anos) => {
+    if (!S.munSel && !S.creSel) return anos.map(a => tdi.serie_temporal[a]);
+    return anos.map(a => {
+      const munYear = tdi.por_municipio?.[a] || {};
+      if (S.munSel) return munYear[S.munSel] || null;
+      if (S.creSel) {
+        const creMuns = getCreMuns(S.creSel);
+        const vals = { tdi_fund: [], tdi_ai: [], tdi_af: [], tdi_med: [] };
+        for (const cod of creMuns) {
+          const m = munYear[cod]; if (!m) continue;
+          for (const k of Object.keys(vals)) if (m[k] != null) vals[k].push(m[k]);
+        }
+        const med = arr => arr.length ? +(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : null;
+        return { tdi_fund: med(vals.tdi_fund), tdi_ai: med(vals.tdi_ai), tdi_af: med(vals.tdi_af), tdi_med: med(vals.tdi_med) };
+      }
+      return tdi.serie_temporal[a];
+    });
+  };
+  const geoTs = tdiGeoSeries(anos);
+
+  // ── Chart 1: Evolution (clickable legend to filter) ──
+  const evolEl = document.getElementById('tdi-chart-evol');
+  if (evolEl) {
+    const metrics = [
+      { key: 'tdi_ai', label: 'Anos Iniciais', color: COLORS.fundAI },
+      { key: 'tdi_af', label: 'Anos Finais', color: '#F57C00' },
+      { key: 'tdi_med', label: 'Ensino Médio', color: COLORS.red },
+    ];
+
+    S.charts.push(new Chart(evolEl, {
+      type: 'line',
+      data: {
+        labels: anos,
+        datasets: metrics.map(m => ({
+          label: m.label,
+          data: geoTs.map(s => s?.[m.key] ?? null),
+          borderColor: m.color,
+          backgroundColor: m.color + '22',
+          tension: .3, pointRadius: 4, borderWidth: 2.5, fill: false,
+          pointHoverRadius: 7,
+        }))
+      },
+      options: { ...CHART_DEFAULTS, layout: { padding: { top: 22 } },
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: {
+            display: true,
+            onClick: (e, legendItem, legend) => {
+              const idx = legendItem.datasetIndex;
+              const ci = legend.chart;
+              ci.getDatasetMeta(idx).hidden = !ci.getDatasetMeta(idx).hidden;
+              ci.update();
+            },
+            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 8, usePointStyle: false }
+          },
+          datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, font: { family: 'Inter', size: 10, weight: '700' }, color: '#333', formatter: v => v != null ? v.toFixed(1) + '%' : '', clamp: true }
+        },
+        scales: { ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: 35, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' }, grace: '10%' }
+        }
+      }
+    }));
+  }
+
+  // ── Map: TDI by municipality ──
+  const TDI_MAP_BREAKS = [
+    { min: 0,   max: 5,  color: '#2E7D32', label: '< 5% (Excelente)' },
+    { min: 5,   max: 10, color: '#66BB6A', label: '5–10%' },
+    { min: 10,  max: 15, color: '#FFCB04', label: '10–15%' },
+    { min: 15,  max: 20, color: '#FB8C00', label: '15–20%' },
+    { min: 20,  max: 100, color: '#E53935', label: '> 20% (Crítico)' },
+  ];
+  function getTdiColor(v) {
+    for (const b of TDI_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+    return '#f0f0f0';
+  }
+
+  const tdiBuildMap = () => {
+    if (!S.geo) return;
+    const mapEl = document.getElementById('tdi-map-leaflet');
+    if (!mapEl) return;
+    const munData = tdi.por_municipio[anoSel] || {};
+
+    destroyMap();
+    S.map = L.map('tdi-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+      const nome = props.nome || props.cod_mun;
+      if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados TDI</div>`; return; }
+      this._div.innerHTML = `
+        <h4>${nome}</h4>
+        <div class="info-row"><span class="info-label">TDI Fund.</span><span class="info-value" style="color:${getTdiColor(md.tdi_fund||0)}">${md.tdi_fund?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">TDI AI</span><span class="info-value">${md.tdi_ai?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">TDI AF</span><span class="info-value">${md.tdi_af?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">TDI Médio</span><span class="info-value" style="color:${getTdiColor(md.tdi_med||0)}">${md.tdi_med?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.n_escolas || '—'}</span></div>
+      `;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        const v = md?.tdi_fund ?? -1;
+        return { fillColor: v >= 0 ? getTdiColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_mun?.substring(0, 7);
+        const md = munData[cod];
+        layer.on({
+          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
+        });
+      }
+    }).addTo(S.map);
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>TDI Fundamental (%)</h4>' +
+        TDI_MAP_BREAKS.slice().reverse().map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+    if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+  };
+
+  // ── CRE layer ──
+  const tdiBuildCreMap = () => {
+    if (!S.creGeo || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    const munToCre = S.creLookup?.mun_to_cre || {};
+    const munData = tdi.por_municipio[anoSel] || {};
+    const creData = {};
+    for (const [cod, v] of Object.entries(munData)) {
+      const cre = munToCre[cod]?.cod_cre;
+      if (!cre) continue;
+      if (!creData[cre]) creData[cre] = { sum: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+      if (v.tdi_fund != null) { creData[cre].sum += v.tdi_fund; creData[cre].count++; }
+    }
+    for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sum / c.count : 0;
+
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const cod = feature.properties.cod_cre;
+        const avg = creData[cod]?.avg || 0;
+        return { fillColor: avg > 0 ? getTdiColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = feature.properties.cod_cre;
+        const nome = feature.properties.nome_cre || cod;
+        const d = creData[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>TDI Fund.: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
+        layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+      }
+    }).addTo(S.map);
+
+    const creLegend = L.control({ position: 'bottomleft' });
+    creLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>TDI Fund. (CREs)</h4>' +
+        TDI_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      return div;
+    };
+    creLegend.addTo(S.map);
+    S.mapLegend = creLegend;
+  };
+
+  // ── Table ──
+  let tdiSortCol = 'tdi_fund', tdiSortAsc = false;
+  const tdiBuildMunTable = () => {
+    const tbody = document.querySelector('#tdi-mun-table tbody');
+    if (!tbody) return;
+    const munData = tdi.por_municipio[anoSel] || {};
+    let entries = Object.entries(munData).map(([cod, md]) => ({ cod, nome: lookup[cod] || cod, ...md }));
+    if (S.creSel && S.creLookup?.mun_to_cre) entries = entries.filter(e => S.creLookup.mun_to_cre[e.cod]?.cod_cre === S.creSel);
+    if (S.munSel) entries = entries.filter(e => e.cod === S.munSel);
+    entries.sort((a, b) => {
+      let va = a[tdiSortCol], vb = b[tdiSortCol];
+      if (tdiSortCol === 'nome') { va = (va||'').toLowerCase(); vb = (vb||'').toLowerCase(); return tdiSortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+      va = va ?? -Infinity; vb = vb ?? -Infinity;
+      return tdiSortAsc ? va - vb : vb - va;
+    });
+
+    const colorFn = v => v == null ? '#999' : v > 20 ? '#E53935' : v > 15 ? '#FB8C00' : v > 10 ? '#FFCB04' : v > 5 ? '#66BB6A' : '#2E7D32';
+
+    tbody.innerHTML = entries.map((md, i) => `
+      <tr style="cursor:pointer" data-cod="${md.cod}">
+        <td>${i + 1}</td>
+        <td>${md.nome}</td>
+        <td>${md.n_escolas || '—'}</td>
+        <td style="color:${colorFn(md.tdi_fund)};font-weight:700">${md.tdi_fund?.toFixed(1) ?? '—'}%</td>
+        <td style="color:${colorFn(md.tdi_ai)}">${md.tdi_ai?.toFixed(1) ?? '—'}%</td>
+        <td style="color:${colorFn(md.tdi_af)}">${md.tdi_af?.toFixed(1) ?? '—'}%</td>
+        <td style="color:${colorFn(md.tdi_med)};font-weight:700">${md.tdi_med?.toFixed(1) ?? '—'}%</td>
+      </tr>`
+    ).join('');
+
+    tbody.querySelectorAll('tr[data-cod]').forEach(tr => {
+      tr.addEventListener('click', () => { S.munSel = S.munSel === tr.dataset.cod ? null : tr.dataset.cod; refreshActiveTab(); });
+    });
+
+    const searchEl = document.getElementById('tdi-mun-search');
+    if (searchEl) searchEl.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tr.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+  };
+  // Sortable headers
+  document.querySelectorAll('#tdi-mun-table thead th[data-sort-key]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sortKey;
+      if (tdiSortCol === key) tdiSortAsc = !tdiSortAsc; else { tdiSortCol = key; tdiSortAsc = key === 'nome'; }
+      document.querySelectorAll('#tdi-mun-table thead th[data-sort-key]').forEach(h => {
+        const base = h.textContent.replace(/[\s\u2195\u2191\u2193]/g, '');
+        h.textContent = base + ' ' + (h.dataset.sortKey === tdiSortCol ? (tdiSortAsc ? '\u2191' : '\u2193') : '\u2195');
+      });
+      tdiBuildMunTable();
+    });
+  });
+
+  // Build everything
+  tdiBuildMap();
+  tdiBuildMunTable();
+  injectExportButtons();
+
+  // Bind map layer toggle
+  const tdiBtnMun = document.getElementById('tdi-btn-layer-mun');
+  const tdiBtnCre = document.getElementById('tdi-btn-layer-cre');
+  if (tdiBtnMun && tdiBtnCre) {
+    tdiBtnMun.addEventListener('click', () => { tdiBtnMun.classList.add('active'); tdiBtnCre.classList.remove('active'); tdiBuildMap(); });
+    tdiBtnCre.addEventListener('click', () => { tdiBtnCre.classList.add('active'); tdiBtnMun.classList.remove('active'); tdiBuildCreMap(); });
+  }
+
+  // Re-populate topbar filters
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
   }
   populateCreDropdown();
   populateMunDropdown(S.creSel || null);
@@ -6716,6 +7115,7 @@ function initNav() {
       else if (view === 'inse') { renderInse(); }
       else if (view === 'icg') { renderIcg(); }
       else if (view === 'afd') { renderAfd(); }
+      else if (view === 'tdi') { renderTdi(); }
       else {
         const main = document.getElementById('main-content');
         destroyCharts(); destroyMap();
@@ -7363,7 +7763,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -7377,6 +7777,7 @@ async function init() {
       fetch('dados/4_8_icg.json'),
       fetch('dados/4_9_afd.json'),
       fetch('dados/4_7_ideb.json'),
+      fetch('dados/4_10_tdi.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -7392,9 +7793,10 @@ async function init() {
     if (respIcg.ok)       S.icg       = await respIcg.json();
     if (respAfd.ok)       S.afd       = await respAfd.json();
     if (respIdeb.ok)      S.ideb      = await respIdeb.json();
+    if (respTdi.ok)       S.tdi       = await respTdi.json();
 
     // Seed rede cache with initial estadual data
-    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb };
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi };
 
     // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();

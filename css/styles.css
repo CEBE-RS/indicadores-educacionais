@@ -720,27 +720,32 @@ body.sidebar-hidden .sidebar {
   color: var(--text-light);
 }
 
-/* ── Section Dividers ── */
+/* ── Section Dividers (Premium) ── */
 .section-divider {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 10px 0 6px;
+  margin: 14px 0 8px;
   padding: 0;
 }
 
 .section-divider-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: linear-gradient(135deg, #e8f5e9 0%, #fff 100%);
   border: 2px solid var(--pri);
-  border-radius: 7px;
+  border-radius: 8px;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,90,50,.10);
+  box-shadow: 0 2px 8px rgba(0,90,50,.12), 0 0 0 3px rgba(0,90,50,.04);
   padding: 4px;
+  transition: transform .2s, box-shadow .2s;
+}
+.section-divider:hover .section-divider-icon {
+  transform: scale(1.08);
+  box-shadow: 0 3px 12px rgba(0,90,50,.18), 0 0 0 4px rgba(0,90,50,.06);
 }
 
 .section-divider-icon img {
@@ -754,26 +759,42 @@ body.sidebar-hidden .sidebar {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  color: var(--text-light);
+  color: var(--pri);
+  background: linear-gradient(90deg, var(--pri) 0%, #2E7D32 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
 }
 
 .section-divider-line {
   flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
+  height: 2px;
+  background: linear-gradient(90deg, var(--pri), rgba(0,90,50,.15) 60%, transparent);
+  border-radius: 1px;
 }
 
-/* ── Section Banner (hero header) ── */
+
+/* ── Section Banner (Premium Hero Header) ── */
 .section-banner {
   position: relative;
   border-radius: var(--radius-sm);
   overflow: visible;
   margin-bottom: 6px;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #003D22 0%, #005A32 60%, #007A45 100%);
+  padding: 16px 22px;
+  background: linear-gradient(135deg, #001A0F 0%, #003D22 35%, #005A32 65%, #007A45 100%);
   animation: fadeUp .4s ease forwards;
   opacity: 0;
   z-index: 10;
+}
+/* Gold accent line at bottom */
+.section-banner::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20px; right: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,203,4,.5) 30%, rgba(255,203,4,.8) 50%, rgba(255,203,4,.5) 70%, transparent);
+  border-radius: 1px;
 }
 
 /* Compact when inside sticky container */
@@ -781,7 +802,7 @@ body.sidebar-hidden .sidebar {
   padding: 10px 18px;
   margin-bottom: 0;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  z-index: 10; /* Above kpi-strip so dropdowns overlay KPI cards */
+  z-index: 10;
 }
 .section-sticky .section-banner + .rede-toggle-strip {
   margin-bottom: 0;
@@ -794,25 +815,35 @@ body.sidebar-hidden .sidebar {
 .section-banner-bg {
   position: absolute;
   inset: 0;
-  background-image: url('../img/bg_section.jpg');
-  background-size: cover;
-  background-position: center 60%;
-  opacity: .12;
+  /* SVG diamond texture over photo */
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='.5'/%3E%3C/svg%3E"),
+    url('../img/bg_section.jpg');
+  background-size: 40px 40px, cover;
+  background-position: center, center 60%;
+  opacity: .15;
   filter: saturate(.6);
 }
 
 /* (section-banner-content defined above in .section-sticky block) */
 
 .section-banner-icon {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.20);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.1);
+  transition: transform .2s, box-shadow .2s;
+}
+.section-banner-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 12px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
 }
 
 .section-banner-icon img {
@@ -828,13 +859,27 @@ body.sidebar-hidden .sidebar {
   color: #fff;
   letter-spacing: -.3px;
   margin: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,.2);
+  /* Shimmer animation */
+  background: linear-gradient(90deg, #fff 0%, #fff 40%, rgba(255,215,0,.85) 50%, #fff 60%, #fff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { background-position: 200% center; }
+  50% { background-position: -200% center; }
 }
 
 .section-banner h2 span {
   font-weight: 400;
   font-size: 12px;
-  color: rgba(255,255,255,.55);
+  -webkit-text-fill-color: rgba(255,255,255,.55);
   margin-left: 8px;
+  animation: none;
+  background: none;
 }
 
 /* ── Filter chips (active filter badges inline in banner) ── */
