@@ -6219,14 +6219,12 @@ function renderAfd() {
       ${sectionBanner('img/icons/sec_docentes.png', 'Adequação da Formação Docente', geoLabel)}
       ${redeToggleHTML()}
       <div class="kpi-strip" id="afd-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
-    </div>
-
-    <!-- ═══ BLOCO INFORMATIVO: O que é o AFD? ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
-      <span class="section-divider-text">O que é o AFD?</span>
-      <span class="section-divider-line"></span>
-    </div>
+      <!-- ═══ BLOCO INFORMATIVO: O que é a AFD? ═══ -->
+      <div class="section-divider" style="margin:8px 0 0">
+        <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
+        <span class="section-divider-text">O que é a AFD?</span>
+        <span class="section-divider-line"></span>
+      </div>
 
     <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
       <div style="display:grid;grid-template-columns:1fr 1fr">
@@ -6276,6 +6274,7 @@ function renderAfd() {
         </div>
       </div>
     </div>
+    </div>
 
     <!-- ═══ EIXO: Distribuição por Grupo ═══ -->
     <div class="section-divider">
@@ -6286,8 +6285,7 @@ function renderAfd() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="afd-etapa-title">Percentual por Grupo de Adequação — por Etapa (${ultimo})</div>
-        <div id="afd-etapa-year-pills" style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 8px"></div>
+        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${ultimo})</div>
         <div style="height:300px"><canvas id="afd-chart-etapa"></canvas></div>
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
@@ -6304,7 +6302,7 @@ function renderAfd() {
       <div class="chart-card">
         <div class="chart-title" id="afd-evol-title">Evolução por Grupo — Selecione abaixo</div>
         <div id="afd-evol-group-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"></div>
-        <div id="afd-evol-etapa-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin:0 0 8px"></div>
+        <p style="font-size:10px;color:var(--text-sec);margin:0 0 6px;font-style:italic">💡 Clique na legenda do gráfico para filtrar por etapa</p>
         <div style="height:280px"><canvas id="afd-chart-evol-unified"></canvas></div>
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
@@ -6376,106 +6374,41 @@ function renderAfd() {
       </div>`).join('');
   }
 
-  // ── Helper: get display data for a specific year ──
-  const getDisplayDataForYear = (yr) => {
-    const stYr = afd.serie_temporal[yr];
-    if (!stYr) return null;
-    if (!S.munSel && !S.creSel) return stYr;
-    if (S.munSel) return afd.por_municipio?.[yr]?.[S.munSel] || stYr;
-    if (S.creSel) {
-      const creMuns = getCreMuns(S.creSel);
-      const agg = { total_escolas: 0 };
-      const munYear = afd.por_municipio?.[yr] || {};
-      for (const cod of creMuns) {
-        const m = munYear[cod]; if (!m) continue;
-        agg.total_escolas += m.total_escolas || 0;
-        for (const et of AFD_ETAPAS) {
-          if (!m[et.key]) continue;
-          if (!agg[et.key]) agg[et.key] = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, _n: 0 };
-          for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] += m[et.key][`g${g}`] || 0;
-          agg[et.key]._n++;
-        }
-      }
-      for (const et of AFD_ETAPAS) {
-        if (agg[et.key]?._n > 0) {
-          for (let g = 1; g <= 5; g++) agg[et.key][`g${g}`] = +(agg[et.key][`g${g}`] / agg[et.key]._n).toFixed(1);
-        }
-      }
-      return agg;
-    }
-    return stYr;
-  };
-
-  // ── Chart 1: Grouped bar by etapa with year pills ──
+  // ── Chart 1: Grouped bar by etapa (uses header year filter) ──
   const etapaEl = document.getElementById('afd-chart-etapa');
   if (etapaEl) {
-    let selYear = ultimo;
-    let etapaChart = null;
-
-    const buildEtapaChart = () => {
-      if (etapaChart) { etapaChart.destroy(); S.charts = S.charts.filter(c => c !== etapaChart); }
-      const dd = getDisplayDataForYear(selYear);
-      if (!dd) return;
-      const titleEl = document.getElementById('afd-etapa-title');
-      if (titleEl) titleEl.textContent = `Percentual por Grupo de Adequação — por Etapa (${selYear})`;
-      const chartEtapas = AFD_ETAPAS.filter(e => e.key !== 'fund_total' && e.key !== 'eja_medio' && dd[e.key]);
-      const ejaF = dd['eja_fund'];
-      const ejaM = dd['eja_medio'];
-      const mergedEjaLabel = (ejaF && ejaM) ? 'EJA' : null;
-      const labels = chartEtapas.map(e => e.key === 'eja_fund' && mergedEjaLabel ? mergedEjaLabel : e.short);
-      const gKeys = ['g1','g2','g3','g4','g5'];
-      etapaChart = new Chart(etapaEl, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: gKeys.map(gk => ({
-            label: AFD_GROUPS[gk].short,
-            data: chartEtapas.map(e => {
-              if (e.key === 'eja_fund' && mergedEjaLabel && ejaF && ejaM) {
-                return +((ejaF[gk] + ejaM[gk]) / 2).toFixed(1);
-              }
-              return dd[e.key]?.[gk] || 0;
-            }),
-            backgroundColor: AFD_GROUPS[gk].color + 'CC',
-            borderColor: AFD_GROUPS[gk].color,
-            borderWidth: 0.5,
-            borderRadius: 3,
-          }))
-        },
-        options: { ...CHART_DEFAULTS,
-          plugins: { ...CHART_DEFAULTS.plugins,
-            legend: { display: true, labels: { font: { family: 'Inter', size: 10 }, boxWidth: 10, padding: 6 } },
-            datalabels: { display: ctx => ctx.dataset.data[ctx.dataIndex] > 0, color: '#333', font: { family: 'Inter', size: 8, weight: '700' }, anchor: 'end', align: 'top', formatter: v => v.toFixed(0) + '%' } },
-          scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10, weight: '600' } } },
-            y: { max: 100, grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' }, grace: '5%' } }
-        }
-      });
-      S.charts.push(etapaChart);
-    };
-
-    // Build year pills
-    const yearPillsEl = document.getElementById('afd-etapa-year-pills');
-    if (yearPillsEl) {
-      yearPillsEl.innerHTML = '<span style="font-size:10px;font-weight:700;color:#555;margin-right:4px">Ano:</span>' +
-        anos.map(yr => {
-          const active = yr === selYear;
-          return `<button class="flx-pill${active ? ' active' : ''}" data-yr="${yr}" style="font-size:10px;padding:3px 10px;border-radius:12px;border:1.5px solid var(--pri);background:${active ? 'var(--pri)' : 'transparent'};color:${active ? '#fff' : 'var(--pri)'};cursor:pointer;font-weight:600;font-family:Inter;transition:all .15s">${yr}</button>`;
-        }).join('');
-      yearPillsEl.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          selYear = btn.dataset.yr;
-          yearPillsEl.querySelectorAll('button').forEach(b => {
-            const act = b.dataset.yr === selYear;
-            b.style.background = act ? 'var(--pri)' : 'transparent';
-            b.style.color = act ? '#fff' : 'var(--pri)';
-            b.classList.toggle('active', act);
-          });
-          buildEtapaChart();
-        });
-      });
-    }
-
-    buildEtapaChart();
+    const chartEtapas = AFD_ETAPAS.filter(e => e.key !== 'fund_total' && e.key !== 'eja_medio' && displayData[e.key]);
+    const ejaF = displayData['eja_fund'];
+    const ejaM = displayData['eja_medio'];
+    const mergedEjaLabel = (ejaF && ejaM) ? 'EJA' : null;
+    const labels = chartEtapas.map(e => e.key === 'eja_fund' && mergedEjaLabel ? mergedEjaLabel : e.short);
+    const gKeys = ['g1','g2','g3','g4','g5'];
+    S.charts.push(new Chart(etapaEl, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: gKeys.map(gk => ({
+          label: AFD_GROUPS[gk].short,
+          data: chartEtapas.map(e => {
+            if (e.key === 'eja_fund' && mergedEjaLabel && ejaF && ejaM) {
+              return +((ejaF[gk] + ejaM[gk]) / 2).toFixed(1);
+            }
+            return displayData[e.key]?.[gk] || 0;
+          }),
+          backgroundColor: AFD_GROUPS[gk].color + 'CC',
+          borderColor: AFD_GROUPS[gk].color,
+          borderWidth: 0.5,
+          borderRadius: 3,
+        }))
+      },
+      options: { ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins,
+          legend: { display: true, labels: { font: { family: 'Inter', size: 10 }, boxWidth: 10, padding: 6 } },
+          datalabels: { display: ctx => ctx.dataset.data[ctx.dataIndex] > 0, color: '#333', font: { family: 'Inter', size: 8, weight: '700' }, anchor: 'end', align: 'top', formatter: v => v.toFixed(0) + '%' } },
+        scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10, weight: '600' } } },
+          y: { max: 100, grid: { color: COLORS.gridLine }, ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' }, grace: '5%' } }
+      }
+    }));
   }
 
   // ── Geo-aware time series helper ──
@@ -6520,7 +6453,6 @@ function renderAfd() {
     ];
     const evolGroups = ['g1','g2','g3','g4','g5'];
     let selGroup = 'g1';
-    let selEtapas = new Set(evolEtapas.map(e => e.key));
     let evolChart = null;
 
     const buildEvolChart = () => {
@@ -6531,7 +6463,7 @@ function renderAfd() {
         type: 'line',
         data: {
           labels: anos,
-          datasets: evolEtapas.filter(e => selEtapas.has(e.key)).map(e => ({
+          datasets: evolEtapas.map(e => ({
             label: e.label,
             data: geoTs.map(s => s?.[e.key]?.[selGroup] ?? null),
             borderColor: e.color,
@@ -6541,7 +6473,7 @@ function renderAfd() {
         },
         options: { ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
           plugins: { ...CHART_DEFAULTS.plugins,
-            legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6 } },
+            legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6, usePointStyle: false }, onClick: Chart.defaults.plugins.legend.onClick },
             datalabels: { display: false } },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: selGroup === 'g1' ? 100 : 40, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' } } }
         }
@@ -6565,30 +6497,6 @@ function renderAfd() {
             b.style.background = b.dataset.gk === selGroup ? c : 'transparent';
             b.style.color = b.dataset.gk === selGroup ? '#fff' : c;
             b.classList.toggle('active', b.dataset.gk === selGroup);
-          });
-          buildEvolChart();
-        });
-      });
-    }
-
-    // Build etapa pills
-    const etapaPillsEl = document.getElementById('afd-evol-etapa-pills');
-    if (etapaPillsEl) {
-      etapaPillsEl.innerHTML = '<span style="font-size:10px;font-weight:700;color:#555;margin-right:4px">Etapa:</span>' +
-        evolEtapas.map(e => {
-          const active = selEtapas.has(e.key);
-          return `<button class="flx-pill${active ? ' active' : ''}" data-ek="${e.key}" style="font-size:10px;padding:3px 10px;border-radius:12px;border:1.5px solid ${e.color};background:${active ? e.color : 'transparent'};color:${active ? '#fff' : e.color};cursor:pointer;font-weight:600;font-family:Inter;transition:all .15s">${e.label}</button>`;
-        }).join('');
-      etapaPillsEl.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const ek = btn.dataset.ek;
-          if (selEtapas.has(ek)) { if (selEtapas.size > 1) selEtapas.delete(ek); } else { selEtapas.add(ek); }
-          etapaPillsEl.querySelectorAll('button').forEach(b => {
-            const ee = evolEtapas.find(x => x.key === b.dataset.ek);
-            const act = selEtapas.has(b.dataset.ek);
-            b.style.background = act ? ee.color : 'transparent';
-            b.style.color = act ? '#fff' : ee.color;
-            b.classList.toggle('active', act);
           });
           buildEvolChart();
         });
