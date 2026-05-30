@@ -4143,6 +4143,7 @@ function renderHome() {
           </div>
           <div class="home-footer-logos">
             <img src="img/logo_rs.avif" alt="Governo RS" style="height:56px" onerror="this.style.display='none'">
+            <img src="img/UNESCO_logo_white.png" alt="UNESCO" style="height:52px;filter:none" onerror="this.style.display='none'">
             <img src="img/logo_cebe.png" alt="CEBE" style="height:56px" onerror="this.style.display='none'">
           </div>
         </div>
@@ -6219,12 +6220,14 @@ function renderAfd() {
       ${sectionBanner('img/icons/sec_docentes.png', 'Adequação da Formação Docente', geoLabel)}
       ${redeToggleHTML()}
       <div class="kpi-strip" id="afd-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
-      <!-- ═══ BLOCO INFORMATIVO: O que é a AFD? ═══ -->
-      <div class="section-divider" style="margin:8px 0 0">
-        <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
-        <span class="section-divider-text">O que é a AFD?</span>
-        <span class="section-divider-line"></span>
-      </div>
+    </div>
+
+    <!-- ═══ BLOCO INFORMATIVO: O que é a AFD? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
+      <span class="section-divider-text">O que é a AFD?</span>
+      <span class="section-divider-line"></span>
+    </div>
 
     <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
       <div style="display:grid;grid-template-columns:1fr 1fr">
@@ -6273,7 +6276,6 @@ function renderAfd() {
           </table>
         </div>
       </div>
-    </div>
     </div>
 
     <!-- ═══ EIXO: Distribuição por Grupo ═══ -->
