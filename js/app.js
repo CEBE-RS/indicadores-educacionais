@@ -8123,8 +8123,8 @@ function renderEscolas() {
       <!-- Table -->
       <div class="chart-card" style="padding:12px 16px">
         <div class="chart-title" style="margin-bottom:8px">Ranking de Escolas</div>
-        <div id="escola-table-wrap" style="max-height:400px;overflow-y:auto">
-          <table id="escola-table" style="width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px">
+        <div id="escola-table-wrap" style="max-height:450px;overflow:auto">
+          <table id="escola-table" style="width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px;table-layout:fixed;min-width:900px">
             <thead id="escola-table-head"></thead>
             <tbody id="escola-table-body"></tbody>
           </table>
@@ -8145,6 +8145,9 @@ function renderEscolas() {
   }).addTo(map);
   S.escolasMap = map;
   S.escolasMarkers = L.layerGroup().addTo(map);
+
+  // Sort state for table (persists across filter changes)
+  let escolaSortState = null;
 
   // Update function
   function updateEscolas() {
@@ -8246,44 +8249,104 @@ function renderEscolas() {
       map.fitBounds(bounds.pad(0.1));
     }
 
-    // Table
+    // Table columns definition
+    const TABLE_COLS = [
+      { key: '_rank', label: '#', align: 'left', fmt: null, w: '30px' },
+      { key: 'nome', label: 'Escola', align: 'left', fmt: v => v, w: null, text: true },
+      { key: 'municipio', label: 'Município', align: 'left', fmt: v => v, w: null, text: true },
+      { key: 'cre', label: 'CRE', align: 'center', fmt: v => v + 'ª', w: '44px' },
+      { key: 'ideb_ai', label: 'IDEB AI', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'ideb_af', label: 'IDEB AF', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'ideb_em', label: 'IDEB EM', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'tdi_ai', label: 'TDI AI', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
+      { key: 'tdi_af', label: 'TDI AF', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
+      { key: 'tdi_med', label: 'TDI Méd', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '58px', higher: false },
+      { key: 'inse_media', label: 'INSE', align: 'center', fmt: v => v?.toFixed(1), w: '48px', higher: true },
+      { key: 'icg_nivel', label: 'ICG', align: 'center', fmt: v => 'N' + v, w: '40px', higher: false },
+    ];
+
+    // Sort state
+    if (!escolaSortState) escolaSortState = { key: indicator, asc: cfg && !cfg.higher };
+    const sortKey = escolaSortState.key;
+    const sortAsc = escolaSortState.asc;
+
+    // Sort
     const sorted = [...filtered].sort((a, b) => {
-      const av = a[indicator], bv = b[indicator];
+      let av, bv;
+      if (sortKey === 'nome' || sortKey === 'municipio') {
+        av = (a[sortKey] || '').toUpperCase();
+        bv = (b[sortKey] || '').toUpperCase();
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      }
+      if (sortKey === 'cre') {
+        av = parseInt(a.cre) || 99; bv = parseInt(b.cre) || 99;
+      } else {
+        av = a[sortKey]; bv = b[sortKey];
+      }
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
-      return cfg && cfg.higher ? bv - av : av - bv;
+      return sortAsc ? av - bv : bv - av;
     });
 
+    // Header
+    const thStyle = 'padding:4px 5px;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:9px;position:sticky;top:0;cursor:pointer;user-select:none;white-space:nowrap;z-index:2';
     const thead = document.getElementById('escola-table-head');
-    thead.innerHTML = `<tr>
-      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">#</th>
-      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">Escola</th>
-      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">Município</th>
-      <th style="padding:6px 8px;text-align:center;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">CRE</th>
-      <th style="padding:6px 8px;text-align:center;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">${cfg ? cfg.label : ''}</th>
-    </tr>`;
+    thead.innerHTML = `<tr>${TABLE_COLS.map(c => {
+      const arrow = sortKey === c.key ? (sortAsc ? ' ▲' : ' ▼') : '';
+      const isActive = sortKey === c.key;
+      const extra = isActive ? 'color:#0D47A1;' : 'color:#555;';
+      const widthStyle = c.w ? `width:${c.w};min-width:${c.w};max-width:${c.w};` : '';
+      return `<th data-sort-key="${c.key}" style="${thStyle};text-align:${c.align};${extra}${widthStyle}">${c.label}${arrow}</th>`;
+    }).join('')}</tr>`;
 
+    // Bind sort on headers
+    thead.querySelectorAll('th[data-sort-key]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sortKey;
+        if (key === '_rank') return;
+        if (escolaSortState.key === key) {
+          escolaSortState.asc = !escolaSortState.asc;
+        } else {
+          escolaSortState.key = key;
+          // Default sort direction: text=asc, numbers depend on higher
+          const col = TABLE_COLS.find(c => c.key === key);
+          escolaSortState.asc = col?.text ? true : (col?.higher === false);
+        }
+        updateEscolas();
+      });
+    });
+
+    // Body
     const tbody = document.getElementById('escola-table-body');
-    const maxRows = 200;
+    const maxRows = 300;
     const display = sorted.slice(0, maxRows);
+    const totalCols = TABLE_COLS.length;
+
     tbody.innerHTML = display.map((e, i) => {
-      const val = e[indicator];
-      const color = getEscolaColor(val, indicator);
-      return `<tr style="background:${i % 2 === 0 ? '#fff' : '#fafbfc'};cursor:pointer" onclick="if(S.escolasMap && ${e.lat ? 'true' : 'false'}) { S.escolasMap.setView([${e.lat || 0},${e.lng || 0}], 14); }">
-        <td style="padding:4px 8px;border-bottom:1px solid #eee;color:#999;font-size:9px">${i + 1}</td>
-        <td style="padding:4px 8px;border-bottom:1px solid #eee;font-weight:600;font-size:10px">${e.nome}</td>
-        <td style="padding:4px 8px;border-bottom:1px solid #eee;font-size:10px">${e.municipio}</td>
-        <td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:center;font-size:10px">${e.cre}ª</td>
-        <td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:center;font-weight:700;font-size:10px">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:4px"></span>
-          ${val != null && cfg ? cfg.fmt(val) : '<span style="color:#ccc">—</span>'}
-        </td>
-      </tr>`;
+      const rowBg = i % 2 === 0 ? '#fff' : '#fafbfc';
+      const cells = TABLE_COLS.map(c => {
+        const tdBase = `padding:3px 5px;border-bottom:1px solid #eee;font-size:9.5px;text-align:${c.align};white-space:nowrap;`;
+        if (c.key === '_rank') return `<td style="${tdBase}color:#bbb">${i + 1}</td>`;
+        if (c.key === 'nome') return `<td style="${tdBase}font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${e.nome}">${e.nome}</td>`;
+        if (c.key === 'municipio') return `<td style="${tdBase}max-width:120px;overflow:hidden;text-overflow:ellipsis" title="${e.municipio}">${e.municipio}</td>`;
+        if (c.key === 'cre') return `<td style="${tdBase}">${e.cre}ª</td>`;
+
+        // Numeric indicator columns
+        const val = e[c.key];
+        if (val == null) return `<td style="${tdBase}color:#ddd">—</td>`;
+        const color = getEscolaColor(val, c.key);
+        const formatted = c.fmt(val);
+        const isSortCol = sortKey === c.key;
+        const fw = isSortCol ? 'font-weight:700;' : '';
+        return `<td style="${tdBase}${fw}"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${color};margin-right:3px;vertical-align:middle"></span>${formatted}</td>`;
+      }).join('');
+
+      return `<tr style="background:${rowBg};cursor:pointer" onclick="if(S.escolasMap && ${e.lat ? 'true' : 'false'}) { S.escolasMap.setView([${e.lat || 0},${e.lng || 0}], 14); }">${cells}</tr>`;
     }).join('');
 
     if (sorted.length > maxRows) {
-      tbody.innerHTML += `<tr><td colspan="5" style="padding:8px;text-align:center;color:#999;font-size:10px">... e mais ${sorted.length - maxRows} escolas</td></tr>`;
+      tbody.innerHTML += `<tr><td colspan="${totalCols}" style="padding:8px;text-align:center;color:#999;font-size:10px">... e mais ${sorted.length - maxRows} escolas</td></tr>`;
     }
   }
 
