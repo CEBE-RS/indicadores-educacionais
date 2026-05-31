@@ -28,6 +28,9 @@ const S = {
   icg: null,       // 4_8_icg.json — Complexidade de Gestão
   afd: null,       // 4_9_afd.json — Adequação da Formação Docente
   tdi: null,       // 4_10_tdi.json — Distorção Idade-Série
+  escolasData: null, // escolas_estaduais.json — Visão por Escola
+  escolasMap: null,  // Leaflet map instance for escolas
+  escolasMarkers: null, // Leaflet layer group for markers
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -79,6 +82,15 @@ const REDE_LABELS = {
   filantropica: 'Rede Filantrópica',
   privada: 'Rede Privada',
   todas: 'Todas as Redes',
+};
+
+// Etapa labels for filter badges
+const ETAPA_MAP = {
+  mat_infantil: 'Infantil',
+  mat_fund_ai: 'Fund. AI',
+  mat_fund_af: 'Fund. AF',
+  mat_medio: 'Médio',
+  mat_eja: 'EJA',
 };
 
 // Bold presets for rate/score sections (Fluxo, SAEB) — bigger labels for better readability
@@ -187,7 +199,14 @@ function destroyCharts() {
 }
 
 function destroyMap() {
-  if (S.map) { S.map.remove(); S.map = null; S.mapLayer = null; }
+  if (S.map) {
+    // Close all open tooltips before removing map (prevents "stuck" tooltip bug)
+    S.map.eachLayer(l => { if (l.closeTooltip) l.closeTooltip(); if (l.closePopup) l.closePopup(); });
+    S.map.remove(); S.map = null; S.mapLayer = null;
+  }
+  if (S.escolasMap) {
+    S.escolasMap.remove(); S.escolasMap = null; S.escolasMarkers = null;
+  }
 }
 
 /** Add export CSV buttons to all chart-cards that have a canvas */
@@ -249,13 +268,20 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
   </div>`;
 }
 
-/** Returns the rede toggle strip HTML (call after sectionBanner) */
-function redeToggleHTML() {
+/** Returns the rede toggle strip HTML (call after sectionBanner)
+ *  @param {string[]} [disabledRedes] - rede keys to disable with tooltip
+ *  @param {string} [disabledMsg] - tooltip message for disabled buttons
+ */
+function redeToggleHTML(disabledRedes, disabledMsg) {
   if (!sectionBanner._lastShowToggle) return '';
+  const disabled = new Set(disabledRedes || []);
   return `<div class="rede-toggle-strip" id="rede-toggle">
-    ${Object.entries(REDE_LABELS).map(([k, label]) =>
-      `<button class="rede-toggle-btn${k === S.redeSel ? ' active' : ''}" data-rede="${k}">${label.replace('Rede ','')}</button>`
-    ).join('')}
+    ${Object.entries(REDE_LABELS).map(([k, label]) => {
+      const isDisabled = disabled.has(k);
+      const cls = k === S.redeSel ? ' active' : (isDisabled ? ' disabled' : '');
+      const title = isDisabled ? ` title="${disabledMsg || 'Indisponível'}"` : '';
+      return `<button class="rede-toggle-btn${cls}" data-rede="${k}"${title}${isDisabled ? ' disabled' : ''}>${label.replace('Rede ','')}</button>`;
+    }).join('')}
   </div>`;
 }
 
@@ -365,7 +391,6 @@ function bindRedeToggle() {
   });
 }
 
-const ETAPA_MAP = { mat_infantil: 'Infantil', mat_fund_ai: 'Fund. AI', mat_fund_af: 'Fund. AF', mat_medio: 'Médio', mat_eja: 'EJA' };
 
 /**
  * Filter awareness system — maps each chart to the filters it responds to.
@@ -404,6 +429,9 @@ function updateActiveFilters() {
   if (!slot) return;
   // Build badges from current state
   let html = '';
+  // Rede badge (always shown, informational — no close button)
+  const redeLabel = REDE_LABELS[S.redeSel] || 'Rede Estadual';
+  html += `<span class="filter-chip filter-chip-rede" title="Rede selecionada">🏛 ${redeLabel}</span>`;
   if (S.anoSel) {
     html += `<span class="filter-chip filter-chip-ano" data-clear="ano" title="Clique para remover">📅 ${S.anoSel} <span class="close">✕</span></span>`;
   }
@@ -420,8 +448,8 @@ function updateActiveFilters() {
     html += `<span class="filter-chip" data-clear="mun" title="Clique para remover">📍 ${munName} <span class="close">✕</span></span>`;
   }
   slot.innerHTML = html;
-  // Bind clear
-  slot.querySelectorAll('.filter-chip').forEach(chip => {
+  // Bind clear (skip rede chip which has no data-clear)
+  slot.querySelectorAll('.filter-chip[data-clear]').forEach(chip => {
     chip.style.cursor = 'pointer';
     chip.addEventListener('click', () => {
       const type = chip.dataset.clear;
@@ -2113,7 +2141,7 @@ function buildInfraMap(infra, metricKey) {
       layer.bindTooltip(`<strong>${nome}</strong><br>${label}: ${pct.toFixed(1)}% (${n}/${d?.escolas || 0} escolas)`, { sticky: true });
       layer.on({
         mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); },
-        mouseout: e => { S.mapLayer.resetStyle(e.target); },
+        mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); },
         click: () => {
           if (S.munSel === cod) { S.munSel = null; } else { S.munSel = cod; }
           refreshActiveTab();
@@ -2190,7 +2218,7 @@ function buildInfraMapCre(infra, metricKey) {
       lyr.bindTooltip(`<strong>${nome}</strong><br>${label}: ${(agg.pct || 0).toFixed(1)}% (${agg.escolas || 0} escolas)`, { sticky: true });
       lyr.on({
         mouseover: e => { e.target.setStyle({ weight: 3, color: '#FFB300', fillOpacity: 0.9 }); e.target.bringToFront(); },
-        mouseout: e => { S.mapLayer.resetStyle(e.target); },
+        mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); },
         click: () => {
           S.creSel = cod;
           S.munSel = null;
@@ -2403,7 +2431,7 @@ function buildDocMap(doc) {
       layer.bindTooltip(`<strong>${nome}</strong><br>Escolas: ${d.escolas || 0}<br>Docentes: ${formatNum(d.docentes || 0)}`, { sticky: true });
       layer.on({
         mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); },
-        mouseout: e => { S.mapLayer.resetStyle(e.target); },
+        mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); },
         click: () => {
           if (S.munSel === cod) { S.munSel = null; } else { S.munSel = cod; }
           refreshActiveTab();
@@ -2916,7 +2944,10 @@ function renderSaeb() {
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/sec_saeb.png', 'SAEB', geoLabel)}
-      ${redeToggleHTML()}
+      ${redeToggleHTML(
+        ['municipal', 'federal', 'filantropica'],
+        'SAEB só distingue Pública vs Privada (IN_PUBLICA). Não há separação por dependência administrativa.'
+      )}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
 
@@ -2966,20 +2997,29 @@ function renderSaeb() {
             <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
             <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Proficiência</span>
           </div>
-          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
+          <table style="width:100%;font-size:10px;border-collapse:separate;border-spacing:0">
             <thead>
               <tr>
-                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Faixa (9º EF LP)</th>
-                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Nível</th>
+                <th style="padding:5px 6px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Etapa</th>
+                <th style="padding:5px 6px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Disc.</th>
+                <th style="padding:5px 6px;text-align:center;background:#C62828;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Insuficiente</th>
+                <th style="padding:5px 6px;text-align:center;background:#F9A825;border-bottom:2px solid #ddd;font-weight:700;color:#333">Básico</th>
+                <th style="padding:5px 6px;text-align:center;background:#66BB6A;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Proficiente</th>
+                <th style="padding:5px 6px;text-align:center;background:#2E7D32;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Avançado</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#2E7D32;vertical-align:middle;margin-right:6px"></span>> 325</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Proficiente / Avançado</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#66BB6A;vertical-align:middle;margin-right:6px"></span>275–325</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Básico</td></tr>
-              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#F9A825;vertical-align:middle;margin-right:6px"></span>225–275</td><td style="padding:5px 8px;border-bottom:1px solid #eee">Insuficiente</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#C62828;vertical-align:middle;margin-right:6px"></span>< 225</td><td style="padding:5px 8px">Muito Crítico</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 200</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">200–249</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">250–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 300</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 225</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 325</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 225</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 325</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 250</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">250–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">300–349</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 350</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">EM</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 275</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">325–374</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 375</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;font-weight:600">EM</td><td style="padding:4px 6px">MT</td><td style="padding:4px 6px;text-align:center">< 300</td><td style="padding:4px 6px;text-align:center">300–349</td><td style="padding:4px 6px;text-align:center">350–399</td><td style="padding:4px 6px;text-align:center">≥ 400</td></tr>
             </tbody>
           </table>
+          <p style="font-size:9px;margin:6px 0 0;color:#999;line-height:1.5;font-style:italic">
+            Pontos de corte oficiais INEP/MEC. As faixas variam conforme etapa e disciplina.
+          </p>
           <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
               <strong>Atenção:</strong> <em>"Estadual"</em> neste painel = todas as escolas <strong>públicas</strong>
@@ -2990,6 +3030,42 @@ function renderSaeb() {
             <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
               <strong>2023:</strong> O INEP <span style="position:relative;cursor:help;border-bottom:1px dotted #8D6E63" title="Leia-Me Microdados SAEB 2023, p. 11 — &quot;As máscaras, entendidas como códigos fictícios, foram utilizadas em todas as bases para evitar a identificação de escolas e municípios atendendo às regras de proteção de dados pessoais estabelecidas pela LGPD. No que diz respeito à padronização da máscara, o código fictício usado para cada escola ou município inicia com o dígito '6' e é o mesmo para todas as bases dos Microdados. O uso das máscaras se dá pela substituição dos códigos reais da escola e do município por códigos fictícios. O mascaramento dos códigos de Escolas e Municípios reduz significativamente a possibilidade de reidentificação dos alunos, professores, gestores escolares e municipais, por meio do cruzamento das bases disponibilizadas.&quot;"><strong>mascarou</strong> ⓘ</span> o código de município nos microdados.
               Dados municipais disponíveis apenas até 2021.
+            </p>
+          </div>
+          <div style="margin-top:10px;background:rgba(0,90,50,.05);border:1px solid rgba(0,90,50,.15);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0 0 6px;color:#1B5E20;font-weight:700">
+              📋 Critérios de Divulgação Municipal (Art. 19, Portaria INEP nº 250/2021)
+            </p>
+            <p style="font-size:10.5px;margin:0 0 6px;color:#333;line-height:1.7">
+              A divulgação de resultados por <strong>escola</strong> e <strong>município</strong> exige o cumprimento <em>cumulativo</em> de dois critérios:
+            </p>
+            <table style="width:100%;font-size:10px;border-collapse:separate;border-spacing:0;margin-bottom:6px">
+              <thead>
+                <tr>
+                  <th style="padding:4px 6px;text-align:left;background:#e8f5e9;border-bottom:1px solid #c8e6c9;font-weight:700">Critério</th>
+                  <th style="padding:4px 6px;text-align:center;background:#e8f5e9;border-bottom:1px solid #c8e6c9;font-weight:700">Escolas</th>
+                  <th style="padding:4px 6px;text-align:center;background:#e8f5e9;border-bottom:1px solid #c8e6c9;font-weight:700">Municípios</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding:4px 6px;border-bottom:1px solid #eee">Nº mínimo de alunos presentes</td>
+                  <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;font-weight:600">≥ 10</td>
+                  <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;font-weight:600">≥ 10</td>
+                </tr>
+                <tr style="background:#fafbfc">
+                  <td style="padding:4px 6px">Taxa de participação mínima</td>
+                  <td style="padding:4px 6px;text-align:center;font-weight:600">≥ 80%</td>
+                  <td style="padding:4px 6px;text-align:center;font-weight:600">≥ 50%*</td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size:9.5px;margin:0;color:#666;line-height:1.6">
+              * Originalmente 80%, reduzido para <strong>50%</strong> pela <em>Portaria nº 399/2022</em> para municípios, visando ampliar o acesso aos dados pós-pandemia (SAEB 2021).
+              Municípios/etapas que não atingem estes critérios ficam <strong>sem dados</strong> na desagregação municipal.
+            </p>
+            <p style="font-size:9px;margin:6px 0 0;color:#999;line-height:1.5;font-style:italic">
+              Fontes: Portaria INEP nº 250/2021, Art. 19; Portaria INEP nº 399/2022 (retificação).
             </p>
           </div>
         </div>
@@ -3110,11 +3186,46 @@ function renderSaeb() {
   const etapaLabels = ['5º Ano EF', '9º Ano EF', 'Ens. Médio'];
   const etapaCores = [COLORS.pri, '#1565C0', COLORS.red];
 
+  // Helper: get SAEB data for a given year considering geo filters
+  // Returns null if geo filter active but no data for that year (no fallback to state level)
+  function getSaebYearData(ano) {
+    if (S.munSel) {
+      return saeb.por_municipio?.[ano]?.[S.munSel] || null;
+    }
+    if (S.creSel && saeb.por_municipio?.[ano]) {
+      const creMuns = getCreMuns(S.creSel);
+      const munYear = saeb.por_municipio[ano] || {};
+      const agg = {};
+      for (const cod of creMuns) {
+        const m = munYear[cod]; if (!m) continue;
+        for (const et of ['5EF', '9EF', 'EM']) {
+          if (!m[et]) continue;
+          if (!agg[et]) agg[et] = { media_lp: 0, media_mt: 0, _n: 0 };
+          agg[et].media_lp += m[et].media_lp || 0;
+          agg[et].media_mt += m[et].media_mt || 0;
+          agg[et]._n++;
+        }
+      }
+      for (const et of Object.keys(agg)) {
+        if (agg[et]._n > 0) { agg[et].media_lp = +(agg[et].media_lp / agg[et]._n).toFixed(1); agg[et].media_mt = +(agg[et].media_mt / agg[et]._n).toFixed(1); }
+      }
+      return Object.keys(agg).length ? agg : null;
+    }
+    return saeb.serie_temporal[ano];
+  }
+
   function buildLine(canvasId, field) {
     const el = document.getElementById(canvasId);
     if (!el) return;
+    const useGeo = S.munSel || S.creSel;
     const datasets = etapas.map((et, i) => {
-      const data = anos.map(a => saeb.serie_temporal[a]?.[et]?.[field] || null);
+      const data = anos.map(a => {
+        if (useGeo) {
+          const geoData = getSaebYearData(a);
+          return geoData?.[et]?.[field] || null;
+        }
+        return saeb.serie_temporal[a]?.[et]?.[field] || null;
+      });
       return {
         label: etapaLabels[i],
         data: data,
@@ -3132,17 +3243,18 @@ function renderSaeb() {
       data: { labels: anos, datasets },
       options: {
         ...CHART_DEFAULTS,
+        layout: { padding: { top: 28 } },
         plugins: {
           ...CHART_DEFAULTS.plugins,
           legend: {
             display: true, position: 'top',
-            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 12, usePointStyle: true },
+            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 14, usePointStyle: true },
           },
           datalabels: {
             display: true,
             anchor: ctx => ctx.datasetIndex === 1 ? 'start' : 'end',
             align: ctx => ctx.datasetIndex === 1 ? 'bottom' : 'top',
-            offset: 5,
+            offset: 6,
             font: { family: 'Inter', size: 9.5, weight: '700' },
             color: ctx => etapaCores[ctx.datasetIndex],
             formatter: v => v?.toFixed(1) ?? '',
@@ -3257,26 +3369,51 @@ function renderSaeb() {
     const anosComMun = Object.keys(porMun).sort();
     if (anosComMun.length === 0) return;
 
-    const anoMapa = anosComMun[anosComMun.length - 1]; // most recent with mun data
-    const munData = porMun[anoMapa] || {};
+    const anoMapaDefault = anosComMun[anosComMun.length - 1];
     const lookup = saeb.lookup_municipios || {};
 
-    // Insert map + table HTML after existing charts
+    // SAEB breaks per etapa×disc (official INEP cutoffs)
+    const SAEB_BREAKS = {
+      '5EF_lp': [{min:0,max:200,color:'#C62828',label:'< 200'},{min:200,max:250,color:'#F9A825',label:'200–249'},{min:250,max:300,color:'#66BB6A',label:'250–299'},{min:300,max:999,color:'#2E7D32',label:'≥ 300'}],
+      '5EF_mt': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2E7D32',label:'≥ 325'}],
+      '9EF_lp': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2E7D32',label:'≥ 325'}],
+      '9EF_mt': [{min:0,max:250,color:'#C62828',label:'< 250'},{min:250,max:300,color:'#F9A825',label:'250–299'},{min:300,max:350,color:'#66BB6A',label:'300–349'},{min:350,max:999,color:'#2E7D32',label:'≥ 350'}],
+      'EM_lp':  [{min:0,max:275,color:'#C62828',label:'< 275'},{min:275,max:325,color:'#F9A825',label:'275–324'},{min:325,max:375,color:'#66BB6A',label:'325–374'},{min:375,max:999,color:'#2E7D32',label:'≥ 375'}],
+      'EM_mt':  [{min:0,max:300,color:'#C62828',label:'< 300'},{min:300,max:350,color:'#F9A825',label:'300–349'},{min:350,max:400,color:'#66BB6A',label:'350–399'},{min:400,max:999,color:'#2E7D32',label:'≥ 400'}],
+    };
+    const SAEB_BREAK_LABELS = { '5EF': '5º EF', '9EF': '9º EF', 'EM': 'EM' };
+    const SAEB_DISC_LABELS = { lp: 'LP', mt: 'MT' };
+
+    // Insert map + table HTML
     const mapSection = document.createElement('div');
     mapSection.innerHTML = `
       <div class="section-divider">
         <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
-        <span class="section-divider-text">Mapa SAEB por Município — 9º Ano EF LP (${anoMapa})</span>
+        <span class="section-divider-text" id="saeb-map-title">Mapa SAEB por Município</span>
         <span class="section-divider-line"></span>
       </div>
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card" style="min-height:370px">
-          <div id="saeb-map-leaflet" style="height:360px;border-radius:8px"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            <select id="sel-saeb-map-ano" style="font-size:11px;padding:4px 8px;border-radius:5px;border:1px solid #ddd;font-family:Inter">
+              ${anosComMun.map(a => `<option value="${a}" ${a === anoMapaDefault ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+            <select id="sel-saeb-map-etapa" style="font-size:11px;padding:4px 8px;border-radius:5px;border:1px solid #ddd;font-family:Inter">
+              <option value="5EF">5º Ano EF</option>
+              <option value="9EF" selected>9º Ano EF</option>
+              <option value="EM">Ens. Médio</option>
+            </select>
+            <select id="sel-saeb-map-disc" style="font-size:11px;padding:4px 8px;border-radius:5px;border:1px solid #ddd;font-family:Inter">
+              <option value="lp" selected>Língua Portuguesa</option>
+              <option value="mt">Matemática</option>
+            </select>
+          </div>
+          <div id="saeb-map-leaflet" style="height:340px;border-radius:8px"></div>
         </div>
         <div class="chart-card" style="max-height:400px;overflow:auto">
-          <div class="chart-title">Ranking Municipal — SAEB ${anoMapa}</div>
+          <div class="chart-title" id="saeb-table-title">Ranking Municipal — SAEB ${anoMapaDefault}</div>
           <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
-            📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
+            📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção. Clique novamente para desfiltrar.
           </div>
           <div style="margin-bottom:6px">
             <input type="text" id="saeb-mun-search" placeholder="Buscar município..." style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:Inter">
@@ -3295,98 +3432,146 @@ function renderSaeb() {
       </div>`;
     document.getElementById('main-content').appendChild(mapSection);
 
-    // Build table
-    const tbody = document.querySelector('#saeb-mun-table tbody');
-    let entries = Object.entries(munData);
-    if (S.creSel && S.creLookup?.mun_to_cre) {
-      entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
-    }
-    if (S.munSel) {
-      entries = entries.filter(([cod]) => cod === S.munSel);
-    }
-    entries.sort((a, b) => (b[1]?.['9EF']?.media_lp || 0) - (a[1]?.['9EF']?.media_lp || 0));
-    tbody.innerHTML = entries.map(([cod, md], i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${lookup[cod] || cod}</td>
-        <td><strong>${md['5EF']?.media_lp?.toFixed(1) ?? '—'}</strong></td>
-        <td>${md['5EF']?.media_mt?.toFixed(1) ?? '—'}</td>
-        <td><strong>${md['9EF']?.media_lp?.toFixed(1) ?? '—'}</strong></td>
-        <td>${md['9EF']?.media_mt?.toFixed(1) ?? '—'}</td>
-      </tr>`).join('');
+    // Shared state for map filters
+    let mapAno = anoMapaDefault, mapEtapa = '9EF', mapDisc = 'lp';
 
+    // Build/update table
+    function updateSaebTable() {
+      const tbody = document.querySelector('#saeb-mun-table tbody');
+      if (!tbody) return;
+      const munData = porMun[mapAno] || {};
+      let entries = Object.entries(munData);
+      if (S.creSel && S.creLookup?.mun_to_cre) {
+        entries = entries.filter(([cod]) => S.creLookup.mun_to_cre[cod]?.cod_cre === S.creSel);
+      }
+      if (S.munSel) {
+        entries = entries.filter(([cod]) => cod === S.munSel);
+      }
+      entries.sort((a, b) => (b[1]?.['9EF']?.media_lp || 0) - (a[1]?.['9EF']?.media_lp || 0));
+      tbody.innerHTML = entries.map(([cod, md], i) => `
+        <tr data-cod="${cod}" style="cursor:pointer" class="${S.munSel === cod ? 'selected' : ''}" title="Clique para filtrar por ${lookup[cod] || cod}">
+          <td>${i + 1}</td>
+          <td><strong>${lookup[cod] || cod}</strong></td>
+          <td>${md['5EF']?.media_lp?.toFixed(1) ?? '—'}</td>
+          <td>${md['5EF']?.media_mt?.toFixed(1) ?? '—'}</td>
+          <td><strong>${md['9EF']?.media_lp?.toFixed(1) ?? '—'}</strong></td>
+          <td>${md['9EF']?.media_mt?.toFixed(1) ?? '—'}</td>
+        </tr>`).join('');
+      // Click handler on table rows
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const cod = tr.dataset.cod;
+          S.munSel = S.munSel === cod ? null : cod;
+          refreshActiveTab();
+        });
+      });
+      // Update table title
+      const tt = document.getElementById('saeb-table-title');
+      if (tt) tt.textContent = `Ranking Municipal — SAEB ${mapAno}`;
+    }
+
+    // Build/update map
+    function updateSaebMap() {
+      if (!S.geo) return;
+      const munData = porMun[mapAno] || {};
+      const breakKey = `${mapEtapa}_${mapDisc}`;
+      const breaks = SAEB_BREAKS[breakKey] || SAEB_BREAKS['9EF_lp'];
+      const field = `media_${mapDisc}`;
+
+      function getColor(v) {
+        for (const b of breaks) { if (v >= b.min && v < b.max) return b.color; }
+        return '#f0f0f0';
+      }
+
+      destroyMap();
+      S.map = L.map('saeb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+        .setView([-29.7, -53.5], 6.5);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+      const info = L.control({ position: 'topright' });
+      info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+      info.update = function (props, md) {
+        if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
+        const nome = props.nome || lookup[props.cod_mun?.substring(0,7)] || props.cod_mun;
+        if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados SAEB</div>`; return; }
+        this._div.innerHTML = `<h4>${nome}</h4>
+          ${md['5EF'] ? `<div class="info-row"><span class="info-label">5EF LP</span><span class="info-value">${md['5EF'].media_lp?.toFixed(1)}</span></div>
+          <div class="info-row"><span class="info-label">5EF MT</span><span class="info-value">${md['5EF'].media_mt?.toFixed(1)}</span></div>` : ''}
+          ${md['9EF'] ? `<div class="info-row"><span class="info-label">9EF LP</span><span class="info-value">${md['9EF'].media_lp?.toFixed(1)}</span></div>
+          <div class="info-row"><span class="info-label">9EF MT</span><span class="info-value">${md['9EF'].media_mt?.toFixed(1)}</span></div>` : ''}
+          ${md['EM'] ? `<div class="info-row"><span class="info-label">EM LP</span><span class="info-value">${md['EM'].media_lp?.toFixed(1)}</span></div>
+          <div class="info-row"><span class="info-label">EM MT</span><span class="info-value">${md['EM'].media_mt?.toFixed(1)}</span></div>` : ''}`;
+      };
+      info.addTo(S.map);
+
+      // Determine CRE bounds for zoom
+      let creBounds = null;
+
+      S.mapLayer = L.geoJSON(S.geo, {
+        style: feature => {
+          const cod = feature.properties.cod_mun?.substring(0, 7);
+          const md = munData[cod];
+          const v = md?.[mapEtapa]?.[field] || 0;
+          // Dim municipalities outside selected CRE
+          const inCre = !S.creSel || (S.creLookup?.mun_to_cre?.[cod]?.cod_cre === S.creSel);
+          return { fillColor: v > 0 ? getColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: inCre ? 0.85 : 0.2 };
+        },
+        onEachFeature: (feature, layer) => {
+          const cod = feature.properties.cod_mun?.substring(0, 7);
+          const md = munData[cod];
+          const inCre = !S.creSel || (S.creLookup?.mun_to_cre?.[cod]?.cod_cre === S.creSel);
+          if (inCre && creBounds === null && S.creSel) creBounds = layer.getBounds();
+          else if (inCre && S.creSel) creBounds.extend(layer.getBounds());
+          layer.on({
+            mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
+            mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
+            click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
+          });
+        }
+      }).addTo(S.map);
+
+      // Legend
+      const legend = L.control({ position: 'bottomleft' });
+      const etLabel = SAEB_BREAK_LABELS[mapEtapa] || mapEtapa;
+      const discLabel = SAEB_DISC_LABELS[mapDisc] || mapDisc.toUpperCase();
+      legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = `<h4>SAEB ${etLabel} ${discLabel}</h4>` +
+          breaks.slice().reverse().map(b =>
+            `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+          ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+        return div;
+      };
+      legend.addTo(S.map);
+
+      // Zoom to CRE if selected
+      if (S.creSel && creBounds) {
+        S.map.fitBounds(creBounds, { padding: [30, 30] });
+      } else if (S.mapLayer) {
+        S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+      }
+
+      // Update title
+      const mt = document.getElementById('saeb-map-title');
+      if (mt) mt.textContent = `Mapa SAEB por Município — ${etLabel} ${discLabel} (${mapAno})`;
+    }
+
+    updateSaebTable();
+    updateSaebMap();
+
+    // Bind map filter selectors
+    document.getElementById('sel-saeb-map-ano')?.addEventListener('change', e => { mapAno = e.target.value; updateSaebTable(); updateSaebMap(); });
+    document.getElementById('sel-saeb-map-etapa')?.addEventListener('change', e => { mapEtapa = e.target.value; updateSaebMap(); });
+    document.getElementById('sel-saeb-map-disc')?.addEventListener('change', e => { mapDisc = e.target.value; updateSaebMap(); });
+
+    // Bind search
     document.getElementById('saeb-mun-search')?.addEventListener('input', e => {
       const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      tbody.querySelectorAll('tr').forEach(tr => {
+      document.querySelectorAll('#saeb-mun-table tbody tr').forEach(tr => {
         const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         tr.style.display = nome.includes(q) ? '' : 'none';
       });
     });
-
-    // Build map
-    if (!S.geo) return;
-    const SAEB_MAP_BREAKS = [
-      { min: 0,   max: 200, color: '#C62828', label: '< 200 (Muito Crítico)' },
-      { min: 200, max: 220, color: '#E65100', label: '200–220 (Crítico)' },
-      { min: 220, max: 240, color: '#F9A825', label: '220–240 (Atenção)' },
-      { min: 240, max: 260, color: '#66BB6A', label: '240–260 (Adequado)' },
-      { min: 260, max: 999, color: '#2E7D32', label: '> 260 (Avançado)' },
-    ];
-    function getSaebColor(v) {
-      for (const b of SAEB_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
-      return '#f0f0f0';
-    }
-
-    destroyMap();
-    S.map = L.map('saeb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
-      .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
-
-    const info = L.control({ position: 'topright' });
-    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
-    info.update = function (props, md) {
-      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
-      const nome = props.nome || props.cod_mun;
-      if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados SAEB</div>`; return; }
-      this._div.innerHTML = `
-        <h4>${nome}</h4>
-        ${md['5EF'] ? `<div class="info-row"><span class="info-label">5EF LP</span><span class="info-value">${md['5EF'].media_lp?.toFixed(1)}</span></div>
-        <div class="info-row"><span class="info-label">5EF MT</span><span class="info-value">${md['5EF'].media_mt?.toFixed(1)}</span></div>` : ''}
-        ${md['9EF'] ? `<div class="info-row"><span class="info-label">9EF LP</span><span class="info-value">${md['9EF'].media_lp?.toFixed(1)}</span></div>
-        <div class="info-row"><span class="info-label">9EF MT</span><span class="info-value">${md['9EF'].media_mt?.toFixed(1)}</span></div>` : ''}
-        ${md['EM'] ? `<div class="info-row"><span class="info-label">EM LP</span><span class="info-value">${md['EM'].media_lp?.toFixed(1)}</span></div>
-        <div class="info-row"><span class="info-label">EM MT</span><span class="info-value">${md['EM'].media_mt?.toFixed(1)}</span></div>` : ''}`;
-    };
-    info.addTo(S.map);
-
-    S.mapLayer = L.geoJSON(S.geo, {
-      style: feature => {
-        const cod = feature.properties.cod_mun?.substring(0, 7);
-        const md = munData[cod];
-        const v = md?.['9EF']?.media_lp || 0;
-        return { fillColor: v > 0 ? getSaebColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
-      },
-      onEachFeature: (feature, layer) => {
-        const cod = feature.properties.cod_mun?.substring(0, 7);
-        const md = munData[cod];
-        layer.on({
-          mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
-        });
-      }
-    }).addTo(S.map);
-
-    const legend = L.control({ position: 'bottomleft' });
-    legend.onAdd = function () {
-      const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<h4>SAEB 9º EF LP</h4>' +
-        SAEB_MAP_BREAKS.slice().reverse().map(b =>
-          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
-        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
-      return div;
-    };
-    legend.addTo(S.map);
-    if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
   };
 
   saebBuildMunSection();
@@ -3909,7 +4094,7 @@ function renderIdeb() {
         const md = munData[cod];
         layer.on({
           mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
           click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
         });
       }
@@ -4098,6 +4283,7 @@ function renderHome() {
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB', desc: 'Proficiência em Língua Portuguesa e Matemática' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
+    { view: 'escolas', icon: 'img/icons/escola.png', title: 'Visão por Escola', desc: 'Mapa georreferenciado com indicadores por escola' },
   ];
 
   main.innerHTML = `
@@ -4257,7 +4443,7 @@ function renderFluxo() {
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_fluxo.png', 'Fluxo e Rendimento', geoLabel)}
       ${redeToggleHTML()}
-      <div id="fluxo-kpi-strip" class="kpi-strip" style="grid-template-columns:repeat(6,1fr)"></div>
+      <div id="fluxo-kpi-strip" class="kpi-strip" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
 
     <div class="section-divider">
@@ -4320,7 +4506,7 @@ function renderFluxo() {
         <div style="max-height:400px;overflow-y:auto">
           <table class="data-table" id="flx-mun-table">
             <thead><tr>
-              <th>#</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.F</th><th>Aband.M</th><th>TDI.F</th>
+              <th>#</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.F</th><th>Aband.M</th>
             </tr></thead>
             <tbody id="flx-mun-tbody"></tbody>
           </table>
@@ -4399,8 +4585,6 @@ function fluxoUpdateKPIs(st, tdiSrc, f, anos, anoSel) {
     { label: 'Aprovação Médio', key: 'aprov_med', value: st.aprov_med, icon: 'img/icons/medio.png', accent: 'green', suffix: '%' },
     { label: 'Reprovação Fund.', key: 'reprov_fund', value: st.reprov_fund, icon: 'img/icons/fundamental.png', accent: 'red', suffix: '%' },
     { label: 'Abandono Médio', key: 'aband_med', value: st.aband_med, icon: 'img/icons/medio.png', accent: 'red', suffix: '%' },
-    { label: 'TDI Fund.', key: null, value: tdiSrc?.tdi_fund, icon: 'img/icons/fundamental.png', accent: 'yellow', suffix: '%' },
-    { label: 'TDI Médio', key: null, value: tdiSrc?.tdi_med, icon: 'img/icons/medio.png', accent: 'yellow', suffix: '%' },
   ];
   const accentColors = { green: '#00AB4E', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
   const refLabel = prev ? `vs ${prev}` : '';
@@ -4664,7 +4848,7 @@ function buildFluxoMap(f, anoSel, metricKey) {
       layer.bindTooltip(`<strong>${nome}</strong><br>${metricDef.label}: ${v != null ? v.toFixed(1) + '%' : 'Sem dados'}`, { sticky: true });
       layer.on({
         mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); },
-        mouseout: e => { S.mapLayer.resetStyle(e.target); },
+        mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); },
         click: () => {
           if (S.munSel === cod) { S.munSel = null; } else { S.munSel = cod; }
           refreshActiveTab();
@@ -4724,7 +4908,6 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
         <td>${i + 1}</td><td><strong>${r.nome}</strong></td>
         ${pctCell(r.aprov_fund, true)}${pctCell(r.aprov_med, true)}
         ${pctCell(r.reprov_fund, false)}${pctCell(r.aband_med, false)}
-        ${pctCell(r.tdi_fund, false)}
       </tr>`
     ).join('');
     // Click handler
@@ -4741,7 +4924,7 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
   // Sortable headers
   const table = document.getElementById('flx-mun-table');
   if (table) {
-    const colKeys = ['_rank', 'nome', 'aprov_fund', 'aprov_med', 'reprov_fund', 'aband_med', 'tdi_fund'];
+    const colKeys = ['_rank', 'nome', 'aprov_fund', 'aprov_med', 'reprov_fund', 'aband_med'];
     let sortCol = -1, sortAsc = true;
     table.querySelectorAll('th').forEach((th, ci) => {
       th.style.cursor = 'pointer';
@@ -5239,7 +5422,7 @@ function renderInse() {
         const md = munData[cod];
         layer.on({
           mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
         });
       }
     }).addTo(S.map);
@@ -5925,7 +6108,7 @@ function renderIcg() {
         const md = munData[cod];
         layer.on({
           mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
           click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
         });
       }
@@ -6518,7 +6701,7 @@ function renderAfd() {
         const md = munData[cod];
         layer.on({
           mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
           click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
         });
       }
@@ -6947,7 +7130,7 @@ function renderTdi() {
         const md = munData[cod];
         layer.on({
           mouseover: e => { e.target.setStyle({ weight: 2.5, color: '#FFB300', fillOpacity: 0.95 }); e.target.bringToFront(); info.update(feature.properties, md); },
-          mouseout: e => { S.mapLayer.resetStyle(e.target); info.update(); },
+          mouseout: e => { S.mapLayer.resetStyle(e.target); e.target.closeTooltip(); info.update(); },
           click: () => { S.munSel = S.munSel === cod ? null : cod; refreshActiveTab(); }
         });
       }
@@ -7101,6 +7284,14 @@ function initNav() {
       tab.classList.add('active');
       const view = tab.dataset.view;
 
+      // Reset geo/etapa filters ONLY on actual page transition (not refreshActiveTab re-click)
+      if (S._currentView && S._currentView !== view) {
+        S.munSel = null;
+        S.creSel = null;
+        S.etapaSel = null;
+      }
+      S._currentView = view;
+
       if (view === 'home') { renderHome(); return; }
 
       document.body.classList.remove('sidebar-hidden');
@@ -7116,6 +7307,7 @@ function initNav() {
       else if (view === 'icg') { renderIcg(); }
       else if (view === 'afd') { renderAfd(); }
       else if (view === 'tdi') { renderTdi(); }
+      else if (view === 'escolas') { renderEscolas(); }
       else {
         const main = document.getElementById('main-content');
         destroyCharts(); destroyMap();
@@ -7622,8 +7814,28 @@ function populateCreDropdown() {
 /** Populate municipality dropdown, optionally filtered by CRE */
 function populateMunDropdown(creCod) {
   const selMun = document.getElementById('sel-mun');
-  if (!selMun || !S.data) return;
-  const lookup = S.data.lookup_municipios || {};
+  if (!selMun) return;
+
+  // Build universal municipality lookup from creLookup + all section lookups
+  const lookup = {};
+  // 1. From creLookup mun_to_cre (has all ~496 municipalities but no names)
+  //    Names come from the GeoJSON or section lookups
+  // 2. Merge all available section lookups for names
+  const sources = [
+    S.data?.lookup_municipios,
+    S.fluxo?.lookup_municipios,
+    S.saeb?.lookup_municipios,
+    S.inse?.lookup_municipios,
+    S.icg?.lookup_municipios,
+    S.afd?.lookup_municipios,
+    S.ideb?.lookup_municipios,
+    S.tdi?.lookup_municipios,
+    S._universalMunLookup,
+  ];
+  for (const src of sources) {
+    if (src) Object.assign(lookup, src);
+  }
+
   const munToCre = S.creLookup?.mun_to_cre || {};
 
   let entries = Object.entries(lookup).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
@@ -7719,12 +7931,16 @@ function bindTopbarFilters() {
     updateFilterAwareness();
     });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', e => {
-      if (!e.target.closest('#mun-search-wrapper')) {
-        munList.style.display = 'none';
-      }
-    });
+    // Close dropdown when clicking outside (register only once)
+    if (!bindTopbarFilters._munCloseRegistered) {
+      bindTopbarFilters._munCloseRegistered = true;
+      document.addEventListener('click', e => {
+        const list = document.getElementById('mun-dropdown-list');
+        if (list && !e.target.closest('#mun-search-wrapper')) {
+          list.style.display = 'none';
+        }
+      });
+    }
   }
 
   // Hamburger menu
@@ -7756,6 +7972,335 @@ function refreshActiveTab() {
 }
 
 // ══════════════════════════════════════════════════════════
+// VISÃO POR ESCOLA
+// ══════════════════════════════════════════════════════════
+
+const ESCOLA_INDICATORS = [
+  { key: 'ideb_ai', label: 'IDEB Anos Iniciais', higher: true, fmt: v => v.toFixed(1), unit: '' },
+  { key: 'ideb_af', label: 'IDEB Anos Finais', higher: true, fmt: v => v.toFixed(1), unit: '' },
+  { key: 'ideb_em', label: 'IDEB Ensino Médio', higher: true, fmt: v => v.toFixed(1), unit: '' },
+  { key: 'tdi_fund', label: 'TDI Fundamental (%)', higher: false, fmt: v => v.toFixed(1) + '%', unit: '%' },
+  { key: 'tdi_ai', label: 'TDI Anos Iniciais (%)', higher: false, fmt: v => v.toFixed(1) + '%', unit: '%' },
+  { key: 'tdi_af', label: 'TDI Anos Finais (%)', higher: false, fmt: v => v.toFixed(1) + '%', unit: '%' },
+  { key: 'tdi_med', label: 'TDI Ensino Médio (%)', higher: false, fmt: v => v.toFixed(1) + '%', unit: '%' },
+  { key: 'inse_media', label: 'INSE (Média)', higher: true, fmt: v => v.toFixed(1), unit: '' },
+  { key: 'icg_nivel', label: 'ICG (Nível 1-6)', higher: false, fmt: v => v.toFixed(0), unit: '' },
+];
+
+function getEscolaColor(value, indicator) {
+  if (value == null) return '#B0BEC5';
+  const cfg = ESCOLA_INDICATORS.find(i => i.key === indicator);
+  if (!cfg) return '#B0BEC5';
+
+  // IDEB
+  if (indicator.startsWith('ideb_')) {
+    if (value >= 7.0) return '#1B5E20';
+    if (value >= 6.0) return '#43A047';
+    if (value >= 5.0) return '#FFCB04';
+    if (value >= 4.0) return '#F57C00';
+    return '#C62828';
+  }
+  // TDI (lower is better)
+  if (indicator.startsWith('tdi_')) {
+    if (value <= 10) return '#1B5E20';
+    if (value <= 20) return '#43A047';
+    if (value <= 30) return '#FFCB04';
+    if (value <= 40) return '#F57C00';
+    return '#C62828';
+  }
+  // INSE
+  if (indicator === 'inse_media') {
+    if (value >= 6.0) return '#1B5E20';
+    if (value >= 5.0) return '#43A047';
+    if (value >= 4.0) return '#FFCB04';
+    if (value >= 3.0) return '#F57C00';
+    return '#C62828';
+  }
+  // ICG (higher = more complex)
+  if (indicator === 'icg_nivel') {
+    const colors = { 1: '#1B5E20', 2: '#43A047', 3: '#66BB6A', 4: '#FFCB04', 5: '#F57C00', 6: '#C62828' };
+    return colors[value] || '#B0BEC5';
+  }
+  return '#00AB4E';
+}
+
+function getEscolaLegend(indicator) {
+  if (indicator.startsWith('ideb_')) {
+    return [
+      { color: '#1B5E20', label: '≥ 7,0' }, { color: '#43A047', label: '6,0–6,9' },
+      { color: '#FFCB04', label: '5,0–5,9' }, { color: '#F57C00', label: '4,0–4,9' },
+      { color: '#C62828', label: '< 4,0' }, { color: '#B0BEC5', label: 'Sem dado' },
+    ];
+  }
+  if (indicator.startsWith('tdi_')) {
+    return [
+      { color: '#1B5E20', label: '≤ 10%' }, { color: '#43A047', label: '10–20%' },
+      { color: '#FFCB04', label: '20–30%' }, { color: '#F57C00', label: '30–40%' },
+      { color: '#C62828', label: '> 40%' }, { color: '#B0BEC5', label: 'Sem dado' },
+    ];
+  }
+  if (indicator === 'inse_media') {
+    return [
+      { color: '#1B5E20', label: '≥ 6,0' }, { color: '#43A047', label: '5,0–5,9' },
+      { color: '#FFCB04', label: '4,0–4,9' }, { color: '#F57C00', label: '3,0–3,9' },
+      { color: '#C62828', label: '< 3,0' }, { color: '#B0BEC5', label: 'Sem dado' },
+    ];
+  }
+  if (indicator === 'icg_nivel') {
+    return [
+      { color: '#1B5E20', label: 'Nível 1' }, { color: '#43A047', label: 'Nível 2' },
+      { color: '#66BB6A', label: 'Nível 3' }, { color: '#FFCB04', label: 'Nível 4' },
+      { color: '#F57C00', label: 'Nível 5' }, { color: '#C62828', label: 'Nível 6' },
+    ];
+  }
+  return [];
+}
+
+function renderEscolas() {
+  const main = document.getElementById('main-content');
+  destroyCharts();
+  destroyMap();
+  // Destroy previous escola map
+  if (S.escolasMap) { S.escolasMap.remove(); S.escolasMap = null; S.escolasMarkers = null; }
+
+  document.body.classList.remove('sidebar-hidden');
+  const ed = S.escolasData;
+  if (!ed || !ed.escolas || !ed.escolas.length) {
+    main.innerHTML = `<div class="placeholder-view">
+      <div style="font-size:40px;opacity:.3">🏫</div>
+      <div style="font-size:15px;font-weight:600">Visão por Escola</div>
+      <div style="font-size:11px;opacity:.7">Dados não disponíveis</div>
+    </div>`;
+    return;
+  }
+
+  const escolas = ed.escolas;
+  const withCoords = escolas.filter(e => e.lat && e.lng);
+
+  // Build CRE list
+  const creSet = new Set(escolas.map(e => e.cre));
+  const creList = [...creSet].sort((a, b) => parseInt(a) - parseInt(b));
+
+  const defaultIndicator = 'ideb_af';
+
+  main.innerHTML = `
+    <div class="section-content" style="padding:10px 16px 50px">
+      ${sectionBanner('img/icons/escola.png', 'Visão por Escola', 'Rede Estadual do RS', { redeToggle: false })}
+
+      <!-- Filters Row -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px">
+          <label style="font-size:11px;font-weight:600;color:#555">Indicador:</label>
+          <select id="escola-indicator" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;font-size:11px;font-family:Inter;background:#fff;cursor:pointer">
+            ${ESCOLA_INDICATORS.map(i => `<option value="${i.key}" ${i.key === defaultIndicator ? 'selected' : ''}>${i.label}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <label style="font-size:11px;font-weight:600;color:#555">CRE:</label>
+          <select id="escola-cre-filter" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;font-size:11px;font-family:Inter;background:#fff;cursor:pointer">
+            <option value="">Todas as CREs</option>
+            ${creList.map(c => `<option value="${c}">${c}ª CRE</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1;max-width:300px">
+          <label style="font-size:11px;font-weight:600;color:#555">Buscar:</label>
+          <input type="text" id="escola-search" placeholder="Nome da escola ou município..." style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;font-size:11px;font-family:Inter;width:100%;background:#fff">
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div id="escola-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+
+      <!-- Map -->
+      <div class="chart-card" style="padding:0;overflow:hidden;border-radius:10px;margin-bottom:16px">
+        <div style="padding:10px 14px 6px;display:flex;justify-content:space-between;align-items:center">
+          <div class="chart-title" id="escola-map-title">Mapa das Escolas Estaduais — IDEB Anos Finais</div>
+          <div id="escola-legend" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+        </div>
+        <div id="escola-map" style="height:520px;width:100%;background:#f0f4f8"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="chart-card" style="padding:12px 16px">
+        <div class="chart-title" style="margin-bottom:8px">Ranking de Escolas</div>
+        <div id="escola-table-wrap" style="max-height:400px;overflow-y:auto">
+          <table id="escola-table" style="width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px">
+            <thead id="escola-table-head"></thead>
+            <tbody id="escola-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:8px;font-size:9px;color:#aaa">
+        Fonte: Censo Escolar 2025 / INEP — Indicadores por escola | ${withCoords.length} escolas georreferenciadas
+      </div>
+    </div>
+  `;
+
+  // Initialize map
+  const mapEl = document.getElementById('escola-map');
+  const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true }).setView([-29.5, -53.5], 7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 18
+  }).addTo(map);
+  S.escolasMap = map;
+  S.escolasMarkers = L.layerGroup().addTo(map);
+
+  // Update function
+  function updateEscolas() {
+    const indicator = document.getElementById('escola-indicator').value;
+    const creFilter = document.getElementById('escola-cre-filter').value;
+    const search = (document.getElementById('escola-search').value || '').toUpperCase().trim();
+    const cfg = ESCOLA_INDICATORS.find(i => i.key === indicator);
+
+    // Filter schools
+    let filtered = escolas;
+    if (creFilter) filtered = filtered.filter(e => e.cre === creFilter);
+    if (search) filtered = filtered.filter(e =>
+      (e.nome || '').toUpperCase().includes(search) ||
+      (e.municipio || '').toUpperCase().includes(search) ||
+      (e.inep || '').includes(search)
+    );
+
+    const withVal = filtered.filter(e => e[indicator] != null);
+    const vals = withVal.map(e => e[indicator]);
+    const avg = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+    const minV = vals.length ? Math.min(...vals) : null;
+    const maxV = vals.length ? Math.max(...vals) : null;
+
+    // KPIs
+    document.getElementById('escola-kpis').innerHTML = `
+      <div class="kpi-card" style="text-align:center;padding:12px">
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Escolas</div>
+        <div style="font-size:24px;font-weight:800;color:#0D47A1">${filtered.length.toLocaleString('pt-BR')}</div>
+      </div>
+      <div class="kpi-card" style="text-align:center;padding:12px">
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Média ${cfg ? cfg.label.split(' ')[0] : ''}</div>
+        <div style="font-size:24px;font-weight:800;color:#00AB4E">${avg != null ? cfg.fmt(avg) : '—'}</div>
+        <div style="font-size:9px;color:#999">${withVal.length} com dado</div>
+      </div>
+      <div class="kpi-card" style="text-align:center;padding:12px">
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Melhor</div>
+        <div style="font-size:24px;font-weight:800;color:#1B5E20">${maxV != null && cfg ? cfg.fmt(cfg.higher ? maxV : minV) : '—'}</div>
+      </div>
+      <div class="kpi-card" style="text-align:center;padding:12px">
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Pior</div>
+        <div style="font-size:24px;font-weight:800;color:#C62828">${minV != null && cfg ? cfg.fmt(cfg.higher ? minV : maxV) : '—'}</div>
+      </div>
+    `;
+
+    // Map title
+    document.getElementById('escola-map-title').textContent = `Mapa das Escolas Estaduais — ${cfg ? cfg.label : ''}`;
+
+    // Legend
+    const legendEl = document.getElementById('escola-legend');
+    const legendItems = getEscolaLegend(indicator);
+    legendEl.innerHTML = legendItems.map(l =>
+      `<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:#666">
+        <span style="width:10px;height:10px;border-radius:50%;background:${l.color};display:inline-block"></span>${l.label}
+      </span>`
+    ).join('');
+
+    // Map markers
+    S.escolasMarkers.clearLayers();
+    const filteredWithCoords = filtered.filter(e => e.lat && e.lng);
+    for (const e of filteredWithCoords) {
+      const val = e[indicator];
+      const color = getEscolaColor(val, indicator);
+      const marker = L.circleMarker([e.lat, e.lng], {
+        radius: 5, fillColor: color, fillOpacity: 0.85, color: '#fff', weight: 1, opacity: 0.9,
+      });
+
+      // Build popup
+      let popupContent = `
+        <div style="font-family:Inter,sans-serif;min-width:240px">
+          <div style="font-weight:700;font-size:12px;color:#0D47A1;margin-bottom:4px">${e.nome}</div>
+          <div style="font-size:10px;color:#666;margin-bottom:8px">${e.municipio} · ${e.cre}ª CRE · INEP ${e.inep}</div>
+          <table style="font-size:10px;width:100%;border-collapse:collapse">
+      `;
+      const rows = [
+        { label: 'IDEB AI', val: e.ideb_ai, fmt: v => v.toFixed(1) },
+        { label: 'IDEB AF', val: e.ideb_af, fmt: v => v.toFixed(1) },
+        { label: 'IDEB EM', val: e.ideb_em, fmt: v => v.toFixed(1) },
+        { label: 'TDI Fund.', val: e.tdi_fund, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI AI', val: e.tdi_ai, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI AF', val: e.tdi_af, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI Médio', val: e.tdi_med, fmt: v => v.toFixed(1) + '%' },
+        { label: 'INSE', val: e.inse_media, fmt: v => v.toFixed(1), extra: e.inse_nivel ? ` (${e.inse_nivel})` : '' },
+        { label: 'ICG', val: e.icg_nivel, fmt: v => `Nível ${v}` },
+        { label: 'Salas', val: e.salas, fmt: v => v },
+      ];
+      for (const r of rows) {
+        if (r.val != null) {
+          popupContent += `<tr><td style="padding:2px 6px;color:#555">${r.label}</td><td style="padding:2px 6px;font-weight:600;text-align:right">${r.fmt(r.val)}${r.extra || ''}</td></tr>`;
+        }
+      }
+      popupContent += '</table></div>';
+      marker.bindPopup(popupContent, { maxWidth: 320 });
+      S.escolasMarkers.addLayer(marker);
+    }
+
+    // Fit bounds if CRE filtered
+    if (creFilter && filteredWithCoords.length > 0) {
+      const bounds = L.latLngBounds(filteredWithCoords.map(e => [e.lat, e.lng]));
+      map.fitBounds(bounds.pad(0.1));
+    }
+
+    // Table
+    const sorted = [...filtered].sort((a, b) => {
+      const av = a[indicator], bv = b[indicator];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return cfg && cfg.higher ? bv - av : av - bv;
+    });
+
+    const thead = document.getElementById('escola-table-head');
+    thead.innerHTML = `<tr>
+      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">#</th>
+      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">Escola</th>
+      <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">Município</th>
+      <th style="padding:6px 8px;text-align:center;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">CRE</th>
+      <th style="padding:6px 8px;text-align:center;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;font-size:10px;position:sticky;top:0">${cfg ? cfg.label : ''}</th>
+    </tr>`;
+
+    const tbody = document.getElementById('escola-table-body');
+    const maxRows = 200;
+    const display = sorted.slice(0, maxRows);
+    tbody.innerHTML = display.map((e, i) => {
+      const val = e[indicator];
+      const color = getEscolaColor(val, indicator);
+      return `<tr style="background:${i % 2 === 0 ? '#fff' : '#fafbfc'};cursor:pointer" onclick="if(S.escolasMap && ${e.lat ? 'true' : 'false'}) { S.escolasMap.setView([${e.lat || 0},${e.lng || 0}], 14); }">
+        <td style="padding:4px 8px;border-bottom:1px solid #eee;color:#999;font-size:9px">${i + 1}</td>
+        <td style="padding:4px 8px;border-bottom:1px solid #eee;font-weight:600;font-size:10px">${e.nome}</td>
+        <td style="padding:4px 8px;border-bottom:1px solid #eee;font-size:10px">${e.municipio}</td>
+        <td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:center;font-size:10px">${e.cre}ª</td>
+        <td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:center;font-weight:700;font-size:10px">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:4px"></span>
+          ${val != null && cfg ? cfg.fmt(val) : '<span style="color:#ccc">—</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+
+    if (sorted.length > maxRows) {
+      tbody.innerHTML += `<tr><td colspan="5" style="padding:8px;text-align:center;color:#999;font-size:10px">... e mais ${sorted.length - maxRows} escolas</td></tr>`;
+    }
+  }
+
+  // Bind events
+  document.getElementById('escola-indicator').addEventListener('change', updateEscolas);
+  document.getElementById('escola-cre-filter').addEventListener('change', updateEscolas);
+  let searchTimeout;
+  document.getElementById('escola-search').addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(updateEscolas, 300);
+  });
+
+  // Initial render
+  updateEscolas();
+}
+
+// ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
 
@@ -7763,7 +8308,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -7778,6 +8323,7 @@ async function init() {
       fetch('dados/4_9_afd.json'),
       fetch('dados/4_7_ideb.json'),
       fetch('dados/4_10_tdi.json'),
+      fetch('dados/escolas_estaduais.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -7794,9 +8340,13 @@ async function init() {
     if (respAfd.ok)       S.afd       = await respAfd.json();
     if (respIdeb.ok)      S.ideb      = await respIdeb.json();
     if (respTdi.ok)       S.tdi       = await respTdi.json();
+    if (respEscolas.ok)   S.escolasData = await respEscolas.json();
 
     // Seed rede cache with initial estadual data
     S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi };
+
+    // Build universal municipality lookup (persists across rede changes)
+    S._universalMunLookup = { ...(S.data?.lookup_municipios || {}) };
 
     // Populate topbar year select
     const anos = Object.keys(S.data.serie_temporal).sort();

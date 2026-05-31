@@ -916,6 +916,17 @@ body.sidebar-hidden .sidebar {
 .filter-chip-ano:hover {
   background: linear-gradient(135deg, #64B5F6 0%, #42A5F5 100%);
 }
+.filter-chip-rede {
+  background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(27,94,32,.35);
+  cursor: default;
+  font-size: 10px;
+}
+.filter-chip-rede:hover {
+  background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+  transform: none;
+}
 
 /* ── Rede Toggle Strip (network filter below banner) ── */
 .rede-toggle-strip {
@@ -949,6 +960,17 @@ body.sidebar-hidden .sidebar {
   color: var(--accent);
   font-weight: 700;
   box-shadow: inset 0 -3px 0 var(--accent);
+}
+.rede-toggle-btn.disabled,
+.rede-toggle-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: auto;
+  color: rgba(255,255,255,.4);
+}
+.rede-toggle-btn:disabled:hover {
+  background: transparent;
+  color: rgba(255,255,255,.4);
 }
 .rede-loading-overlay {
   position: fixed;
