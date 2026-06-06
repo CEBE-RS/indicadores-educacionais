@@ -28,6 +28,7 @@ const S = {
   icg: null,       // 4_8_icg.json — Complexidade de Gestão
   afd: null,       // 4_9_afd.json — Adequação da Formação Docente
   tdi: null,       // 4_10_tdi.json — Distorção Idade-Série
+  saersData: null,   // 4_saers.json — Avaliação SAERS
   escolasData: null, // escolas_estaduais.json — Visão por Escola
   escolasMap: null,  // Leaflet map instance for escolas
   escolasMarkers: null, // Leaflet layer group for markers
@@ -37,32 +38,33 @@ const S = {
   map: null,
   mapLayer: null,
   mapLegend: null,  // Leaflet legend control
-  mapMode: 'mun',   // 'mun' | 'cre'
+  mapMode: 'mun',   // 'mun' | 'cre' | 'esc'
   charts: [],
   anoSel: null,
   depSel: 'Estadual',
   munSel: null,
 
   creSel: null,      // selected CRE code e.g. '06'
-  etapaSel: null,     // selected etapa filter: 'mat_infantil', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja', or null (all)
+  etapaSel: null,     // selected etapa filter: 'mat_infantil', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja', 'mat_prof_tec', or null (all)
+  profSel: null,       // selected profissional sub-filter for evolution chart: 'integrado', 'subsequente', 'concomitante', 'eja_tec', or null (all)
 
   // Multi-rede support
   redeSel: 'estadual',   // current network: estadual, municipal, federal, filantropica, privada, todas
   redeCache: {},         // { estadual: { acesso: data, infra: data }, ... }
 };
 
-const FONTE_CENSO = 'Fonte: INEP — Censo Escolar da Educação Básica';
+const FONTE_CENSO = 'Fonte: INEP — <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar Censo Escolar no portal INEP">Censo Escolar da Educação Básica</a> · <a href="https://www.gov.br/inep/pt-br/centrais-de-conteudo/acervo-linha-editorial/publicacoes-institucionais/estatisticas-e-indicadores-educacionais/caderno-de-conceitos-e-orientacoes-do-censo-escolar-2025-1a-etapa-da-coleta" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar o Caderno de Conceitos e Orientações 2025">📘 Caderno do Censo 2025</a>';
 
 // Paleta Bandeira RS: Verde #00AB4E, Vermelho #EE302F, Amarelo #FFCB04
 const COLORS = {
-  pri: '#00AB4E', priDark: '#005A32', priLight: '#4DC97A', sec: '#2E7D32',
+  pri: '#2E86C1', priDark: '#0D3B66', priLight: '#5DADE2', sec: '#2874A6',
   red: '#EE302F', redLight: '#F4706F',
   yellow: '#FFCB04', yellowLight: '#FFE066',
   accent: '#FFCB04', accentLight: '#FFE066',
-  federal: '#1565C0', estadual: '#00AB4E', municipal: '#EE302F', privada: '#6A1B9A',
+  federal: '#1565C0', estadual: '#2E86C1', municipal: '#EE302F', privada: '#6A1B9A',
   masc: '#1976D2', fem: '#EE302F',
-  branca: '#78909C', preta: '#37474F', parda: '#8D6E63', amarela: '#FFCB04', indigena: '#00AB4E', nd: '#B0BEC5',
-  infantil: '#FFCB04', fundAI: '#0097A7', fundAF: '#F57C00', fundamental: '#00AB4E', medio: '#EE302F', eja: '#1565C0', especial: '#6A1B9A',
+  branca: '#78909C', preta: '#37474F', parda: '#8D6E63', amarela: '#FFCB04', indigena: '#2E86C1', nd: '#B0BEC5',
+  infantil: '#FFCB04', fundAI: '#0097A7', fundAF: '#F57C00', fundamental: '#2E86C1', medio: '#EE302F', eja: '#1565C0', especial: '#6A1B9A', blue: '#1565C0',
   gridLine: 'rgba(0,0,0,.06)',
 };
 
@@ -87,10 +89,11 @@ const REDE_LABELS = {
 // Etapa labels for filter badges
 const ETAPA_MAP = {
   mat_infantil: 'Infantil',
-  mat_fund_ai: 'Fund. AI',
-  mat_fund_af: 'Fund. AF',
+  mat_fund_ai: 'Anos Iniciais',
+  mat_fund_af: 'Anos Finais',
   mat_medio: 'Médio',
   mat_eja: 'EJA',
+  mat_prof_tec: 'Técnico',
 };
 
 // Bold presets for rate/score sections (Fluxo, SAEB) — bigger labels for better readability
@@ -204,16 +207,84 @@ function destroyMap() {
     S.map.eachLayer(l => { if (l.closeTooltip) l.closeTooltip(); if (l.closePopup) l.closePopup(); });
     S.map.remove(); S.map = null; S.mapLayer = null;
   }
+  if (S.creOverlay) { S.creOverlay = null; }
   if (S.escolasMap) {
     S.escolasMap.remove(); S.escolasMap = null; S.escolasMarkers = null;
   }
 }
 
-/** Add export CSV buttons to all chart-cards that have a canvas */
+/**
+ * Add CRE boundary overlay on top of any active Leaflet map.
+ * This draws semi-transparent CRE boundaries with labels.
+ * Call AFTER the base choropleth layer is added.
+ */
+function addCreOverlay(map, opts) {
+  if (!S.creGeo || !map) return null;
+  // Remove previous overlay if exists
+  if (S.creOverlay) { try { map.removeLayer(S.creOverlay); } catch(e) {} }
+  
+  const overlay = L.geoJSON(S.creGeo, {
+    style: () => ({
+      fillColor: 'transparent',
+      fillOpacity: 0,
+      weight: 2.5,
+      color: 'rgba(0,0,0,0.45)',
+      dashArray: '6,4',
+    }),
+    onEachFeature: (feature, layer) => {
+      const nome = feature.properties.nome_cre || feature.properties.cod_cre || '';
+      if (!opts?.noLabels) {
+        layer.bindTooltip(nome, {
+          permanent: true,
+          direction: 'center',
+          className: 'cre-overlay-label',
+        });
+      }
+    }
+  }).addTo(map);
+  
+  S.creOverlay = overlay;
+  return overlay;
+}
+
+/** Export a data-table to CSV */
+function exportTableCSV(btn) {
+  const wrapper = btn.closest('.table-wrapper') || btn.closest('.map-table-row') || btn.closest('.chart-card');
+  if (!wrapper) return;
+  const table = wrapper.querySelector('table.data-table') || wrapper.querySelector('table');
+  if (!table) return;
+
+  const title = wrapper.querySelector('.table-header h3')?.textContent || wrapper.querySelector('.chart-title')?.textContent || 'tabela';
+
+  // Extract headers
+  const headers = [];
+  table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+
+  // Extract visible rows
+  const rows = [];
+  table.querySelectorAll('tbody tr').forEach(tr => {
+    if (tr.style.display === 'none') return;
+    const cells = [];
+    tr.querySelectorAll('td').forEach(td => cells.push(td.textContent.trim()));
+    rows.push(cells);
+  });
+
+  const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(c => c.replace(/;/g, ',')).join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = title.replace(/[^a-zA-ZÀ-ú0-9 ]/g, '').trim().replace(/\s+/g, '_') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Add export CSV buttons to all chart-cards and data-tables */
 function injectExportButtons() {
+  // Charts
   document.querySelectorAll('.chart-card canvas').forEach(canvas => {
     const card = canvas.closest('.chart-card');
-    if (!card || card.querySelector('.export-btn')) return; // already has one
+    if (!card || card.querySelector('.export-btn')) return;
     const btn = document.createElement('button');
     btn.className = 'export-btn';
     btn.title = 'Baixar dados (CSV/Excel)';
@@ -221,6 +292,26 @@ function injectExportButtons() {
     btn.addEventListener('click', function(e) { e.stopPropagation(); exportChartCSV(this); });
     card.style.position = 'relative';
     card.appendChild(btn);
+  });
+
+  // Tables
+  document.querySelectorAll('.data-table').forEach(table => {
+    const wrapper = table.closest('.table-wrapper') || table.closest('.chart-card');
+    if (!wrapper || wrapper.querySelector('.export-table-btn')) return;
+    const header = wrapper.querySelector('.table-header');
+    if (!header) return;
+    const btn = document.createElement('button');
+    btn.className = 'export-table-btn';
+    btn.title = 'Baixar tabela (CSV)';
+    btn.innerHTML = '📥 CSV';
+    btn.style.cssText = 'font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;font-family:Inter;font-weight:600;color:#555;margin-left:auto;transition:all .2s';
+    btn.addEventListener('mouseenter', () => { btn.style.background = '#f0f0f0'; });
+    btn.addEventListener('mouseleave', () => { btn.style.background = '#fff'; });
+    btn.addEventListener('click', function(e) { e.stopPropagation(); exportTableCSV(this); });
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.gap = '8px';
+    header.appendChild(btn);
   });
 }
 // ══════════════════════════════════════════════════════════
@@ -447,6 +538,10 @@ function updateActiveFilters() {
     const munName = S.data?.lookup_municipios?.[S.munSel] || S.munSel;
     html += `<span class="filter-chip" data-clear="mun" title="Clique para remover">📍 ${munName} <span class="close">✕</span></span>`;
   }
+  if (S.profSel) {
+    const PROF_NAMES = { integrado: 'Integrado', subsequente: 'Subsequente', concomitante: 'Concomitante', eja_tec: 'EJA Técnico' };
+    html += `<span class="filter-chip" data-clear="prof" title="Clique para remover">🏭 ${PROF_NAMES[S.profSel] || S.profSel} <span class="close">✕</span></span>`;
+  }
   slot.innerHTML = html;
   // Bind clear (skip rede chip which has no data-clear)
   slot.querySelectorAll('.filter-chip[data-clear]').forEach(chip => {
@@ -463,6 +558,7 @@ function updateActiveFilters() {
         }
       }
       if (type === 'etapa') S.etapaSel = null;
+      if (type === 'prof') S.profSel = null;
       if (type === 'cre') { S.creSel = null; const s = document.getElementById('sel-cre'); if (s) s.value = ''; populateMunDropdown(null); }
       if (type === 'mun') { S.munSel = null; const mi = document.getElementById('mun-search-input'); if (mi) mi.value = ''; }
       refreshActiveTab();
@@ -520,7 +616,7 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card d2">
-        <div class="chart-title" id="title-serie">Evolução de ${S.etapaSel ? ({'mat_infantil':'Infantil','mat_fund_ai':'Fund. AI','mat_fund_af':'Fund. AF','mat_medio':'Médio','mat_eja':'EJA'}[S.etapaSel]) : 'Matrículas'} — ${redeLabel} (${anos[0]}–${anoSel})</div>
+        <div class="chart-title" id="title-serie">Evolução de ${S.etapaSel ? ({'mat_infantil':'Infantil','mat_fund_ai':'Anos Iniciais','mat_fund_af':'Anos Finais','mat_medio':'Médio','mat_eja':'EJA','mat_prof_tec':'Técnico'}[S.etapaSel]) : 'Matrículas'} — ${redeLabel} (${anos[0]}–${anoSel})</div>
         <div style="height:220px"><canvas id="chart-serie"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -616,6 +712,70 @@ function renderAcesso() {
       </div>
     </div>
 
+    <!-- ═══ EIXO: Matrículas por Série ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/fundamental.png" alt=""></span>
+      <span class="section-divider-text">Matrículas por Série — ${anoSel}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Ensino Fundamental — Por Ano/Série</div>
+        <div style="height:250px"><canvas id="chart-serie-fund"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ensino Médio — Por Série</div>
+        <div style="height:250px"><canvas id="chart-serie-med"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Educação Profissional e Técnica ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/medio.png" alt=""></span>
+      <span class="section-divider-text">Educação Profissional e Técnica</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title" id="title-prof-evo">Matrículas na Ed. Profissional — Evolução</div>
+        <div style="height:250px"><canvas id="chart-prof-evo"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title" id="title-prof-comp">Composição da Oferta Técnica — ${anoSel}</div>
+        <div style="font-size:9px;color:var(--pri);opacity:.7;margin:-2px 0 2px;font-weight:500">👆 Clique em uma barra para filtrar a evolução ao lado</div>
+        <div style="height:250px"><canvas id="chart-prof-comp"></canvas></div>
+        <div style="background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:5px;padding:6px 10px;margin-top:6px">
+          <p style="font-size:9px;margin:0;color:#5D4037;line-height:1.55">
+            <strong>⚠ Nota:</strong> A soma destas barras não corresponde ao total de <em>Ed. Profissional</em>
+            do gráfico ao lado. O INEP contabiliza o <strong>Integrado ao EM</strong> como matrícula do
+            <em>Ensino Médio</em> (QT_MAT_MED_IFTP_CT), e não como matrícula profissional (QT_MAT_PROF).
+            Este gráfico reúne todas as modalidades técnicas para dar uma visão completa da oferta.
+          </p>
+        </div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Matrículas por Turno ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/eja.png" alt=""></span>
+      <span class="section-divider-text">Matrículas por Turno — ${anoSel}</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Diurno vs Noturno — Por Etapa</div>
+        <div style="height:280px"><canvas id="chart-turno-etapa"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
@@ -630,6 +790,7 @@ function renderAcesso() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="btn-layer-cre">CREs</button>
+            ${S.redeSel === 'estadual' ? '<button class="map-layer-btn" id="btn-layer-esc">Escolas</button>' : ''}
           </div>
           <select id="sel-map-metric">
             <option value="mat_total">Matrículas Totais</option>
@@ -640,6 +801,10 @@ function renderAcesso() {
             <option value="mat_eja">EJA</option>
           </select>
         </div>
+        ${(S.munSel || S.creSel) ? `<div id="map-filter-warning" style="background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.3);border-radius:5px;padding:6px 12px;margin:0 0 4px;display:flex;align-items:center;gap:6px;font-size:10px;color:#8B6914;font-weight:500">
+          <span style="font-size:13px">⚠️</span>
+          <span>Filtro geográfico ativo. <strong>Remova os filtros de CRE/Município no cabeçalho</strong> para interagir com os controles do mapa.</span>
+        </div>` : ''}
         <div id="map-leaflet"></div>
       </div>
       <div class="table-wrapper" id="mun-table-wrapper">
@@ -654,7 +819,7 @@ function renderAcesso() {
           <table class="data-table" id="mun-table">
             <thead><tr>
               <th>#</th><th>Município</th><th>Esc.</th>
-              <th>Mat.</th><th>Fund.</th><th>Méd.</th><th>EJA</th>
+              <th>Mat.</th><th>Fund.</th><th>Méd.</th><th>EJA</th><th>Téc.</th>
             </tr></thead>
             <tbody id="mun-tbody"></tbody>
           </table>
@@ -672,6 +837,9 @@ function renderAcesso() {
   buildIntegralDelta(d);
   buildIntegralPct(d);
   buildLocDif();
+  buildPorSerie(d, anoSel);
+  buildProfissional(d, anos, anoSel);
+  buildTurnoEtapa(d, anoSel);
   buildMap(d, anoSel, 'mat_total');
   buildMunTable(d, anoSel);
   bindMapMetric(d, anos);
@@ -712,10 +880,11 @@ function updateKPIs(ano, su, d) {
   const kpis = [
     { label: 'Escolas', key: 'total_escolas', altKey: 'escolas', icon: 'img/icons/escola.png', accent: 'green' },
     { label: 'Matrículas', key: 'mat_total', icon: 'img/icons/matriculas.png', accent: 'green' },
-    { label: 'Ed. Infantil', key: 'mat_infantil', icon: 'img/icons/infantil.png', accent: 'green' },
+    ...(S.redeSel !== 'estadual' ? [{ label: 'Ed. Infantil', key: 'mat_infantil', icon: 'img/icons/infantil.png', accent: 'green' }] : []),
     { label: 'Fundamental', key: 'mat_fundamental', icon: 'img/icons/fundamental.png', accent: 'green' },
     { label: 'Ens. Médio', key: 'mat_medio', icon: 'img/icons/medio.png', accent: 'green' },
     { label: 'EJA', key: 'mat_eja', icon: 'img/icons/eja.png', accent: 'green' },
+    { label: 'Técnico', key: 'mat_prof_tec', icon: 'img/icons/medio.png', accent: 'blue' },
   ];
 
   // Build sparkline SVG from historical data
@@ -740,7 +909,7 @@ function updateKPIs(ano, su, d) {
     </svg>`;
   }
 
-  const accentColors = { green: '#00AB4E', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
+  const accentColors = { green: '#2E86C1', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
 
   strip.innerHTML = kpis.map((k, i) => {
     const val = su[k.key] || su[k.altKey] || 0;
@@ -793,9 +962,9 @@ function buildCharts(d, anos, anoSel) {
 
   // 1. Série temporal (filtered by network + etapa)
   const serieKey = S.etapaSel || 'mat_total';
-  const ETAPA_LABELS = { mat_infantil: 'Infantil', mat_fund_ai: 'Fund. AI', mat_fund_af: 'Fund. AF', mat_medio: 'Médio', mat_eja: 'EJA' };
+  const ETAPA_LABELS = { mat_infantil: 'Infantil', mat_fund_ai: 'Anos Iniciais', mat_fund_af: 'Anos Finais', mat_medio: 'Médio', mat_eja: 'EJA', mat_prof_tec: 'Técnico' };
   const serieLabel = S.etapaSel ? ETAPA_LABELS[S.etapaSel] : 'Matrículas';
-  const serieColor = S.etapaSel ? (COLORS[{mat_infantil:'infantil', mat_fund_ai:'fundAI', mat_fund_af:'fundAF', mat_medio:'medio', mat_eja:'eja'}[S.etapaSel]] || COLORS.pri) : COLORS.pri;
+  const serieColor = S.etapaSel ? (COLORS[{mat_infantil:'infantil', mat_fund_ai:'fundAI', mat_fund_af:'fundAF', mat_medio:'medio', mat_eja:'eja', mat_prof_tec:'blue'}[S.etapaSel]] || COLORS.pri) : COLORS.pri;
   S.charts.push(new Chart(document.getElementById('chart-serie'), {
     type: 'line',
     data: {
@@ -813,9 +982,15 @@ function buildCharts(d, anos, anoSel) {
   // 2. Por etapa (bar chart no ano selecionado)
   const su = getRedeData(d, anoSel);
   const st = d.serie_temporal; // fallback for sub-fields
-  const etapas = ['Fund. AI', 'Fund. AF', 'Médio', 'EJA'];
-  const etapaKeys = ['mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja'];
-  const etapaCores = [COLORS.fundAI, COLORS.fundAF, COLORS.medio, COLORS.eja];
+  const etapas = S.redeSel !== 'estadual'
+    ? ['Infantil', 'Anos Iniciais', 'Anos Finais', 'Médio', 'EJA', 'Técnico']
+    : ['Anos Iniciais', 'Anos Finais', 'Médio', 'EJA', 'Técnico'];
+  const etapaKeys = S.redeSel !== 'estadual'
+    ? ['mat_infantil', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja', 'mat_prof_tec']
+    : ['mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja', 'mat_prof_tec'];
+  const etapaCores = S.redeSel !== 'estadual'
+    ? [COLORS.infantil, COLORS.fundAI, COLORS.fundAF, COLORS.medio, COLORS.eja, COLORS.blue]
+    : [COLORS.fundAI, COLORS.fundAF, COLORS.medio, COLORS.eja, COLORS.blue];
   const etapaData = etapaKeys.map(k => su[k] || 0);
   const etapaMax = Math.max(...etapaData);
 
@@ -997,6 +1172,85 @@ function buildMunTable(d, ano) {
   const munToCre = S.creLookup?.mun_to_cre || {};
   if (!mun) return;
 
+  // ── CRE MODE: Show CRE aggregated table ──
+  if (S.mapMode === 'cre') {
+    const titleEl = document.querySelector('#mun-table-wrapper .table-header h3');
+    if (titleEl) titleEl.textContent = 'Tabela de CREs';
+
+    // Aggregate data per CRE
+    const creAgg = {};
+    for (const [cod, val] of Object.entries(mun)) {
+      const creInfo = munToCre[cod];
+      if (!creInfo) continue;
+      const cre = creInfo.cod_cre;
+      if (!creAgg[cre]) creAgg[cre] = { cod: cre, nome: creInfo.nome_cre || `CRE ${cre}`, mat_total: 0, escolas: 0, mat_fundamental: 0, mat_medio: 0, mat_eja: 0, mat_prof_tec: 0, muns: 0 };
+      creAgg[cre].mat_total += (val.mat_total || 0);
+      creAgg[cre].escolas += (val.escolas || 0);
+      creAgg[cre].mat_fundamental += (val.mat_fundamental || 0);
+      creAgg[cre].mat_medio += (val.mat_medio || 0);
+      creAgg[cre].mat_eja += (val.mat_eja || 0);
+      creAgg[cre].mat_prof_tec += (val.mat_prof_tec || 0);
+      creAgg[cre].muns += 1;
+    }
+    const rows = Object.values(creAgg).sort((a, b) => b.mat_total - a.mat_total);
+
+    // Update table header
+    const thead = document.querySelector('#mun-table thead tr');
+    if (thead) thead.innerHTML = '<th>#</th><th>CRE</th><th>Mun.</th><th>Esc.</th><th>Mat.</th><th>Fund.</th><th>Méd.</th><th>EJA</th><th>Téc.</th>';
+
+    const tbody = document.getElementById('mun-tbody');
+    tbody.innerHTML = rows.map((r, i) => `
+      <tr data-cre="${r.cod}" class="${S.creSel === r.cod ? 'selected' : ''}">
+        <td>${i + 1}</td>
+        <td><strong>${r.nome}</strong></td>
+        <td>${formatNum(r.muns)}</td>
+        <td>${formatNum(r.escolas)}</td>
+        <td><strong>${formatNum(r.mat_total)}</strong></td>
+        <td>${formatNum(r.mat_fundamental)}</td>
+        <td>${formatNum(r.mat_medio)}</td>
+        <td>${formatNum(r.mat_eja)}</td>
+        <td>${formatNum(r.mat_prof_tec)}</td>
+      </tr>
+    `).join('');
+
+    // Click to filter by CRE
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const cod = tr.dataset.cre;
+        if (S.creSel === cod) {
+          S.creSel = null;
+        } else {
+          S.creSel = cod;
+          S.munSel = null;
+        }
+        refreshActiveTab();
+      });
+    });
+
+    // Search
+    const searchEl = document.getElementById('mun-search');
+    if (searchEl) {
+      const newSearch = searchEl.cloneNode(true);
+      searchEl.parentNode.replaceChild(newSearch, searchEl);
+      newSearch.addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const nome = tr.children[1]?.textContent.toLowerCase() || '';
+          tr.style.display = nome.includes(q) ? '' : 'none';
+        });
+      });
+    }
+    return;
+  }
+
+  // ── MUN MODE: Standard municipality table ──
+  const titleEl = document.querySelector('#mun-table-wrapper .table-header h3');
+  if (titleEl) titleEl.textContent = 'Tabela de Municípios';
+
+  // Restore table header
+  const thead = document.querySelector('#mun-table thead tr');
+  if (thead) thead.innerHTML = '<th>#</th><th>Município</th><th>Esc.</th><th>Mat.</th><th>Fund.</th><th>Méd.</th><th>EJA</th><th>Téc.</th>';
+
   // If a CRE is selected, show only its municipalities
   const creFilter = S.creSel;
   const creMuns = creFilter ? new Set(getCreMuns(creFilter)) : null;
@@ -1016,6 +1270,7 @@ function buildMunTable(d, ano) {
       <td>${formatNum(r.mat_fundamental)}</td>
       <td>${formatNum(r.mat_medio)}</td>
       <td>${formatNum(r.mat_eja)}</td>
+      <td>${formatNum(r.mat_prof_tec || 0)}</td>
     </tr>
   `).join('');
 
@@ -1031,6 +1286,8 @@ function buildMunTable(d, ano) {
       // Update KPIs & charts for the municipality
       const anoSel = S.anoSel || Object.keys(d.serie_temporal).sort().pop();
       applyMunFilter(d, anoSel, lookup);
+      // Highlight municipality on map
+      if (S.munSel && S.mapMode !== 'esc') zoomToMunicipality(S.munSel);
     });
   });
 
@@ -1078,10 +1335,11 @@ function applyMunFilter(d, anoSel, lookup) {
     const kpis = [
       { label: 'Escolas', key: 'escolas', icon: 'img/icons/escola.png', accent: 'green' },
       { label: 'Matrículas', key: 'mat_total', icon: 'img/icons/matriculas.png', accent: 'green' },
-      { label: 'Ed. Infantil', key: 'mat_infantil', icon: 'img/icons/infantil.png', accent: 'green' },
+      ...(S.redeSel !== 'estadual' ? [{ label: 'Ed. Infantil', key: 'mat_infantil', icon: 'img/icons/infantil.png', accent: 'green' }] : []),
       { label: 'Fundamental', key: 'mat_fundamental', icon: 'img/icons/fundamental.png', accent: 'green' },
       { label: 'Ens. Médio', key: 'mat_medio', icon: 'img/icons/medio.png', accent: 'green' },
       { label: 'EJA', key: 'mat_eja', icon: 'img/icons/eja.png', accent: 'green' },
+      { label: 'Técnico', key: 'mat_prof_tec', icon: 'img/icons/medio.png', accent: 'blue' },
     ];
 
     strip.innerHTML = kpis.map((k, i) => {
@@ -1113,7 +1371,7 @@ function applyMunFilter(d, anoSel, lookup) {
     // ── Update chart titles to show municipality ──
     const nome = lookup[S.munSel] || S.munSel;
     const setTitle = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-    const ETAPA_LABELS_MUN = { mat_infantil: 'Infantil', mat_fund_ai: 'Fund. AI', mat_fund_af: 'Fund. AF', mat_medio: 'Médio', mat_eja: 'EJA' };
+    const ETAPA_LABELS_MUN = { mat_infantil: 'Infantil', mat_fund_ai: 'Anos Iniciais', mat_fund_af: 'Anos Finais', mat_medio: 'Médio', mat_eja: 'EJA', mat_prof_tec: 'Técnico' };
     const serieKeyMun = S.etapaSel || 'mat_total';
     const serieLabelMun = S.etapaSel ? ETAPA_LABELS_MUN[S.etapaSel] : 'Matrículas';
     setTitle('title-serie', `Evolução de ${serieLabelMun} — ${nome} (${anos[0]}–${anoSel})`);
@@ -1147,7 +1405,7 @@ function applyMunFilter(d, anoSel, lookup) {
     // Por etapa (bar)
     const etapaChart = document.getElementById('chart-etapa');
     if (etapaChart) {
-      const etapas = ['Fund. AI', 'Fund. AF', 'Médio', 'EJA'];
+      const etapas = ['Anos Iniciais', 'Anos Finais', 'Médio', 'EJA'];
       const etapaKeys = ['mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja'];
       const etapaCores = [COLORS.fundAI, COLORS.fundAF, COLORS.medio, COLORS.eja];
       const etapaData = etapaKeys.map(k => munData[k] || 0);
@@ -1179,9 +1437,16 @@ function applyMunFilter(d, anoSel, lookup) {
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
     buildLocDif();
+    buildPorSerie(d, anoSel);
+    buildProfissional(d, anos, anoSel);
+    buildTurnoEtapa(d, anoSel);
 
     // ── Zoom map to municipality ──
-    zoomToMunicipality(S.munSel);
+    if (S.mapMode === 'esc') {
+      buildEscolaLayer(d, anoSel);
+    } else {
+      zoomToMunicipality(S.munSel);
+    }
 
   } else if (S.creSel) {
     // ── CRE selected: aggregate all its municipalities ──
@@ -1229,10 +1494,10 @@ function applyMunFilter(d, anoSel, lookup) {
     // Charts
     destroyCharts();
     const setTitle = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-    const ETAPA_LABELS_CRE = { mat_infantil: 'Infantil', mat_fund_ai: 'Fund. AI', mat_fund_af: 'Fund. AF', mat_medio: 'Médio', mat_eja: 'EJA' };
+    const ETAPA_LABELS_CRE = { mat_infantil: 'Infantil', mat_fund_ai: 'Anos Iniciais', mat_fund_af: 'Anos Finais', mat_medio: 'Médio', mat_eja: 'EJA', mat_prof_tec: 'Técnico' };
     const serieKeyCre = S.etapaSel || 'mat_total';
     const serieLabelCre = S.etapaSel ? ETAPA_LABELS_CRE[S.etapaSel] : 'Matrículas';
-    const serieColorCre = S.etapaSel ? (COLORS[{mat_infantil:'infantil', mat_fund_ai:'fundAI', mat_fund_af:'fundAF', mat_medio:'medio', mat_eja:'eja'}[S.etapaSel]] || COLORS.pri) : COLORS.pri;
+    const serieColorCre = S.etapaSel ? (COLORS[{mat_infantil:'infantil', mat_fund_ai:'fundAI', mat_fund_af:'fundAF', mat_medio:'medio', mat_eja:'eja', mat_prof_tec:'blue'}[S.etapaSel]] || COLORS.pri) : COLORS.pri;
     setTitle('title-serie', `Evolução de ${serieLabelCre} — ${creName} (${anos[0]}–${anoSel})`);
     setTitle('title-etapa', `Matrículas por Etapa — ${creName} — ${anoSel}`);
 
@@ -1250,7 +1515,7 @@ function applyMunFilter(d, anoSel, lookup) {
     // Por etapa CRE
     const etapaChart = document.getElementById('chart-etapa');
     if (etapaChart) {
-      const etapas = ['Fund. AI', 'Fund. AF', 'Médio', 'EJA'];
+      const etapas = ['Anos Iniciais', 'Anos Finais', 'Médio', 'EJA'];
       const etapaKeys = ['mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja'];
       const etapaCores = [COLORS.fundAI, COLORS.fundAF, COLORS.medio, COLORS.eja];
       const etapaData = etapaKeys.map(k => creData[k] || 0);
@@ -1280,6 +1545,9 @@ function applyMunFilter(d, anoSel, lookup) {
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
     buildLocDif();
+    buildPorSerie(d, anoSel);
+    buildProfissional(d, anos, anoSel);
+    buildTurnoEtapa(d, anoSel);
 
   } else {
     // Restore full state
@@ -1291,6 +1559,9 @@ function applyMunFilter(d, anoSel, lookup) {
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
     buildLocDif();
+    buildPorSerie(d, anoSel);
+    buildProfissional(d, anos, anoSel);
+    buildTurnoEtapa(d, anoSel);
     // Reset chart titles
     const setTitle = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
     setTitle('title-serie', `Evolução de Matrículas — ${getRedeLabel()} (${anos[0]}–${anoSel})`);
@@ -1410,6 +1681,9 @@ function buildMunChartsFallback(d, anoSel) {
   buildIntegralPct(d);
   // LocDif bar (state-level only)
   buildLocDif();
+  buildPorSerie(d, anoSel);
+  buildProfissional(d, Object.keys(d.serie_temporal || {}).sort(), anoSel);
+  buildTurnoEtapa(d, anoSel);
 }
 
 /** Zoom Leaflet map to a specific municipality */
@@ -1430,8 +1704,8 @@ function zoomToMunicipality(codMun) {
 // ══════════════════════════════════════════════════════════
 
 const MAP_SCALE = [
-  '#f7fcf5', '#d5efcf', '#9dd898', '#5cba68',
-  '#2d974a', '#007A45', '#005A32', '#003D22'
+  '#f0f4f8', '#c5d5e4', '#8fb3d1', '#5a91bd',
+  '#3576a9', '#1A5276', '#0D3B66', '#0A2744'
 ];
 
 const METRIC_LABELS = {
@@ -1618,7 +1892,7 @@ function bindFilters(d, anos) {
 
 const INFRA_CAT_COLORS = {
   'Tecnologia': '#1565C0',
-  'Espacos Pedagogicos': '#2E7D32',
+  'Espacos Pedagogicos': '#2874A6',
   'Acessibilidade': '#E65100',
   'Saneamento e Energia': '#00838F',
   'Alimentacao': '#6A1B9A',
@@ -1648,6 +1922,11 @@ function renderInfra() {
   const ultimo = anos[anos.length - 1];
   const labels = infra.labels;
   const cats = infra.categorias;
+  // Enrich Climatizacao with PCT_SALAS_CLIMATIZADAS if available
+  if (!labels['PCT_SALAS_CLIMATIZADAS']) labels['PCT_SALAS_CLIMATIZADAS'] = '% Salas Climatizadas';
+  if (cats['Climatizacao'] && !cats['Climatizacao'].includes('PCT_SALAS_CLIMATIZADAS')) {
+    cats['Climatizacao'].push('PCT_SALAS_CLIMATIZADAS');
+  }
   // Use selected year or last available
   const anoAtual = S.anoSel && infra.serie_temporal[S.anoSel] ? S.anoSel : ultimo;
   const su = infra.serie_temporal[anoAtual];
@@ -1671,9 +1950,11 @@ function renderInfra() {
     <div class="infra-cat-tabs" id="infra-cat-tabs">
       <button class="infra-cat-tab active" data-cat="Tecnologia">Tecnologia</button>
       <button class="infra-cat-tab" data-cat="Espacos Pedagogicos">Espaços Pedagógicos</button>
+      <button class="infra-cat-tab" data-cat="Estrutura Administrativa">Estrutura Administrativa</button>
       <button class="infra-cat-tab" data-cat="Acessibilidade">Acessibilidade</button>
       <button class="infra-cat-tab" data-cat="Saneamento e Energia,Alimentacao">Saneamento & Alimentação</button>
-      <button class="infra-cat-tab" data-cat="Climatizacao">Climatização</button>
+      <button class="infra-cat-tab" data-cat="Sustentabilidade">Sustentabilidade</button>
+      <button class="infra-cat-tab" data-cat="Climatizacao,Espacos Adicionais">Climatização & Outros</button>
     </div>
 
     <div class="chart-card" style="margin-bottom:10px">
@@ -1708,6 +1989,7 @@ function renderInfra() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="btn-infra-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="btn-infra-layer-cre">CREs</button>
+            <button class="map-layer-btn" id="btn-infra-layer-esc">Escolas</button>
           </div>
           <select id="infra-map-metric" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
             <option value="IN_INTERNET">Internet</option>
@@ -1728,7 +2010,7 @@ function renderInfra() {
         <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:0 0 6px 6px;border-top:1px dashed rgba(255,203,4,.3)">
           📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
         </div>
-        <div style="max-height:400px;overflow-y:auto">
+        <div style="max-height:400px;overflow-y:auto;overflow-x:auto">
           <table class="data-table" id="infra-mun-table">
             <thead><tr>
               <th>#</th><th>Município</th><th>Esc.</th>
@@ -1768,18 +2050,137 @@ function renderInfra() {
   // CRE layer toggle for infra map
   const btnMunLayer = document.getElementById('btn-infra-layer-mun');
   const btnCreLayer = document.getElementById('btn-infra-layer-cre');
-  if (btnMunLayer && btnCreLayer) {
-    btnMunLayer.addEventListener('click', () => {
-      btnMunLayer.classList.add('active');
-      btnCreLayer.classList.remove('active');
-      const metric = document.getElementById('infra-map-metric')?.value || 'IN_INTERNET';
-      buildInfraMap(infra, metric);
+  const btnEscLayer = document.getElementById('btn-infra-layer-esc');
+  const allInfraBtns = [btnMunLayer, btnCreLayer, btnEscLayer].filter(Boolean);
+  const clearInfraBtns = () => allInfraBtns.forEach(b => b.classList.remove('active'));
+
+  if (btnMunLayer) btnMunLayer.addEventListener('click', () => {
+    clearInfraBtns(); btnMunLayer.classList.add('active');
+    const metric = document.getElementById('infra-map-metric')?.value || 'IN_INTERNET';
+    buildInfraMap(infra, metric);
+    buildInfraMunTable(infra);
+  });
+  if (btnCreLayer) btnCreLayer.addEventListener('click', () => {
+    clearInfraBtns(); btnCreLayer.classList.add('active');
+    buildInfraMapCre(infra, document.getElementById('infra-map-metric')?.value || 'IN_INTERNET');
+    buildInfraMunTable(infra);
+  });
+  if (btnEscLayer) btnEscLayer.addEventListener('click', () => {
+    clearInfraBtns(); btnEscLayer.classList.add('active');
+    buildInfraEscolaLayer(infra);
+  });
+}
+
+/* ── Infra Escola Layer ── */
+function buildInfraEscolaLayer(infra) {
+  if (!S.map) return;
+  if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+  if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+  const ed = S.escolasData;
+  if (!ed || !ed.escolas) return;
+  const escolas = S.creSel ? ed.escolas.filter(e => e.cre === S.creSel) : ed.escolas;
+  const withCoords = escolas.filter(e => e.lat && e.lng && e.infra_score != null);
+  const lookup = S.data?.lookup_municipios || {};
+
+  // Color by infra_score
+  const getColor = (score) => score >= 80 ? '#00AB4E' : score >= 60 ? '#E6A100' : score >= 40 ? '#FF6B00' : '#EE302F';
+
+  const markers = L.featureGroup();
+  withCoords.forEach(e => {
+    const score = e.infra_score || 0;
+    const marker = L.circleMarker([e.lat, e.lng], {
+      radius: 4, fillColor: getColor(score), color: '#fff', weight: 1, fillOpacity: 0.85,
     });
-    btnCreLayer.addEventListener('click', () => {
-      btnCreLayer.classList.add('active');
-      btnMunLayer.classList.remove('active');
-      buildInfraMapCre(infra, document.getElementById('infra-map-metric')?.value || 'IN_INTERNET');
+    const yesNo = (v) => v ? '<span style="color:#00AB4E">✓</span>' : '<span style="color:#EE302F">✗</span>';
+    marker.bindPopup(`
+      <div style="font-family:Inter;min-width:220px">
+        <strong style="font-size:12px">${e.nome}</strong><br>
+        <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''} — INEP: ${e.inep}</span>
+        <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
+        <div style="font-size:10px;margin-bottom:4px">
+          <strong>Score Infra:</strong> <span style="color:${getColor(score)};font-weight:700">${score}%</span>
+          ${e.salas_total ? ` | Salas: ${e.salas_total} (${e.salas_clim || 0} clim.)` : ''}
+        </div>
+        <div style="font-size:9px;display:grid;grid-template-columns:1fr 1fr;gap:1px;line-height:1.5">
+          <span>${yesNo(e.internet)} Internet</span>
+          <span>${yesNo(e.biblioteca)} Biblioteca</span>
+          <span>${yesNo(e.lab_info)} Lab. Info</span>
+          <span>${yesNo(e.quadra)} Quadra</span>
+          <span>${yesNo(e.lab_ciencias)} Lab. Ciências</span>
+          <span>${yesNo(e.rampas)} Rampas</span>
+          <span>${yesNo(e.refeitorio)} Refeitório</span>
+          <span>${yesNo(e.sala_aee)} Sala AEE</span>
+        </div>
+      </div>
+    `, { maxWidth: 280 });
+    markers.addLayer(marker);
+  });
+  markers.addTo(S.map);
+  S.mapLayer = markers;
+  if (withCoords.length) S.map.fitBounds(markers.getBounds(), { padding: [20, 20] });
+
+  // Update table to show escola infra
+  const titleEl = document.querySelector('#infra-mun-table')?.closest('.chart-card')?.querySelector('.table-header h3');
+  if (titleEl) titleEl.textContent = 'Infraestrutura por Escola — 2025';
+
+  const thead = document.querySelector('#infra-mun-table thead tr');
+  if (thead) thead.innerHTML = '<th style="width:30px">#</th><th style="position:sticky;left:0;z-index:2;background:#f8f9fa;min-width:180px;border-right:2px solid #e0e0e0">Escola</th><th>Município</th><th>Internet</th><th>Banda Larga</th><th>Biblioteca</th><th>Lab.Inf.</th><th>Lab.Ciên.</th><th>Quadra</th><th>Rampas</th><th>Banh.PNE</th><th>Refeitório</th><th>Sala AEE</th><th>Salas</th><th>Climat.</th>';
+
+  const sorted = [...escolas].filter(e => e.infra_score != null).sort((a, b) => (a.infra_score || 0) - (b.infra_score || 0));
+  const tbody = document.getElementById('infra-mun-tbody');
+  if (!tbody) return;
+
+  const pctBadge = (v) => {
+    const cls = v ? 'color:#00AB4E' : 'color:#EE302F';
+    return `<td style="text-align:center;font-weight:600;${cls}">${v ? '✓' : '✗'}</td>`;
+  };
+
+  tbody.innerHTML = sorted.map((e, i) => `
+    <tr data-lat="${e.lat || ''}" data-lng="${e.lng || ''}" style="cursor:pointer" title="${e.nome}">
+      <td>${i + 1}</td>
+      <td style="position:sticky;left:0;z-index:1;background:#fff;border-right:2px solid #e0e0e0"><strong style="font-size:10px">${e.nome}</strong></td>
+      <td style="font-size:10px">${e.municipio || lookup[e.cod_mun] || ''}</td>
+      ${pctBadge(e.internet)}
+      ${pctBadge(e.banda_larga)}
+      ${pctBadge(e.biblioteca)}
+      ${pctBadge(e.lab_info)}
+      ${pctBadge(e.lab_ciencias)}
+      ${pctBadge(e.quadra)}
+      ${pctBadge(e.rampas)}
+      ${pctBadge(e.banheiro_pne)}
+      ${pctBadge(e.refeitorio)}
+      ${pctBadge(e.sala_aee)}
+      <td style="text-align:center">${e.salas_total || 0}</td>
+      <td style="text-align:center">${e.salas_clim || 0}</td>
+    </tr>
+  `).join('');
+
+  // Click to zoom
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const lat = parseFloat(tr.dataset.lat);
+      const lng = parseFloat(tr.dataset.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        S.map.flyTo([lat, lng], 14, { duration: 0.5 });
+        markers.eachLayer(m => {
+          if (Math.abs(m.getLatLng().lat - lat) < 0.001 && Math.abs(m.getLatLng().lng - lng) < 0.001) m.openPopup();
+        });
+      }
     });
+  });
+
+  // Search
+  const searchEl = document.getElementById('infra-mun-search');
+  if (searchEl) {
+    searchEl.value = '';
+    searchEl.placeholder = 'Buscar escola...';
+    searchEl.oninput = () => {
+      const q = searchEl.value.toLowerCase();
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    };
   }
 }
 
@@ -1933,7 +2334,7 @@ function buildInfraKPIs(infra, ano, anos) {
   }
 
   const sparkKeys = ['total_escolas','IN_INTERNET','IN_BIBLIOTECA','IN_QUADRA_ESPORTES','IN_LABORATORIO_INFORMATICA','IN_CLIMATIZACAO'];
-  const sparkColors = ['#00AB4E','#00AB4E','#FFCB04','#EE302F','#1565C0','#00838F'];
+  const sparkColors = ['#2E86C1','#2E86C1','#FFCB04','#EE302F','#1565C0','#00838F'];
 
   const strip = document.getElementById('infra-kpis');
   strip.innerHTML = kpis.map((k, i) => {
@@ -2047,7 +2448,16 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
       layout: { padding: { top: 20 } },
       plugins: {
         legend: { position: 'top', align: 'end', labels: { font: { family: 'Inter', size: 10 }, boxWidth: 10, padding: 8 } },
-        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` } },
+        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: {
+          label: ctx => {
+            const col = allCols[ctx.dataIndex];
+            const yr = ctx.datasetIndex === 0 ? baseYear : anoComp;
+            const yrData = ctx.datasetIndex === 0 ? suBase : (munSu || su);
+            const ind = yrData?.indicadores?.[col];
+            const count = ind?.count || 0;
+            return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}% (${formatNum(count)} escolas)`;
+          }
+        } },
         datalabels: {
           display: (ctx) => ctx.datasetIndex === 1,
           anchor: 'end', align: 'top', offset: 2,
@@ -2117,7 +2527,7 @@ function buildInfraMap(infra, metricKey) {
   
   // Simple 3-tier thresholds for % indicators
   const tiers = [
-    { min: 80, color: '#005A32', label: '≥ 80%' },
+    { min: 80, color: '#0D3B66', label: '≥ 80%' },
     { min: 50, color: '#5cba68', label: '50% – 79%' },
     { min: 0.1, color: '#d5efcf', label: '< 50%' },
   ];
@@ -2199,7 +2609,7 @@ function buildInfraMapCre(infra, metricKey) {
   }
 
   const tiers = [
-    { min: 80, color: '#005A32', label: '\u2265 80%' },
+    { min: 80, color: '#0D3B66', label: '\u2265 80%' },
     { min: 50, color: '#5cba68', label: '50% \u2013 79%' },
     { min: 0.1, color: '#d5efcf', label: '< 50%' },
   ];
@@ -2288,28 +2698,35 @@ function renderDocencia() {
     </div>
 
     <div style="background:rgba(25,118,210,.06);border-left:3px solid #1976D2;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#333;line-height:1.5">
-      <strong>ℹ️ Nota:</strong> Os recortes de sexo, escolaridade, faixa etária e vínculo são extraídos da <em>Tabela de Docentes</em> do Censo Escolar, publicada pelo INEP apenas a partir da edição de <strong>2025</strong>. Dessa forma, estes perfis não variam de ano para ano e representam exclusivamente o retrato de 2025.
+      <strong>ℹ️ Nota:</strong> Os recortes de sexo, raça/cor, escolaridade, faixa etária e vínculo são extraídos da <em>Tabela de Docentes</em> do Censo Escolar, publicada pelo INEP apenas a partir da edição de <strong>2025</strong>. Dessa forma, estes perfis não variam de ano para ano e representam exclusivamente o retrato de 2025.
     </div>
 
-    <div class="charts-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div class="charts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
       <div class="chart-card d1">
         <div class="chart-title">Docentes por Sexo</div>
         <div style="height:240px"><canvas id="chart-doc-sexo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d2">
+        <div class="chart-title">Raça/Cor</div>
+        <div style="height:240px"><canvas id="chart-doc-raca"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+      <div class="chart-card d3">
+        <div class="chart-title">Tipo de Vínculo</div>
+        <div style="height:240px"><canvas id="chart-doc-vinculo"></canvas></div>
+        <div class="chart-source">${FONTE_CENSO}</div>
+      </div>
+    </div>
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div class="chart-card d4">
         <div class="chart-title">Escolaridade dos Docentes</div>
         <div style="height:270px"><canvas id="chart-doc-esco"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
-      <div class="chart-card d3">
+      <div class="chart-card d5">
         <div class="chart-title">Faixa Etária</div>
         <div style="height:270px"><canvas id="chart-doc-idade"></canvas></div>
-        <div class="chart-source">${FONTE_CENSO}</div>
-      </div>
-      <div class="chart-card d4">
-        <div class="chart-title">Tipo de Vínculo</div>
-        <div style="height:240px"><canvas id="chart-doc-vinculo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
     </div>
@@ -2345,6 +2762,11 @@ function renderDocencia() {
       <div class="chart-card" style="padding:0;overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,90,50,.04);border-bottom:1px solid rgba(0,90,50,.08)">
           <span style="font-weight:600;font-size:12px;color:#333">Mapa — Docentes por Município</span>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="doc-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="doc-btn-layer-cre">CREs</button>
+            <button class="map-layer-btn" id="doc-btn-layer-esc">Escolas</button>
+          </div>
         </div>
         <div id="doc-map" style="height:400px;width:100%"></div>
       </div>
@@ -2389,6 +2811,129 @@ function renderDocencia() {
   injectExportButtons();
   updateActiveFilters();
   updateFilterAwareness();
+
+  // Bind Docência map layer toggle
+  const docBtnMun = document.getElementById('doc-btn-layer-mun');
+  const docBtnCre = document.getElementById('doc-btn-layer-cre');
+  const docBtnEsc = document.getElementById('doc-btn-layer-esc');
+  const allDocBtns = [docBtnMun, docBtnCre, docBtnEsc].filter(Boolean);
+  const clearDocBtns = () => allDocBtns.forEach(b => b.classList.remove('active'));
+
+  if (docBtnMun) docBtnMun.addEventListener('click', () => {
+    clearDocBtns(); docBtnMun.classList.add('active');
+    buildDocMap(doc);
+    buildDocMunTable(doc);
+  });
+  if (docBtnCre) docBtnCre.addEventListener('click', () => {
+    clearDocBtns(); docBtnCre.classList.add('active');
+    buildDocCreMap(doc);
+    buildDocMunTable(doc);
+  });
+  if (docBtnEsc) docBtnEsc.addEventListener('click', () => {
+    clearDocBtns(); docBtnEsc.classList.add('active');
+    buildDocEscolaLayer(doc);
+  });
+}
+
+/* ── Docência Escola Layer ── */
+function buildDocEscolaLayer(doc) {
+  const mapEl = document.getElementById('doc-map');
+  if (!mapEl) return;
+  destroyMap();
+
+  // Init map
+  S.map = L.map(mapEl).setView([-29.5, -53.5], 7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18, attribution: '&copy; CARTO'
+  }).addTo(S.map);
+
+  const ed = S.escolasData;
+  if (!ed || !ed.escolas) return;
+  const escolas = S.creSel ? ed.escolas.filter(e => e.cre === S.creSel) : ed.escolas;
+  const withCoords = escolas.filter(e => e.lat && e.lng && e.doc_total != null);
+  const lookup = S.data?.lookup_municipios || {};
+
+  const markers = L.featureGroup();
+  withCoords.forEach(e => {
+    const dt = e.doc_total || 0;
+    const r = dt > 100 ? 6 : dt > 50 ? 5 : dt > 20 ? 4 : 3;
+    const pctConcur = dt > 0 ? Math.round((e.doc_concur || 0) / dt * 100) : 0;
+    const color = pctConcur >= 70 ? '#0097A7' : pctConcur >= 40 ? '#E6A100' : '#EE302F';
+    const marker = L.circleMarker([e.lat, e.lng], {
+      radius: r, fillColor: color, color: '#fff', weight: 1, fillOpacity: 0.85,
+    });
+    marker.bindPopup(`
+      <div style="font-family:Inter;min-width:200px">
+        <strong style="font-size:12px">${e.nome}</strong><br>
+        <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''} — INEP: ${e.inep}</span>
+        <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
+        <div style="font-size:10px;line-height:1.6">
+          <strong>Total Docentes:</strong> ${formatNum(dt)}<br>
+          ${e.doc_concur ? `<span style="display:inline-block;background:#0097A722;padding:1px 5px;border-radius:3px;margin:1px">Concurs.: <strong>${formatNum(e.doc_concur)}</strong></span>` : ''}
+          ${e.doc_contrat ? `<span style="display:inline-block;background:#EE302F22;padding:1px 5px;border-radius:3px;margin:1px">Contrat.: <strong>${formatNum(e.doc_contrat)}</strong></span>` : ''}
+          ${e.doc_sup ? `<br><span style="font-size:9px;color:#666">Superior: ${formatNum(e.doc_sup)} | Licenc.: ${formatNum(e.doc_licen || 0)}</span>` : ''}
+          ${e.mat_total ? `<br><span style="font-size:9px;color:#666">Razão aluno/prof: ${dt > 0 ? (e.mat_total / dt).toFixed(1) : 'N/A'}</span>` : ''}
+        </div>
+      </div>
+    `, { maxWidth: 280 });
+    markers.addLayer(marker);
+  });
+  markers.addTo(S.map);
+  if (withCoords.length) S.map.fitBounds(markers.getBounds(), { padding: [20, 20] });
+
+  // Update table
+  const titleEl = document.querySelector('#doc-mun-table')?.closest('.chart-card')?.querySelector('.table-header h3');
+  if (titleEl) titleEl.textContent = 'Docentes por Escola — 2025';
+
+  const thead = document.querySelector('#doc-mun-table thead tr');
+  if (thead) thead.innerHTML = '<th>#</th><th>Escola</th><th>Município</th><th>Total</th><th>Concurs.</th><th>Contrat.</th><th>Superior</th><th>Razão A/P</th>';
+
+  const sorted = [...escolas].filter(e => e.doc_total != null).sort((a, b) => (b.doc_total || 0) - (a.doc_total || 0));
+  const tbody = document.getElementById('doc-mun-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = sorted.map((e, i) => {
+    const dt = e.doc_total || 0;
+    const razao = dt > 0 && e.mat_total ? (e.mat_total / dt).toFixed(1) : '—';
+    return `
+    <tr data-lat="${e.lat || ''}" data-lng="${e.lng || ''}" style="cursor:pointer">
+      <td>${i + 1}</td>
+      <td><strong style="font-size:10px">${e.nome}</strong></td>
+      <td style="font-size:10px">${e.municipio || lookup[e.cod_mun] || ''}</td>
+      <td>${formatNum(dt)}</td>
+      <td>${formatNum(e.doc_concur || 0)}</td>
+      <td>${formatNum(e.doc_contrat || 0)}</td>
+      <td>${formatNum(e.doc_sup || 0)}</td>
+      <td style="text-align:center">${razao}</td>
+    </tr>`;
+  }).join('');
+
+  // Click to zoom
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const lat = parseFloat(tr.dataset.lat);
+      const lng = parseFloat(tr.dataset.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        S.map.flyTo([lat, lng], 14, { duration: 0.5 });
+        markers.eachLayer(m => {
+          if (Math.abs(m.getLatLng().lat - lat) < 0.001 && Math.abs(m.getLatLng().lng - lng) < 0.001) m.openPopup();
+        });
+      }
+    });
+  });
+
+  // Search
+  const searchEl = document.getElementById('doc-mun-search');
+  if (searchEl) {
+    searchEl.value = '';
+    searchEl.placeholder = 'Buscar escola...';
+    searchEl.oninput = () => {
+      const q = searchEl.value.toLowerCase();
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    };
+  }
 }
 
 /** Build choropleth map for Docência section */
@@ -2409,7 +2954,7 @@ function buildDocMap(doc) {
   
   // Simple 3-tier thresholds for docent counts
   const tiers = [
-    { min: 500, color: '#005A32', label: '≥ 500' },
+    { min: 500, color: '#0D3B66', label: '≥ 500' },
     { min: 100, color: '#5cba68', label: '100 – 499' },
     { min: 1, color: '#d5efcf', label: '< 100' },
   ];
@@ -2459,9 +3004,64 @@ function buildDocMap(doc) {
   S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
 }
 
+/** Build CRE-level choropleth for Docência */
+function buildDocCreMap(doc) {
+  if (!S.creGeo || !S.map) return;
+  if (S.mapLayer) { S.map.removeLayer(S.mapLayer); S.mapLayer = null; }
+  if (S.mapLegend) { S.map.removeControl(S.mapLegend); S.mapLegend = null; }
+
+  const munData = doc.por_municipio_2025 || {};
+  const munToCre = S.creLookup?.mun_to_cre || {};
+
+  // Aggregate by CRE
+  const creData = {};
+  for (const [cod, v] of Object.entries(munData)) {
+    const cre = munToCre[cod]?.cod_cre;
+    if (!cre) continue;
+    if (!creData[cre]) creData[cre] = { docentes: 0, escolas: 0, nome: munToCre[cod]?.nome_cre || cre };
+    creData[cre].docentes += v.docentes || 0;
+    creData[cre].escolas += v.escolas || 0;
+  }
+
+  const tiers = [
+    { min: 3000, color: '#0D3B66', label: '≥ 3.000' },
+    { min: 1000, color: '#5cba68', label: '1.000 – 2.999' },
+    { min: 0, color: '#d5efcf', label: '< 1.000' },
+  ];
+  const getColor = v => { for (const t of tiers) { if (v >= t.min) return t.color; } return '#f0f0f0'; };
+
+  S.mapLayer = L.geoJSON(S.creGeo, {
+    style: feature => {
+      const cod = feature.properties.cod_cre;
+      const v = creData[cod]?.docentes || 0;
+      return { fillColor: getColor(v), fillOpacity: 0.8, weight: 2, color: '#fff' };
+    },
+    onEachFeature: (feature, layer) => {
+      const cod = feature.properties.cod_cre;
+      const nome = feature.properties.nome_cre || cod;
+      const d = creData[cod] || {};
+      layer.bindTooltip(`<strong>${nome}</strong><br>Docentes: ${formatNum(d.docentes || 0)}<br>Escolas: ${d.escolas || 0}`, { sticky: true });
+      layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+    }
+  }).addTo(S.map);
+
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = '<h4>Docentes (CREs)</h4>' +
+      tiers.map(t => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${t.color}"></div><span>${t.label}</span></div>`).join('');
+    return div;
+  };
+  legend.addTo(S.map);
+  S.mapLegend = legend;
+  if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+}
+
 /** Build docent municipality table */
+let docSortCol = 3, docSortAsc = false; // default: sort by Docentes desc
 function buildDocMunTable(doc) {
   const tbody = document.getElementById('doc-mun-tbody');
+  const thead = document.querySelector('#doc-mun-table thead');
   if (!tbody) return;
   const munData = doc.por_municipio_2025 || {};
   const lookup = doc.lookup_municipios || S.data?.lookup_municipios || {};
@@ -2474,8 +3074,20 @@ function buildDocMunTable(doc) {
   }
   
   const rows = entries
-    .map(([cod, v]) => ({ cod, nome: lookup[cod] || `Cód. ${cod}`, ...v }))
-    .sort((a, b) => b.docentes - a.docentes);
+    .map(([cod, v]) => ({ cod, nome: lookup[cod] || `Cód. ${cod}`, ...v }));
+
+  // Sort
+  const colKeys = ['#', 'nome', 'escolas', 'docentes'];
+  rows.sort((a, b) => {
+    const key = colKeys[docSortCol];
+    let va, vb;
+    if (key === 'nome') { va = a.nome.toLowerCase(); vb = b.nome.toLowerCase(); }
+    else if (key === 'escolas') { va = a.escolas || 0; vb = b.escolas || 0; }
+    else if (key === 'docentes') { va = a.docentes || 0; vb = b.docentes || 0; }
+    else { va = 0; vb = 0; }
+    const cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
+    return docSortAsc ? cmp : -cmp;
+  });
 
   tbody.innerHTML = rows.map((r, i) => `<tr data-cod="${r.cod}" style="cursor:pointer" title="Clique para filtrar por ${r.nome}">
     <td>${i + 1}</td><td><strong>${r.nome}</strong></td>
@@ -2490,6 +3102,23 @@ function buildDocMunTable(doc) {
       refreshActiveTab();
     });
   });
+
+  // Sortable headers
+  if (thead) {
+    const headers = ['#', 'Município', 'Esc.', 'Docentes'];
+    thead.innerHTML = '<tr>' + headers.map((h, i) => {
+      const arrow = docSortCol === i ? (docSortAsc ? ' ▲' : ' ▼') : ' ⇅';
+      return `<th style="cursor:pointer" title="Clique para ordenar">${h}${arrow}</th>`;
+    }).join('') + '</tr>';
+
+    thead.querySelectorAll('th').forEach((th, ci) => {
+      th.addEventListener('click', () => {
+        if (docSortCol === ci) docSortAsc = !docSortAsc;
+        else { docSortCol = ci; docSortAsc = ci <= 1; }
+        buildDocMunTable(doc);
+      });
+    });
+  }
 
   // Search
   const search = document.getElementById('doc-mun-search');
@@ -2513,7 +3142,7 @@ function buildDocCharts(doc) {
   } else if (S.creSel) {
     // Aggregate all municipalities within this CRE
     const creMuns = getCreMuns(S.creSel);
-    const agg = { total: 0, por_sexo: {}, por_escolaridade: {}, por_faixa_etaria: {}, por_vinculo: {} };
+    const agg = { total: 0, por_sexo: {}, por_raca: {}, por_escolaridade: {}, por_faixa_etaria: {}, por_vinculo: {} };
     for (const cod of creMuns) {
       const m = doc.por_municipio_2025?.[cod];
       if (!m) continue;
@@ -2522,6 +3151,7 @@ function buildDocCharts(doc) {
       for (const [k, v] of Object.entries(m.por_escolaridade || {})) agg.por_escolaridade[k] = (agg.por_escolaridade[k] || 0) + v;
       for (const [k, v] of Object.entries(m.por_faixa_etaria || {})) agg.por_faixa_etaria[k] = (agg.por_faixa_etaria[k] || 0) + v;
       for (const [k, v] of Object.entries(m.por_vinculo || {})) agg.por_vinculo[k] = (agg.por_vinculo[k] || 0) + v;
+      for (const [k, v] of Object.entries(m.por_raca || {})) agg.por_raca[k] = (agg.por_raca[k] || 0) + v;
     }
     p = agg;
   } else {
@@ -2572,6 +3202,7 @@ function buildDocCharts(doc) {
   };
 
   doughnut('chart-doc-sexo', p.por_sexo, ['#E91E63CC','#1976D2CC','#9E9E9ECC']);
+  doughnut('chart-doc-raca', p.por_raca, ['#1976D2CC','#333333CC','#8D6E63CC','#FFB300CC','#2E7D32CC']);
   // Filter out Terceirizado and CLT from vinculo
   const filteredVinculo = p.por_vinculo ? Object.fromEntries(Object.entries(p.por_vinculo).filter(([k]) => k !== 'Terceirizado' && k !== 'CLT')) : null;
   doughnut('chart-doc-vinculo', filteredVinculo, ['#2E7D32CC','#E65100CC']);
@@ -2624,10 +3255,10 @@ function buildDocCharts(doc) {
     S.charts.push(new Chart(razaoEl, {
       type: 'line',
       data: { labels: anos, datasets: [{ label: 'Alunos por Professor', data: razaoData,
-        borderColor: '#005A32', backgroundColor: '#005A3218', fill: true, tension: .35, pointRadius: 5, borderWidth: 2.5 }] },
+        borderColor: '#0D3B66', backgroundColor: '#0D3B6618', fill: true, tension: .35, pointRadius: 5, borderWidth: 2.5 }] },
       options: { ...CHART_DEFAULTS,
         plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false },
-          datalabels: { display: true, anchor: 'end', align: 'top', offset: 3, font: { family: 'Inter', size: 10, weight: '700' }, color: '#005A32', formatter: v => v?.toFixed(1) ?? '' } },
+          datalabels: { display: true, anchor: 'end', align: 'top', offset: 3, font: { family: 'Inter', size: 10, weight: '700' }, color: '#0D3B66', formatter: v => v?.toFixed(1) ?? '' } },
         scales: { ...CHART_DEFAULTS.scales,
           y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: razaoMin, max: razaoMax,
             ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 0.5, callback: v => v.toFixed(1) } } } }
@@ -2708,7 +3339,7 @@ function buildFunilTurma(ano) {
     const td = ftl.tamanho_turma[ano];
     const etapas = Object.keys(td);
     const medias = etapas.map(e => td[e].media_alunos);
-    const turmaColors = ['#005A32CC','#2E7D32CC','#43A047CC','#66BB6ACC','#1565C0CC','#E65100CC'];
+    const turmaColors = ['#0D3B66CC','#2874A6CC','#5a91bdCC','#8fb3d1CC','#1565C0CC','#E65100CC'];
 
     S.charts.push(new Chart(turmaEl, {
       type: 'bar',
@@ -2724,8 +3355,8 @@ function buildFunilTurma(ano) {
   const trendEl = document.getElementById('chart-turma-trend');
   if (trendEl) {
     const anos = Object.keys(ftl.tamanho_turma).sort();
-    const etapas = ['Ed. Infantil','Fund. Anos Iniciais','Fund. Anos Finais','Ens. Medio','EJA'];
-    const tColors = ['#2E7D32','#43A047','#66BB6A','#1565C0','#E65100'];
+    const etapas = ['Ed. Infantil','Anos Iniciais','Anos Finais','Ens. Médio','EJA'];
+    const tColors = ['#2874A6','#43A047','#66BB6A','#1565C0','#E65100'];
 
     S.charts.push(new Chart(trendEl, {
       type: 'line',
@@ -3374,12 +4005,12 @@ function renderSaeb() {
 
     // SAEB breaks per etapa×disc (official INEP cutoffs)
     const SAEB_BREAKS = {
-      '5EF_lp': [{min:0,max:200,color:'#C62828',label:'< 200'},{min:200,max:250,color:'#F9A825',label:'200–249'},{min:250,max:300,color:'#66BB6A',label:'250–299'},{min:300,max:999,color:'#2E7D32',label:'≥ 300'}],
-      '5EF_mt': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2E7D32',label:'≥ 325'}],
-      '9EF_lp': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2E7D32',label:'≥ 325'}],
-      '9EF_mt': [{min:0,max:250,color:'#C62828',label:'< 250'},{min:250,max:300,color:'#F9A825',label:'250–299'},{min:300,max:350,color:'#66BB6A',label:'300–349'},{min:350,max:999,color:'#2E7D32',label:'≥ 350'}],
-      'EM_lp':  [{min:0,max:275,color:'#C62828',label:'< 275'},{min:275,max:325,color:'#F9A825',label:'275–324'},{min:325,max:375,color:'#66BB6A',label:'325–374'},{min:375,max:999,color:'#2E7D32',label:'≥ 375'}],
-      'EM_mt':  [{min:0,max:300,color:'#C62828',label:'< 300'},{min:300,max:350,color:'#F9A825',label:'300–349'},{min:350,max:400,color:'#66BB6A',label:'350–399'},{min:400,max:999,color:'#2E7D32',label:'≥ 400'}],
+      '5EF_lp': [{min:0,max:200,color:'#C62828',label:'< 200'},{min:200,max:250,color:'#F9A825',label:'200–249'},{min:250,max:300,color:'#66BB6A',label:'250–299'},{min:300,max:999,color:'#2874A6',label:'≥ 300'}],
+      '5EF_mt': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2874A6',label:'≥ 325'}],
+      '9EF_lp': [{min:0,max:225,color:'#C62828',label:'< 225'},{min:225,max:275,color:'#F9A825',label:'225–274'},{min:275,max:325,color:'#66BB6A',label:'275–324'},{min:325,max:999,color:'#2874A6',label:'≥ 325'}],
+      '9EF_mt': [{min:0,max:250,color:'#C62828',label:'< 250'},{min:250,max:300,color:'#F9A825',label:'250–299'},{min:300,max:350,color:'#66BB6A',label:'300–349'},{min:350,max:999,color:'#2874A6',label:'≥ 350'}],
+      'EM_lp':  [{min:0,max:275,color:'#C62828',label:'< 275'},{min:275,max:325,color:'#F9A825',label:'275–324'},{min:325,max:375,color:'#66BB6A',label:'325–374'},{min:375,max:999,color:'#2874A6',label:'≥ 375'}],
+      'EM_mt':  [{min:0,max:300,color:'#C62828',label:'< 300'},{min:300,max:350,color:'#F9A825',label:'300–349'},{min:350,max:400,color:'#66BB6A',label:'350–399'},{min:400,max:999,color:'#2874A6',label:'≥ 400'}],
     };
     const SAEB_BREAK_LABELS = { '5EF': '5º EF', '9EF': '9º EF', 'EM': 'EM' };
     const SAEB_DISC_LABELS = { lp: 'LP', mt: 'MT' };
@@ -3407,11 +4038,15 @@ function renderSaeb() {
               <option value="lp" selected>Língua Portuguesa</option>
               <option value="mt">Matemática</option>
             </select>
+            <div class="map-layer-toggle">
+              <button class="map-layer-btn active" id="saeb-btn-layer-mun">Municípios</button>
+              <button class="map-layer-btn" id="saeb-btn-layer-cre">CREs</button>
+            </div>
           </div>
           <div id="saeb-map-leaflet" style="height:340px;border-radius:8px"></div>
         </div>
         <div class="chart-card" style="max-height:400px;overflow:auto">
-          <div class="chart-title" id="saeb-table-title">Ranking Municipal — SAEB ${anoMapaDefault}</div>
+          <div class="chart-title" id="saeb-table-title">Tabela Municipal — SAEB ${anoMapaDefault}</div>
           <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
             📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção. Clique novamente para desfiltrar.
           </div>
@@ -3467,7 +4102,7 @@ function renderSaeb() {
       });
       // Update table title
       const tt = document.getElementById('saeb-table-title');
-      if (tt) tt.textContent = `Ranking Municipal — SAEB ${mapAno}`;
+      if (tt) tt.textContent = `Tabela Municipal — SAEB ${mapAno}`;
     }
 
     // Build/update map
@@ -3556,13 +4191,100 @@ function renderSaeb() {
       if (mt) mt.textContent = `Mapa SAEB por Município — ${etLabel} ${discLabel} (${mapAno})`;
     }
 
+    // Build/update CRE map for SAEB
+    function updateSaebCreMap() {
+      if (!S.creGeo || !S.map) return;
+      if (S.mapLayer) { S.map.removeLayer(S.mapLayer); S.mapLayer = null; }
+      // Remove legend controls
+      S.map.eachLayer(l => { if (l._container?.classList?.contains('map-legend')) S.map.removeControl(l); });
+
+      const munData = porMun[mapAno] || {};
+      const munToCre = S.creLookup?.mun_to_cre || {};
+      const breakKey = `${mapEtapa}_${mapDisc}`;
+      const breaks = SAEB_BREAKS[breakKey] || SAEB_BREAKS['9EF_lp'];
+      const field = `media_${mapDisc}`;
+
+      // Aggregate by CRE
+      const creData = {};
+      for (const [cod, v] of Object.entries(munData)) {
+        const cre = munToCre[cod]?.cod_cre;
+        if (!cre) continue;
+        if (!creData[cre]) creData[cre] = { sumVal: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+        const val = v?.[mapEtapa]?.[field];
+        if (val != null) { creData[cre].sumVal += val; creData[cre].count += 1; }
+      }
+      for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumVal / c.count : null;
+
+      function getColor(v) {
+        if (v == null || v === 0) return '#f0f0f0';
+        for (const b of breaks) { if (v >= b.min && v < b.max) return b.color; }
+        return '#f0f0f0';
+      }
+
+      // Remove old legend
+      S.map.eachLayer(l => { try { if (l.getContainer?.()?.classList?.contains('map-legend')) S.map.removeControl(l); } catch(e) {} });
+
+      S.mapLayer = L.geoJSON(S.creGeo, {
+        style: feature => {
+          const cod = feature.properties.cod_cre;
+          const v = creData[cod]?.avg;
+          return { fillColor: getColor(v), fillOpacity: 0.8, weight: 2, color: '#fff' };
+        },
+        onEachFeature: (feature, layer) => {
+          const cod = feature.properties.cod_cre;
+          const nome = feature.properties.nome_cre || cod;
+          const d = creData[cod];
+          const etLabel = SAEB_BREAK_LABELS[mapEtapa] || mapEtapa;
+          const discLabel = SAEB_DISC_LABELS[mapDisc] || mapDisc.toUpperCase();
+          layer.bindTooltip(`<strong>${nome}</strong><br>${etLabel} ${discLabel}: ${d?.avg != null ? d.avg.toFixed(1) : '—'}<br>${d?.count || 0} municípios`, { sticky: true });
+          layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+        }
+      }).addTo(S.map);
+
+      const etLabel = SAEB_BREAK_LABELS[mapEtapa] || mapEtapa;
+      const discLabel = SAEB_DISC_LABELS[mapDisc] || mapDisc.toUpperCase();
+      const legend = L.control({ position: 'bottomleft' });
+      legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = `<h4>SAEB ${etLabel} ${discLabel} (CREs)</h4>` +
+          breaks.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+        return div;
+      };
+      legend.addTo(S.map);
+      S.mapLegend = legend;
+      if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+
+      const mt = document.getElementById('saeb-map-title');
+      if (mt) mt.textContent = `Mapa SAEB por CRE — ${etLabel} ${discLabel} (${mapAno})`;
+    }
+
     updateSaebTable();
     updateSaebMap();
 
+    // Helper to update map based on active layer
+    const updateSaebActiveMap = () => {
+      const saebBtnCre = document.getElementById('saeb-btn-layer-cre');
+      if (saebBtnCre?.classList.contains('active')) { updateSaebCreMap(); } else { updateSaebMap(); }
+    };
+
     // Bind map filter selectors
-    document.getElementById('sel-saeb-map-ano')?.addEventListener('change', e => { mapAno = e.target.value; updateSaebTable(); updateSaebMap(); });
-    document.getElementById('sel-saeb-map-etapa')?.addEventListener('change', e => { mapEtapa = e.target.value; updateSaebMap(); });
-    document.getElementById('sel-saeb-map-disc')?.addEventListener('change', e => { mapDisc = e.target.value; updateSaebMap(); });
+    document.getElementById('sel-saeb-map-ano')?.addEventListener('change', e => { mapAno = e.target.value; updateSaebTable(); updateSaebActiveMap(); });
+    document.getElementById('sel-saeb-map-etapa')?.addEventListener('change', e => { mapEtapa = e.target.value; updateSaebActiveMap(); });
+    document.getElementById('sel-saeb-map-disc')?.addEventListener('change', e => { mapDisc = e.target.value; updateSaebActiveMap(); });
+
+    // Bind CRE toggle
+    const saebBtnMun = document.getElementById('saeb-btn-layer-mun');
+    const saebBtnCre = document.getElementById('saeb-btn-layer-cre');
+    if (saebBtnMun && saebBtnCre) {
+      saebBtnMun.addEventListener('click', () => {
+        saebBtnMun.classList.add('active'); saebBtnCre.classList.remove('active');
+        updateSaebMap();
+      });
+      saebBtnCre.addEventListener('click', () => {
+        saebBtnCre.classList.add('active'); saebBtnMun.classList.remove('active');
+        updateSaebCreMap();
+      });
+    }
 
     // Bind search
     document.getElementById('saeb-mun-search')?.addEventListener('input', e => {
@@ -4076,8 +4798,8 @@ function renderIdeb() {
       if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados IDEB</div>`; return; }
       this._div.innerHTML = `
         <h4>${nome}</h4>
-        ${md.AI ? `<div class="info-row"><span class="info-label">IDEB AI</span><span class="info-value" style="color:${getIdebColor(md.AI.ideb)};font-weight:700">${md.AI.ideb?.toFixed(1)}</span></div>` : ''}
-        ${md.AF ? `<div class="info-row"><span class="info-label">IDEB AF</span><span class="info-value" style="color:${getIdebColor(md.AF.ideb)};font-weight:700">${md.AF.ideb?.toFixed(1)}</span></div>` : ''}
+        ${md.AI ? `<div class="info-row"><span class="info-label">IDEB Anos Iniciais</span><span class="info-value" style="color:${getIdebColor(md.AI.ideb)};font-weight:700">${md.AI.ideb?.toFixed(1)}</span></div>` : ''}
+        ${md.AF ? `<div class="info-row"><span class="info-label">IDEB Anos Finais</span><span class="info-value" style="color:${getIdebColor(md.AF.ideb)};font-weight:700">${md.AF.ideb?.toFixed(1)}</span></div>` : ''}
         ${md.EM ? `<div class="info-row"><span class="info-label">IDEB EM</span><span class="info-value" style="color:${getIdebColor(md.EM.ideb)};font-weight:700">${md.EM.ideb?.toFixed(1)}</span></div>` : ''}`;
     };
     info.addTo(S.map);
@@ -4280,6 +5002,7 @@ function renderHome() {
     { view: 'docencia', icon: 'img/icons/sec_docentes.png', title: 'Docência', desc: 'Perfil, vínculo e distribuição docente' },
     { view: 'afd', icon: 'img/icons/professor.png', title: 'Formação Docente', desc: 'Adequação da formação por etapa' },
     { view: 'fluxo', icon: 'img/icons/sec_evolucao.png', title: 'Fluxo e Rendimento', desc: 'Aprovação, reprovação e abandono' },
+    { view: 'saers', icon: 'img/icons/sec_saeb.png', title: 'SAERS', desc: 'Avaliação Estadual — Proficiência e Padrão de Desempenho' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB', desc: 'Proficiência em Língua Portuguesa e Matemática' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
@@ -4395,9 +5118,14 @@ function aggregateCreTdi(f, creCod) {
 
 /** Fluxo map metric definitions */
 const FLUXO_MAP_METRICS = [
-  { key: 'aprov_fund', label: 'Aprovação Fund. (%)', higher: true },
+  { key: 'aprov_fund_ai', label: 'Aprovação Anos Iniciais (%)', higher: true },
+  { key: 'aprov_fund_af', label: 'Aprovação Anos Finais (%)', higher: true },
   { key: 'aprov_med', label: 'Aprovação Médio (%)', higher: true },
-  { key: 'reprov_fund', label: 'Reprovação Fund. (%)', higher: false },
+  { key: 'reprov_fund_ai', label: 'Reprovação Anos Iniciais (%)', higher: false },
+  { key: 'reprov_fund_af', label: 'Reprovação Anos Finais (%)', higher: false },
+  { key: 'reprov_med', label: 'Reprovação Médio (%)', higher: false },
+  { key: 'aband_fund_ai', label: 'Abandono Anos Iniciais (%)', higher: false },
+  { key: 'aband_fund_af', label: 'Abandono Anos Finais (%)', higher: false },
   { key: 'aband_med', label: 'Abandono Médio (%)', higher: false },
 ];
 
@@ -4456,8 +5184,8 @@ function renderFluxo() {
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
           <div class="chart-title" style="margin:0">Aprovação por Etapa (%)</div>
           <div class="flx-toggle-pills" id="flx-aprov-pills">
-            <button class="flx-pill" data-key="aprov_fund_ai" style="--pill-color:${COLORS.fundamental}">Fund. AI</button>
-            <button class="flx-pill" data-key="aprov_fund_af" style="--pill-color:${COLORS.priLight}">Fund. AF</button>
+            <button class="flx-pill" data-key="aprov_fund_ai" style="--pill-color:${COLORS.fundamental}">Anos Iniciais</button>
+            <button class="flx-pill" data-key="aprov_fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
             <button class="flx-pill active" data-key="aprov_med" style="--pill-color:${COLORS.red}">Médio</button>
           </div>
         </div>
@@ -4465,16 +5193,29 @@ function renderFluxo() {
         <div class="chart-source">${FONTE_REND}</div>
       </div>
     </div>
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card d2">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-          <div class="chart-title" style="margin:0">Reprovação e Abandono (%)</div>
-          <div class="flx-toggle-pills" id="flx-repab-pills">
-            <button class="flx-pill active" data-key="fund" style="--pill-color:${COLORS.yellow}">Fundamental</button>
+          <div class="chart-title" style="margin:0">Reprovação (%)</div>
+          <div class="flx-toggle-pills" id="flx-reprov-pills">
+            <button class="flx-pill active" data-key="fund_ai" style="--pill-color:${COLORS.pri}">Anos Iniciais</button>
+            <button class="flx-pill active" data-key="fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
             <button class="flx-pill active" data-key="med" style="--pill-color:${COLORS.red}">Médio</button>
           </div>
         </div>
-        <div style="height:340px"><canvas id="flx-chart-repab"></canvas></div>
+        <div style="height:340px"><canvas id="flx-chart-reprov"></canvas></div>
+        <div class="chart-source">${FONTE_REND}</div>
+      </div>
+      <div class="chart-card d3">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+          <div class="chart-title" style="margin:0">Abandono (%)</div>
+          <div class="flx-toggle-pills" id="flx-aband-pills">
+            <button class="flx-pill active" data-key="fund_ai" style="--pill-color:${COLORS.pri}">Anos Iniciais</button>
+            <button class="flx-pill active" data-key="fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
+            <button class="flx-pill active" data-key="med" style="--pill-color:${COLORS.red}">Médio</button>
+          </div>
+        </div>
+        <div style="height:340px"><canvas id="flx-chart-aband"></canvas></div>
         <div class="chart-source">${FONTE_REND}</div>
       </div>
     </div>
@@ -4492,12 +5233,16 @@ function renderFluxo() {
           <select id="flx-map-metric">
             ${FLUXO_MAP_METRICS.map(m => `<option value="${m.key}">${m.label}</option>`).join('')}
           </select>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="flx-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="flx-btn-layer-cre">CREs</button>
+          </div>
         </div>
         <div id="flx-map-leaflet" style="height:480px;width:100%;background:var(--bg)"></div>
       </div>
       <div class="table-wrapper" id="flx-table-wrapper">
         <div class="table-header">
-          <h3>Ranking de Municípios</h3>
+          <h3>Tabela de Municípios</h3>
           <input type="text" class="table-search" id="flx-mun-search" placeholder="Buscar...">
         </div>
         <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:0 0 6px 6px;border-top:1px dashed rgba(255,203,4,.3)">
@@ -4526,7 +5271,29 @@ function renderFluxo() {
   fluxoBuildMunTable(f, anoSel, lookup);
   // Bind map metric
   const selMetric = document.getElementById('flx-map-metric');
-  if (selMetric) selMetric.addEventListener('change', () => buildFluxoMap(f, anoSel, selMetric.value));
+  const flxBtnMun = document.getElementById('flx-btn-layer-mun');
+  const flxBtnCre = document.getElementById('flx-btn-layer-cre');
+  
+  if (selMetric) {
+    selMetric.addEventListener('change', () => {
+      if (flxBtnCre?.classList.contains('active')) {
+        buildFluxoCreMap(f, anoSel, selMetric.value);
+      } else {
+        buildFluxoMap(f, anoSel, selMetric.value);
+      }
+    });
+  }
+
+  if (flxBtnMun && flxBtnCre) {
+    flxBtnMun.addEventListener('click', () => {
+      flxBtnMun.classList.add('active'); flxBtnCre.classList.remove('active');
+      buildFluxoMap(f, anoSel, selMetric?.value || 'aprov_fund');
+    });
+    flxBtnCre.addEventListener('click', () => {
+      flxBtnCre.classList.add('active'); flxBtnMun.classList.remove('active');
+      buildFluxoCreMap(f, anoSel, selMetric?.value || 'aprov_fund');
+    });
+  }
 
   injectExportButtons();
 
@@ -4586,7 +5353,7 @@ function fluxoUpdateKPIs(st, tdiSrc, f, anos, anoSel) {
     { label: 'Reprovação Fund.', key: 'reprov_fund', value: st.reprov_fund, icon: 'img/icons/fundamental.png', accent: 'red', suffix: '%' },
     { label: 'Abandono Médio', key: 'aband_med', value: st.aband_med, icon: 'img/icons/medio.png', accent: 'red', suffix: '%' },
   ];
-  const accentColors = { green: '#00AB4E', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
+  const accentColors = { green: '#2E86C1', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
   const refLabel = prev ? `vs ${prev}` : '';
 
   strip.innerHTML = kpis.map((k, i) => {
@@ -4629,8 +5396,8 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
 
   // ── 1. APPROVAL — single chart with toggleable series ──
   const APROV_SERIES = {
-    aprov_fund_ai: { label: 'Fund. AI', color: COLORS.fundamental },
-    aprov_fund_af: { label: 'Fund. AF', color: COLORS.priLight },
+    aprov_fund_ai: { label: 'Anos Iniciais', color: COLORS.fundamental },
+    aprov_fund_af: { label: 'Anos Finais', color: COLORS.priLight },
     aprov_med:     { label: 'Médio',    color: COLORS.red },
   };
 
@@ -4698,41 +5465,28 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
     });
   }
 
-  // ── 2. REPROV + ABANDON — single chart with toggleable Fund/Médio ──
-  const REPAB_SERIES = {
-    fund: {
-      reprov: { label: 'Reprov. Fund.', color: COLORS.yellow, key: 'reprov_fund', dash: [] },
-      aband:  { label: 'Aband. Fund.', color: '#999',         key: 'aband_fund', dash: [5,5] },
-    },
-    med: {
-      reprov: { label: 'Reprov. Médio', color: COLORS.red,    key: 'reprov_med', dash: [] },
-      aband:  { label: 'Aband. Médio',  color: '#333',        key: 'aband_med',  dash: [5,5] },
-    },
-  };
+  // ── 2. REPROVAÇÃO — chart with AI / AF / Médio ──
+  const REPROV_SERIES = [
+    { label: 'Anos Iniciais', color: COLORS.pri, key: 'reprov_fund_ai', group: 'fund_ai' },
+    { label: 'Anos Finais', color: COLORS.priLight, key: 'reprov_fund_af', group: 'fund_af' },
+    { label: 'Médio', color: COLORS.red, key: 'reprov_med', group: 'med' },
+  ];
 
-  const repabEl = document.getElementById('flx-chart-repab');
-  if (repabEl) {
-    const repabDatasets = [];
-    for (const [group, series] of Object.entries(REPAB_SERIES)) {
-      for (const [type, cfg] of Object.entries(series)) {
-        repabDatasets.push({
-          label: cfg.label,
-          data: anosChart.map(a => getYearData(a)[cfg.key] ?? null),
-          borderColor: cfg.color,
-          borderDash: cfg.dash,
-          borderWidth: 2.5,
-          tension: .35,
-          pointRadius: 5,
-          hidden: false,  // Both visible by default
-          _flxGroup: group,
-          _flxKey: cfg.key,
-        });
-      }
-    }
+  const reprovEl = document.getElementById('flx-chart-reprov');
+  if (reprovEl) {
+    const reprovDatasets = REPROV_SERIES.map(cfg => ({
+      label: cfg.label,
+      data: anosChart.map(a => getYearData(a)[cfg.key] ?? null),
+      borderColor: cfg.color,
+      borderWidth: 2.5,
+      tension: .35,
+      pointRadius: 5,
+      _flxGroup: cfg.group,
+    }));
 
-    const repabChart = new Chart(repabEl, {
+    const reprovChart = new Chart(reprovEl, {
       type: 'line',
-      data: { labels: anosChart, datasets: repabDatasets },
+      data: { labels: anosChart, datasets: reprovDatasets },
       options: {
         ...CHART_DEFAULTS,
         layout: { padding: { top: 8 } },
@@ -4756,24 +5510,85 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
         },
       },
     });
-    S.charts.push(repabChart);
+    S.charts.push(reprovChart);
 
-    // Bind pill toggles for reprov/abandon chart
-    document.querySelectorAll('#flx-repab-pills .flx-pill').forEach(pill => {
+    // Bind pill toggles for reprov chart
+    document.querySelectorAll('#flx-reprov-pills .flx-pill').forEach(pill => {
       pill.addEventListener('click', () => {
         pill.classList.toggle('active');
-        const group = pill.dataset.key; // 'fund' or 'med'
+        const group = pill.dataset.key;
         const isActive = pill.classList.contains('active');
-        repabChart.data.datasets.forEach(ds => {
+        reprovChart.data.datasets.forEach(ds => {
           if (ds._flxGroup === group) ds.hidden = !isActive;
         });
-        repabChart.update();
+        reprovChart.update();
       });
     });
   }
 
-  // 3. (Taxas por Etapa removed)
-  // 4. (TDI removed — now has its own section)
+  // ── 3. ABANDONO — chart with AI / AF / Médio ──
+  const ABAND_SERIES = [
+    { label: 'Anos Iniciais', color: COLORS.pri, key: 'aband_fund_ai', group: 'fund_ai' },
+    { label: 'Anos Finais', color: COLORS.priLight, key: 'aband_fund_af', group: 'fund_af' },
+    { label: 'Médio', color: COLORS.red, key: 'aband_med', group: 'med' },
+  ];
+
+  const abandEl = document.getElementById('flx-chart-aband');
+  if (abandEl) {
+    const abandDatasets = ABAND_SERIES.map(cfg => ({
+      label: cfg.label,
+      data: anosChart.map(a => getYearData(a)[cfg.key] ?? null),
+      borderColor: cfg.color,
+      borderWidth: 2.5,
+      tension: .35,
+      pointRadius: 5,
+      _flxGroup: cfg.group,
+    }));
+
+    const abandChart = new Chart(abandEl, {
+      type: 'line',
+      data: { labels: anosChart, datasets: abandDatasets },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 8 } },
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          datalabels: { display: false },
+          tooltip: {
+            enabled: true, mode: 'index', intersect: false,
+            backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family:'Inter', size:12, weight:'700' },
+            bodyFont: { family:'Inter', size:11 }, padding: 10, cornerRadius: 8,
+            callbacks: {
+              title: items => items[0]?.label || '',
+              label: item => item.raw != null ? `  ${item.dataset.label}: ${item.raw.toFixed(1)}%` : '',
+            }
+          },
+          legend: { display: true, onClick: (e, legendItem, legend) => { const idx = legendItem.datasetIndex; const ci = legend.chart; ci.getDatasetMeta(idx).hidden = !ci.getDatasetMeta(idx).hidden; ci.update(); }, labels: { font: { family:'Inter', size:10, weight:'600' }, boxWidth:10, padding:8 } },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 15, grace: '10%' }
+        },
+      },
+    });
+    S.charts.push(abandChart);
+
+    // Bind pill toggles for aband chart
+    document.querySelectorAll('#flx-aband-pills .flx-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.classList.toggle('active');
+        const group = pill.dataset.key;
+        const isActive = pill.classList.contains('active');
+        abandChart.data.datasets.forEach(ds => {
+          if (ds._flxGroup === group) ds.hidden = !isActive;
+        });
+        abandChart.update();
+      });
+    });
+  }
+
+  // 4. (Taxas por Etapa removed)
+  // 5. (TDI removed — now has its own section)
 }
 
 /** Leaflet choropleth for Fluxo rates */
@@ -4795,21 +5610,21 @@ function buildFluxoMap(f, anoSel, metricKey) {
   let tiers;
   if (metricDef.higher) {
     tiers = [
-      { min: 95, color: '#005A32', label: '≥ 95%' },
+      { min: 95, color: '#0D3B66', label: '≥ 95%' },
       { min: 90, color: '#5cba68', label: '90% – 94%' },
       { min: 80, color: '#FFDF00', label: '80% – 89%' },
       { min: 0, color: '#EE302F', label: '< 80%' },
     ];
   } else {
     tiers = [
-      { min: 0, max: 3, color: '#005A32', label: '< 3%' },
+      { min: 0, max: 3, color: '#0D3B66', label: '< 3%' },
       { min: 3, max: 8, color: '#5cba68', label: '3% – 7%' },
       { min: 8, max: 15, color: '#FFDF00', label: '8% – 14%' },
       { min: 15, max: 999, color: '#EE302F', label: '≥ 15%' },
     ];
     if (metricDef.tdi) {
       tiers = [
-        { min: 0, max: 10, color: '#005A32', label: '< 10%' },
+        { min: 0, max: 10, color: '#0D3B66', label: '< 10%' },
         { min: 10, max: 20, color: '#5cba68', label: '10% – 19%' },
         { min: 20, max: 30, color: '#FFDF00', label: '20% – 29%' },
         { min: 30, max: 999, color: '#EE302F', label: '≥ 30%' },
@@ -4874,6 +5689,86 @@ function buildFluxoMap(f, anoSel, metricKey) {
   S.mapLayer = layer;
   S.mapLegend = legend;
   S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+}
+
+/** Build CRE-level choropleth for Fluxo */
+function buildFluxoCreMap(f, anoSel, metricKey) {
+  if (!S.creGeo || !S.map) return;
+  if (S.mapLayer) { S.map.removeLayer(S.mapLayer); S.mapLayer = null; }
+  if (S.mapLegend) { S.map.removeControl(S.mapLegend); S.mapLegend = null; }
+
+  const munData = f.por_municipio[anoSel] || {};
+  const tdiData = f.tdi_por_municipio || {};
+  const munToCre = S.creLookup?.mun_to_cre || {};
+  const metricDef = FLUXO_MAP_METRICS.find(m => m.key === metricKey) || FLUXO_MAP_METRICS[0];
+
+  // Aggregate by CRE
+  const creData = {};
+  for (const [cod, v] of Object.entries(munData)) {
+    const cre = munToCre[cod]?.cod_cre;
+    if (!cre) continue;
+    if (!creData[cre]) creData[cre] = { sumVal: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+    const val = metricDef.tdi ? (tdiData[cod]?.[metricKey] ?? null) : (v[metricKey] ?? null);
+    if (val != null) { creData[cre].sumVal += val; creData[cre].count += 1; }
+  }
+  for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumVal / c.count : null;
+
+  let tiers;
+  if (metricDef.higher) {
+    tiers = [
+      { min: 95, color: '#0D3B66', label: '≥ 95%' },
+      { min: 90, color: '#5cba68', label: '90% – 94%' },
+      { min: 80, color: '#FFDF00', label: '80% – 89%' },
+      { min: 0, color: '#EE302F', label: '< 80%' },
+    ];
+  } else if (metricDef.tdi) {
+    tiers = [
+      { min: 0, max: 10, color: '#0D3B66', label: '< 10%' },
+      { min: 10, max: 20, color: '#5cba68', label: '10% – 19%' },
+      { min: 20, max: 30, color: '#FFDF00', label: '20% – 29%' },
+      { min: 30, max: 999, color: '#EE302F', label: '≥ 30%' },
+    ];
+  } else {
+    tiers = [
+      { min: 0, max: 3, color: '#0D3B66', label: '< 3%' },
+      { min: 3, max: 8, color: '#5cba68', label: '3% – 7%' },
+      { min: 8, max: 15, color: '#FFDF00', label: '8% – 14%' },
+      { min: 15, max: 999, color: '#EE302F', label: '≥ 15%' },
+    ];
+  }
+
+  const getColor = v => {
+    if (v == null) return '#f0f0f0';
+    if (metricDef.higher) { for (const t of tiers) { if (v >= t.min) return t.color; } return '#f0f0f0'; }
+    for (let i = tiers.length - 1; i >= 0; i--) { if (v >= tiers[i].min) return tiers[i].color; }
+    return '#f0f0f0';
+  };
+
+  S.mapLayer = L.geoJSON(S.creGeo, {
+    style: feature => {
+      const cod = feature.properties.cod_cre;
+      const v = creData[cod]?.avg;
+      return { fillColor: getColor(v), fillOpacity: 0.8, weight: 2, color: '#fff' };
+    },
+    onEachFeature: (feature, layer) => {
+      const cod = feature.properties.cod_cre;
+      const nome = feature.properties.nome_cre || cod;
+      const d = creData[cod];
+      layer.bindTooltip(`<strong>${nome}</strong><br>${metricDef.label}: ${d?.avg != null ? d.avg.toFixed(1) + '%' : '—'}<br>${d?.count || 0} municípios`, { sticky: true });
+      layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
+    }
+  }).addTo(S.map);
+
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `<h4>${metricDef.label} (CREs)</h4>` +
+      tiers.slice().reverse().map(t => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${t.color}"></div><span>${t.label}</span></div>`).join('');
+    return div;
+  };
+  legend.addTo(S.map);
+  S.mapLegend = legend;
+  if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
 }
 
 /** Proper ranking table for Fluxo with sort/search/click-to-filter */
@@ -4964,7 +5859,7 @@ const FONTE_INSE = 'Fonte: INEP — Indicador de Nível Socioeconômico (INSE/SA
 const INSE_NIVEL_COLORS = {
   'Nível I': '#C62828', 'Nível II': '#E53935', 'Nível III': '#FB8C00',
   'Nível IV': '#FFCB04', 'Nível V': '#66BB6A', 'Nível VI': '#43A047',
-  'Nível VII': '#2E7D32', 'Nível VIII': '#1B5E20',
+  'Nível VII': '#2874A6', 'Nível VIII': '#1B5E20',
 };
 
 function renderInse() {
@@ -5112,7 +6007,7 @@ function renderInse() {
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Distribuição dos Alunos por Nível INSE (${anoAtual})</div>
+        <div class="chart-title">Nº de Alunos por Nível INSE — ${geoLabel} (${anoAtual})</div>
         <div style="height:260px"><canvas id="inse-chart-alunos"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
@@ -5156,7 +6051,7 @@ function renderInse() {
     <!-- ═══ EIXO: Mapa + Tabela ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_mapa.png" alt=""></span>
-      <span class="section-divider-text">Mapa e Ranking Municipal — INSE (${anoAtual})</span>
+      <span class="section-divider-text">Mapa e Tabela Municipal — INSE (${anoAtual})</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -5173,7 +6068,7 @@ function renderInse() {
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
       <div class="chart-card" style="min-height:400px">
-        <div class="chart-title">Ranking Municipal — INSE</div>
+        <div class="chart-title">Tabela Municipal — INSE</div>
         <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
           📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
         </div>
@@ -5277,33 +6172,46 @@ function renderInse() {
     }));
   };
 
-  // ── Chart 2: Student distribution by level (stacked bar) ──
+  // ── Chart 2: Student distribution by level (bar with absolute numbers) ──
   const inseBuildAlunosChart = () => {
     const el = document.getElementById('inse-chart-alunos');
     if (!el) return;
 
     const distAl = su.dist_niveis_alunos;
+    const nTotal = su.n_alunos || 0;
     const niveis = Object.keys(INSE_NIVEL_COLORS);
-    const vals = niveis.map(n => distAl[n] || 0);
+    const pcts = niveis.map(n => distAl[n] || 0);
+    const absolutos = pcts.map(p => Math.round(p * nTotal / 100));
     const colors = niveis.map(n => INSE_NIVEL_COLORS[n]);
 
     S.charts.push(new Chart(el, {
       type: 'bar',
       data: {
         labels: niveis.map(n => n.replace('Nível ','')),
-        datasets: [{ label: '% dos Alunos', data: vals, backgroundColor: colors, borderRadius: 4 }]
+        datasets: [{ label: 'Alunos', data: absolutos, backgroundColor: colors, borderRadius: 4 }]
       },
       options: {
         ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
         plugins: {
           ...CHART_DEFAULTS.plugins, legend: { display: false },
-          datalabels: { display: true, anchor: 'end', align: 'end', font: { family: 'Inter', size: 11, weight: '700' },
-            color: '#333', formatter: v => v > 0 ? v.toFixed(1) + '%' : '' }
+          datalabels: { display: true, anchor: 'end', align: 'end', font: { family: 'Inter', size: 10, weight: '700' },
+            color: '#333', formatter: v => v > 0 ? formatNum(v) : '' },
+          tooltip: {
+            enabled: true, backgroundColor: 'rgba(30,30,30,.92)',
+            titleFont: { family:'Inter', size:12, weight:'700' },
+            bodyFont: { family:'Inter', size:11 }, padding: 10, cornerRadius: 8,
+            callbacks: {
+              label: item => {
+                const idx = item.dataIndex;
+                return `  ${formatNum(item.raw)} alunos (${pcts[idx].toFixed(1)}%)`;
+              }
+            }
+          }
         },
         scales: {
           ...CHART_DEFAULTS.scales,
           y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, grace: '15%',
-            ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } }
+            ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => formatNum(v) } }
         }
       }
     }));
@@ -5378,7 +6286,7 @@ function renderInse() {
       { min: 0,   max: 5.0, color: '#E53935', label: '< 5.0 (Vulnerável)' },
       { min: 5.0, max: 5.3, color: '#FB8C00', label: '5.0–5.3 (Baixo-médio)' },
       { min: 5.3, max: 5.5, color: '#66BB6A', label: '5.3–5.5 (Médio)' },
-      { min: 5.5, max: 99,  color: '#2E7D32', label: '> 5.5 (Alto)' },
+      { min: 5.5, max: 99,  color: '#2874A6', label: '> 5.5 (Alto)' },
     ];
 
     function getInseColor(v) {
@@ -5465,7 +6373,7 @@ function renderInse() {
       { min: 0,   max: 5.0, color: '#E53935', label: '< 5.0 (Vulnerável)' },
       { min: 5.0, max: 5.3, color: '#FB8C00', label: '5.0–5.3' },
       { min: 5.3, max: 5.5, color: '#66BB6A', label: '5.3–5.5' },
-      { min: 5.5, max: 99,  color: '#2E7D32', label: '> 5.5 (Alto)' },
+      { min: 5.5, max: 99,  color: '#2874A6', label: '> 5.5 (Alto)' },
     ];
     function getColor(v) {
       for (const b of INSE_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
@@ -5499,9 +6407,11 @@ function renderInse() {
     if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
   };
 
-  // ── Table: Municipality ranking ──
+  // ── Table: Municipality table ──
+  let inseSortCol = 2, inseSortAsc = false; // default: sort by INSE desc
   const inseBuildMunTable = () => {
     const tbody = document.querySelector('#inse-mun-table tbody');
+    const thead = document.querySelector('#inse-mun-table thead');
     if (!tbody) return;
 
     const munData = inse.por_municipio[anoAtual] || {};
@@ -5516,10 +6426,23 @@ function renderInse() {
       entries = entries.filter(([cod]) => cod === S.munSel);
     }
 
-    entries.sort((a, b) => (b[1].inse || 0) - (a[1].inse || 0));
+    // Sort
+    const colKeys = ['#', 'nome', 'inse', 'nivel', 'n_escolas', 'n_alunos'];
+    entries.sort((a, b) => {
+      const key = colKeys[inseSortCol];
+      let va, vb;
+      if (key === 'nome') { va = (lookup[a[0]] || '').toLowerCase(); vb = (lookup[b[0]] || '').toLowerCase(); }
+      else if (key === 'inse') { va = a[1].inse || 0; vb = b[1].inse || 0; }
+      else if (key === 'nivel') { va = a[1].nivel || ''; vb = b[1].nivel || ''; }
+      else if (key === 'n_escolas') { va = a[1].n_escolas || 0; vb = b[1].n_escolas || 0; }
+      else if (key === 'n_alunos') { va = a[1].n_alunos || 0; vb = b[1].n_alunos || 0; }
+      else { va = 0; vb = 0; }
+      const cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
+      return inseSortAsc ? cmp : -cmp;
+    });
 
     tbody.innerHTML = entries.map(([cod, md], i) => `
-      <tr>
+      <tr data-cod="${cod}" style="cursor:pointer" title="Clique para filtrar">
         <td>${i + 1}</td>
         <td>${lookup[cod] || cod}</td>
         <td><strong>${md.inse?.toFixed(2) ?? '—'}</strong></td>
@@ -5529,6 +6452,33 @@ function renderInse() {
       </tr>
     `).join('');
 
+    // Click-to-filter
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const cod = tr.dataset.cod;
+        if (S.munSel === cod) { S.munSel = null; } else { S.munSel = cod; }
+        refreshActiveTab();
+      });
+    });
+
+    // Sortable headers
+    if (thead) {
+      const headers = ['#', 'Município', 'INSE', 'Nível', 'Escolas', 'Alunos'];
+      thead.innerHTML = '<tr>' + headers.map((h, i) => {
+        const arrow = inseSortCol === i ? (inseSortAsc ? ' ▲' : ' ▼') : ' ⇅';
+        return `<th style="cursor:pointer" title="Clique para ordenar">${h}${arrow}</th>`;
+      }).join('') + '</tr>';
+
+      thead.querySelectorAll('th').forEach((th, ci) => {
+        th.addEventListener('click', () => {
+          if (inseSortCol === ci) inseSortAsc = !inseSortAsc;
+          else { inseSortCol = ci; inseSortAsc = ci <= 1; }
+          inseBuildMunTable();
+        });
+      });
+    }
+
+    // Search
     document.getElementById('inse-mun-search')?.addEventListener('input', e => {
       const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       tbody.querySelectorAll('tr').forEach(tr => {
@@ -5751,56 +6701,46 @@ function renderIcg() {
     </div>
 
     <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(0,90,50,.08)">
-      <div style="display:grid;grid-template-columns:1fr 1fr">
-        <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <img src="img/icons/escola.png" alt="" style="width:20px;height:20px">
-            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
-          </div>
-          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
-            O <strong>ICG (Indicador de Complexidade de Gestão da Escola)</strong> resume, em uma única medida,
-            as informações de <strong>porte</strong> (nº de matrículas), <strong>turnos de funcionamento</strong>,
-            <strong>quantidade de etapas</strong> e <strong>complexidade das etapas ofertadas</strong>.
-          </p>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <img src="img/icons/sec_evolucao.png" alt="" style="width:20px;height:20px">
-            <span style="font-size:14px;font-weight:700;color:var(--pri)">Metodologia</span>
-          </div>
-          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
-            Calculado por <strong>Teoria de Resposta ao Item (TRI)</strong> a partir de 4 variáveis do Censo Escolar,
-            gerando um escore contínuo classificado em <strong>6 níveis</strong> — do Nível 1 (gestão simples)
-            ao Nível 6 (gestão muito complexa).
-          </p>
-          <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px">
-            <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
-              <strong style="color:#E65100">⚠ Atenção:</strong> Não é um indicador de <em>qualidade</em> — é de <strong>contexto</strong>.
-              Uma escola Nível 6 não é "pior" que Nível 1; ela é mais <em>complexa de gerir</em>
-              (mais turnos, mais etapas, mais alunos).
-            </p>
-          </div>
-          <p style="font-size:9px;margin:10px 0 0;color:#999;line-height:1.5;font-style:italic">
-            Fonte: INEP — Nota Técnica nº 40/2014 (Indicador de Complexidade de Gestão da Escola).
+      <div style="padding:20px 24px;background:linear-gradient(135deg,#f8fdf9 0%,#eef6f0 100%)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <img src="img/icons/escola.png" alt="" style="width:20px;height:20px">
+          <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+        </div>
+        <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+          O <strong>ICG (Indicador de Complexidade de Gestão da Escola)</strong> resume, em uma única medida,
+          as informações de <strong>porte</strong> (nº de matrículas), <strong>turnos de funcionamento</strong>,
+          <strong>quantidade de etapas</strong> e <strong>complexidade das etapas ofertadas</strong>.
+          Calculado por <strong>Teoria de Resposta ao Item (TRI)</strong> a partir de 4 variáveis do Censo Escolar,
+          gerando um escore contínuo classificado em <strong>6 níveis</strong> — do Nível 1 (gestão simples)
+          ao Nível 6 (gestão muito complexa).
+        </p>
+        <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px;margin-bottom:16px">
+          <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
+            <strong style="color:#E65100">⚠ Atenção:</strong> Não é um indicador de <em>qualidade</em> — é de <strong>contexto</strong>.
+            Uma escola Nível 6 não é "pior" que Nível 1; ela é mais <em>complexa de gerir</em>
+            (mais turnos, mais etapas, mais alunos).
           </p>
         </div>
-        <div style="padding:20px 24px;border-left:1px solid rgba(0,90,50,.06)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <img src="img/icons/escola.png" alt="" style="width:20px;height:20px">
-            <span style="font-size:14px;font-weight:700;color:var(--pri)">Escala de Níveis</span>
+        <details id="icg-saiba-mais" style="cursor:pointer">
+          <summary style="font-size:13px;font-weight:700;color:var(--pri);padding:8px 0;user-select:none;list-style:none;display:flex;align-items:center;gap:6px">
+            <span style="display:inline-block;transition:transform .2s" id="icg-chevron">▶</span> Saiba mais — Descrição dos 6 Níveis
+          </summary>
+          <div style="padding:12px 0 0;animation:fadeSlideUp .3s ease">
+            <table style="width:100%;font-size:11.5px;border-collapse:separate;border-spacing:0;line-height:1.7">
+              <tbody>
+                <tr><td style="padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[1]};vertical-align:middle;margin-right:8px"></span><strong>Nível 1</strong></td><td style="padding:8px 10px;border-bottom:1px solid #eee;color:#444">Até 50 matrículas, único turno, uma única etapa, Educação Infantil ou Anos Iniciais como etapa mais elevada.</td></tr>
+                <tr style="background:#fafbfc"><td style="padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[2]};vertical-align:middle;margin-right:8px"></span><strong>Nível 2</strong></td><td style="padding:8px 10px;border-bottom:1px solid #eee;color:#444">50 a 300 matrículas, dois turnos, até duas etapas de ensino, Educação Infantil ou Anos Iniciais como etapa mais elevada.</td></tr>
+                <tr><td style="padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[3]};vertical-align:middle;margin-right:8px"></span><strong>Nível 3</strong></td><td style="padding:8px 10px;border-bottom:1px solid #eee;color:#444">50 a 500 matrículas, dois turnos, duas ou três etapas de ensino, sendo Anos Finais a etapa mais elevada.</td></tr>
+                <tr style="background:#fafbfc"><td style="padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[4]};vertical-align:middle;margin-right:8px"></span><strong>Nível 4</strong></td><td style="padding:8px 10px;border-bottom:1px solid #eee;color:#444">150 a 1.000 matrículas, dois ou três turnos, duas ou três etapas de ensino, sendo Ensino Médio/profissional ou EJA como etapa mais elevada.</td></tr>
+                <tr><td style="padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[5]};vertical-align:middle;margin-right:8px"></span><strong>Nível 5</strong></td><td style="padding:8px 10px;border-bottom:1px solid #eee;color:#444">150 a 1.000 matrículas, três turnos, duas ou três etapas, sendo EJA a etapa mais elevada.</td></tr>
+                <tr style="background:#fafbfc"><td style="padding:8px 10px;vertical-align:top"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${ICG_COLORS[6]};vertical-align:middle;margin-right:8px"></span><strong>Nível 6</strong></td><td style="padding:8px 10px;color:#444">Mais de 500 matrículas, três turnos, quatro ou mais etapas, sendo EJA a etapa mais elevada.</td></tr>
+              </tbody>
+            </table>
           </div>
-          <table style="width:100%;font-size:11px;border-collapse:separate;border-spacing:0">
-            <thead>
-              <tr><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Nível</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Porte</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Turnos</th><th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Etapa mais alta</th></tr>
-            </thead>
-            <tbody>
-              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[1]};vertical-align:middle;margin-right:6px"></span>1</td><td style="padding:5px 8px;border-bottom:1px solid #eee">< 50</td><td style="padding:5px 8px;border-bottom:1px solid #eee">1</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ed. Infantil / AI</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[2]};vertical-align:middle;margin-right:6px"></span>2</td><td style="padding:5px 8px;border-bottom:1px solid #eee">50–300</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ed. Infantil / AI</td></tr>
-              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[3]};vertical-align:middle;margin-right:6px"></span>3</td><td style="padding:5px 8px;border-bottom:1px solid #eee">50–500</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Anos Finais</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[4]};vertical-align:middle;margin-right:6px"></span>4</td><td style="padding:5px 8px;border-bottom:1px solid #eee">150–1.000</td><td style="padding:5px 8px;border-bottom:1px solid #eee">2–3</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Ens. Médio / Prof.</td></tr>
-              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[5]};vertical-align:middle;margin-right:6px"></span>5</td><td style="padding:5px 8px;border-bottom:1px solid #eee">150–1.000</td><td style="padding:5px 8px;border-bottom:1px solid #eee">3</td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#666">Com EJA</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:5px 8px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ICG_COLORS[6]};vertical-align:middle;margin-right:6px"></span>6</td><td style="padding:5px 8px">> 500</td><td style="padding:5px 8px">3</td><td style="padding:5px 8px;color:#666">4+ etapas + EJA</td></tr>
-            </tbody>
-          </table>
-        </div>
+        </details>
+        <p style="font-size:9px;margin:12px 0 0;color:#999;line-height:1.5;font-style:italic">
+          Fonte: INEP — Nota Técnica nº 40/2014 (Indicador de Complexidade de Gestão da Escola).
+        </p>
       </div>
     </div>
 
@@ -6277,6 +7217,15 @@ function renderIcg() {
   bindTopbarFilters();
   bindRedeToggle();
   updateActiveFilters();
+
+  // Bind chevron animation for "Saiba mais" ICG
+  const icgDetails = document.getElementById('icg-saiba-mais');
+  if (icgDetails) {
+    icgDetails.addEventListener('toggle', () => {
+      const chevron = document.getElementById('icg-chevron');
+      if (chevron) chevron.style.transform = icgDetails.open ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -6296,8 +7245,8 @@ const AFD_GROUPS = {
 const AFD_ETAPAS = [
   { key: 'ed_inf', label: 'Ed. Infantil', short: 'Infantil' },
   { key: 'fund_total', label: 'Fundamental (Total)', short: 'Fund.' },
-  { key: 'fund_ai', label: 'Fund. Anos Iniciais', short: 'AI' },
-  { key: 'fund_af', label: 'Fund. Anos Finais', short: 'AF' },
+  { key: 'fund_ai', label: 'Anos Iniciais', short: 'Anos Iniciais' },
+  { key: 'fund_af', label: 'Anos Finais', short: 'Anos Finais' },
   { key: 'medio', label: 'Ensino Médio', short: 'Médio' },
   { key: 'eja_fund', label: 'EJA Fundamental', short: 'EJA F' },
   { key: 'eja_medio', label: 'EJA Médio', short: 'EJA M' },
@@ -6461,10 +7410,27 @@ function renderAfd() {
     <div class="map-table-row d1">
       <div class="map-container">
         <div class="map-toolbar">
-          <h3>Mapa — % G1 Fundamental <span id="afd-map-ano">${anoSel}</span></h3>
-          <div class="map-layer-toggle">
-            <button class="map-layer-btn active" id="afd-btn-layer-mun">Municípios</button>
-            <button class="map-layer-btn" id="afd-btn-layer-cre">CREs</button>
+          <h3>Mapa AFD — <span id="afd-map-ano">${anoSel}</span></h3>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <select id="sel-afd-map-grupo" style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid #ddd;font-family:Inter">
+              <option value="g1" selected>Grupo 1 (Adequado)</option>
+              <option value="g2">Grupo 2</option>
+              <option value="g3">Grupo 3</option>
+              <option value="g4">Grupo 4</option>
+              <option value="g5">Grupo 5 (Inadequado)</option>
+            </select>
+            <select id="sel-afd-map-etapa" style="font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid #ddd;font-family:Inter">
+              <option value="fund_total" selected>Fund. Total</option>
+              <option value="fund_ai">Anos Iniciais</option>
+              <option value="fund_af">Anos Finais</option>
+              <option value="medio">Médio</option>
+              <option value="eja_fund">EJA Fund.</option>
+              <option value="eja_medio">EJA Médio</option>
+            </select>
+            <div class="map-layer-toggle">
+              <button class="map-layer-btn active" id="afd-btn-layer-mun">Municípios</button>
+              <button class="map-layer-btn" id="afd-btn-layer-cre">CREs</button>
+            </div>
           </div>
         </div>
         <div id="afd-map-leaflet" style="height:380px;border-radius:8px"></div>
@@ -6655,7 +7621,7 @@ function renderAfd() {
     { min: 30,  max: 50, color: '#FB8C00', label: '30–50%' },
     { min: 50,  max: 70, color: '#FFCB04', label: '50–70%' },
     { min: 70,  max: 85, color: '#66BB6A', label: '70–85%' },
-    { min: 85,  max: 101, color: '#2E7D32', label: '> 85% (Adequado)' },
+    { min: 85,  max: 101, color: '#2874A6', label: '> 85% (Adequado)' },
   ];
   function getAfdColor(v) {
     for (const b of AFD_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
@@ -6667,6 +7633,10 @@ function renderAfd() {
     const mapEl = document.getElementById('afd-map-leaflet');
     if (!mapEl) return;
     const munData = afd.por_municipio[anoSel] || {};
+    const grp = document.getElementById('sel-afd-map-grupo')?.value || 'g1';
+    const etapa = document.getElementById('sel-afd-map-etapa')?.value || 'fund_total';
+    const ETAPA_LABELS = { fund_total: 'Fund.', fund_ai: 'Anos Iniciais', fund_af: 'Anos Finais', medio: 'Médio', eja_fund: 'EJA Fund.', eja_medio: 'EJA Médio' };
+    const GRP_LABELS = { g1: 'G1', g2: 'G2', g3: 'G3', g4: 'G4', g5: 'G5' };
 
     destroyMap();
     S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
@@ -6678,13 +7648,12 @@ function renderAfd() {
     info.update = function (props, md) {
       if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
       const nome = props.nome || props.cod_mun;
-      if (!md || !md.fund_total) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados AFD</div>`; return; }
+      const etd = md?.[etapa];
+      if (!etd) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados AFD</div>`; return; }
       this._div.innerHTML = `
         <h4>${nome}</h4>
         <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.total_escolas}</span></div>
-        <div class="info-row"><span class="info-label">G1 Fund.</span><span class="info-value" style="color:#43A047">${md.fund_total?.g1?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">G1 Médio</span><span class="info-value" style="color:#43A047">${md.medio?.g1?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">G5</span><span class="info-value" style="color:#E53935">${md.fund_total?.g5?.toFixed(1) ?? '—'}%</span></div>
+        ${['g1','g2','g3','g4','g5'].map(g => `<div class="info-row"><span class="info-label">${GRP_LABELS[g]} ${ETAPA_LABELS[etapa]}</span><span class="info-value" style="color:${AFD_GROUPS[g]?.color || '#333'}">${etd[g]?.toFixed(1) ?? '—'}%</span></div>`).join('')}
       `;
     };
     info.addTo(S.map);
@@ -6693,7 +7662,7 @@ function renderAfd() {
       style: feature => {
         const cod = feature.properties.cod_mun?.substring(0, 7);
         const md = munData[cod];
-        const v = md?.fund_total?.g1 || 0;
+        const v = md?.[etapa]?.[grp] || 0;
         return { fillColor: v > 0 ? getAfdColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
       },
       onEachFeature: (feature, layer) => {
@@ -6710,7 +7679,7 @@ function renderAfd() {
     const legend = L.control({ position: 'bottomleft' });
     legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<h4>% G1 Fund. (Adequado)</h4>' +
+      div.innerHTML = `<h4>% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]}</h4>` +
         AFD_MAP_BREAKS.slice().reverse().map(b =>
           `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
         ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
@@ -6726,16 +7695,21 @@ function renderAfd() {
     if (!S.creGeo || !S.map) return;
     if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
     if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    const grp = document.getElementById('sel-afd-map-grupo')?.value || 'g1';
+    const etapa = document.getElementById('sel-afd-map-etapa')?.value || 'fund_total';
+    const ETAPA_LABELS = { fund_total: 'Fund.', fund_ai: 'Anos Iniciais', fund_af: 'Anos Finais', medio: 'Médio', eja_fund: 'EJA Fund.', eja_medio: 'EJA Médio' };
+    const GRP_LABELS = { g1: 'G1', g2: 'G2', g3: 'G3', g4: 'G4', g5: 'G5' };
     const munToCre = S.creLookup?.mun_to_cre || {};
     const munData = afd.por_municipio[anoSel] || {};
     const creData = {};
     for (const [cod, v] of Object.entries(munData)) {
       const cre = munToCre[cod]?.cod_cre;
       if (!cre) continue;
-      if (!creData[cre]) creData[cre] = { sumG1: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
-      if (v.fund_total?.g1 != null) { creData[cre].sumG1 += v.fund_total.g1; creData[cre].count++; }
+      if (!creData[cre]) creData[cre] = { sumVal: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
+      const val = v?.[etapa]?.[grp];
+      if (val != null) { creData[cre].sumVal += val; creData[cre].count++; }
     }
-    for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumG1 / c.count : 0;
+    for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sumVal / c.count : 0;
 
     S.mapLayer = L.geoJSON(S.creGeo, {
       style: feature => {
@@ -6747,7 +7721,7 @@ function renderAfd() {
         const cod = feature.properties.cod_cre;
         const nome = feature.properties.nome_cre || cod;
         const d = creData[cod];
-        layer.bindTooltip(`<strong>${nome}</strong><br>G1 Fund.: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
+        layer.bindTooltip(`<strong>${nome}</strong><br>${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]}: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
         layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
       }
     }).addTo(S.map);
@@ -6755,7 +7729,7 @@ function renderAfd() {
     const creLegend = L.control({ position: 'bottomleft' });
     creLegend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<h4>% G1 Fund. (CREs)</h4>' +
+      div.innerHTML = `<h4>% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]} (CREs)</h4>` +
         AFD_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
       return div;
     };
@@ -6819,6 +7793,14 @@ function renderAfd() {
       afdBuildCreMap();
     });
   }
+
+  // Bind AFD map selects
+  const afdUpdateActiveMap = () => {
+    const afdBtnCre2 = document.getElementById('afd-btn-layer-cre');
+    if (afdBtnCre2?.classList.contains('active')) { afdBuildCreMap(); } else { afdBuildMap(); }
+  };
+  document.getElementById('sel-afd-map-grupo')?.addEventListener('change', afdUpdateActiveMap);
+  document.getElementById('sel-afd-map-etapa')?.addEventListener('change', afdUpdateActiveMap);
 
   // Re-populate topbar filters
   const selAno = document.getElementById('sel-ano');
@@ -7079,7 +8061,7 @@ function renderTdi() {
 
   // ── Map: TDI by municipality ──
   const TDI_MAP_BREAKS = [
-    { min: 0,   max: 5,  color: '#2E7D32', label: '< 5% (Excelente)' },
+    { min: 0,   max: 5,  color: '#2874A6', label: '< 5% (Excelente)' },
     { min: 5,   max: 10, color: '#66BB6A', label: '5–10%' },
     { min: 10,  max: 15, color: '#FFCB04', label: '10–15%' },
     { min: 15,  max: 20, color: '#FB8C00', label: '15–20%' },
@@ -7110,8 +8092,8 @@ function renderTdi() {
       this._div.innerHTML = `
         <h4>${nome}</h4>
         <div class="info-row"><span class="info-label">TDI Fund.</span><span class="info-value" style="color:${getTdiColor(md.tdi_fund||0)}">${md.tdi_fund?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">TDI AI</span><span class="info-value">${md.tdi_ai?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">TDI AF</span><span class="info-value">${md.tdi_af?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">TDI Anos Iniciais</span><span class="info-value">${md.tdi_ai?.toFixed(1) ?? '—'}%</span></div>
+        <div class="info-row"><span class="info-label">TDI Anos Finais</span><span class="info-value">${md.tdi_af?.toFixed(1) ?? '—'}%</span></div>
         <div class="info-row"><span class="info-label">TDI Médio</span><span class="info-value" style="color:${getTdiColor(md.tdi_med||0)}">${md.tdi_med?.toFixed(1) ?? '—'}%</span></div>
         <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.n_escolas || '—'}</span></div>
       `;
@@ -7208,7 +8190,7 @@ function renderTdi() {
       return tdiSortAsc ? va - vb : vb - va;
     });
 
-    const colorFn = v => v == null ? '#999' : v > 20 ? '#E53935' : v > 15 ? '#FB8C00' : v > 10 ? '#FFCB04' : v > 5 ? '#66BB6A' : '#2E7D32';
+    const colorFn = v => v == null ? '#999' : v > 20 ? '#E53935' : v > 15 ? '#FB8C00' : v > 10 ? '#FFCB04' : v > 5 ? '#66BB6A' : '#2874A6';
 
     tbody.innerHTML = entries.map((md, i) => `
       <tr style="cursor:pointer" data-cod="${md.cod}">
@@ -7289,6 +8271,9 @@ function initNav() {
         S.munSel = null;
         S.creSel = null;
         S.etapaSel = null;
+        S.anoSel = null;  // Reset to latest year
+        S.mapMode = 'mun';
+        S.saersMapMode = null;
       }
       S._currentView = view;
 
@@ -7302,6 +8287,7 @@ function initNav() {
       else if (view === 'docencia' && S.doc) { renderDocencia(); }
       else if (view === 'desempenho') { renderSaeb(); }
       else if (view === 'saeb') { renderSaeb(); }
+      else if (view === 'saers' && S.saersData) { renderSaers(); }
       else if (view === 'ideb') { renderIdeb(); }
       else if (view === 'inse') { renderInse(); }
       else if (view === 'icg') { renderIcg(); }
@@ -7440,6 +8426,8 @@ function buildEdEspecial(d, anos, anoSel) {
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_BAR },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...ccData) * 1.15 } } }
       }));
+    } else {
+      etapaEl.parentElement.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#888;font-size:12px;text-align:center;gap:6px"><span style="font-size:20px">📋</span><span>Desagregação da Ed. Especial por etapa<br>disponível apenas a partir de <strong>2025</strong></span><span style="font-size:10px;color:#aaa">INEP — Tabela de Matrículas</span></div>`;
     }
   }
 }
@@ -7490,7 +8478,7 @@ function buildIntegralPct(d) {
 
   // Series config
   const seriesConfig = [
-    { key: 'agregado', label: 'Fund. + Médio', color: '#005A32' },
+    { key: 'agregado', label: 'Fund. + Médio', color: '#0D3B66' },
     { key: 'fundamental', label: 'Fundamental', color: COLORS.fundAI },
     { key: 'medio', label: 'Médio', color: COLORS.medio || '#FF6F00' },
   ];
@@ -7690,6 +8678,318 @@ function buildLocDif() {
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// MATRÍCULAS POR SÉRIE
+// ══════════════════════════════════════════════════════════
+function buildPorSerie(d, anoSel) {
+  // Get data source considering geo-filters (municipality > CRE > state)
+  let ps = null;
+  if (S.munSel) {
+    ps = d.por_municipio?.[anoSel]?.[S.munSel]?.por_serie;
+  } else if (S.creSel) {
+    // Aggregate por_serie across CRE municipalities
+    const creMuns = getCreMuns(S.creSel);
+    const munYear = d.por_municipio?.[anoSel];
+    if (munYear) {
+      const agg = {};
+      for (const cod of creMuns) {
+        const munPs = munYear[cod]?.por_serie;
+        if (!munPs) continue;
+        for (const [k, v] of Object.entries(munPs)) {
+          agg[k] = (agg[k] || 0) + (v || 0);
+        }
+      }
+      if (Object.keys(agg).length > 0) ps = agg;
+    }
+  } else {
+    ps = d.serie_temporal?.[anoSel]?.por_serie;
+  }
+
+  const c1 = document.getElementById('chart-serie-fund');
+  const c2 = document.getElementById('chart-serie-med');
+
+  // Fallback: data not available for this year (pre-2023)
+  if (!ps) {
+    const anoNum = parseInt(anoSel);
+    if (c1) c1.parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:250px;color:var(--text-sec);font-size:12px;text-align:center;padding:20px">
+      <div><span style="font-size:24px;opacity:.4">📊</span><br><strong>Dados por série</strong> disponíveis apenas a partir de <strong>2023</strong>.<br><span style="font-size:10px;opacity:.7">Os microdados do Censo Escolar ${anoNum <= 2022 ? anoNum : ''} não incluem essa desagregação.</span></div>
+    </div>`;
+    if (c2) c2.parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:250px;color:var(--text-sec);font-size:12px;text-align:center;padding:20px">
+      <div><span style="font-size:24px;opacity:.4">📊</span><br><strong>Dados por série</strong> disponíveis apenas a partir de <strong>2023</strong>.</div>
+    </div>`;
+    return;
+  }
+
+  // Fundamental
+  const fundCols = ['QT_MAT_FUND_AI_1','QT_MAT_FUND_AI_2','QT_MAT_FUND_AI_3','QT_MAT_FUND_AI_4','QT_MAT_FUND_AI_5',
+                    'QT_MAT_FUND_AF_6','QT_MAT_FUND_AF_7','QT_MAT_FUND_AF_8','QT_MAT_FUND_AF_9'];
+  const fundLabels = ['1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano'];
+  const fundData = fundCols.map(c => ps[c] || 0);
+  const fundColors = fundCols.map((c, i) => i < 5 ? COLORS.pri + 'CC' : COLORS.estadual + '99');
+
+  if (c1 && fundData.some(v => v > 0)) {
+    S.charts.push(new Chart(c1, {
+      type: 'bar',
+      data: {
+        labels: fundLabels,
+        datasets: [{
+          label: 'Matrículas',
+          data: fundData,
+          backgroundColor: fundColors,
+          borderColor: fundCols.map((c, i) => i < 5 ? COLORS.pri : COLORS.estadual),
+          borderWidth: 1.5, borderRadius: 4,
+        }]
+      },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_BAR },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: Math.max(...fundData) * 1.18 } }
+      }
+    }));
+  }
+
+  // Médio
+  const medCols = ['QT_MAT_MED_PROP_1','QT_MAT_MED_PROP_2','QT_MAT_MED_PROP_3','QT_MAT_MED_PROP_4'];
+  const medLabels = ['1ª Série','2ª Série','3ª Série','4ª Série'];
+  const medData = medCols.map(c => ps[c] || 0);
+
+  if (c2 && medData.some(v => v > 0)) {
+    S.charts.push(new Chart(c2, {
+      type: 'bar',
+      data: {
+        labels: medLabels,
+        datasets: [{
+          label: 'Matrículas',
+          data: medData,
+          backgroundColor: [COLORS.red + 'CC', COLORS.red + 'AA', COLORS.red + '88', COLORS.red + '66'],
+          borderColor: COLORS.red,
+          borderWidth: 1.5, borderRadius: 4,
+        }]
+      },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_BAR },
+        scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: Math.max(...medData) * 1.18 } }
+      }
+    }));
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// EDUCAÇÃO PROFISSIONAL E TÉCNICA
+// ══════════════════════════════════════════════════════════
+function buildProfissional(d, anos, anoSel) {
+  // Profissional sub-categories with keys matching detalhes_prof
+  const PROF_KEYS = ['integrado', 'subsequente', 'concomitante', 'eja_tec'];
+  const PROF_LABELS = { integrado: 'Integrado ao EM', subsequente: 'Subsequente', concomitante: 'Concomitante', eja_tec: 'EJA Técnico' };
+  const PROF_QT = { integrado: 'QT_MAT_MED_IFTP_CT', subsequente: 'QT_MAT_PROF_TEC_SUBS', concomitante: 'QT_MAT_PROF_TEC_CONC', eja_tec: 'QT_MAT_EJA_MED_TEC' };
+  const PROF_COLORS = { integrado: COLORS.pri, subsequente: COLORS.red, concomitante: COLORS.yellow, eja_tec: '#6A1B9A' };
+
+  // Helper: get profissional data for a year considering geo-filter
+  function getProfYearData(a) {
+    if (S.munSel) {
+      return d.por_municipio?.[a]?.[S.munSel] || null;
+    } else if (S.creSel) {
+      const creMuns = getCreMuns(S.creSel);
+      const munYear = d.por_municipio?.[a];
+      if (!munYear) return null;
+      const agg = { mat_prof: 0, mat_prof_tec: 0, detalhes_prof: {} };
+      for (const cod of creMuns) {
+        const md = munYear[cod];
+        if (!md) continue;
+        agg.mat_prof += (md.mat_prof || 0);
+        agg.mat_prof_tec += (md.mat_prof_tec || 0);
+        if (md.detalhes_prof) {
+          for (const [k, v] of Object.entries(md.detalhes_prof)) {
+            agg.detalhes_prof[k] = (agg.detalhes_prof[k] || 0) + (v || 0);
+          }
+        }
+      }
+      return agg;
+    }
+    return d.serie_temporal?.[a] || null;
+  }
+
+  // Evolução temporal (filtered by profSel)
+  const c1 = document.getElementById('chart-prof-evo');
+  if (c1) {
+    let datasets;
+    const titleEl = document.getElementById('title-prof-evo');
+    if (S.profSel && PROF_LABELS[S.profSel]) {
+      // Show only the selected sub-category over time
+      const qtKey = PROF_QT[S.profSel];
+      const selData = anos.map(a => getProfYearData(a)?.detalhes_prof?.[qtKey] || 0);
+      datasets = [{
+        label: PROF_LABELS[S.profSel],
+        data: selData,
+        borderColor: PROF_COLORS[S.profSel],
+        backgroundColor: PROF_COLORS[S.profSel] + '22',
+        fill: true, tension: 0.3, pointRadius: 3, borderWidth: 2.5,
+      }];
+      if (titleEl) titleEl.textContent = `${PROF_LABELS[S.profSel]} — Evolução`;
+    } else {
+      // Default: Ed. Profissional Total + Cursos Técnicos
+      const profData = anos.map(a => getProfYearData(a)?.mat_prof || 0);
+      const tecData = anos.map(a => getProfYearData(a)?.mat_prof_tec || 0);
+      datasets = [
+        {
+          label: 'Ed. Profissional — INEP (QT_MAT_PROF)',
+          data: profData,
+          borderColor: COLORS.pri,
+          backgroundColor: COLORS.pri + '22',
+          fill: true, tension: 0.3, pointRadius: 3, borderWidth: 2.5,
+        },
+        {
+          label: 'Cursos Técnicos — INEP (QT_MAT_PROF_TEC)',
+          data: tecData,
+          borderColor: COLORS.red,
+          backgroundColor: 'transparent',
+          tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [5, 3],
+        }
+      ];
+      if (titleEl) titleEl.textContent = 'Matrículas na Ed. Profissional — Evolução';
+    }
+    if (datasets[0].data.some(v => v > 0)) {
+      S.charts.push(new Chart(c1, {
+        type: 'line',
+        data: { labels: anos, datasets },
+        options: {
+          ...CHART_DEFAULTS,
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true } }
+        }
+      }));
+    }
+  }
+
+  // Composição (bar chart with click-to-filter) - ano selecionado
+  const c2 = document.getElementById('chart-prof-comp');
+  const dp = getProfYearData(anoSel)?.detalhes_prof;
+  if (c2 && dp) {
+    const conc = dp.QT_MAT_PROF_TEC_CONC || 0;
+    const subs = dp.QT_MAT_PROF_TEC_SUBS || 0;
+    const integrado = dp.QT_MAT_MED_IFTP_CT || 0;
+    const ejaTec = dp.QT_MAT_EJA_MED_TEC || 0;
+
+    const labels = ['Integrado ao EM', 'Subsequente', 'Concomitante', 'EJA Técnico'];
+    const data = [integrado, subs, conc, ejaTec];
+    const keys = ['integrado', 'subsequente', 'concomitante', 'eja_tec'];
+    const colors = [COLORS.pri, COLORS.red, COLORS.yellow, '#6A1B9A'];
+
+    if (data.some(v => v > 0)) {
+      S.charts.push(new Chart(c2, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `Composição ${anoSel}`,
+            data: data,
+            backgroundColor: keys.map((k, i) => S.profSel && S.profSel !== k ? colors[i] + '33' : colors[i] + 'CC'),
+            borderColor: keys.map((k, i) => S.profSel && S.profSel !== k ? colors[i] + '55' : colors[i]),
+            borderWidth: keys.map(k => S.profSel === k ? 3 : 1.5),
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          onHover: CLICKABLE_HOVER,
+          onClick: (evt, elements) => {
+            if (!elements.length) return;
+            const idx = elements[0].index;
+            const clickedKey = keys[idx];
+            S.profSel = S.profSel === clickedKey ? null : clickedKey;
+            renderAcesso();
+          },
+          plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_BAR },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...data) * 1.18 } }
+        }
+      }));
+    } else {
+      c2.parentElement.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:#888;font-size:12px;text-align:center;gap:6px"><span style="font-size:20px">🏭</span><span>Composição da Ed. Profissional<br>disponível a partir de <strong>2023</strong></span><span style="font-size:10px;color:#aaa">INEP — Microdados do Censo Escolar</span></div>`;
+    }
+  } else if (c2 && !dp) {
+    c2.parentElement.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:#888;font-size:12px;text-align:center;gap:6px"><span style="font-size:20px">🏭</span><span>Composição da Ed. Profissional<br>disponível a partir de <strong>2023</strong></span><span style="font-size:10px;color:#aaa">INEP — Microdados do Censo Escolar</span></div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// MATRÍCULAS POR TURNO POR ETAPA
+// ══════════════════════════════════════════════════════════
+function buildTurnoEtapa(d, anoSel) {
+  // Get data source considering geo-filters
+  let pt = null;
+  if (S.munSel) {
+    pt = d.por_municipio?.[anoSel]?.[S.munSel]?.por_turno;
+  } else if (S.creSel) {
+    const creMuns = getCreMuns(S.creSel);
+    const munYear = d.por_municipio?.[anoSel];
+    if (munYear) {
+      const agg = {};
+      for (const cod of creMuns) {
+        const munPt = munYear[cod]?.por_turno;
+        if (!munPt) continue;
+        for (const [k, v] of Object.entries(munPt)) {
+          agg[k] = (agg[k] || 0) + (v || 0);
+        }
+      }
+      if (Object.keys(agg).length > 0) pt = agg;
+    }
+  } else {
+    pt = d.serie_temporal?.[anoSel]?.por_turno;
+  }
+  const c = document.getElementById('chart-turno-etapa');
+  if (!c) return;
+  if (!pt) {
+    c.parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:280px;color:#999;font-size:12px">Dados indisponíveis para ${anoSel}</div>`;
+    return;
+  }
+
+  const etapas = ['Fund. AI', 'Fund. AF', 'Ensino Médio', 'Ed. Profissional', 'EJA'];
+  const diurnoCols = ['QT_MAT_FUND_AI_D', 'QT_MAT_FUND_AF_D', 'QT_MAT_MED_D', 'QT_MAT_PROF_D', 'QT_MAT_EJA_D'];
+  const noturnoCols = ['QT_MAT_FUND_AI_N', 'QT_MAT_FUND_AF_N', 'QT_MAT_MED_N', 'QT_MAT_PROF_N', 'QT_MAT_EJA_N'];
+
+  const diurnoData = diurnoCols.map(c => pt[c] || 0);
+  const noturnoData = noturnoCols.map(c => pt[c] || 0);
+
+  if (diurnoData.some(v => v > 0) || noturnoData.some(v => v > 0)) {
+    S.charts.push(new Chart(c, {
+      type: 'bar',
+      data: {
+        labels: etapas,
+        datasets: [
+          {
+            label: 'Diurno',
+            data: diurnoData,
+            backgroundColor: COLORS.yellow + 'CC',
+            borderColor: COLORS.yellow,
+            borderWidth: 1.5, borderRadius: 4,
+          },
+          {
+            label: 'Noturno',
+            data: noturnoData,
+            backgroundColor: '#1A237E' + 'CC',
+            borderColor: '#1A237E',
+            borderWidth: 1.5, borderRadius: 4,
+          }
+        ]
+      },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          datalabels: DL_BAR,
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: Math.max(...diurnoData, ...noturnoData) * 1.18 }
+        }
+      }
+    }));
+  } else {
+    c.parentElement.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px;color:#888;font-size:12px;text-align:center;gap:6px"><span style="font-size:20px">🕐</span><span>Desagregação Diurno vs Noturno por etapa<br>disponível apenas a partir de <strong>2025</strong></span><span style="font-size:10px;color:#aaa">INEP — Tabela de Matrículas</span></div>`;
+  }
+}
+
+
 function buildCreLayer(anoSel, metric) {
   if (!S.creGeo || !S.map) return;
   if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
@@ -7712,7 +9012,7 @@ function buildCreLayer(anoSel, metric) {
 
   const values = Object.values(creData).map(v => v.total).filter(v => v > 0);
   const maxVal = values.length ? Math.max(...values) : 1;
-  const CRE_SCALE = ['#C7E9C0', '#74C476', '#41AB5D', '#238B45', '#005A32'];
+  const CRE_SCALE = ['#c5d5e4', '#8fb3d1', '#5a91bd', '#3576a9', '#0D3B66'];
   const breaks = [0, 0.2, 0.4, 0.6, 0.8].map(t => Math.round(t * maxVal));
 
   function getColor(v) {
@@ -7769,7 +9069,11 @@ function bindMapMetric(d, anos) {
     selMetric.addEventListener('change', () => {
       const anoSel = S.anoSel || anos[anos.length - 1];
       if (S.mapMode === 'cre') buildCreLayer(anoSel, selMetric.value);
-      else buildMap(d, anoSel, selMetric.value);
+      else {
+        buildMap(d, anoSel, selMetric.value);
+        // Re-highlight selected municipality after redraw
+        if (S.munSel) zoomToMunicipality(S.munSel);
+      }
     });
   }
 
@@ -7780,12 +9084,151 @@ function bindMapMetric(d, anos) {
     btnMun.addEventListener('click', () => {
       S.mapMode = 'mun';
       btnMun.classList.add('active'); btnCre.classList.remove('active');
-      buildMap(d, S.anoSel || anos[anos.length - 1], selMetric?.value || 'mat_total');
+      const btnEsc = document.getElementById('btn-layer-esc');
+      if (btnEsc) btnEsc.classList.remove('active');
+      const anoSel = S.anoSel || anos[anos.length - 1];
+      buildMap(d, anoSel, selMetric?.value || 'mat_total');
+      buildMunTable(d, anoSel);
     });
     btnCre.addEventListener('click', () => {
       S.mapMode = 'cre';
       btnCre.classList.add('active'); btnMun.classList.remove('active');
-      buildCreLayer(S.anoSel || anos[anos.length - 1], selMetric?.value || 'mat_total');
+      const btnEsc = document.getElementById('btn-layer-esc');
+      if (btnEsc) btnEsc.classList.remove('active');
+      const anoSel = S.anoSel || anos[anos.length - 1];
+      buildCreLayer(anoSel, selMetric?.value || 'mat_total');
+      buildMunTable(d, anoSel);
+    });
+
+    // Escolas button
+    const btnEsc = document.getElementById('btn-layer-esc');
+    if (btnEsc) {
+      btnEsc.addEventListener('click', () => {
+        S.mapMode = 'esc';
+        btnMun.classList.remove('active'); btnCre.classList.remove('active'); btnEsc.classList.add('active');
+        const anoSel = S.anoSel || anos[anos.length - 1];
+        buildEscolaLayer(d, anoSel);
+      });
+    }
+  }
+}
+
+/** Renders school points on the existing Leaflet map and school table */
+function buildEscolaLayer(d, anoSel) {
+  if (!S.map) return;
+  // Remove existing layers
+  if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+  if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+  // Load escola data
+  const ed = S.escolasData;
+  if (!ed || !ed.escolas || !ed.escolas.length) {
+    // Show message in table
+    const titleEl = document.querySelector('#mun-table-wrapper .table-header h3');
+    if (titleEl) titleEl.textContent = 'Tabela de Escolas';
+    const tbody = document.getElementById('mun-tbody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#999">Dados de escolas não carregados</td></tr>';
+    return;
+  }
+
+  const escolas = ed.escolas;
+  const lookup = d.lookup_municipios || {};
+
+  // Filter by CRE and/or Municipality
+  let filtered = escolas;
+  if (S.creSel) filtered = filtered.filter(e => e.cre === S.creSel);
+  if (S.munSel) filtered = filtered.filter(e => String(e.cod_mun) === String(S.munSel));
+
+  const withCoords = filtered.filter(e => e.lat && e.lng);
+
+  // Add CircleMarkers
+  const markers = L.featureGroup();
+  withCoords.forEach(e => {
+    const marker = L.circleMarker([e.lat, e.lng], {
+      radius: 4, fillColor: COLORS.pri, color: '#fff', weight: 1, fillOpacity: 0.8,
+    });
+    marker.bindPopup(`
+      <div style="font-family:Inter;min-width:220px">
+        <strong style="font-size:12px">${e.nome}</strong><br>
+        <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''} — INEP: ${e.inep || ''}</span>
+        <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
+        <div style="font-size:10px;line-height:1.6">
+          ${e.mat_total != null ? `<div><strong>Total Matrículas:</strong> ${formatNum(e.mat_total)}</div>` : ''}
+          ${e.mat_fund != null && e.mat_fund > 0 ? `<span style="display:inline-block;background:#0097A722;padding:1px 5px;border-radius:3px;margin:1px">Fund: <strong>${formatNum(e.mat_fund)}</strong></span>` : ''}
+          ${e.mat_medio != null && e.mat_medio > 0 ? `<span style="display:inline-block;background:#EE302F22;padding:1px 5px;border-radius:3px;margin:1px">Médio: <strong>${formatNum(e.mat_medio)}</strong></span>` : ''}
+          ${e.mat_eja != null && e.mat_eja > 0 ? `<span style="display:inline-block;background:#1565C022;padding:1px 5px;border-radius:3px;margin:1px">EJA: <strong>${formatNum(e.mat_eja)}</strong></span>` : ''}
+          ${e.mat_tecnico != null && e.mat_tecnico > 0 ? `<span style="display:inline-block;background:#6A1B9A22;padding:1px 5px;border-radius:3px;margin:1px">Técnico: <strong>${formatNum(e.mat_tecnico)}</strong></span>` : ''}
+        </div>
+        ${(e.ideb_af != null || e.icg_nivel != null || e.tdi_fund != null) ? `
+        <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
+        <div style="font-size:9px;display:grid;grid-template-columns:1fr 1fr;gap:2px;color:#666">
+          ${e.icg_nivel != null ? `<span>ICG: <strong>${e.icg_nivel}</strong></span>` : ''}
+          ${e.ideb_af != null ? `<span>IDEB AF: <strong>${e.ideb_af}</strong></span>` : ''}
+          ${e.tdi_fund != null ? `<span>TDI: <strong>${(e.tdi_fund).toFixed(1)}%</strong></span>` : ''}
+        </div>` : ''}
+      </div>
+    `, { maxWidth: 280 });
+    markers.addLayer(marker);
+  });
+  markers.addTo(S.map);
+  S.mapLayer = markers;
+
+  // Fit bounds
+  if (withCoords.length > 0) {
+    S.map.fitBounds(markers.getBounds(), { padding: [20, 20] });
+  }
+
+  // Build escola table
+  const titleEl = document.querySelector('#mun-table-wrapper .table-header h3');
+  if (titleEl) titleEl.textContent = 'Tabela de Escolas';
+
+  const thead = document.querySelector('#mun-table thead tr');
+  if (thead) thead.innerHTML = '<th>#</th><th>Escola</th><th>Município</th><th>Total</th><th>Fund.</th><th>Médio</th><th>EJA</th><th>Técnico</th>';
+
+  const sorted = [...filtered].sort((a, b) => (b.mat_total || 0) - (a.mat_total || 0));
+  const tbody = document.getElementById('mun-tbody');
+  tbody.innerHTML = sorted.map((e, i) => `
+    <tr data-lat="${e.lat || ''}" data-lng="${e.lng || ''}" data-inep="${e.inep || ''}" data-cod-mun="${e.cod_mun || ''}" style="cursor:pointer">
+      <td>${i + 1}</td>
+      <td><strong style="font-size:10px">${e.nome}</strong></td>
+      <td style="font-size:10px">${e.municipio || lookup[e.cod_mun] || ''}</td>
+      <td>${formatNum(e.mat_total || 0)}</td>
+      <td>${formatNum(e.mat_fund || 0)}</td>
+      <td>${formatNum(e.mat_medio || 0)}</td>
+      <td>${formatNum(e.mat_eja || 0)}</td>
+      <td>${formatNum(e.mat_tecnico || 0)}</td>
+    </tr>
+  `).join('');
+
+  // Click escola row → zoom to school and open popup
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const lat = parseFloat(tr.dataset.lat);
+      const lng = parseFloat(tr.dataset.lng);
+      if (!isNaN(lat) && !isNaN(lng) && S.map) {
+        S.map.flyTo([lat, lng], 14, { duration: 0.5 });
+        // Find matching marker and open popup
+        markers.eachLayer(m => {
+          if (Math.abs(m.getLatLng().lat - lat) < 0.001 && Math.abs(m.getLatLng().lng - lng) < 0.001) {
+            m.openPopup();
+          }
+        });
+      }
+    });
+  });
+
+  // Search
+  const searchEl = document.getElementById('mun-search');
+  if (searchEl) {
+    const newSearch = searchEl.cloneNode(true);
+    searchEl.parentNode.replaceChild(newSearch, searchEl);
+    newSearch.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const nome = tr.children[1]?.textContent.toLowerCase() || '';
+        const mun = tr.children[2]?.textContent.toLowerCase() || '';
+        tr.style.display = (nome.includes(q) || mun.includes(q)) ? '' : 'none';
+      });
     });
   }
 }
@@ -8122,7 +9565,7 @@ function renderEscolas() {
 
       <!-- Table -->
       <div class="chart-card" style="padding:12px 16px">
-        <div class="chart-title" style="margin-bottom:8px">Ranking de Escolas</div>
+        <div class="chart-title" style="margin-bottom:8px">Tabela de Escolas</div>
         <div id="escola-table-wrap" style="max-height:450px;overflow:auto">
           <table id="escola-table" style="width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px;table-layout:fixed;min-width:900px">
             <thead id="escola-table-head"></thead>
@@ -8222,13 +9665,13 @@ function renderEscolas() {
           <table style="font-size:10px;width:100%;border-collapse:collapse">
       `;
       const rows = [
-        { label: 'IDEB AI', val: e.ideb_ai, fmt: v => v.toFixed(1) },
-        { label: 'IDEB AF', val: e.ideb_af, fmt: v => v.toFixed(1) },
-        { label: 'IDEB EM', val: e.ideb_em, fmt: v => v.toFixed(1) },
+        { label: 'IDEB Anos Iniciais', val: e.ideb_ai, fmt: v => v.toFixed(1) },
+        { label: 'IDEB Anos Finais', val: e.ideb_af, fmt: v => v.toFixed(1) },
+        { label: 'IDEB Ensino Médio', val: e.ideb_em, fmt: v => v.toFixed(1) },
         { label: 'TDI Fund.', val: e.tdi_fund, fmt: v => v.toFixed(1) + '%' },
-        { label: 'TDI AI', val: e.tdi_ai, fmt: v => v.toFixed(1) + '%' },
-        { label: 'TDI AF', val: e.tdi_af, fmt: v => v.toFixed(1) + '%' },
-        { label: 'TDI Médio', val: e.tdi_med, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI Anos Iniciais', val: e.tdi_ai, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI Anos Finais', val: e.tdi_af, fmt: v => v.toFixed(1) + '%' },
+        { label: 'TDI Ensino Médio', val: e.tdi_med, fmt: v => v.toFixed(1) + '%' },
         { label: 'INSE', val: e.inse_media, fmt: v => v.toFixed(1), extra: e.inse_nivel ? ` (${e.inse_nivel})` : '' },
         { label: 'ICG', val: e.icg_nivel, fmt: v => `Nível ${v}` },
         { label: 'Salas', val: e.salas, fmt: v => v },
@@ -8255,12 +9698,12 @@ function renderEscolas() {
       { key: 'nome', label: 'Escola', align: 'left', fmt: v => v, w: null, text: true },
       { key: 'municipio', label: 'Município', align: 'left', fmt: v => v, w: null, text: true },
       { key: 'cre', label: 'CRE', align: 'center', fmt: v => v + 'ª', w: '44px' },
-      { key: 'ideb_ai', label: 'IDEB AI', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
-      { key: 'ideb_af', label: 'IDEB AF', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
-      { key: 'ideb_em', label: 'IDEB EM', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
-      { key: 'tdi_ai', label: 'TDI AI', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
-      { key: 'tdi_af', label: 'TDI AF', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
-      { key: 'tdi_med', label: 'TDI Méd', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '58px', higher: false },
+      { key: 'ideb_ai', label: 'IDEB Anos Iniciais', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'ideb_af', label: 'IDEB Anos Finais', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'ideb_em', label: 'IDEB Ensino Médio', align: 'center', fmt: v => v?.toFixed(1), w: '56px', higher: true },
+      { key: 'tdi_ai', label: 'TDI Anos Iniciais', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
+      { key: 'tdi_af', label: 'TDI Anos Finais', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '56px', higher: false },
+      { key: 'tdi_med', label: 'TDI Ensino Médio', align: 'center', fmt: v => v?.toFixed(1) + '%', w: '58px', higher: false },
       { key: 'inse_media', label: 'INSE', align: 'center', fmt: v => v?.toFixed(1), w: '48px', higher: true },
       { key: 'icg_nivel', label: 'ICG', align: 'center', fmt: v => 'N' + v, w: '40px', higher: false },
     ];
@@ -8364,6 +9807,945 @@ function renderEscolas() {
 }
 
 // ══════════════════════════════════════════════════════════
+// SEÇÃO: SAERS — Avaliação Estadual do RS
+// ══════════════════════════════════════════════════════════
+
+function renderSaers() {
+  const main = document.getElementById('main-content');
+  destroyCharts(); destroyMap();
+  document.body.classList.remove('sidebar-hidden');
+
+  const sd = S.saersData;
+  if (!sd || !sd.anos || !sd.anos.length) {
+    main.innerHTML = `<div class="placeholder-view">
+      <div style="font-size:40px;opacity:.3">📝</div>
+      <div style="font-size:15px;font-weight:600">SAERS</div>
+      <div style="font-size:11px;opacity:.7">Dados não disponíveis</div>
+    </div>`;
+    return;
+  }
+
+  const ETAPAS = ['2_EF', '5_EF', '9_EF', '3_EM'];
+  const ETAPA_LABELS = sd.etapa_labels;
+  const DISCS = ['LP', 'MT'];
+  const DISC_LABELS = sd.disc_labels;
+  const PADRAO_KEYS = ['avancado', 'adequado', 'basico', 'abaixo'];
+  const PADRAO_LABELS = sd.padrao_labels;
+  const PADRAO_DESC = sd.padrao_desc;
+  const PADRAO_COLORS = { avancado: '#00AB4E', adequado: '#0097A7', basico: '#FFCB04', abaixo: '#EE302F' };
+  const ETAPA_COLORS = { '2_EF': '#FFCB04', '5_EF': '#0097A7', '9_EF': '#F57C00', '3_EM': '#EE302F' };
+
+  const anos = sd.anos.map(a => a.ano);
+  const anoSel = S.anoSel && anos.includes(parseInt(S.anoSel)) ? parseInt(S.anoSel) : anos[anos.length - 1];
+
+  const FONTE_SAERS = 'Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul';
+
+  // Helper: get geral data
+  const getGeral = (yearData, etapa, disc) => yearData?.geral?.[`${etapa}_${disc}`] || {};
+
+  // Helper: get SAERS year data considering geo filters
+  function getSaersYearData(ano) {
+    const yd = sd.anos.find(a => a.ano === ano);
+    if (!yd) return null;
+    if (S.munSel && yd.por_municipio) {
+      const munData = yd.por_municipio[S.munSel];
+      if (!munData) return null;
+      // Build a geral-like object from municipality data
+      const result = { geral: {} };
+      ETAPAS.forEach(etapa => {
+        DISCS.forEach(disc => {
+          const key = `${etapa}_${disc}`;
+          if (munData[key]) result.geral[key] = munData[key];
+        });
+      });
+      return result;
+    }
+    if (S.creSel && yd.por_cre) {
+      const creData = yd.por_cre[S.creSel];
+      if (!creData) return null;
+      const result = { geral: {} };
+      ETAPAS.forEach(etapa => {
+        DISCS.forEach(disc => {
+          const key = `${etapa}_${disc}`;
+          if (creData[key]) result.geral[key] = creData[key];
+        });
+      });
+      return result;
+    }
+    return yd;
+  }
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', 'Sistema de Avaliação do Rendimento Escolar do RS', { redeToggle: false })}
+      <div class="kpi-strip" id="saers-kpis"></div>
+    </div>
+
+    <!-- ═══ BLOCO INFORMATIVO: O que é o SAERS? ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+      <span class="section-divider-text">O que é o SAERS?</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(13,59,102,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f6f9fc 0%,#eef2f7 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/sec_saeb.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Definição</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            O <strong>SAERS (Sistema de Avaliação do Rendimento Escolar do RS)</strong> é um conjunto de
+            instrumentos que visa a fornecer evidências sobre a educação pública gaúcha, com o objetivo
+            de <strong>qualificar a educação básica</strong> e subsidiar ações pedagógicas e de gestão.
+          </p>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <img src="img/icons/sec_evolucao.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Abrangência</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
+            O SAERS avalia o desempenho dos estudantes da rede pública estadual e das redes públicas
+            municipais do Rio Grande do Sul, nos componentes curriculares de <strong>Língua Portuguesa</strong>
+            e de <strong>Matemática</strong>, abrangendo os <strong>497 municípios</strong> do RS, nas jurisdições
+            das <strong>30 Coordenadorias Regionais de Educação (CRE)</strong>.
+          </p>
+          <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
+              <strong style="color:#E65100">📋 Instrumentos:</strong> Os principais instrumentos de coleta de
+              evidências no SAERS são <strong>testes cognitivos</strong> de Língua Portuguesa e Matemática e
+              <strong>questionários contextuais</strong> — perfil escola, diretor, professor e estudante.
+            </p>
+          </div>
+          <p style="font-size:9px;margin:10px 0 0;color:#999;line-height:1.5;font-style:italic">
+            Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul.
+          </p>
+        </div>
+        <div style="padding:20px 24px;border-left:1px solid rgba(13,59,102,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/panorama.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Padrões de Desempenho</span>
+          </div>
+          <p style="font-size:11px;margin:0 0 10px;color:#555;line-height:1.6">
+            O SAERS classifica os estudantes em 4 padrões de desempenho conforme sua proficiência:
+          </p>
+          <table style="width:100%;font-size:10px;border-collapse:separate;border-spacing:0;margin-bottom:12px">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Padrão</th>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#00AB4E;margin-right:5px;vertical-align:middle"></span><strong>Avançado</strong></td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Desenvolvimento além do esperado. Precisam de estímulos para continuar avançando.</td>
+              </tr>
+              <tr style="background:#fafbfc">
+                <td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0097A7;margin-right:5px;vertical-align:middle"></span><strong>Adequado</strong></td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Consolidaram habilidades previstas. Requerem ações para aprofundar a aprendizagem.</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#FFCB04;margin-right:5px;vertical-align:middle"></span><strong>Básico</strong></td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Ainda não desenvolveram adequadamente as habilidades essenciais. Demandam reforço.</td>
+              </tr>
+              <tr style="background:#fafbfc">
+                <td style="padding:5px 8px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#EE302F;margin-right:5px;vertical-align:middle"></span><strong>Abaixo do Básico</strong></td>
+                <td style="padding:5px 8px;color:#555">Carência de aprendizagem para habilidades mínimas. Necessitam recuperação.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="background:rgba(13,59,102,.05);border:1px solid rgba(13,59,102,.12);border-radius:6px;padding:10px 14px">
+            <p style="font-size:10.5px;margin:0;color:#0D3B66;line-height:1.7">
+              <strong>Nota:</strong> O SAERS utiliza a <strong>Teoria de Resposta ao Item (TRI)</strong> para o
+              cálculo da proficiência, garantindo comparabilidade entre edições. Os padrões de desempenho
+              são definidos pelo <strong>CAED/UFJF</strong> com base nos pontos de corte estabelecidos para cada etapa.
+            </p>
+          </div>
+          <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
+            <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
+              <strong>Etapas avaliadas:</strong> 2º ano EF (alfabetização), 5º ano EF, 9º ano EF e
+              3ª série do Ensino Médio.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Proficiência Média por Etapa ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+      <span class="section-divider-text">Proficiência Média por Etapa — <span id="saers-kpi-ano">${anoSel}</span></span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="saers-kpi-cards"></div>
+
+    <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
+    <div class="section-divider" style="margin-top:20px">
+      <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+      <span class="section-divider-text">Proficiência SAERS — Série Histórica (${anos[0]}–${anos[anos.length-1]})</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1;font-size:10px;color:var(--text-sec);font-style:italic;margin:-4px 0 2px;padding-left:2px">💡 Clique na legenda para mostrar / ocultar os referidos dados.</div>
+      <div class="chart-card">
+        <div class="chart-title">2º ano EF — Evolução LP e MT</div>
+        <div style="height:260px"><canvas id="chart-saers-2ef"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">5º ano EF — Evolução LP e MT</div>
+        <div style="height:260px"><canvas id="chart-saers-5ef"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">9º ano EF — Evolução LP e MT</div>
+        <div style="height:260px"><canvas id="chart-saers-9ef"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">3ª série EM — Evolução LP e MT</div>
+        <div style="height:260px"><canvas id="chart-saers-3em"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Comparativo entre Edições ═══ -->
+    <div class="section-divider" style="margin-top:20px">
+      <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+      <span class="section-divider-text">Comparativo entre Edições</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+          <div id="saers-comp-title-lp" class="chart-title" style="margin:0">Língua Portuguesa — Comparativo</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
+            <label>Ano base:</label>
+            <select id="sel-saers-comp-base" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
+              ${anos.map(a => `<option value="${a}" ${a === anos[0] ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+            <label>vs</label>
+            <select id="sel-saers-comp-end" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
+              ${anos.map(a => `<option value="${a}" ${a === anos[anos.length-1] ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div style="height:220px"><canvas id="chart-saers-comp-lp"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+      <div class="chart-card">
+        <div id="saers-comp-title-mt" class="chart-title">Matemática — Comparativo</div>
+        <div style="height:220px"><canvas id="chart-saers-comp-mt"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Padrão de Desempenho ═══ -->
+    <div class="section-divider" style="margin-top:20px">
+      <span class="section-divider-icon"><img src="img/icons/nav_ideb.png" alt=""></span>
+      <span class="section-divider-text">Padrão de Desempenho — <span id="saers-padrao-ano">${anoSel}</span></span>
+      <span class="section-divider-line"></span>
+    </div>
+
+
+
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title" id="saers-padrao-lp-title">Distribuição — Língua Portuguesa — ${anoSel}</div>
+        <div style="height:250px"><canvas id="chart-saers-padrao-lp"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title" id="saers-padrao-mt-title">Distribuição — Matemática — ${anoSel}</div>
+        <div style="height:250px"><canvas id="chart-saers-padrao-mt"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+    </div>
+
+    <!-- ═══ EIXO: Distribuição Territorial ═══ -->
+    <div class="section-divider" style="margin-top:20px">
+      <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="map-table-row">
+      <div class="map-container">
+        <div class="map-toolbar">
+          <h3>Mapa SAERS — <span id="saers-map-ano">${anoSel}</span></h3>
+          <div class="map-layer-toggle">
+            <button class="map-layer-btn active" id="saers-btn-layer-mun">Municípios</button>
+            <button class="map-layer-btn" id="saers-btn-layer-cre">CREs</button>
+          </div>
+          <select id="sel-saers-map-metric" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
+            <option value="LP">Proficiência LP</option>
+            <option value="MT">Proficiência MT</option>
+            <option value="pctLP">% Adeq.+Av. LP</option>
+            <option value="pctMT">% Adeq.+Av. MT</option>
+          </select>
+          <select id="sel-saers-map-etapa" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
+            ${ETAPAS.map(e => `<option value="${e}">${ETAPA_LABELS[e]}</option>`).join('')}
+          </select>
+        </div>
+        <div id="map-leaflet"></div>
+      </div>
+      <div class="table-wrapper" id="saers-table-wrapper">
+        <div class="table-header">
+          <h3>Tabela por Município</h3>
+          <input type="text" class="table-search" id="saers-mun-search" placeholder="Buscar...">
+        </div>
+        <div style="max-height:500px;overflow-y:auto">
+          <table class="data-table" id="saers-mun-table">
+            <thead><tr>
+              <th>#</th><th>Município</th><th>Prof. LP</th><th>Prof. MT</th><th>% Adeq.+Av. LP</th><th>% Adeq.+Av. MT</th><th>Avaliados</th>
+            </tr></thead>
+            <tbody id="saers-mun-tbody"></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_SAERS}</div>
+      </div>
+    </div>
+
+
+
+  `;
+
+  // ── Populate banner filters ──
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
+    S.anoSel = String(anoSel);
+  }
+  // Populate CRE dropdown
+  const selCre = document.getElementById('sel-cre');
+  if (selCre && sd.anos[0]?.cre_lookup) {
+    selCre.innerHTML = '<option value="">Todas</option>' +
+      Object.entries(sd.anos[0].cre_lookup)
+        .sort(([a],[b]) => a.localeCompare(b))
+        .map(([cod, nome]) => `<option value="${cod}" ${S.creSel === cod ? 'selected' : ''}>${nome}</option>`).join('');
+  }
+  // Populate municipality dropdown from SAERS data
+  if (sd.anos[0]?.mun_lookup) {
+    const munInput = document.getElementById('mun-search-input');
+    const munDd = document.getElementById('mun-dropdown-list');
+    if (munInput && munDd) {
+      const munEntries = Object.entries(sd.anos[0].mun_lookup).sort((a,b) => a[1].localeCompare(b[1]));
+      munDd.innerHTML = munEntries.map(([cod, nome]) => `<div class="mun-dropdown-item" data-cod="${cod}">${nome}</div>`).join('');
+      munInput.addEventListener('focus', () => { munDd.style.display = 'block'; });
+      munInput.addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        munDd.querySelectorAll('.mun-dropdown-item').forEach(item => {
+          item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+        munDd.style.display = 'block';
+      });
+      munDd.addEventListener('click', e => {
+        const item = e.target.closest('.mun-dropdown-item');
+        if (!item) return;
+        S.munSel = item.dataset.cod;
+        munInput.value = item.textContent;
+        munDd.style.display = 'none';
+        buildSaersAll(sd);
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('#mun-search-wrapper')) munDd.style.display = 'none';
+      });
+      if (S.munSel) {
+        munInput.value = sd.anos[0].mun_lookup[S.munSel] || '';
+      }
+    }
+  }
+
+  // ── Bind banner filter events ──
+  selAno?.addEventListener('change', e => {
+    S.anoSel = e.target.value;
+    buildSaersAll(sd);
+  });
+  selCre?.addEventListener('change', e => {
+    S.creSel = e.target.value || null;
+    S.munSel = null;
+    const mi = document.getElementById('mun-search-input');
+    if (mi) mi.value = '';
+    buildSaersAll(sd);
+  });
+
+  // Search in table
+  document.getElementById('saers-mun-search')?.addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('#saers-mun-tbody tr').forEach(tr => {
+      const nome = tr.children[1]?.textContent.toLowerCase() || '';
+      tr.style.display = nome.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Bind map metric/etapa selects
+  document.getElementById('sel-saers-map-metric')?.addEventListener('change', () => buildSaersMap(sd));
+  document.getElementById('sel-saers-map-etapa')?.addEventListener('change', () => buildSaersMap(sd));
+
+  // Map layer toggle (Municípios / CREs)
+  const saersBtnMun = document.getElementById('saers-btn-layer-mun');
+  const saersBtnCre = document.getElementById('saers-btn-layer-cre');
+  if (saersBtnMun && saersBtnCre) {
+    saersBtnMun.addEventListener('click', () => {
+      S.saersMapMode = 'mun';
+      saersBtnMun.classList.add('active'); saersBtnCre.classList.remove('active');
+      buildSaersMap(sd);
+    });
+    saersBtnCre.addEventListener('click', () => {
+      S.saersMapMode = 'cre';
+      saersBtnCre.classList.add('active'); saersBtnMun.classList.remove('active');
+      buildSaersMap(sd);
+    });
+  }
+
+  // ── Build all ──
+  updateActiveFilters();
+  buildSaersAll(sd);
+}
+
+function buildSaersAll(sd) {
+  destroyCharts();
+  destroyMap();
+
+  const ETAPAS = ['2_EF', '5_EF', '9_EF', '3_EM'];
+  const ETAPA_LABELS = sd.etapa_labels;
+  const DISCS = ['LP', 'MT'];
+  const DISC_LABELS = sd.disc_labels;
+  const PADRAO_KEYS = ['avancado', 'adequado', 'basico', 'abaixo'];
+  const PADRAO_LABELS = sd.padrao_labels;
+  const PADRAO_COLORS = { avancado: '#00AB4E', adequado: '#0097A7', basico: '#FFCB04', abaixo: '#EE302F' };
+  const ETAPA_COLORS = { '2_EF': '#FFCB04', '5_EF': '#0097A7', '9_EF': '#F57C00', '3_EM': '#EE302F' };
+
+  const anos = sd.anos.map(a => a.ano);
+  const anoSel = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
+  const yearData = sd.anos.find(a => a.ano === anoSel) || sd.anos[sd.anos.length - 1];
+  const getGeral = (yd, etapa, disc) => yd?.geral?.[`${etapa}_${disc}`] || {};
+  const etapaFilt = '';  // No separate etapa filter in SAERS (we show all)
+
+  // ── Helper: get SAERS year data considering geo ──
+  function getSaersYearData(ano) {
+    const yd = sd.anos.find(a => a.ano === ano);
+    if (!yd) return null;
+    if (S.munSel && yd.por_municipio) {
+      const munData = yd.por_municipio[S.munSel];
+      if (!munData) return null;
+      const result = { geral: {} };
+      ETAPAS.forEach(etapa => { DISCS.forEach(disc => {
+        const key = `${etapa}_${disc}`;
+        if (munData[key]) result.geral[key] = munData[key];
+      }); });
+      return result;
+    }
+    if (S.creSel && yd.por_cre) {
+      const creData = yd.por_cre[S.creSel];
+      if (!creData) return null;
+      const result = { geral: {} };
+      ETAPAS.forEach(etapa => { DISCS.forEach(disc => {
+        const key = `${etapa}_${disc}`;
+        if (creData[key]) result.geral[key] = creData[key];
+      }); });
+      return result;
+    }
+    return yd;
+  }
+
+  // ── Update year labels ──
+  const kpiAnoLabel = document.getElementById('saers-kpi-ano');
+  if (kpiAnoLabel) kpiAnoLabel.textContent = anoSel;
+  const padraoAnoLabel = document.getElementById('saers-padrao-ano');
+  if (padraoAnoLabel) padraoAnoLabel.textContent = anoSel;
+  const mapAnoLabel = document.getElementById('saers-map-ano');
+  if (mapAnoLabel) mapAnoLabel.textContent = anoSel;
+
+  // ── 1. KPI Cards (like SAEB: with delta vs previous year) ──
+  const curYearData = getSaersYearData(anoSel);
+  // Find previous year
+  const anoIdx = anos.indexOf(anoSel);
+  const prevAno = anoIdx > 0 ? anos[anoIdx - 1] : null;
+  const prevYearData = prevAno ? getSaersYearData(prevAno) : null;
+
+  const kpis = [];
+  const etapaAccents = { '2_EF': 'green', '5_EF': 'blue', '9_EF': 'green', '3_EM': 'red' };
+  const etapaIcons = { '2_EF': 'img/icons/fundamental.png', '5_EF': 'img/icons/fundamental.png', '9_EF': 'img/icons/fundamental.png', '3_EM': 'img/icons/medio.png' };
+  // Reorder KPIs: LP row first (top), MT row second (bottom) × 4 etapas columns
+  // Layout: 4 columns × 2 rows = [2EF-LP, 5EF-LP, 9EF-LP, 3EM-LP, 2EF-MT, 5EF-MT, 9EF-MT, 3EM-MT]
+  ['LP', 'MT'].forEach(disc => {
+    ETAPAS.forEach(etapa => {
+      const cur = curYearData?.geral?.[`${etapa}_${disc}`];
+      const prev = prevYearData?.geral?.[`${etapa}_${disc}`];
+      if (!cur?.proficiencia) return;
+      kpis.push({
+        label: `${ETAPA_LABELS[etapa]} — ${DISC_LABELS[disc]}`,
+        val: cur.proficiencia,
+        pctAA: cur.padrao?.pct_adequado_avancado,
+        prevVal: prev?.proficiencia || null,
+        accent: disc === 'LP' ? 'green' : 'blue',
+        icon: etapaIcons[etapa],
+        etapa, disc,
+      });
+    });
+  });
+
+  const kpiContainer = document.getElementById('saers-kpi-cards');
+  if (kpiContainer) {
+    kpiContainer.innerHTML = kpis.map((k, i) => {
+      const delta = (k.val != null && k.prevVal != null) ? (k.val - k.prevVal) : null;
+      const cls = delta !== null ? (delta >= 0 ? 'up' : 'down') : '';
+      const arrow = delta !== null ? (delta >= 0 ? '↑' : '↓') : '';
+      // Sparkline across all years
+      const sparkVals = anos.map(a => {
+        const yd = getSaersYearData(a);
+        return yd?.geral?.[`${k.etapa}_${k.disc}`]?.proficiencia || 0;
+      }).filter(v => v > 0);
+      const sparkMax = Math.max(...sparkVals, 1);
+      const sparkMin = Math.min(...sparkVals);
+      const sparkRange = sparkMax - sparkMin || 1;
+      const sparkPts = sparkVals.map((v, j) => `${(j / Math.max(sparkVals.length - 1, 1)) * 58 + 1},${23 - ((v - sparkMin) / sparkRange) * 20}`).join(' ');
+      const sparkColor = k.accent === 'green' ? COLORS.pri : k.accent === 'blue' ? '#1565C0' : COLORS.red;
+      const sparkline = `<svg class="kpi-sparkline" viewBox="0 0 60 24" width="60" height="24"><polyline points="${sparkPts}" fill="none" stroke="${sparkColor}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+      return `
+      <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="">
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">${k.val?.toFixed(1) ?? '—'}</span>
+          ${sparkline}
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-delta ${cls}">${arrow} ${delta !== null ? (delta >= 0 ? '+' : '') + delta.toFixed(1) + 'pts' : ''}</span>
+          <span class="kpi-abs">${prevAno ? 'vs ' + prevAno : ''}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 2. Line Charts: one per etapa with LP + MT lines ──
+  const DISC_COLORS = { LP: '#0D47A1', MT: '#EE302F' };
+  const ETAPA_CANVASES = { '2_EF': 'chart-saers-2ef', '5_EF': 'chart-saers-5ef', '9_EF': 'chart-saers-9ef', '3_EM': 'chart-saers-3em' };
+
+  function buildSaersEtapaChart(etapa) {
+    const el = document.getElementById(ETAPA_CANVASES[etapa]);
+    if (!el) return;
+    const datasets = DISCS.map(disc => {
+      const data = anos.map(a => {
+        const yd = getSaersYearData(a);
+        return yd?.geral?.[`${etapa}_${disc}`]?.proficiencia || null;
+      });
+      return {
+        label: DISC_LABELS[disc],
+        data: data,
+        borderColor: DISC_COLORS[disc],
+        backgroundColor: DISC_COLORS[disc] + '18',
+        fill: false,
+        tension: 0.3,
+        pointRadius: 5,
+        borderWidth: 2.5,
+        spanGaps: true,
+      };
+    });
+    S.charts.push(new Chart(el, {
+      type: 'line',
+      data: { labels: anos, datasets },
+      options: {
+        ...CHART_DEFAULTS,
+        layout: { padding: { top: 28 } },
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: {
+            display: true, position: 'top',
+            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 14, usePointStyle: true },
+          },
+          datalabels: {
+            display: true,
+            anchor: ctx => ctx.datasetIndex === 0 ? 'end' : 'start',
+            align: ctx => ctx.datasetIndex === 0 ? 'top' : 'bottom',
+            offset: 6,
+            font: { family: 'Inter', size: 10, weight: '700' },
+            color: ctx => Object.values(DISC_COLORS)[ctx.datasetIndex],
+            formatter: v => v?.toFixed(1) ?? '',
+          },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false,
+            ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 20 } }
+        }
+      }
+    }));
+  }
+
+  ETAPAS.forEach(et => buildSaersEtapaChart(et));
+
+  // Aliases for compatibility with comparativo/padrão sections
+  const etapas = ETAPAS;
+  const etapaLabels = ETAPAS.map(e => ETAPA_LABELS[e]);
+  const etapaCores = ETAPAS.map(e => ETAPA_COLORS[e]);
+
+  // ── 3. Comparativo entre Edições (like SAEB) ──
+  function buildSaersCompCharts(anoBase, anoComp) {
+    S.charts = S.charts.filter(c => {
+      if (c.canvas?.id === 'chart-saers-comp-lp' || c.canvas?.id === 'chart-saers-comp-mt') { c.destroy(); return false; }
+      return true;
+    });
+
+    const ydBase = getSaersYearData(anoBase);
+    const ydComp = getSaersYearData(anoComp);
+
+    ['LP', 'MT'].forEach(disc => {
+      const canvasId = disc === 'LP' ? 'chart-saers-comp-lp' : 'chart-saers-comp-mt';
+      const el = document.getElementById(canvasId);
+      if (!el) return;
+
+      const labels = etapaLabels;
+      const dataBase = etapas.map(et => ydBase?.geral?.[`${et}_${disc}`]?.proficiencia || 0);
+      const dataComp = etapas.map(et => ydComp?.geral?.[`${et}_${disc}`]?.proficiencia || 0);
+      const deltas = dataComp.map((v, i) => v > 0 && dataBase[i] > 0 ? v - dataBase[i] : null);
+
+      S.charts.push(new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: String(anoBase), data: dataBase, backgroundColor: 'rgba(180,180,180,.5)', borderColor: '#999', borderWidth: 1, borderRadius: 4, barPercentage: .7 },
+            { label: String(anoComp), data: dataComp, backgroundColor: COLORS.pri + 'CC', borderColor: COLORS.pri, borderWidth: 1, borderRadius: 4, barPercentage: .7 },
+          ]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          layout: { padding: { top: 24 } },
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: {
+              display: true,
+              labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10 },
+            },
+            datalabels: {
+              display: true, anchor: 'end', align: 'top', offset: 3,
+              font: { family: 'Inter', size: 11, weight: '700' },
+              color: (ctx) => {
+                if (ctx.datasetIndex === 1 && deltas[ctx.dataIndex] !== null) {
+                  return deltas[ctx.dataIndex] >= 0 ? '#2874A6' : '#C62828';
+                }
+                return '#333';
+              },
+              formatter: (v, ctx) => {
+                if (ctx.datasetIndex === 1 && deltas[ctx.dataIndex] !== null) {
+                  const d = deltas[ctx.dataIndex];
+                  return v.toFixed(0) + ' (' + (d >= 0 ? '+' : '') + d.toFixed(1) + ')';
+                }
+                return v > 0 ? v.toFixed(0) : '';
+              },
+            },
+          },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false,
+            ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 20 } } }
+        }
+      }));
+    });
+
+    // Update titles
+    const titleLp = document.getElementById('saers-comp-title-lp');
+    if (titleLp) titleLp.textContent = `Língua Portuguesa — ${anoBase} vs ${anoComp}`;
+    const titleMt = document.getElementById('saers-comp-title-mt');
+    if (titleMt) titleMt.textContent = `Matemática — ${anoBase} vs ${anoComp}`;
+  }
+
+  buildSaersCompCharts(anos[0], anos[anos.length - 1]);
+
+  // Bind comparativo selectors
+  const selCompBase = document.getElementById('sel-saers-comp-base');
+  const selCompEnd = document.getElementById('sel-saers-comp-end');
+  if (selCompBase && selCompEnd) {
+    const onCompChange = () => buildSaersCompCharts(parseInt(selCompBase.value), parseInt(selCompEnd.value));
+    selCompBase.addEventListener('change', onCompChange);
+    selCompEnd.addEventListener('change', onCompChange);
+  }
+
+  // ── 4. Padrão de Desempenho LP and MT ──
+  const padraoLpTitle = document.getElementById('saers-padrao-lp-title');
+  if (padraoLpTitle) padraoLpTitle.textContent = `Distribuição — Língua Portuguesa — ${anoSel}`;
+  const padraoMtTitle = document.getElementById('saers-padrao-mt-title');
+  if (padraoMtTitle) padraoMtTitle.textContent = `Distribuição — Matemática — ${anoSel}`;
+
+  ['LP', 'MT'].forEach(disc => {
+    const elId = disc === 'LP' ? 'chart-saers-padrao-lp' : 'chart-saers-padrao-mt';
+    const el = document.getElementById(elId);
+    if (!el) return;
+
+    const labels = etapaLabels;
+    const datasets = PADRAO_KEYS.map(p => ({
+      label: PADRAO_LABELS[p],
+      data: etapas.map(e => {
+        const g = curYearData?.geral?.[`${e}_${disc}`];
+        if (!g?.padrao) return 0;
+        const total = PADRAO_KEYS.reduce((s, k) => s + (g.padrao[k] || 0), 0);
+        return total > 0 ? round2((g.padrao[p] || 0) / total * 100) : 0;
+      }),
+      backgroundColor: PADRAO_COLORS[p] + 'CC',
+      borderColor: PADRAO_COLORS[p],
+      borderWidth: 1,
+      borderRadius: 2,
+    }));
+
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: { labels, datasets },
+      options: {
+        ...CHART_DEFAULTS,
+        scales: {
+          x: { ...CHART_DEFAULTS.scales.x, stacked: true },
+          y: { ...CHART_DEFAULTS.scales.y, stacked: true, max: 100, ticks: { callback: v => v + '%' } },
+        },
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: true, position: 'bottom', labels: { font: { size: 9 }, boxWidth: 12, padding: 6 } },
+          datalabels: {
+            display: true, color: '#fff', font: { size: 9, weight: 700, family: 'Inter' },
+            formatter: v => v >= 5 ? v.toFixed(0) + '%' : '',
+          },
+        }
+      }
+    }));
+  });
+
+  // ── 5. Municipality Table ──
+  buildSaersMunTable(yearData, '');
+
+  // ── 6. Map ──
+  buildSaersMap(sd);
+
+  // ── Inject export buttons ──
+  injectExportButtons();
+  updateActiveFilters();
+}
+
+function buildSaersMap(sd) {
+  if (S.map) { S.map.remove(); S.map = null; S.mapLayer = null; }
+  if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+
+  const mapEl = document.getElementById('map-leaflet');
+  if (!mapEl || !S.geo) return;
+
+  const anos = sd.anos.map(a => a.ano);
+  const anoSel = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
+  const yearData = sd.anos.find(a => a.ano === anoSel) || sd.anos[sd.anos.length - 1];
+  if (!yearData?.por_municipio) return;
+
+  const ETAPAS = ['2_EF', '5_EF', '9_EF', '3_EM'];
+  const metric = document.getElementById('sel-saers-map-metric')?.value || 'LP';
+  const etapa = document.getElementById('sel-saers-map-etapa')?.value || '5_EF';
+  const disc = (metric === 'LP' || metric === 'pctLP') ? 'LP' : 'MT';
+  const key = `${etapa}_${disc}`;
+  const isPct = metric.startsWith('pct');
+
+  const ETAPA_LABELS = sd.etapa_labels;
+  const metricLabel = isPct ? '% Adeq.+Av.' : 'Proficiência';
+  const discLabel = disc;
+
+  const isCre = S.saersMapMode === 'cre';
+
+  // Build data map: cod -> value
+  const dataMap = {};
+  const vals = [];
+
+  if (isCre && yearData.por_cre) {
+    // CRE mode: use por_cre data directly (pad codes to match GeoJSON)
+    for (const [codCre, creData] of Object.entries(yearData.por_cre)) {
+      const d = creData[key];
+      if (!d) continue;
+      const val = isPct ? d.padrao?.pct_adequado_avancado : d.proficiencia;
+      const paddedCode = codCre.padStart(2, '0');
+      if (val != null) { dataMap[paddedCode] = val; vals.push(val); }
+    }
+  } else {
+    // Municipality mode
+    for (const [cod, munData] of Object.entries(yearData.por_municipio)) {
+      const d = munData[key];
+      if (!d) continue;
+      const val = isPct ? d.padrao?.pct_adequado_avancado : d.proficiencia;
+      if (val != null) { dataMap[cod] = val; vals.push(val); }
+    }
+  }
+
+  if (vals.length === 0) return;
+
+  // Use the standard MAP_SCALE from the Acesso section (8 levels)
+  vals.sort((a, b) => a - b);
+  const breaks = [];
+  for (let i = 0; i < MAP_SCALE.length; i++) {
+    const idx = Math.min(Math.floor((i / MAP_SCALE.length) * vals.length), vals.length - 1);
+    breaks.push(vals[idx]);
+  }
+
+  function getClr(v) {
+    if (v == null) return '#f0f0f0';
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      if (v >= breaks[i]) return MAP_SCALE[i];
+    }
+    return MAP_SCALE[0];
+  }
+
+  S.map = L.map(mapEl).setView([-29.8, -53.5], 6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB © OSM',
+    maxZoom: 18,
+  }).addTo(S.map);
+
+  const lookup = yearData.mun_lookup || {};
+  const creLookupRaw = yearData.cre_lookup || {};
+  const creLookup = {};
+  for (const [k, v] of Object.entries(creLookupRaw)) {
+    creLookup[k.padStart(2, '0')] = v;
+  }
+
+  if (isCre && S.creGeo) {
+    // CRE layer
+    S.mapLayer = L.geoJSON(S.creGeo, {
+      style: feature => {
+        const codCre = String(feature.properties.cod_cre || feature.properties.CD_GEOCODR || '');
+        const val = dataMap[codCre];
+        return { fillColor: getClr(val), weight: 1.5, color: '#fff', fillOpacity: 0.8 };
+      },
+      onEachFeature: (feature, layer) => {
+        const codCre = String(feature.properties.cod_cre || feature.properties.CD_GEOCODR || '');
+        const nome = creLookup[codCre] || feature.properties.nome || codCre;
+        const val = dataMap[codCre];
+        layer.bindTooltip(`<strong>${nome}</strong><br>${metricLabel} ${discLabel} (${ETAPA_LABELS[etapa]}): ${val != null ? (isPct ? val.toFixed(1) + '%' : val.toFixed(1)) : 'Sem dados'}`, {
+          sticky: true, className: 'map-tooltip',
+        });
+      }
+    }).addTo(S.map);
+  } else {
+    // Municipality layer (no labels on polygons)
+    S.mapLayer = L.geoJSON(S.geo, {
+      style: feature => {
+        const cod = String(feature.properties.cod_mun);
+        const val = dataMap[cod];
+        return { fillColor: getClr(val), weight: 0.8, color: '#fff', fillOpacity: 0.85 };
+      },
+      onEachFeature: (feature, layer) => {
+        const cod = String(feature.properties.cod_mun);
+        const nome = lookup[cod] || feature.properties.nome || cod;
+        const val = dataMap[cod];
+        layer.bindTooltip(`<strong>${nome}</strong><br>${metricLabel} ${discLabel} (${ETAPA_LABELS[etapa]}): ${val != null ? (isPct ? val.toFixed(1) + '%' : val.toFixed(1)) : 'Sem dados'}`, {
+          sticky: true, className: 'map-tooltip',
+        });
+        layer.on('click', () => {
+          S.munSel = cod;
+          const mi = document.getElementById('mun-search-input');
+          if (mi) mi.value = nome;
+          buildSaersAll(sd);
+        });
+      }
+    }).addTo(S.map);
+  }
+
+  // Legend
+  S.mapLegend = L.control({ position: 'bottomright' });
+  S.mapLegend.onAdd = () => {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `<strong>${metricLabel} ${discLabel}</strong><br>` +
+      MAP_SCALE.map((c, i) => {
+        const from = i === 0 ? 'Menor' : breaks[i]?.toFixed(isPct ? 1 : 0);
+        const to = i < MAP_SCALE.length - 1 ? breaks[i + 1]?.toFixed(isPct ? 1 : 0) : 'Maior';
+        return `<i style="background:${c}"></i> ${from}–${to}`;
+      }).join('<br>') +
+      `<br><i style="background:#f0f0f0"></i> Sem dados`;
+    return div;
+  };
+  S.mapLegend.addTo(S.map);
+
+  // No CRE overlay on SAERS municipality map (cleaner visualization)
+}
+
+
+function round2(v) { return Math.round(v * 100) / 100; }
+
+function buildSaersMunTable(yearData, etapaFilt) {
+  const ETAPAS = ['2_EF', '5_EF', '9_EF', '3_EM'];
+  const etapas = etapaFilt ? [etapaFilt] : ETAPAS;
+  const tbody = document.getElementById('saers-mun-tbody');
+  if (!tbody || !yearData.por_municipio) return;
+
+  // Aggregate LP and MT across selected etapas per municipality
+  const rows = Object.entries(yearData.por_municipio).map(([cod, munData]) => {
+    let lpSum = 0, lpN = 0, mtSum = 0, mtN = 0;
+    let lpAA = 0, lpTotal = 0, mtAA = 0, mtTotal = 0;
+    let avaliados = 0;
+
+    etapas.forEach(etapa => {
+      const lp = munData[`${etapa}_LP`];
+      if (lp) {
+        if (lp.proficiencia != null) { lpSum += lp.proficiencia * lp.n_proficiencia; lpN += lp.n_proficiencia; }
+        if (lp.padrao) {
+          lpAA += (lp.padrao.avancado || 0) + (lp.padrao.adequado || 0);
+          lpTotal += (lp.padrao.avancado || 0) + (lp.padrao.adequado || 0) + (lp.padrao.basico || 0) + (lp.padrao.abaixo || 0);
+        }
+        avaliados += lp.avaliados || 0;
+      }
+      const mt = munData[`${etapa}_MT`];
+      if (mt) {
+        if (mt.proficiencia != null) { mtSum += mt.proficiencia * mt.n_proficiencia; mtN += mt.n_proficiencia; }
+        if (mt.padrao) {
+          mtAA += (mt.padrao.avancado || 0) + (mt.padrao.adequado || 0);
+          mtTotal += (mt.padrao.avancado || 0) + (mt.padrao.adequado || 0) + (mt.padrao.basico || 0) + (mt.padrao.abaixo || 0);
+        }
+      }
+    });
+
+    return {
+      cod, nome: yearData.mun_lookup?.[cod] || cod,
+      profLP: lpN > 0 ? round2(lpSum / lpN) : null,
+      profMT: mtN > 0 ? round2(mtSum / mtN) : null,
+      pctLP: lpTotal > 0 ? round2(lpAA / lpTotal * 100) : null,
+      pctMT: mtTotal > 0 ? round2(mtAA / mtTotal * 100) : null,
+      avaliados,
+    };
+  }).filter(r => r.profLP != null || r.profMT != null)
+    .sort((a, b) => (b.profLP || 0) - (a.profLP || 0));
+
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.nome}</strong></td>
+      <td>${r.profLP != null ? r.profLP.toFixed(1) : '—'}</td>
+      <td>${r.profMT != null ? r.profMT.toFixed(1) : '—'}</td>
+      <td>${r.pctLP != null ? r.pctLP.toFixed(1) + '%' : '—'}</td>
+      <td>${r.pctMT != null ? r.pctMT.toFixed(1) + '%' : '—'}</td>
+      <td>${formatNum(r.avaliados)}</td>
+    </tr>
+  `).join('');
+
+  // Make table sortable
+  const table = document.getElementById('saers-mun-table');
+  if (table) {
+    table.querySelectorAll('thead th').forEach((th, colIdx) => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => {
+        const rows = [...tbody.querySelectorAll('tr')];
+        const isNum = colIdx >= 2;
+        const dir = th.dataset.sort === 'asc' ? 'desc' : 'asc';
+        th.dataset.sort = dir;
+        rows.sort((a, b) => {
+          let va = a.children[colIdx]?.textContent.replace(/[%.,]/g, '') || '';
+          let vb = b.children[colIdx]?.textContent.replace(/[%.,]/g, '') || '';
+          if (isNum) { va = parseFloat(va) || 0; vb = parseFloat(vb) || 0; }
+          return dir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+        });
+        rows.forEach(r => tbody.appendChild(r));
+      });
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
 
@@ -8371,7 +10753,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -8387,6 +10769,7 @@ async function init() {
       fetch('dados/4_7_ideb.json'),
       fetch('dados/4_10_tdi.json'),
       fetch('dados/escolas_estaduais.json'),
+      fetch('dados/4_saers.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -8404,6 +10787,7 @@ async function init() {
     if (respIdeb.ok)      S.ideb      = await respIdeb.json();
     if (respTdi.ok)       S.tdi       = await respTdi.json();
     if (respEscolas.ok)   S.escolasData = await respEscolas.json();
+    if (respSaers.ok)     S.saersData   = await respSaers.json();
 
     // Seed rede cache with initial estadual data
     S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi };
