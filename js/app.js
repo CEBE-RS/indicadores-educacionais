@@ -597,6 +597,19 @@ function aggregateCre(d, ano, creCod) {
   return result;
 }
 
+/** Returns a suffix string for chart titles when a geo filter is active */
+function geoSuffix() {
+  if (S.munSel) {
+    const name = S.data?.lookup_municipios?.[S.munSel] || S.munSel;
+    return ` — ${name}`;
+  }
+  if (S.creSel) {
+    const name = S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`;
+    return ` — ${name}`;
+  }
+  return '';
+}
+
 function renderAcesso() {
   const d = S.data;
   const anos = Object.keys(d.serie_temporal).sort();
@@ -624,12 +637,12 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card d2">
-        <div class="chart-title" id="title-serie">Evolução de ${S.etapaSel ? ({'mat_infantil':'Infantil','mat_fund_ai':'Anos Iniciais','mat_fund_af':'Anos Finais','mat_medio':'Médio','mat_eja':'EJA','mat_prof_tec':'Técnico'}[S.etapaSel]) : 'Matrículas'} — ${redeLabel} (${anos[0]}–${anoSel})</div>
+        <div class="chart-title" id="title-serie">Evolução de ${S.etapaSel ? ({'mat_infantil':'Infantil','mat_fund_ai':'Anos Iniciais','mat_fund_af':'Anos Finais','mat_medio':'Médio','mat_eja':'EJA','mat_prof_tec':'Técnico'}[S.etapaSel]) : 'Matrículas'} — ${redeLabel} (${anos[0]}–${anoSel})${geoSuffix()}</div>
         <div style="height:220px"><canvas id="chart-serie"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d3">
-        <div class="chart-title" id="title-etapa">Matrículas por Etapa — ${anoSel}</div>
+        <div class="chart-title" id="title-etapa">Matrículas por Etapa — ${anoSel}${geoSuffix()}</div>
         <div style="font-size:9px;color:var(--pri);opacity:.7;margin:-2px 0 2px;font-weight:500">👆 Clique em uma barra deste gráfico para visualizar a evolução de matrículas da referida etapa no gráfico ao lado</div>
         <div style="height:220px"><canvas id="chart-etapa"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
@@ -638,7 +651,7 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="title-integral">Educação Integral — Evolução</div>
+        <div class="chart-title" id="title-integral">Educação Integral — Evolução${geoSuffix()}</div>
         <div id="integral-delta" style="font-size:11px;color:#00AB4E;font-weight:600;margin:2px 0"></div>
         <div style="height:200px"><canvas id="chart-integral"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
@@ -647,7 +660,7 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="title-integral-pct">Educação Integral — Proporção do Total de Matrículas (%)</div>
+        <div class="chart-title" id="title-integral-pct">Educação Integral — Proporção do Total de Matrículas (%)${geoSuffix()}</div>
         <div id="integral-pct-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px 0;font-size:10px"></div>
         <div style="height:220px"><canvas id="chart-integral-pct"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
@@ -656,12 +669,12 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
       <div class="chart-card d4">
-        <div class="chart-title" id="title-faixa">Matrículas por Faixa Etária — ${anoSel}</div>
+        <div class="chart-title" id="title-faixa">Matrículas por Faixa Etária — ${anoSel}${geoSuffix()}</div>
         <div style="height:220px"><canvas id="chart-faixa"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title" id="title-noturno">Matrículas Noturnas — Evolução</div>
+        <div class="chart-title" id="title-noturno">Matrículas Noturnas — Evolução${geoSuffix()}</div>
         <div style="height:220px"><canvas id="chart-noturno"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -678,18 +691,18 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
       <div class="chart-card d5">
-        <div class="chart-title" id="title-raca">Evolução por Raça/Cor — ${redeLabel}</div>
+        <div class="chart-title" id="title-raca">Evolução por Raça/Cor — ${redeLabel}${geoSuffix()}</div>
         <div id="raca-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px 0;font-size:10px"></div>
         <div style="height:210px"><canvas id="chart-raca"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d6">
-        <div class="chart-title" id="title-sexo">Distribuição por Sexo</div>
+        <div class="chart-title" id="title-sexo">Distribuição por Sexo${geoSuffix()}</div>
         <div style="height:220px"><canvas id="chart-sexo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d7">
-        <div class="chart-title" id="title-locdif">Localização Diferenciada — Matrículas</div>
+        <div class="chart-title" id="title-locdif">Localização Diferenciada — Matrículas${geoSuffix()}</div>
         <div style="height:220px"><canvas id="chart-locdif-bar"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -704,17 +717,17 @@ function renderAcesso() {
 
     <div class="charts-grid g3">
       <div class="chart-card d8">
-        <div class="chart-title" id="title-esp-evo">Alunos da Ed. Especial — Evolução</div>
+        <div class="chart-title" id="title-esp-evo">Alunos da Ed. Especial — Evolução${geoSuffix()}</div>
         <div style="height:200px"><canvas id="chart-esp-evo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d9">
-        <div class="chart-title" id="title-esp-tipo">Classes Comuns vs Exclusivas — ${anoSel}</div>
+        <div class="chart-title" id="title-esp-tipo">Classes Comuns vs Exclusivas — ${anoSel}${geoSuffix()}</div>
         <div style="height:200px"><canvas id="chart-esp-tipo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d10">
-        <div class="chart-title" id="title-esp-etapa">Ed. Especial (Classes Comuns) por Etapa — ${anoSel}</div>
+        <div class="chart-title" id="title-esp-etapa">Ed. Especial (Classes Comuns) por Etapa — ${anoSel}${geoSuffix()}</div>
         <div style="height:200px"><canvas id="chart-esp-etapa"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -729,12 +742,12 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Ensino Fundamental — Por Ano/Série</div>
+        <div class="chart-title">Ensino Fundamental — Por Ano/Série${geoSuffix()}</div>
         <div style="height:250px"><canvas id="chart-serie-fund"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Ensino Médio — Por Série</div>
+        <div class="chart-title">Ensino Médio — Por Série${geoSuffix()}</div>
         <div style="height:250px"><canvas id="chart-serie-med"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -749,14 +762,14 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="title-prof-evo">Matrículas na Ed. Profissional — Evolução
+        <div class="chart-title" id="title-prof-evo">Matrículas na Ed. Profissional — Evolução${geoSuffix()}
           <span class="info-tooltip" title="Ed. Profissional (QT_MAT_PROF): total de matrículas em educação profissional, incluindo cursos técnicos, FIC e qualificação profissional.&#10;&#10;Cursos Técnicos (QT_MAT_PROF_TEC): subconjunto da Ed. Profissional — apenas cursos técnicos de nível médio (concomitante, subsequente e integrado ao EM).">ⓘ</span>
         </div>
         <div style="height:250px"><canvas id="chart-prof-evo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title" id="title-prof-comp">Composição da Oferta Técnica — ${anoSel}
+        <div class="chart-title" id="title-prof-comp">Composição da Oferta Técnica — ${anoSel}${geoSuffix()}
           <span class="info-tooltip" title="Integrado ao EM: aluno cursa ensino médio e curso técnico em currículo unificado (3–4 anos).&#10;&#10;Subsequente: aluno já concluiu o ensino médio e cursa apenas o técnico.&#10;&#10;Concomitante: aluno cursa ensino médio e técnico simultaneamente, mas em matrículas separadas.&#10;&#10;EJA Técnico: Educação de Jovens e Adultos integrada a curso técnico de nível médio.">ⓘ</span>
         </div>
         <div style="font-size:9px;color:var(--pri);opacity:.7;margin:-2px 0 2px;font-weight:500">👆 Clique em uma barra para filtrar a evolução ao lado</div>
@@ -774,7 +787,7 @@ function renderAcesso() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Diurno vs Noturno — Por Etapa</div>
+        <div class="chart-title">Diurno vs Noturno — Por Etapa${geoSuffix()}</div>
         <div style="height:280px"><canvas id="chart-turno-etapa"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -1963,7 +1976,7 @@ function renderInfra() {
 
     <div class="chart-card" style="margin-bottom:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-        <div id="infra-chart-title" class="chart-title" style="margin:0">Tecnologia — Comparativo</div>
+        <div id="infra-chart-title" class="chart-title" style="margin:0">Tecnologia — Comparativo${geoSuffix()}</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
           <label>Ano base:</label>
           <select id="sel-infra-ano-base" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc">
@@ -2420,7 +2433,7 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
   const catNames = { 'Tecnologia': 'Tecnologia', 'Espacos Pedagogicos': 'Espaços Pedagógicos', 'Acessibilidade': 'Acessibilidade', 'Saneamento e Energia': 'Saneamento & Alimentação', 'Alimentacao': 'Alimentação', 'Climatizacao': 'Climatização (Ar Condicionado)' };
   const catLabel = catKeys.length > 1 ? 'Saneamento & Alimentação' : (catNames[catKeys[0]] || catKeys[0]);
   const titleEl = document.getElementById('infra-chart-title');
-  if (titleEl) titleEl.textContent = `${catLabel} — ${munSu ? '2024' : baseYear + ' vs ' + anoComp}`;
+  if (titleEl) titleEl.textContent = `${catLabel} — ${munSu ? '2024' : baseYear + ' vs ' + anoComp}${geoSuffix()}`;
 
   const allCols = [];
   catKeys.forEach(cat => { if (cats[cat]) allCols.push(...cats[cat]); });
@@ -2717,29 +2730,29 @@ function renderDocencia() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
       <div class="chart-card d1">
-        <div class="chart-title">Docentes por Sexo</div>
+        <div class="chart-title">Docentes por Sexo${geoSuffix()}</div>
         <div style="height:240px"><canvas id="chart-doc-sexo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d2">
-        <div class="chart-title">Raça/Cor</div>
+        <div class="chart-title">Raça/Cor${geoSuffix()}</div>
         <div style="height:240px"><canvas id="chart-doc-raca"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d3">
-        <div class="chart-title">Tipo de Vínculo</div>
+        <div class="chart-title">Tipo de Vínculo${geoSuffix()}</div>
         <div style="height:240px"><canvas id="chart-doc-vinculo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
     </div>
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
       <div class="chart-card d4">
-        <div class="chart-title">Escolaridade dos Docentes</div>
+        <div class="chart-title">Escolaridade dos Docentes${geoSuffix()}</div>
         <div style="height:270px"><canvas id="chart-doc-esco"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card d5">
-        <div class="chart-title">Faixa Etária</div>
+        <div class="chart-title">Faixa Etária${geoSuffix()}</div>
         <div style="height:270px"><canvas id="chart-doc-idade"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -2754,12 +2767,12 @@ function renderDocencia() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Total de Docentes — Evolução</div>
+        <div class="chart-title">Total de Docentes — Evolução${geoSuffix()}</div>
         <div style="height:260px"><canvas id="chart-doc-evo"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Razão Aluno/Professor — Evolução</div>
+        <div class="chart-title">Razão Aluno/Professor — Evolução${geoSuffix()}</div>
         <div style="height:260px"><canvas id="chart-doc-razao"></canvas></div>
         <div class="chart-source">${FONTE_CENSO}</div>
       </div>
@@ -3727,12 +3740,12 @@ function renderSaeb() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Língua Portuguesa — Evolução por Etapa</div>
+        <div class="chart-title">Língua Portuguesa — Evolução por Etapa${geoSuffix()}</div>
         <div style="height:300px"><canvas id="chart-saeb-lp"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Matemática — Evolução por Etapa</div>
+        <div class="chart-title">Matemática — Evolução por Etapa${geoSuffix()}</div>
         <div style="height:300px"><canvas id="chart-saeb-mt"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
@@ -3779,7 +3792,7 @@ function renderSaeb() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Número de Escolas com Dados SAEB — Série Histórica</div>
+        <div class="chart-title">Número de Escolas com Dados SAEB — Série Histórica${geoSuffix()}</div>
         <div style="height:200px"><canvas id="chart-saeb-escolas"></canvas></div>
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
@@ -5196,7 +5209,7 @@ function renderFluxo() {
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card d1">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-          <div class="chart-title" style="margin:0">Aprovação por Etapa (%)</div>
+          <div class="chart-title" style="margin:0">Aprovação por Etapa (%)${geoSuffix()}</div>
           <div class="flx-toggle-pills" id="flx-aprov-pills">
             <button class="flx-pill" data-key="aprov_fund_ai" style="--pill-color:${COLORS.fundamental}">Anos Iniciais</button>
             <button class="flx-pill" data-key="aprov_fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
@@ -5210,7 +5223,7 @@ function renderFluxo() {
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card d2">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-          <div class="chart-title" style="margin:0">Reprovação (%)</div>
+          <div class="chart-title" style="margin:0">Reprovação (%)${geoSuffix()}</div>
           <div class="flx-toggle-pills" id="flx-reprov-pills">
             <button class="flx-pill active" data-key="fund_ai" style="--pill-color:${COLORS.pri}">Anos Iniciais</button>
             <button class="flx-pill active" data-key="fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
@@ -5222,7 +5235,7 @@ function renderFluxo() {
       </div>
       <div class="chart-card d3">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-          <div class="chart-title" style="margin:0">Abandono (%)</div>
+          <div class="chart-title" style="margin:0">Abandono (%)${geoSuffix()}</div>
           <div class="flx-toggle-pills" id="flx-aband-pills">
             <button class="flx-pill active" data-key="fund_ai" style="--pill-color:${COLORS.pri}">Anos Iniciais</button>
             <button class="flx-pill active" data-key="fund_af" style="--pill-color:${COLORS.priLight}">Anos Finais</button>
@@ -6016,12 +6029,12 @@ function renderInse() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Escolas por Nível INSE — ${geoLabel} (${anoAtual})</div>
+        <div class="chart-title">Escolas por Nível INSE — ${geoLabel} (${anoAtual})${geoSuffix()}</div>
         <div style="height:260px"><canvas id="inse-chart-dist"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Nº de Alunos por Nível INSE — ${geoLabel} (${anoAtual})</div>
+        <div class="chart-title">Nº de Alunos por Nível INSE — ${geoLabel} (${anoAtual})${geoSuffix()}</div>
         <div style="height:260px"><canvas id="inse-chart-alunos"></canvas></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
@@ -6767,7 +6780,7 @@ function renderIcg() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Distribuição por Nível de Complexidade — ${anoAtual}</div>
+        <div class="chart-title">Distribuição por Nível de Complexidade — ${anoAtual}${geoSuffix()}</div>
         <div style="height:240px"><canvas id="icg-chart-dist"></canvas></div>
         <div class="chart-source">${FONTE_ICG}</div>
       </div>
@@ -6782,12 +6795,12 @@ function renderIcg() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Nível Médio de Complexidade — Evolução</div>
+        <div class="chart-title">Nível Médio de Complexidade — Evolução${geoSuffix()}</div>
         <div style="height:220px"><canvas id="icg-chart-nivel-medio"></canvas></div>
         <div class="chart-source">${FONTE_ICG}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Distribuição por Nível — Evolução (% empilhado)</div>
+        <div class="chart-title">Distribuição por Nível — Evolução (% empilhado)${geoSuffix()}</div>
         <div style="height:220px"><canvas id="icg-chart-evol"></canvas></div>
         <div class="chart-source">${FONTE_ICG}</div>
       </div>
@@ -7391,7 +7404,7 @@ function renderAfd() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${anoSel})</div>
+        <div class="chart-title">Percentual por Grupo de Adequação — por Etapa (${anoSel})${geoSuffix()}</div>
         <div style="height:300px"><canvas id="afd-chart-etapa"></canvas></div>
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
@@ -7406,7 +7419,7 @@ function renderAfd() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="afd-evol-title">Evolução por Grupo — Selecione abaixo</div>
+        <div class="chart-title" id="afd-evol-title">Evolução por Grupo — Selecione abaixo${geoSuffix()}</div>
         <div id="afd-evol-group-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"></div>
         <p style="font-size:10px;color:var(--text-sec);margin:0 0 6px;font-style:italic">💡 Clique na legenda do gráfico para filtrar por etapa</p>
         <div style="height:280px"><canvas id="afd-chart-evol-unified"></canvas></div>
@@ -7960,7 +7973,7 @@ function renderTdi() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="tdi-evol-title">Taxa de Distorção Idade-Série — Evolução</div>
+        <div class="chart-title" id="tdi-evol-title">Taxa de Distorção Idade-Série — Evolução${geoSuffix()}</div>
         <p style="font-size:10px;color:#777;margin:4px 0 2px;font-style:italic">💡 Clique na legenda para ocultar/exibir etapas</p>
         <div style="height:300px"><canvas id="tdi-chart-evol"></canvas></div>
         <div class="chart-source">${FONTE_TDI}</div>
@@ -7976,12 +7989,12 @@ function renderTdi() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="tdi-serie-title">TDI por Série — ${anoSel}</div>
+        <div class="chart-title" id="tdi-serie-title">TDI por Série — ${anoSel}${geoSuffix()}</div>
         <div style="height:340px"><canvas id="tdi-chart-serie"></canvas></div>
         <div class="chart-source">${FONTE_TDI}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title" id="tdi-loc-title">TDI Urbana vs Rural — ${anoSel}</div>
+        <div class="chart-title" id="tdi-loc-title">TDI Urbana vs Rural — ${anoSel}${geoSuffix()}</div>
         <div style="height:340px"><canvas id="tdi-chart-loc"></canvas></div>
         <div class="chart-source">${FONTE_TDI}</div>
       </div>
@@ -10420,12 +10433,12 @@ function renderSaers() {
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title" id="saers-padrao-lp-title">Distribuição — Língua Portuguesa — ${anoSel}</div>
+        <div class="chart-title" id="saers-padrao-lp-title">Distribuição — Língua Portuguesa — ${anoSel}${geoSuffix()}</div>
         <div style="height:250px"><canvas id="chart-saers-padrao-lp"></canvas></div>
         <div class="chart-source">${FONTE_SAERS}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title" id="saers-padrao-mt-title">Distribuição — Matemática — ${anoSel}</div>
+        <div class="chart-title" id="saers-padrao-mt-title">Distribuição — Matemática — ${anoSel}${geoSuffix()}</div>
         <div style="height:250px"><canvas id="chart-saers-padrao-mt"></canvas></div>
         <div class="chart-source">${FONTE_SAERS}</div>
       </div>
@@ -10927,7 +10940,7 @@ function buildSaersAll(sd) {
       const card = document.createElement('div');
       card.className = 'chart-card';
       card.innerHTML = `
-        <div class="chart-title">${ETAPA_CHART_TITLES[et]} — Evolução LP e MT</div>
+        <div class="chart-title">${ETAPA_CHART_TITLES[et]} — Evolução LP e MT${geoSuffix()}</div>
         <div style="height:260px"><canvas id="${ETAPA_CANVASES[et]}"></canvas></div>
         <div class="chart-source">${FONTE_SAERS}</div>`;
       serieContainer.appendChild(card);
