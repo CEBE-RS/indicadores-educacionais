@@ -392,7 +392,7 @@ async function loadRedeData(rede) {
     return S.redeCache[rede];
   }
   // Fetch all data sources in parallel; 404s handled gracefully
-  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb', 'tdi'];
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb', 'tdi', 'saers', 'saersEscolas'];
   const urls = [
     `dados/4_1_acesso_${rede}.json`,
     `dados/4_5_infra_${rede}.json`,
@@ -403,6 +403,10 @@ async function loadRedeData(rede) {
     `dados/4_9_afd_${rede}.json`,
     `dados/4_7_ideb_${rede}.json`,
     `dados/4_10_tdi_${rede}.json`,
+    `dados/4_saers_${rede}.json`,
+    rede === 'estadual' ? `dados/4_saers_escolas.json`
+      : rede === 'municipal' ? `dados/4_saers_escolas_municipal.json`
+      : `dados/4_saers_escolas_${rede}.json`, // will 404 gracefully for other redes
   ];
   const cb = '_cb=' + Date.now();
   const responses = await Promise.all(urls.map(u => fetch(u + '?' + cb).catch(() => null)));
@@ -460,6 +464,8 @@ async function switchRede(rede) {
     S.afd   = cached.afd;
     S.ideb  = cached.ideb;
     S.tdi   = cached.tdi;
+    S.saersData = cached.saers;
+    S.saersEscolasData = cached.saersEscolas;
     // Update rede toggle active state
     document.querySelectorAll('.rede-toggle-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.rede === rede);
@@ -10184,11 +10190,16 @@ function renderSaers() {
 
   const sd = S.saersData;
   if (!sd || !sd.anos || !sd.anos.length) {
-    main.innerHTML = `<div class="placeholder-view">
-      <div style="font-size:40px;opacity:.3">📝</div>
-      <div style="font-size:15px;font-weight:600">SAERS</div>
-      <div style="font-size:11px;opacity:.7">Dados não disponíveis</div>
-    </div>`;
+    main.innerHTML = `
+      <div class="section-sticky">
+        ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', getRedeLabel() + ' do RS')}
+        ${redeToggleHTML()}
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
+        <p style="font-size:1.1rem;font-weight:600;">Dados SAERS não disponíveis para a ${getRedeLabel()}</p>
+        <p style="font-size:0.85rem;margin-top:8px;">O SAERS avalia apenas escolas das redes estadual e municipal.</p>
+      </div>`;
+    bindRedeToggle();
     return;
   }
 
@@ -10244,7 +10255,8 @@ function renderSaers() {
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', 'Sistema de Avaliação do Rendimento Escolar do RS', { redeToggle: false })}
+      ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', getRedeLabel() + ' do RS')}
+      ${redeToggleHTML()}
       <div class="kpi-strip" id="saers-kpis"></div>
     </div>
 
@@ -10447,7 +10459,7 @@ function renderSaers() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="saers-btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="saers-btn-layer-cre">CREs</button>
-            ${S.escolasData && S.saersEscolasData ? '<button class="map-layer-btn" id="saers-btn-layer-escola">Escolas</button>' : ''}
+            ${S.saersEscolasData ? '<button class="map-layer-btn" id="saers-btn-layer-escola">Escolas</button>' : ''}
           </div>
           <select id="sel-saers-map-metric" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
             <option value="LP">Proficiência LP</option>
@@ -10599,7 +10611,7 @@ function renderSaers() {
 
   // ── SAERS escola map builder ──
   function buildSaersEscolaMap(sd) {
-    if (!S.escolasData || !S.saersEscolasData) return;
+    if (!S.saersEscolasData) return;
     destroyMap();
     const mapEl = document.getElementById('map-leaflet');
     if (!mapEl) return;
@@ -10612,7 +10624,7 @@ function renderSaers() {
 
     const porEscola = anoData.por_escola || {};
     const escolaLookup = anoData.escola_lookup || {};
-    const escolas = S.escolasData.escolas || [];
+    const escolas = S.escolasData?.escolas || [];
 
     // Build lookup INEP → coords
     const coordMap = {};
@@ -10683,7 +10695,7 @@ function renderSaers() {
 
   // ── SAERS escola table builder ──
   function buildSaersEscolaTable(sd) {
-    if (!S.saersEscolasData || !S.escolasData) return;
+    if (!S.saersEscolasData) return;
     const tableWrapper = document.getElementById('saers-table-wrapper');
     if (!tableWrapper) return;
 
@@ -10694,7 +10706,7 @@ function renderSaers() {
 
     const porEscola = anoData.por_escola || {};
     const escolaLookup = anoData.escola_lookup || {};
-    const escolas = S.escolasData.escolas || [];
+    const escolas = S.escolasData?.escolas || [];
     const coordMap = {};
     escolas.forEach(e => { coordMap[e.inep] = e; });
 
@@ -10783,6 +10795,10 @@ function renderSaers() {
   }
 
   // ── Build all ──
+  // Register escola builders globally for buildSaersAll access
+  S._saersEscolaMap = buildSaersEscolaMap;
+  S._saersEscolaTable = buildSaersEscolaTable;
+  bindRedeToggle();
   updateActiveFilters();
   buildSaersAll(sd);
 }
@@ -11096,10 +11112,13 @@ function buildSaersAll(sd) {
   });
 
   // ── 5. Municipality Table ──
-  buildSaersMunTable(yearData, '');
-
-  // ── 6. Map ──
-  buildSaersMap(sd);
+  if (S.saersMapMode === 'escola' && S._saersEscolaMap) {
+    S._saersEscolaMap(sd);
+    if (S._saersEscolaTable) S._saersEscolaTable(sd);
+  } else {
+    buildSaersMunTable(yearData, '');
+    buildSaersMap(sd);
+  }
 
   // ── Inject export buttons ──
   injectExportButtons();
@@ -11349,7 +11368,7 @@ async function init() {
       fetch('dados/4_7_ideb.json'),
       fetch('dados/4_10_tdi.json'),
       fetch('dados/escolas_estaduais.json'),
-      fetch('dados/4_saers.json'),
+      fetch('dados/4_saers_estadual.json'),
       fetch('dados/4_saers_escolas.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
@@ -11372,7 +11391,7 @@ async function init() {
     if (respSaersEsc.ok)  S.saersEscolasData = await respSaersEsc.json();
 
     // Seed rede cache with initial estadual data
-    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi };
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi, saers: S.saersData, saersEscolas: S.saersEscolasData };
 
     // Build universal municipality lookup (persists across rede changes)
     S._universalMunLookup = { ...(S.data?.lookup_municipios || {}) };
