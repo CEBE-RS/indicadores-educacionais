@@ -10193,7 +10193,7 @@ function renderSaers() {
     main.innerHTML = `
       <div class="section-sticky">
         ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', getRedeLabel() + ' do RS')}
-        ${redeToggleHTML()}
+        ${redeToggleHTML(['federal', 'filantropica', 'privada'], 'O SAERS avalia apenas escolas das redes estadual e municipal')}
       </div>
       <div style="text-align:center;padding:60px 20px;color:var(--text-sec);">
         <p style="font-size:1.1rem;font-weight:600;">Dados SAERS não disponíveis para a ${getRedeLabel()}</p>
@@ -10215,6 +10215,12 @@ function renderSaers() {
 
   const anos = sd.anos.map(a => a.ano);
   const anoSel = S.anoSel && anos.includes(parseInt(S.anoSel)) ? parseInt(S.anoSel) : anos[anos.length - 1];
+
+  // Determine which etapas actually have data for this rede (used in HTML template)
+  const latestYear = sd.anos.find(a => a.ano === anoSel) || sd.anos[sd.anos.length - 1];
+  const renderableEtapas = ETAPAS.filter(etapa =>
+    latestYear?.geral?.[`${etapa}_LP`] || latestYear?.geral?.[`${etapa}_MT`]
+  );
 
   const FONTE_SAERS = 'Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul';
 
@@ -10256,7 +10262,7 @@ function renderSaers() {
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/sec_saeb.png', 'SAERS', getRedeLabel() + ' do RS')}
-      ${redeToggleHTML()}
+      ${redeToggleHTML(['federal', 'filantropica', 'privada'], 'O SAERS avalia apenas escolas das redes estadual e municipal')}
       <div class="kpi-strip" id="saers-kpis"></div>
     </div>
 
@@ -10358,7 +10364,7 @@ function renderSaers() {
       <span class="section-divider-line"></span>
     </div>
 
-    <div class="charts-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="saers-kpi-cards"></div>
+    <div class="charts-grid" id="saers-kpi-cards"></div>
 
     <!-- ═══ EIXO: Proficiência — Série Histórica ═══ -->
     <div class="section-divider" style="margin-top:20px">
@@ -10367,28 +10373,8 @@ function renderSaers() {
       <span class="section-divider-line"></span>
     </div>
 
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="saers-serie-charts">
       <div style="grid-column:1/-1;font-size:10px;color:var(--text-sec);font-style:italic;margin:-4px 0 2px;padding-left:2px">💡 Clique na legenda para mostrar / ocultar os referidos dados.</div>
-      <div class="chart-card">
-        <div class="chart-title">2º ano EF — Evolução LP e MT</div>
-        <div style="height:260px"><canvas id="chart-saers-2ef"></canvas></div>
-        <div class="chart-source">${FONTE_SAERS}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">5º ano EF — Evolução LP e MT</div>
-        <div style="height:260px"><canvas id="chart-saers-5ef"></canvas></div>
-        <div class="chart-source">${FONTE_SAERS}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">9º ano EF — Evolução LP e MT</div>
-        <div style="height:260px"><canvas id="chart-saers-9ef"></canvas></div>
-        <div class="chart-source">${FONTE_SAERS}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">3ª série EM — Evolução LP e MT</div>
-        <div style="height:260px"><canvas id="chart-saers-3em"></canvas></div>
-        <div class="chart-source">${FONTE_SAERS}</div>
-      </div>
     </div>
 
     <!-- ═══ EIXO: Comparativo entre Edições ═══ -->
@@ -10468,7 +10454,7 @@ function renderSaers() {
             <option value="pctMT">% Adeq.+Av. MT</option>
           </select>
           <select id="sel-saers-map-etapa" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
-            ${ETAPAS.map(e => `<option value="${e}">${ETAPA_LABELS[e]}</option>`).join('')}
+            ${renderableEtapas.map(e => `<option value="${e}">${ETAPA_LABELS[e]}</option>`).join('')}
           </select>
         </div>
         <div id="map-leaflet"></div>
@@ -10867,8 +10853,12 @@ function buildSaersAll(sd) {
   const kpis = [];
   const etapaAccents = { '2_EF': 'green', '5_EF': 'blue', '9_EF': 'green', '3_EM': 'red' };
   const etapaIcons = { '2_EF': 'img/icons/fundamental.png', '5_EF': 'img/icons/fundamental.png', '9_EF': 'img/icons/fundamental.png', '3_EM': 'img/icons/medio.png' };
-  // Reorder KPIs: LP row first (top), MT row second (bottom) × 4 etapas columns
-  // Layout: 4 columns × 2 rows = [2EF-LP, 5EF-LP, 9EF-LP, 3EM-LP, 2EF-MT, 5EF-MT, 9EF-MT, 3EM-MT]
+  // Determine which etapas actually have data for this rede
+  const availableEtapas = ETAPAS.filter(etapa => {
+    return curYearData?.geral?.[`${etapa}_LP`] || curYearData?.geral?.[`${etapa}_MT`];
+  });
+  const numCols = availableEtapas.length || 4;
+  // Reorder KPIs: LP row first (top), MT row second (bottom)
   ['LP', 'MT'].forEach(disc => {
     ETAPAS.forEach(etapa => {
       const cur = curYearData?.geral?.[`${etapa}_${disc}`];
@@ -10888,6 +10878,9 @@ function buildSaersAll(sd) {
 
   const kpiContainer = document.getElementById('saers-kpi-cards');
   if (kpiContainer) {
+    kpiContainer.style.display = 'grid';
+    kpiContainer.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
+    kpiContainer.style.gap = '10px';
     kpiContainer.innerHTML = kpis.map((k, i) => {
       const delta = (k.val != null && k.prevVal != null) ? (k.val - k.prevVal) : null;
       const cls = delta !== null ? (delta >= 0 ? 'up' : 'down') : '';
@@ -10925,6 +10918,21 @@ function buildSaersAll(sd) {
   // ── 2. Line Charts: one per etapa with LP + MT lines ──
   const DISC_COLORS = { LP: '#0D47A1', MT: '#EE302F' };
   const ETAPA_CANVASES = { '2_EF': 'chart-saers-2ef', '5_EF': 'chart-saers-5ef', '9_EF': 'chart-saers-9ef', '3_EM': 'chart-saers-3em' };
+  const ETAPA_CHART_TITLES = { '2_EF': '2º ano EF', '5_EF': '5º ano EF', '9_EF': '9º ano EF', '3_EM': '3ª série EM' };
+
+  // Inject chart canvases dynamically based on available etapas
+  const serieContainer = document.getElementById('saers-serie-charts');
+  if (serieContainer) {
+    availableEtapas.forEach(et => {
+      const card = document.createElement('div');
+      card.className = 'chart-card';
+      card.innerHTML = `
+        <div class="chart-title">${ETAPA_CHART_TITLES[et]} — Evolução LP e MT</div>
+        <div style="height:260px"><canvas id="${ETAPA_CANVASES[et]}"></canvas></div>
+        <div class="chart-source">${FONTE_SAERS}</div>`;
+      serieContainer.appendChild(card);
+    });
+  }
 
   function buildSaersEtapaChart(etapa) {
     const el = document.getElementById(ETAPA_CANVASES[etapa]);
@@ -10977,12 +10985,12 @@ function buildSaersAll(sd) {
     }));
   }
 
-  ETAPAS.forEach(et => buildSaersEtapaChart(et));
+  availableEtapas.forEach(et => buildSaersEtapaChart(et));
 
   // Aliases for compatibility with comparativo/padrão sections
-  const etapas = ETAPAS;
-  const etapaLabels = ETAPAS.map(e => ETAPA_LABELS[e]);
-  const etapaCores = ETAPAS.map(e => ETAPA_COLORS[e]);
+  const etapas = availableEtapas;
+  const etapaLabels = availableEtapas.map(e => ETAPA_LABELS[e]);
+  const etapaCores = availableEtapas.map(e => ETAPA_COLORS[e]);
 
   // ── 3. Comparativo entre Edições (like SAEB) ──
   function buildSaersCompCharts(anoBase, anoComp) {
