@@ -6828,6 +6828,7 @@ function renderIcg() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="icg-btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="icg-btn-layer-cre">CREs</button>
+            ${S.escolasData ? '<button class="map-layer-btn" id="icg-btn-layer-escola">Escolas</button>' : ''}
           </div>
         </div>
         <div id="icg-map-leaflet" style="height:380px;border-radius:8px"></div>
@@ -7219,16 +7220,127 @@ function renderIcg() {
   // Bind ICG map layer toggle
   const icgBtnMun = document.getElementById('icg-btn-layer-mun');
   const icgBtnCre = document.getElementById('icg-btn-layer-cre');
+  const icgBtnEsc = document.getElementById('icg-btn-layer-escola');
   if (icgBtnMun && icgBtnCre) {
     icgBtnMun.addEventListener('click', () => {
-      icgBtnMun.classList.add('active'); icgBtnCre.classList.remove('active');
-      icgBuildMap();
+      icgBtnMun.classList.add('active'); icgBtnCre.classList.remove('active'); icgBtnEsc?.classList.remove('active');
+      if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+      icgBuildMap(); icgBuildMunTable();
     });
     icgBtnCre.addEventListener('click', () => {
-      icgBtnCre.classList.add('active'); icgBtnMun.classList.remove('active');
-      icgBuildCreMap();
+      icgBtnCre.classList.add('active'); icgBtnMun.classList.remove('active'); icgBtnEsc?.classList.remove('active');
+      if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+      icgBuildCreMap(); icgBuildMunTable();
     });
+    if (icgBtnEsc) {
+      icgBtnEsc.addEventListener('click', () => {
+        icgBtnEsc.classList.add('active'); icgBtnMun.classList.remove('active'); icgBtnCre.classList.remove('active');
+        icgBuildEscolaLayer();
+      });
+    }
   }
+
+  // ── Escola layer for ICG map ──
+  const icgBuildEscolaLayer = () => {
+    if (!S.escolasData || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+
+    const markers = L.layerGroup();
+    const creMuns = S.creSel ? getCreMuns(S.creSel) : null;
+    const lookup = icg.lookup_municipios || {};
+
+    S.escolasData.forEach(e => {
+      if (!e.lat || !e.lon || e.icg_nivel == null) return;
+      if (S.munSel && e.cod_mun !== S.munSel) return;
+      if (creMuns && !creMuns.includes(e.cod_mun)) return;
+      const nivel = e.icg_nivel;
+      const cor = ICG_COLORS[nivel] || '#999';
+      const m = L.circleMarker([e.lat, e.lon], {
+        radius: 5, fillColor: cor, color: '#fff', weight: 1, fillOpacity: 0.85
+      });
+      m.bindPopup(`<div style="font-size:11px;min-width:180px">
+        <strong>${e.nome}</strong><br>
+        <span style="color:#888">${lookup[e.cod_mun] || e.cod_mun}</span><br>
+        <div style="margin-top:6px">
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${cor};vertical-align:middle;margin-right:6px"></span>
+          <strong>Nível ${nivel}</strong> — ${ICG_SHORT[nivel] || ''}
+        </div>
+        ${e.mat_total ? `<div style="margin-top:4px;color:#555">Matrículas: ${formatNum(e.mat_total)}</div>` : ''}
+      </div>`, { maxWidth: 260 });
+      markers.addLayer(m);
+    });
+    markers.addTo(S.map);
+    S.escolasMarkers = markers;
+
+    // Escola table
+    const wrapper = document.getElementById('icg-table-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = `
+        <div class="table-header">
+          <h3>Tabela de Escolas — ICG</h3>
+          <input type="text" class="table-search" id="icg-escola-search" placeholder="Buscar escola...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="icg-escola-table">
+            <thead><tr>
+              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th><th>Nível ICG</th><th>Matrículas</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_ICG}</div>`;
+
+      let escolas = S.escolasData.filter(e => e.icg_nivel != null);
+      if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
+      if (creMuns) escolas = escolas.filter(e => creMuns.includes(e.cod_mun));
+      escolas.sort((a, b) => (b.icg_nivel || 0) - (a.icg_nivel || 0));
+
+      const tbody = wrapper.querySelector('tbody');
+      tbody.innerHTML = escolas.map((e, i) => {
+        const cor = ICG_COLORS[e.icg_nivel] || '#999';
+        return `<tr style="cursor:pointer" data-lat="${e.lat}" data-lon="${e.lon}">
+          <td>${i+1}</td>
+          <td style="font-size:10px;color:#888">${e.inep || ''}</td>
+          <td>${e.nome}</td>
+          <td>${lookup[e.cod_mun] || e.cod_mun}</td>
+          <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${cor};vertical-align:middle;margin-right:4px"></span><strong style="color:${cor}">Nível ${e.icg_nivel}</strong></td>
+          <td>${e.mat_total ? formatNum(e.mat_total) : '—'}</td>
+        </tr>`;
+      }).join('');
+
+      // Click-to-zoom
+      tbody.querySelectorAll('tr[data-lat]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const lat = parseFloat(tr.dataset.lat), lon = parseFloat(tr.dataset.lon);
+          if (lat && lon && S.map) S.map.setView([lat, lon], 14);
+        });
+      });
+
+      // Search
+      document.getElementById('icg-escola-search')?.addEventListener('input', ev => {
+        const q = ev.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const nome = (tr.children[2]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          tr.style.display = nome.includes(q) ? '' : 'none';
+        });
+      });
+
+      injectExportButtons();
+    }
+
+    // Legend
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<h4>Nível ICG (Escolas)</h4>' +
+        [6,5,4,3,2,1].map(n => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${ICG_COLORS[n]}"></div><span>${ICG_SHORT[n]}</span></div>`).join('');
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
 
   // Re-populate topbar filters
   const selAno = document.getElementById('sel-ano');
