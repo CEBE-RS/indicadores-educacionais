@@ -7252,12 +7252,12 @@ function renderIcg() {
     const lookup = icg.lookup_municipios || {};
 
     S.escolasData.forEach(e => {
-      if (!e.lat || !e.lon || e.icg_nivel == null) return;
+      if (!e.lat || !e.lng || e.icg_nivel == null) return;
       if (S.munSel && e.cod_mun !== S.munSel) return;
       if (creMuns && !creMuns.includes(e.cod_mun)) return;
       const nivel = e.icg_nivel;
       const cor = ICG_COLORS[nivel] || '#999';
-      const m = L.circleMarker([e.lat, e.lon], {
+      const m = L.circleMarker([e.lat, e.lng], {
         radius: 5, fillColor: cor, color: '#fff', weight: 1, fillOpacity: 0.85
       });
       m.bindPopup(`<div style="font-size:11px;min-width:180px">
@@ -7300,7 +7300,7 @@ function renderIcg() {
       const tbody = wrapper.querySelector('tbody');
       tbody.innerHTML = escolas.map((e, i) => {
         const cor = ICG_COLORS[e.icg_nivel] || '#999';
-        return `<tr style="cursor:pointer" data-lat="${e.lat}" data-lon="${e.lon}">
+        return `<tr style="cursor:pointer" data-lat="${e.lat}" data-lng="${e.lng}">
           <td>${i+1}</td>
           <td style="font-size:10px;color:#888">${e.inep || ''}</td>
           <td>${e.nome}</td>
@@ -7313,8 +7313,8 @@ function renderIcg() {
       // Click-to-zoom
       tbody.querySelectorAll('tr[data-lat]').forEach(tr => {
         tr.addEventListener('click', () => {
-          const lat = parseFloat(tr.dataset.lat), lon = parseFloat(tr.dataset.lon);
-          if (lat && lon && S.map) S.map.setView([lat, lon], 14);
+          const lat = parseFloat(tr.dataset.lat), lng = parseFloat(tr.dataset.lng);
+          if (lat && lng && S.map) S.map.setView([lat, lng], 14);
         });
       });
 
