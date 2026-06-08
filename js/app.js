@@ -7242,7 +7242,7 @@ function renderIcg() {
 
   // ── Escola layer for ICG map ──
   const icgBuildEscolaLayer = () => {
-    if (!S.escolasData || !S.map) return;
+    if (!S.escolasData?.escolas || !S.map) return;
     if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
     if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
     if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
@@ -7251,7 +7251,7 @@ function renderIcg() {
     const creMuns = S.creSel ? getCreMuns(S.creSel) : null;
     const lookup = icg.lookup_municipios || {};
 
-    S.escolasData.forEach(e => {
+    S.escolasData.escolas.forEach(e => {
       if (!e.lat || !e.lng || e.icg_nivel == null) return;
       if (S.munSel && e.cod_mun !== S.munSel) return;
       if (creMuns && !creMuns.includes(e.cod_mun)) return;
@@ -7292,7 +7292,7 @@ function renderIcg() {
         </div>
         <div class="chart-source">${FONTE_ICG}</div>`;
 
-      let escolas = S.escolasData.filter(e => e.icg_nivel != null);
+      let escolas = S.escolasData.escolas.filter(e => e.icg_nivel != null);
       if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
       if (creMuns) escolas = escolas.filter(e => creMuns.includes(e.cod_mun));
       escolas.sort((a, b) => (b.icg_nivel || 0) - (a.icg_nivel || 0));
