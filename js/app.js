@@ -58,14 +58,14 @@ const FONTE_CENSO = 'Fonte: INEP — <a href="https://www.gov.br/inep/pt-br/area
 
 // Paleta Bandeira RS: Verde #00AB4E, Vermelho #EE302F, Amarelo #FFCB04
 const COLORS = {
-  pri: '#2E86C1', priDark: '#0D3B66', priLight: '#5DADE2', sec: '#2874A6',
+  pri: '#1d71b9', priDark: '#14507F', priLight: '#5AADE2', sec: '#3A8CC7',
   red: '#EE302F', redLight: '#F4706F',
   yellow: '#FFCB04', yellowLight: '#FFE066',
   accent: '#FFCB04', accentLight: '#FFE066',
-  federal: '#1565C0', estadual: '#2E86C1', municipal: '#EE302F', privada: '#6A1B9A',
+  federal: '#1565C0', estadual: '#1d71b9', municipal: '#EE302F', privada: '#6A1B9A',
   masc: '#1976D2', fem: '#EE302F',
-  branca: '#78909C', preta: '#37474F', parda: '#8D6E63', amarela: '#FFCB04', indigena: '#2E86C1', nd: '#B0BEC5',
-  infantil: '#FFCB04', fundAI: '#0097A7', fundAF: '#F57C00', fundamental: '#2E86C1', medio: '#EE302F', eja: '#1565C0', especial: '#6A1B9A', blue: '#1565C0',
+  branca: '#78909C', preta: '#37474F', parda: '#8D6E63', amarela: '#FFCB04', indigena: '#1d71b9', nd: '#B0BEC5',
+  infantil: '#FFCB04', fundAI: '#0097A7', fundAF: '#F57C00', fundamental: '#1d71b9', medio: '#EE302F', eja: '#1565C0', especial: '#6A1B9A', blue: '#1565C0',
   gridLine: 'rgba(0,0,0,.06)',
 };
 
@@ -945,7 +945,7 @@ function updateKPIs(ano, su, d) {
     </svg>`;
   }
 
-  const accentColors = { green: '#2E86C1', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
+  const accentColors = { green: '#1d71b9', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
 
   strip.innerHTML = kpis.map((k, i) => {
     const val = su[k.key] || su[k.altKey] || 0;
@@ -1740,8 +1740,8 @@ function zoomToMunicipality(codMun) {
 // ══════════════════════════════════════════════════════════
 
 const MAP_SCALE = [
-  '#f0f4f8', '#c5d5e4', '#8fb3d1', '#5a91bd',
-  '#3576a9', '#1A5276', '#0D3B66', '#0A2744'
+  '#edf3fa', '#c7dbed', '#8fb8da', '#5a96c7',
+  '#3578b3', '#1d71b9', '#14507F', '#0B2A47'
 ];
 
 const METRIC_LABELS = {
@@ -2361,7 +2361,7 @@ function buildInfraKPIs(infra, ano, anos) {
   }
 
   const sparkKeys = ['total_escolas','IN_INTERNET','IN_BIBLIOTECA','IN_QUADRA_ESPORTES','IN_LABORATORIO_INFORMATICA','IN_CLIMATIZACAO'];
-  const sparkColors = ['#2E86C1','#2E86C1','#FFCB04','#EE302F','#1565C0','#00838F'];
+  const sparkColors = ['#1d71b9','#1d71b9','#FFCB04','#EE302F','#1565C0','#00838F'];
 
   const strip = document.getElementById('infra-kpis');
   strip.innerHTML = kpis.map((k, i) => {
@@ -2554,7 +2554,7 @@ function buildInfraMap(infra, metricKey) {
   
   // Simple 3-tier thresholds for % indicators
   const tiers = [
-    { min: 80, color: '#0D3B66', label: '≥ 80%' },
+    { min: 80, color: '#14507F', label: '≥ 80%' },
     { min: 50, color: '#5cba68', label: '50% – 79%' },
     { min: 0.1, color: '#d5efcf', label: '< 50%' },
   ];
@@ -2636,7 +2636,7 @@ function buildInfraMapCre(infra, metricKey) {
   }
 
   const tiers = [
-    { min: 80, color: '#0D3B66', label: '\u2265 80%' },
+    { min: 80, color: '#14507F', label: '\u2265 80%' },
     { min: 50, color: '#5cba68', label: '50% \u2013 79%' },
     { min: 0.1, color: '#d5efcf', label: '< 50%' },
   ];
@@ -2890,19 +2890,28 @@ function buildDocEscolaLayer(doc) {
       radius: r, fillColor: color, color: '#fff', weight: 1, fillOpacity: 0.85,
     });
     marker.bindPopup(`
-      <div style="font-family:Inter;min-width:200px">
+      <div style="font-family:Inter;min-width:220px">
         <strong style="font-size:12px">${e.nome}</strong><br>
-        <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''} — INEP: ${e.inep}</span>
+        <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''}</span>
         <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
-        <div style="font-size:10px;line-height:1.6">
+        <div style="font-size:10px;line-height:1.7">
           <strong>Total Docentes:</strong> ${formatNum(dt)}<br>
-          ${e.doc_concur ? `<span style="display:inline-block;background:#0097A722;padding:1px 5px;border-radius:3px;margin:1px">Concurs.: <strong>${formatNum(e.doc_concur)}</strong></span>` : ''}
-          ${e.doc_contrat ? `<span style="display:inline-block;background:#EE302F22;padding:1px 5px;border-radius:3px;margin:1px">Contrat.: <strong>${formatNum(e.doc_contrat)}</strong></span>` : ''}
-          ${e.doc_sup ? `<br><span style="font-size:9px;color:#666">Superior: ${formatNum(e.doc_sup)} | Licenc.: ${formatNum(e.doc_licen || 0)}</span>` : ''}
-          ${e.mat_total ? `<br><span style="font-size:9px;color:#666">Razão aluno/prof: ${dt > 0 ? (e.mat_total / dt).toFixed(1) : 'N/A'}</span>` : ''}
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin:3px 0">
+            ${e.doc_concur ? `<span style="display:inline-block;background:#0097A722;padding:1px 5px;border-radius:3px">Concurs.: <strong>${formatNum(e.doc_concur)}</strong> (${Math.round(e.doc_concur/dt*100)}%)</span>` : ''}
+            ${e.doc_contrat ? `<span style="display:inline-block;background:#EE302F22;padding:1px 5px;border-radius:3px">Contrat.: <strong>${formatNum(e.doc_contrat)}</strong> (${Math.round(e.doc_contrat/dt*100)}%)</span>` : ''}
+          </div>
+          <div style="margin-top:3px;font-size:9.5px;color:#555">
+            ${e.doc_fund_ai ? `AI: ${e.doc_fund_ai}` : ''}${e.doc_fund_af ? ` · AF: ${e.doc_fund_af}` : ''}${e.doc_medio ? ` · EM: ${e.doc_medio}` : ''}${e.doc_eja ? ` · EJA: ${e.doc_eja}` : ''}
+          </div>
+          <div style="margin-top:3px;font-size:9.5px;color:#555">
+            Fem.: ${e.doc_fem || 0} (${dt > 0 ? Math.round((e.doc_fem||0)/dt*100) : 0}%)
+            · Sup.: ${e.doc_sup || 0} (${dt > 0 ? Math.round((e.doc_sup||0)/dt*100) : 0}%)
+            · Lic.: ${e.doc_licen || 0} (${dt > 0 ? Math.round((e.doc_licen||0)/dt*100) : 0}%)
+          </div>
+          ${e.mat_total ? `<div style="margin-top:3px;font-size:9.5px;color:#555">Razão aluno/prof: <strong>${dt > 0 ? (e.mat_total / dt).toFixed(1) : 'N/A'}</strong></div>` : ''}
         </div>
       </div>
-    `, { maxWidth: 280 });
+    `, { maxWidth: 300 });
     markers.addLayer(marker);
   });
   markers.addTo(S.map);
@@ -2913,7 +2922,7 @@ function buildDocEscolaLayer(doc) {
   if (titleEl) titleEl.textContent = 'Docentes por Escola — 2025';
 
   const thead = document.querySelector('#doc-mun-table thead tr');
-  if (thead) thead.innerHTML = '<th>#</th><th>Escola</th><th>Município</th><th>Total</th><th>Concurs.</th><th>Contrat.</th><th>Superior</th><th>Razão A/P</th>';
+  if (thead) thead.innerHTML = '<th>#</th><th>Escola</th><th>Município</th><th>Total</th><th>Fem. %</th><th>Sup. %</th><th>Lic. %</th><th>Conc.</th><th>Cont.</th><th>AI</th><th>AF</th><th>EM</th><th>EJA</th><th>A/P</th>';
 
   const sorted = [...escolas].filter(e => e.doc_total != null).sort((a, b) => (b.doc_total || 0) - (a.doc_total || 0));
   const tbody = document.getElementById('doc-mun-tbody');
@@ -2922,16 +2931,24 @@ function buildDocEscolaLayer(doc) {
   tbody.innerHTML = sorted.map((e, i) => {
     const dt = e.doc_total || 0;
     const razao = dt > 0 && e.mat_total ? (e.mat_total / dt).toFixed(1) : '—';
+    const pct = (v) => dt > 0 ? Math.round((v||0)/dt*100) + '%' : '—';
+    const pctColor = (v, good=70) => { const p = dt > 0 ? (v||0)/dt*100 : 0; return p >= good ? '#43A047' : p >= 40 ? '#F57C00' : '#E53935'; };
     return `
     <tr data-lat="${e.lat || ''}" data-lng="${e.lng || ''}" style="cursor:pointer">
       <td>${i + 1}</td>
       <td><strong style="font-size:10px">${e.nome}</strong></td>
       <td style="font-size:10px">${e.municipio || lookup[e.cod_mun] || ''}</td>
-      <td>${formatNum(dt)}</td>
-      <td>${formatNum(e.doc_concur || 0)}</td>
-      <td>${formatNum(e.doc_contrat || 0)}</td>
-      <td>${formatNum(e.doc_sup || 0)}</td>
-      <td style="text-align:center">${razao}</td>
+      <td><strong>${formatNum(dt)}</strong></td>
+      <td style="color:#666">${pct(e.doc_fem)}</td>
+      <td style="color:${pctColor(e.doc_sup)};font-weight:600">${pct(e.doc_sup)}</td>
+      <td style="color:${pctColor(e.doc_licen)};font-weight:600">${pct(e.doc_licen)}</td>
+      <td style="color:#0097A7">${formatNum(e.doc_concur || 0)}</td>
+      <td style="color:#EE302F">${formatNum(e.doc_contrat || 0)}</td>
+      <td style="font-size:10px;color:#666">${e.doc_fund_ai || 0}</td>
+      <td style="font-size:10px;color:#666">${e.doc_fund_af || 0}</td>
+      <td style="font-size:10px;color:#666">${e.doc_medio || 0}</td>
+      <td style="font-size:10px;color:#666">${e.doc_eja || 0}</td>
+      <td style="text-align:center;font-weight:600">${razao}</td>
     </tr>`;
   }).join('');
 
@@ -2981,7 +2998,7 @@ function buildDocMap(doc) {
   
   // Simple 3-tier thresholds for docent counts
   const tiers = [
-    { min: 500, color: '#0D3B66', label: '≥ 500' },
+    { min: 500, color: '#14507F', label: '≥ 500' },
     { min: 100, color: '#5cba68', label: '100 – 499' },
     { min: 1, color: '#d5efcf', label: '< 100' },
   ];
@@ -3051,7 +3068,7 @@ function buildDocCreMap(doc) {
   }
 
   const tiers = [
-    { min: 3000, color: '#0D3B66', label: '≥ 3.000' },
+    { min: 3000, color: '#14507F', label: '≥ 3.000' },
     { min: 1000, color: '#5cba68', label: '1.000 – 2.999' },
     { min: 0, color: '#d5efcf', label: '< 1.000' },
   ];
@@ -3282,10 +3299,10 @@ function buildDocCharts(doc) {
     S.charts.push(new Chart(razaoEl, {
       type: 'line',
       data: { labels: anos, datasets: [{ label: 'Alunos por Professor', data: razaoData,
-        borderColor: '#0D3B66', backgroundColor: '#0D3B6618', fill: true, tension: .35, pointRadius: 5, borderWidth: 2.5 }] },
+        borderColor: '#14507F', backgroundColor: '#14507F18', fill: true, tension: .35, pointRadius: 5, borderWidth: 2.5 }] },
       options: { ...CHART_DEFAULTS,
         plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false },
-          datalabels: { display: true, anchor: 'end', align: 'top', offset: 3, font: { family: 'Inter', size: 10, weight: '700' }, color: '#0D3B66', formatter: v => v?.toFixed(1) ?? '' } },
+          datalabels: { display: true, anchor: 'end', align: 'top', offset: 3, font: { family: 'Inter', size: 10, weight: '700' }, color: '#14507F', formatter: v => v?.toFixed(1) ?? '' } },
         scales: { ...CHART_DEFAULTS.scales,
           y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: razaoMin, max: razaoMax,
             ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 0.5, callback: v => v.toFixed(1) } } } }
@@ -3366,7 +3383,7 @@ function buildFunilTurma(ano) {
     const td = ftl.tamanho_turma[ano];
     const etapas = Object.keys(td);
     const medias = etapas.map(e => td[e].media_alunos);
-    const turmaColors = ['#0D3B66CC','#2874A6CC','#5a91bdCC','#8fb3d1CC','#1565C0CC','#E65100CC'];
+    const turmaColors = ['#14507FCC','#3A8CC7CC','#5a96c7CC','#8fb8daCC','#1565C0CC','#E65100CC'];
 
     S.charts.push(new Chart(turmaEl, {
       type: 'bar',
@@ -3394,134 +3411,6 @@ function buildFunilTurma(ano) {
       options: { ...CHART_DEFAULTS, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } }
     }));
   }
-}
-
-// ══════════════════════════════════════════════════════════
-// RENDER — DESIGUALDADES EDUCACIONAIS
-// ══════════════════════════════════════════════════════════
-
-function renderDesigualdades() {
-  const ftl = S.ftl;
-  const main = document.getElementById('main-content');
-  destroyCharts(); destroyMap();
-
-  const anos = Object.keys(ftl.localizacao_diferenciada).sort();
-  const ultimo = anos[anos.length - 1];
-
-  main.innerHTML = `
-    <div class="section-sticky">
-    ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades', 'Recortes Socioeconômicos', {redeToggle: false})}
-    </div>
-    <div class="filter-bar">
-      <label>Ano:</label>
-      <select id="sel-desig-ano">
-        ${anos.map(a => `<option value="${a}" ${a===ultimo?'selected':''}>${a}</option>`).join('')}
-      </select>
-    </div>
-
-    <div class="kpi-strip" id="desig-kpis"></div>
-
-    <h2 class="section-title">Localização Diferenciada</h2>
-    <div class="charts-grid">
-      <div class="chart-card d1">
-        <div class="chart-title">Escolas em Localização Diferenciada — <span id="desig-ano-label">${ultimo}</span></div>
-        <div style="height:300px"><canvas id="chart-desig-escolas"></canvas></div>
-      </div>
-      <div class="chart-card d2">
-        <div class="chart-title">Matrículas em Localização Diferenciada</div>
-        <div style="height:300px"><canvas id="chart-desig-mat"></canvas></div>
-      </div>
-    </div>
-
-    <h2 class="section-title">Evolução Temporal</h2>
-    <div class="charts-grid">
-      <div class="chart-card full-width d3">
-        <div class="chart-title">Escolas em Territórios Diferenciados — Série Histórica</div>
-        <div style="height:300px"><canvas id="chart-desig-trend"></canvas></div>
-      </div>
-    </div>
-
-    <h2 class="section-title">Detalhamento por Tipo</h2>
-    <div class="table-wrapper d4">
-      <div style="max-height:400px;overflow-y:auto">
-        <table class="data-table" id="desig-table">
-          <thead><tr><th>Tipo</th><th>Escolas</th><th>Matrículas</th><th>Média Alunos/Escola</th></tr></thead>
-          <tbody id="desig-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  buildDesigCharts(ftl, ultimo);
-
-  document.getElementById('sel-desig-ano').addEventListener('change', e => {
-    destroyCharts();
-    buildDesigCharts(ftl, e.target.value);
-    injectExportButtons();
-  });
-  injectExportButtons();
-}
-
-function buildDesigCharts(ftl, ano) {
-  const ld = ftl.localizacao_diferenciada[ano] || {};
-  const dif = Object.entries(ld).filter(([k]) => !k.includes('Nenhuma'));
-  const tipos = dif.map(([k]) => k);
-  const escolas = dif.map(([,v]) => v.escolas);
-  const mats = dif.map(([,v]) => v.matriculas);
-  const totalEsc = escolas.reduce((a,b) => a+b, 0);
-  const totalMat = mats.reduce((a,b) => a+b, 0);
-
-  const label = document.getElementById('desig-ano-label');
-  if (label) label.textContent = ano;
-
-  // KPIs
-  document.getElementById('desig-kpis').innerHTML = [
-    { label: 'Escolas Diferenciadas', value: formatNum(totalEsc) },
-    { label: 'Matrículas', value: formatNum(totalMat) },
-    { label: 'Terra Indígena', value: formatNum(dif.find(([k])=>k.includes('Indigena'))?.[1]?.escolas || 0) + ' escolas' },
-    { label: 'Quilombola', value: formatNum(dif.find(([k])=>k.includes('Quilombola'))?.[1]?.escolas || 0) + ' escolas' },
-    { label: 'Assentamento', value: formatNum(dif.find(([k])=>k.includes('Assentamento'))?.[1]?.escolas || 0) + ' escolas' },
-  ].map((k,i) => `<div class="kpi-card d${i+1}"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div></div>`).join('');
-
-  const difColors = ['#C62828CC','#1565C0CC','#6A1B9ACC','#E65100CC','#00838FCC'];
-
-  // Doughnut escolas
-  S.charts.push(new Chart(document.getElementById('chart-desig-escolas'), {
-    type: 'doughnut',
-    data: { labels: tipos, datasets: [{ data: escolas, backgroundColor: difColors, borderColor: '#fff', borderWidth: 2 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '45%',
-      plugins: { ...CHART_DEFAULTS.plugins, tooltip: { ...CHART_DEFAULTS.plugins.tooltip,
-        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} escolas (${(ctx.parsed/totalEsc*100).toFixed(1)}%)` } } } }
-  }));
-
-  // Doughnut matriculas
-  S.charts.push(new Chart(document.getElementById('chart-desig-mat'), {
-    type: 'doughnut',
-    data: { labels: tipos, datasets: [{ data: mats, backgroundColor: difColors, borderColor: '#fff', borderWidth: 2 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '45%',
-      plugins: { ...CHART_DEFAULTS.plugins, tooltip: { ...CHART_DEFAULTS.plugins.tooltip,
-        callbacks: { label: ctx => ` ${ctx.label}: ${formatNum(ctx.parsed)} matrículas` } } } }
-  }));
-
-  // Trend
-  const anos = Object.keys(ftl.localizacao_diferenciada).sort();
-  const tiposAll = ['Terra Indigena','Quilombola','Area de Assentamento'];
-  const trendColors = ['#C62828','#1565C0','#6A1B9A'];
-  S.charts.push(new Chart(document.getElementById('chart-desig-trend'), {
-    type: 'line',
-    data: { labels: anos, datasets: tiposAll.map((t,i) => ({
-      label: t, data: anos.map(a => ftl.localizacao_diferenciada[a]?.[t]?.escolas || 0),
-      borderColor: trendColors[i], backgroundColor: 'transparent', tension: .3, pointRadius: 5, borderWidth: 2.5,
-    }))},
-    options: { ...CHART_DEFAULTS, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true } } }
-  }));
-
-  // Table
-  const tbody = document.getElementById('desig-tbody');
-  tbody.innerHTML = dif.map(([tipo, v]) => {
-    const media = v.escolas > 0 ? Math.round(v.matriculas / v.escolas) : 0;
-    return `<tr><td>${tipo}</td><td>${formatNum(v.escolas)}</td><td>${formatNum(v.matriculas)}</td><td>${media}</td></tr>`;
-  }).join('');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -4364,6 +4253,13 @@ function getIdebColor(v) {
   return '#E53935';
 }
 
+// Metas IDEB projetadas pela SEDUC-RS (2023–2035) — destrinchadas por etapa
+const METAS_SEDUC = {
+  AI: { 2023: 5.8, 2024: 6.0, 2025: 6.11, 2026: 6.20, 2027: 6.26, 2028: 6.34, 2029: 6.43, 2030: 6.52, 2031: 6.58, 2032: 6.63, 2033: 6.66, 2034: 6.68, 2035: 6.69 },
+  AF: { 2023: 4.7, 2024: 4.9, 2025: 5.16, 2026: 5.39, 2027: 5.50, 2028: 5.65, 2029: 5.81, 2030: 5.96, 2031: 6.09, 2032: 6.17, 2033: 6.23, 2034: 6.26, 2035: 6.28 },
+  EM: { 2023: 3.9, 2024: 4.3, 2025: 4.72, 2026: 4.90, 2027: 4.97, 2028: 5.07, 2029: 5.18, 2030: 5.28, 2031: 5.36, 2032: 5.41, 2033: 5.45, 2034: 5.47, 2035: 5.48 },
+};
+
 function renderIdeb() {
   const ideb = S.ideb;
   const main = document.getElementById('main-content');
@@ -4554,19 +4450,63 @@ function renderIdeb() {
           <p style="font-size:9px;margin:8px 0 0;color:#999;line-height:1.5;font-style:italic">
             * Classificação adotada para fins de visualização — não corresponde a faixas oficiais do INEP.
           </p>
-          <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
-            <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
-              <strong>Metas do PNE (Plano Nacional de Educação):</strong><br>
-              Anos Iniciais: <strong>6,0</strong> · Anos Finais: <strong>5,5</strong> · Ensino Médio: <strong>5,2</strong>
+          <div style="margin-top:14px;background:rgba(29,113,185,.06);border:1px solid rgba(29,113,185,.15);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0 0 8px;color:#14507F;line-height:1.7">
+              <strong>Metas SEDUC-RS (próximas edições):</strong>
             </p>
+            <table style="width:100%;font-size:10.5px;border-collapse:separate;border-spacing:0;margin-bottom:6px">
+              <thead>
+                <tr>
+                  <th style="padding:4px 6px;text-align:left;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333"></th>
+                  <th style="padding:4px 6px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333">2025</th>
+                  <th style="padding:4px 6px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333">2027</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[0]}">Anos Iniciais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2027]?.toFixed(2)}</td></tr>
+                <tr style="background:#fafbfc"><td style="padding:3px 6px;font-weight:600;color:${idebCores[1]}">Anos Finais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2027]?.toFixed(2)}</td></tr>
+                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[2]}">Ensino Médio</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2027]?.toFixed(2)}</td></tr>
+              </tbody>
+            </table>
+            <details style="margin-top:6px">
+              <summary style="font-size:10px;font-weight:600;color:#14507F;cursor:pointer;user-select:none;padding:4px 0">
+                📋 Ver projeção completa (2023–2035)
+              </summary>
+              <div style="margin-top:6px;overflow-x:auto">
+                <table style="width:100%;font-size:9.5px;border-collapse:separate;border-spacing:0;white-space:nowrap">
+                  <thead>
+                    <tr>
+                      <th style="padding:4px 5px;text-align:left;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333;position:sticky;left:0;z-index:1">Etapa</th>
+                      ${Object.keys(METAS_SEDUC.AI).map(y => `<th style="padding:4px 5px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:600;color:#555">${y}</th>`).join('')}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding:3px 5px;font-weight:600;color:${idebCores[0]};position:sticky;left:0;background:#fff;z-index:1">Anos Iniciais</td>
+                      ${Object.values(METAS_SEDUC.AI).map(v => `<td style="padding:3px 5px;text-align:center">${v.toFixed(2)}</td>`).join('')}
+                    </tr>
+                    <tr style="background:#fafbfc">
+                      <td style="padding:3px 5px;font-weight:600;color:${idebCores[1]};position:sticky;left:0;background:#fafbfc;z-index:1">Anos Finais</td>
+                      ${Object.values(METAS_SEDUC.AF).map(v => `<td style="padding:3px 5px;text-align:center">${v.toFixed(2)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                      <td style="padding:3px 5px;font-weight:600;color:${idebCores[2]};position:sticky;left:0;background:#fff;z-index:1">Ensino Médio</td>
+                      ${Object.values(METAS_SEDUC.EM).map(v => `<td style="padding:3px 5px;text-align:center">${v.toFixed(2)}</td>`).join('')}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style="font-size:8.5px;margin:4px 0 0;color:#999;font-style:italic">Fonte: SEDUC-RS — Projeção de metas IDEB por etapa de ensino.</p>
+            </details>
           </div>
-          <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
-            <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
-              <strong>Linha tracejada</strong> nos gráficos = <strong>meta projetada</strong> pelo MEC para cada edição.
+          <div style="margin-top:8px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:8px 14px">
+            <p style="font-size:10px;margin:0;color:#5D4037;line-height:1.7">
+              <strong>Metas do PNE:</strong> AI: <strong>6,0</strong> · AF: <strong>5,5</strong> · EM: <strong>5,2</strong><br>
+              <strong>Linha tracejada</strong> nos gráficos = <strong>meta projetada pela SEDUC-RS</strong> para cada edição.
             </p>
           </div>
           <p style="font-size:9px;margin:10px 0 0;color:#999;line-height:1.5;font-style:italic">
-            Fontes: INEP — Nota Técnica do IDEB; PNE — Lei nº 13.005/2014, art. 1º, Anexo (Meta 7).
+            Fontes: INEP — Nota Técnica do IDEB; PNE — Lei nº 13.005/2014 (Meta 7); SEDUC-RS — Projeção de metas.
           </p>
         </div>
       </div>
@@ -4575,13 +4515,13 @@ function renderIdeb() {
     <!-- ═══ EIXO: Evolução ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-      <span class="section-divider-text">IDEB — Evolução por Etapa (${anos[0]}–${ultimo})</span>
+      <span class="section-divider-text">IDEB — Evolução por Etapa (${anos[0]}–2027)</span>
       <span class="section-divider-line"></span>
     </div>
 
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">IDEB Observado × Meta Projetada — ${geoLabel}</div>
+        <div class="chart-title">IDEB Observado × Meta SEDUC-RS — ${geoLabel}</div>
         <div style="height:360px"><canvas id="chart-ideb-evolucao"></canvas></div>
         <div class="chart-source">${FONTE_IDEB}</div>
       </div>
@@ -4690,37 +4630,52 @@ function renderIdeb() {
   // ════════════════════════════════════════════════════════════════
   const elEvo = document.getElementById('chart-ideb-evolucao');
   if (elEvo) {
+    // Extended labels: observed years + future SEDUC meta years (up to 2027)
+    const metaYears = isStateLevel ? ['2025', '2027'].filter(y => !anos.includes(y)) : [];
+    const chartLabels = [...anos, ...metaYears];
+
     const datasets = [];
     idebEtapas.forEach((et, etIdx) => {
-      const dataObs = anos.map(a => getGeoData(a)?.[et]?.ideb ?? null);
+      // Observed data (fill observed years, null for future)
+      const dataObs = chartLabels.map(a => {
+        const gd = getGeoData(a);
+        return gd?.[et]?.ideb ?? null;
+      });
       datasets.push({
-        label: idebLabels[etIdx], data: dataObs, _isMeta: false, _etIdx: etIdx,
+        label: idebLabels[etIdx], data: dataObs, _isMeta: false, _etIdx: etIdx, _isSeduc: false,
         borderColor: idebCores[etIdx], backgroundColor: idebCores[etIdx] + '18',
         borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 2,
         tension: .3, spanGaps: true,
       });
-      // Metas only at state level
+      // Metas SEDUC (dashed line, at state level)
       if (isStateLevel) {
-        const dataMeta = anos.map(a => ideb.serie_temporal[a]?.[et]?.meta ?? null);
+        const dataMeta = chartLabels.map(a => METAS_SEDUC[et]?.[parseInt(a)] ?? null);
         if (dataMeta.some(v => v != null)) {
           datasets.push({
-            label: `Meta ${idebLabels[etIdx]}`, data: dataMeta, _isMeta: true, _etIdx: etIdx,
-            borderColor: idebCores[etIdx] + '55', borderWidth: 1.5, borderDash: [6, 4],
-            pointRadius: 2, pointBackgroundColor: idebCores[etIdx] + '55', tension: .3, spanGaps: true,
+            label: `Meta SEDUC ${idebLabels[etIdx]}`, data: dataMeta, _isMeta: true, _etIdx: etIdx, _isSeduc: true,
+            borderColor: idebCores[etIdx] + '70', borderWidth: 1.8, borderDash: [6, 4],
+            pointRadius: 3, pointBackgroundColor: idebCores[etIdx] + '55',
+            pointStyle: 'triangle', tension: .3, spanGaps: true,
           });
         }
       }
     });
     S.charts.push(new Chart(elEvo, {
       type: 'line',
-      data: { labels: anos, datasets },
+      data: { labels: chartLabels, datasets },
       options: {
         ...CHART_DEFAULTS, layout: { padding: { top: 25 } },
         plugins: {
           ...CHART_DEFAULTS.plugins,
           legend: {
             display: true, position: 'bottom',
-            labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10, usePointStyle: true },
+            labels: {
+              font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 10, usePointStyle: true,
+              filter: item => {
+                // Show meta only once in legend (not per-etapa)
+                return true;
+              },
+            },
           },
           datalabels: {
             display: ctx => !ctx.dataset._isMeta,
@@ -5030,6 +4985,7 @@ function renderHome() {
     { view: 'afd', icon: 'img/icons/professor.png', title: 'Formação Docente', desc: 'Adequação da formação por etapa' },
     { view: 'fluxo', icon: 'img/icons/sec_evolucao.png', title: 'Fluxo e Rendimento', desc: 'Aprovação, reprovação e abandono' },
     { view: 'saers', icon: 'img/icons/sec_saeb.png', title: 'SAERS', desc: 'Avaliação Estadual — Proficiência e Padrão de Desempenho' },
+    { view: 'desigualdades', icon: 'img/icons/nav_desigualdades.png', title: 'Desigualdades', desc: 'Gaps de desempenho por raça, sexo, localização e outros recortes' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB', desc: 'Proficiência em Língua Portuguesa e Matemática' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
@@ -5380,7 +5336,7 @@ function fluxoUpdateKPIs(st, tdiSrc, f, anos, anoSel) {
     { label: 'Reprovação Fund.', key: 'reprov_fund', value: st.reprov_fund, icon: 'img/icons/fundamental.png', accent: 'red', suffix: '%' },
     { label: 'Abandono Médio', key: 'aband_med', value: st.aband_med, icon: 'img/icons/medio.png', accent: 'red', suffix: '%' },
   ];
-  const accentColors = { green: '#2E86C1', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
+  const accentColors = { green: '#1d71b9', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
   const refLabel = prev ? `vs ${prev}` : '';
 
   strip.innerHTML = kpis.map((k, i) => {
@@ -5637,21 +5593,21 @@ function buildFluxoMap(f, anoSel, metricKey) {
   let tiers;
   if (metricDef.higher) {
     tiers = [
-      { min: 95, color: '#0D3B66', label: '≥ 95%' },
+      { min: 95, color: '#14507F', label: '≥ 95%' },
       { min: 90, color: '#5cba68', label: '90% – 94%' },
       { min: 80, color: '#FFDF00', label: '80% – 89%' },
       { min: 0, color: '#EE302F', label: '< 80%' },
     ];
   } else {
     tiers = [
-      { min: 0, max: 3, color: '#0D3B66', label: '< 3%' },
+      { min: 0, max: 3, color: '#14507F', label: '< 3%' },
       { min: 3, max: 8, color: '#5cba68', label: '3% – 7%' },
       { min: 8, max: 15, color: '#FFDF00', label: '8% – 14%' },
       { min: 15, max: 999, color: '#EE302F', label: '≥ 15%' },
     ];
     if (metricDef.tdi) {
       tiers = [
-        { min: 0, max: 10, color: '#0D3B66', label: '< 10%' },
+        { min: 0, max: 10, color: '#14507F', label: '< 10%' },
         { min: 10, max: 20, color: '#5cba68', label: '10% – 19%' },
         { min: 20, max: 30, color: '#FFDF00', label: '20% – 29%' },
         { min: 30, max: 999, color: '#EE302F', label: '≥ 30%' },
@@ -5743,21 +5699,21 @@ function buildFluxoCreMap(f, anoSel, metricKey) {
   let tiers;
   if (metricDef.higher) {
     tiers = [
-      { min: 95, color: '#0D3B66', label: '≥ 95%' },
+      { min: 95, color: '#14507F', label: '≥ 95%' },
       { min: 90, color: '#5cba68', label: '90% – 94%' },
       { min: 80, color: '#FFDF00', label: '80% – 89%' },
       { min: 0, color: '#EE302F', label: '< 80%' },
     ];
   } else if (metricDef.tdi) {
     tiers = [
-      { min: 0, max: 10, color: '#0D3B66', label: '< 10%' },
+      { min: 0, max: 10, color: '#14507F', label: '< 10%' },
       { min: 10, max: 20, color: '#5cba68', label: '10% – 19%' },
       { min: 20, max: 30, color: '#FFDF00', label: '20% – 29%' },
       { min: 30, max: 999, color: '#EE302F', label: '≥ 30%' },
     ];
   } else {
     tiers = [
-      { min: 0, max: 3, color: '#0D3B66', label: '< 3%' },
+      { min: 0, max: 3, color: '#14507F', label: '< 3%' },
       { min: 3, max: 8, color: '#5cba68', label: '3% – 7%' },
       { min: 8, max: 15, color: '#FFDF00', label: '8% – 14%' },
       { min: 15, max: 999, color: '#EE302F', label: '≥ 15%' },
@@ -6089,12 +6045,13 @@ function renderInse() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="inse-btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="inse-btn-layer-cre">CREs</button>
+            ${S.escolasData ? '<button class="map-layer-btn" id="inse-btn-layer-escola">Escolas</button>' : ''}
           </div>
         </div>
         <div id="inse-map-leaflet" style="height:380px;border-radius:8px"></div>
         <div class="chart-source">${FONTE_INSE}</div>
       </div>
-      <div class="chart-card" style="min-height:400px">
+      <div class="chart-card" style="min-height:400px" id="inse-table-wrapper">
         <div class="chart-title">Tabela Municipal — INSE</div>
         <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
           📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
@@ -6590,18 +6547,156 @@ function renderInse() {
   inseBuildMunTable();
   injectExportButtons();
 
+  // ── Escola layer for INSE map ──
+  const inseBuildEscolaLayer = () => {
+    if (!S.escolasData?.escolas || !S.map) return;
+    if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+
+    const markers = L.layerGroup();
+    const creMuns = S.creSel ? getCreMuns(S.creSel) : null;
+    const lookup = inse.lookup_municipios || {};
+
+    S.escolasData.escolas.forEach(e => {
+      if (!e.lat || !e.lng || e.inse_media == null) return;
+      if (S.munSel && e.cod_mun !== S.munSel) return;
+      if (creMuns && !creMuns.includes(e.cod_mun)) return;
+      const nivel = e.inse_nivel || '—';
+      const cor = INSE_NIVEL_COLORS[nivel] || '#999';
+      const m = L.circleMarker([e.lat, e.lng], {
+        radius: 5, fillColor: cor, color: '#fff', weight: 1, fillOpacity: 0.85
+      });
+      m.bindPopup(`<div style="font-size:11px;min-width:200px">
+        <strong>${e.nome}</strong><br>
+        <span style="color:#888">${lookup[e.cod_mun] || e.municipio || e.cod_mun}</span><br>
+        <div style="margin-top:6px">
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${cor};vertical-align:middle;margin-right:6px"></span>
+          <strong>INSE: ${e.inse_media?.toFixed(2)}</strong> — ${nivel}
+        </div>
+        ${e.mat_total ? `<div style="margin-top:4px;color:#555">Matrículas: ${formatNum(e.mat_total)}</div>` : ''}
+      </div>`, { maxWidth: 280 });
+      markers.addLayer(m);
+    });
+    markers.addTo(S.map);
+    S.escolasMarkers = markers;
+
+    // Escola table
+    const wrapper = document.getElementById('inse-table-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = `
+        <div class="chart-title">Tabela de Escolas — INSE</div>
+        <div style="margin:6px 0 4px">
+          <input type="text" id="inse-escola-search" placeholder="🔍 Pesquisar escola..."
+            style="width:100%;padding:6px 10px;font-size:11px;border:1px solid #ddd;border-radius:6px;font-family:Inter">
+        </div>
+        <div style="max-height:380px;overflow-y:auto">
+          <table class="data-table" id="inse-escola-table">
+            <thead><tr>
+              <th>#</th><th>Escola</th><th>Município</th><th>INSE</th><th style="min-width:90px">Nível</th><th>Matrículas</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_INSE}</div>`;
+
+      let escolas = S.escolasData.escolas.filter(e => e.inse_media != null);
+      if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
+      if (creMuns) escolas = escolas.filter(e => creMuns.includes(e.cod_mun));
+      escolas.sort((a, b) => (b.inse_media || 0) - (a.inse_media || 0));
+
+      const tbody = wrapper.querySelector('tbody');
+      tbody.innerHTML = escolas.map((e, i) => {
+        const cor = INSE_NIVEL_COLORS[e.inse_nivel] || '#999';
+        return `<tr style="cursor:pointer" data-lat="${e.lat}" data-lng="${e.lng}">
+          <td>${i+1}</td>
+          <td>${e.nome}</td>
+          <td>${lookup[e.cod_mun] || e.municipio || e.cod_mun}</td>
+          <td><strong>${e.inse_media?.toFixed(2) || '—'}</strong></td>
+          <td style="white-space:nowrap"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${cor};vertical-align:middle;margin-right:4px"></span><strong style="color:${cor}">${e.inse_nivel || '—'}</strong></td>
+          <td>${e.mat_total ? formatNum(e.mat_total) : '—'}</td>
+        </tr>`;
+      }).join('');
+
+      // Click-to-zoom
+      tbody.querySelectorAll('tr[data-lat]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const lat = parseFloat(tr.dataset.lat), lng = parseFloat(tr.dataset.lng);
+          if (lat && lng && S.map) S.map.setView([lat, lng], 14);
+        });
+      });
+
+      // Search
+      document.getElementById('inse-escola-search')?.addEventListener('input', ev => {
+        const q = ev.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          tr.style.display = nome.includes(q) ? '' : 'none';
+        });
+      });
+
+      injectExportButtons();
+    }
+
+    // Legend
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'leaflet-legend');
+      const niveis = Object.entries(INSE_NIVEL_COLORS);
+      div.innerHTML = '<div style="font-weight:700;margin-bottom:4px;font-size:10px">Nível INSE</div>' +
+        niveis.map(([n, c]) => `<div style="display:flex;align-items:center;gap:5px;font-size:9px;margin:2px 0">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c}"></span>${n}
+        </div>`).join('');
+      return div;
+    };
+    legend.addTo(S.map);
+    S.mapLegend = legend;
+  };
+
   // Bind INSE map layer toggle
   const inseBtnMun = document.getElementById('inse-btn-layer-mun');
   const inseBtnCre = document.getElementById('inse-btn-layer-cre');
+  const inseBtnEsc = document.getElementById('inse-btn-layer-escola');
   if (inseBtnMun && inseBtnCre) {
+    const restoreInseTableWrapper = () => {
+      const wrapper = document.getElementById('inse-table-wrapper');
+      if (wrapper && !wrapper.querySelector('#inse-mun-table')) {
+        wrapper.innerHTML = `
+          <div class="chart-title">Tabela Municipal — INSE</div>
+          <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
+            📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção. Clique novamente para desfiltrar.
+          </div>
+          <div style="margin:6px 0 4px">
+            <input type="text" id="inse-mun-search" placeholder="🔍 Pesquisar município..."
+              style="width:100%;padding:6px 10px;font-size:11px;border:1px solid #ddd;border-radius:6px;font-family:Inter">
+          </div>
+          <div style="max-height:340px;overflow-y:auto">
+            <table class="data-table" id="inse-mun-table">
+              <thead><tr><th>#</th><th>Município</th><th>INSE</th><th>Nível</th><th>Escolas</th><th>Alunos</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="chart-source">${FONTE_INSE}</div>`;
+      }
+    };
     inseBtnMun.addEventListener('click', () => {
-      inseBtnMun.classList.add('active'); inseBtnCre.classList.remove('active');
-      inseBuildMap();
+      inseBtnMun.classList.add('active'); inseBtnCre.classList.remove('active'); inseBtnEsc?.classList.remove('active');
+      if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+      restoreInseTableWrapper();
+      inseBuildMap(); inseBuildMunTable();
     });
     inseBtnCre.addEventListener('click', () => {
-      inseBtnCre.classList.add('active'); inseBtnMun.classList.remove('active');
-      inseBuildCreMap();
+      inseBtnCre.classList.add('active'); inseBtnMun.classList.remove('active'); inseBtnEsc?.classList.remove('active');
+      if (S.escolasMarkers) { S.escolasMarkers.remove(); S.escolasMarkers = null; }
+      restoreInseTableWrapper();
+      inseBuildCreMap(); inseBuildMunTable();
     });
+    if (inseBtnEsc) {
+      inseBtnEsc.addEventListener('click', () => {
+        inseBtnEsc.classList.add('active'); inseBtnMun.classList.remove('active'); inseBtnCre.classList.remove('active');
+        inseBuildEscolaLayer();
+      });
+    }
   }
 
   // Re-populate topbar filters (destroyed by innerHTML)
@@ -8768,6 +8863,7 @@ function initNav() {
       else if (view === 'icg') { renderIcg(); }
       else if (view === 'afd') { renderAfd(); }
       else if (view === 'tdi') { renderTdi(); }
+      else if (view === 'desigualdades' && S.desig) { renderDesigualdades(); }
       else if (view === 'escolas') { renderEscolas(); }
       else {
         const main = document.getElementById('main-content');
@@ -8959,7 +9055,7 @@ function buildIntegralPct(d) {
 
   // Series config
   const seriesConfig = [
-    { key: 'agregado', label: 'Fund. + Médio', color: '#0D3B66' },
+    { key: 'agregado', label: 'Fund. + Médio', color: '#14507F' },
     { key: 'fundamental', label: 'Fundamental', color: COLORS.fundAI },
     { key: 'medio', label: 'Médio', color: COLORS.medio || '#FF6F00' },
   ];
@@ -9484,7 +9580,7 @@ function buildCreLayer(anoSel, metric) {
 
   const values = Object.values(creData).map(v => v.total).filter(v => v > 0);
   const maxVal = values.length ? Math.max(...values) : 1;
-  const CRE_SCALE = ['#c5d5e4', '#8fb3d1', '#5a91bd', '#3576a9', '#0D3B66'];
+  const CRE_SCALE = ['#c7dbed', '#8fb8da', '#5a96c7', '#3578b3', '#14507F'];
   const breaks = [0, 0.2, 0.4, 0.6, 0.8].map(t => Math.round(t * maxVal));
 
   function getColor(v) {
@@ -9909,11 +10005,486 @@ function refreshActiveTab() {
   else if (view === 'icg') renderIcg();
   else if (view === 'afd') renderAfd();
   else if (view === 'tdi') renderTdi();
+  else if (view === 'desigualdades' && S.desig) renderDesigualdades();
   else if (view === 'escola') renderEscola();
 }
 
+
 // ══════════════════════════════════════════════════════════
-// VISÃO POR ESCOLA
+
+// ══════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════
+// DESIGUALDADES EDUCACIONAIS (SAERS)
+// ══════════════════════════════════════════════════════════
+
+function renderDesigualdades() {
+  const main = document.getElementById('main-content');
+  destroyCharts(); destroyMap();
+  document.body.classList.remove('sidebar-hidden');
+
+  const dd = S.desig;
+  if (!dd) return;
+
+  const meta = dd.metadata;
+  const anos = dd.anos.map(a => a.ano);
+  const ETAPA_LABELS = meta.etapa_labels;
+  const ETAPAS = Object.keys(ETAPA_LABELS);
+  const FONTE = 'Fonte: ' + meta.fonte;
+  const defaultEtapa = ETAPAS.includes('5_EF') ? '5_EF' : ETAPAS[0];
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades Educacionais', geoSuffix('Gaps de desempenho por recortes sociodemográficos — SAERS'))}
+
+      <!-- Filtros no header -->
+      <div class="rede-toggle-strip" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:6px 20px">
+        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
+          <img src="img/icons/sec_evolucao.png" alt="" style="width:14px;height:14px"> Ano:
+          <select id="desig-sel-ano" class="filter-select">${anos.map(a => '<option value="' + a + '"' + (a===anos[anos.length-1]?' selected':'') + '>' + a + '</option>').join('')}</select>
+        </label>
+        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
+          <img src="img/icons/sec_saeb.png" alt="" style="width:14px;height:14px"> Etapa:
+          <select id="desig-sel-etapa" class="filter-select">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
+        </label>
+        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
+          <img src="img/icons/panorama.png" alt="" style="width:14px;height:14px"> Disciplina:
+          <select id="desig-sel-disc" class="filter-select">
+            <option value="LP">L\u00edngua Portuguesa</option>
+            <option value="MT">Matem\u00e1tica</option>
+          </select>
+        </label>
+        <span id="desig-aviso" style="font-size:10px;color:#E65100;font-style:italic;display:none;margin-left:auto"></span>
+      </div>
+
+      <div class="kpi-strip" id="desig-kpis"></div>
+    </div>
+
+    <!-- ═══ BLOCO INFORMATIVO ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/nav_desigualdades.png" alt=""></span>
+      <span class="section-divider-text">Sobre esta Se\u00e7\u00e3o</span>
+      <span class="section-divider-line"></span>
+    </div>
+
+    <div class="chart-card" style="padding:0;overflow:hidden;border:1px solid rgba(13,59,102,.08)">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#f6f9fc 0%,#eef2f7 100%)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/nav_desigualdades.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Desigualdades Educacionais</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
+            Esta se\u00e7\u00e3o analisa os <strong>gaps de desempenho</strong> entre grupos sociodemogr\u00e1ficos
+            a partir dos <strong>microdados do SAERS</strong> (Sistema de Avalia\u00e7\u00e3o do Rendimento Escolar do RS).
+            S\u00e3o investigadas <strong>7 dimens\u00f5es de desigualdade</strong>: ra\u00e7a/cor, sexo, localiza\u00e7\u00e3o
+            (urbana/rural), defici\u00eancia, turno, CRE e intersec\u00e7\u00f5es.
+          </p>
+          <div style="background:rgba(255,203,4,.1);border:1px solid rgba(255,203,4,.25);border-radius:6px;padding:10px 14px">
+            <p style="font-size:11px;margin:0;color:#5D4037;line-height:1.7">
+              <strong style="color:#E65100">\u26A0 Nota:</strong> O <strong>2\u00ba ano do Ensino Fundamental</strong>
+              n\u00e3o possui dados de ra\u00e7a e sexo, pois o question\u00e1rio contextual do SAERS n\u00e3o \u00e9
+              aplicado a esta faixa et\u00e1ria.
+            </p>
+          </div>
+        </div>
+        <div style="padding:20px 24px;border-left:1px solid rgba(13,59,102,.06)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <img src="img/icons/sec_saeb.png" alt="" style="width:20px;height:20px">
+            <span style="font-size:14px;font-weight:700;color:var(--pri)">Dados Utilizados</span>
+          </div>
+          <p style="font-size:11.5px;margin:0 0 14px;color:#333;line-height:1.75">
+            Os dados foram extra\u00eddos dos <strong>microdados individuais do SAERS</strong> de
+            <strong>${anos[0]} a ${anos[anos.length-1]}</strong>, totalizando mais de
+            <strong>2,6 milh\u00f5es</strong> de registros de alunos avaliados em
+            <strong>L\u00edngua Portuguesa</strong> e <strong>Matem\u00e1tica</strong>.
+          </p>
+          <table style="width:100%;font-size:10px;border-collapse:separate;border-spacing:0;margin-bottom:10px">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Dimens\u00e3o</th>
+                <th style="padding:6px 8px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Recortes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1d71b9;margin-right:5px;vertical-align:middle"></span><strong>Ra\u00e7a/Cor</strong></td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Branca, Parda, Preta, Ind\u00edgena, Amarela</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E91E63;margin-right:5px;vertical-align:middle"></span><strong>Sexo</strong></td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Feminino, Masculino</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#43A047;margin-right:5px;vertical-align:middle"></span><strong>Localiza\u00e7\u00e3o</strong></td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Urbana, Rural</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E53935;margin-right:5px;vertical-align:middle"></span><strong>Defici\u00eancia</strong></td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Com, Sem</td></tr>
+              <tr><td style="padding:5px 8px;border-bottom:1px solid #eee"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F57C00;margin-right:5px;vertical-align:middle"></span><strong>Turno</strong></td><td style="padding:5px 8px;border-bottom:1px solid #eee;color:#555">Manh\u00e3, Tarde, Integral, Noite</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:5px 8px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6A1B9A;margin-right:5px;vertical-align:middle"></span><strong>CRE</strong></td><td style="padding:5px 8px;color:#555">30 Coordenadorias Regionais</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:9px;margin:10px 0 0;color:#999;line-height:1.5;font-style:italic">${FONTE}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 1. Gap Racial ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/nav_desigualdades.png" alt=""></span>
+      <span class="section-divider-text">Gap Racial</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia M\u00e9dia por Ra\u00e7a/Cor</div><div style="height:280px"><canvas id="chart-desig-raca-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Ra\u00e7a/Cor</div><div style="height:280px"><canvas id="chart-desig-raca-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 2. Gap de G\u00eanero ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
+      <span class="section-divider-text">Gap de G\u00eanero</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia M\u00e9dia por Sexo</div><div style="height:280px"><canvas id="chart-desig-sexo-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Sexo</div><div style="height:280px"><canvas id="chart-desig-sexo-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 3. Urbana vs Rural ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/nav_acesso.png" alt=""></span>
+      <span class="section-divider-text">Gap por Localiza\u00e7\u00e3o</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia: Urbana vs Rural</div><div style="height:280px"><canvas id="chart-desig-loc-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal Urbana vs Rural</div><div style="height:280px"><canvas id="chart-desig-loc-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 4. Defici\u00eancia ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/politicas.png" alt=""></span>
+      <span class="section-divider-text">Gap por Defici\u00eancia</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia: Com vs Sem Defici\u00eancia</div><div style="height:280px"><canvas id="chart-desig-def-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado: Com vs Sem Defici\u00eancia</div><div style="height:280px"><canvas id="chart-desig-def-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 5. Interseccionalidade ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/nav_desigualdades.png" alt=""></span>
+      <span class="section-divider-text">Interseccionalidade: Ra\u00e7a \u00d7 Localiza\u00e7\u00e3o</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card full-width"><div class="chart-title">Profici\u00eancia M\u00e9dia \u2014 Ra\u00e7a/Cor \u00d7 Localiza\u00e7\u00e3o</div><div style="height:350px"><canvas id="chart-desig-inter"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 6. Turno ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+      <span class="section-divider-text">Gap por Turno</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 7. CRE ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
+      <span class="section-divider-text">Ranking por Coordenadoria Regional</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card full-width"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:480px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 8. Panorama ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Panorama: Gap Racial por Etapa</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card full-width"><div class="chart-title">Gap Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+  `;
+
+  function buildCharts() {
+    destroyCharts();
+    const anoSel = parseInt(document.getElementById('desig-sel-ano').value);
+    const etapa = document.getElementById('desig-sel-etapa').value;
+    const disc = document.getElementById('desig-sel-disc').value;
+    const key = etapa + '_' + disc;
+
+    function getDesigYearData(ano) {
+      const yd = dd.anos.find(a => a.ano === ano);
+      if (!yd) return null;
+      if (S.munSel && yd.por_municipio) {
+        const m = yd.por_municipio[S.munSel];
+        if (m) return m;
+      }
+      if (S.creSel && yd.por_cre) {
+        const c = yd.por_cre[S.creSel];
+        if (c) return c;
+      }
+      return yd;
+    }
+
+    const yearData = getDesigYearData(anoSel);
+    if (!yearData || !yearData.dimensoes) {
+      document.getElementById('desig-kpis').innerHTML = `<div style="padding:20px;text-align:center;color:#E65100;font-weight:600;font-size:14px;width:100%">Sem dados suficientes (N < 10) para os filtros selecionados.</div>`;
+      return;
+    }
+    const dims = yearData.dimensoes;
+    const geral = yearData.geral?.[key] || null;
+
+    // Warning for 2_EF
+    const avisoEl = document.getElementById('desig-aviso');
+    if (avisoEl) {
+      if (etapa === '2_EF') {
+        avisoEl.style.display = 'inline';
+        avisoEl.textContent = '\u26A0 O 2\u00ba ano EF n\u00e3o possui dados de ra\u00e7a e sexo (question\u00e1rio n\u00e3o aplicado).';
+      } else { avisoEl.style.display = 'none'; }
+    }
+
+    const getVal = (dim, group, k) => dims[dim]?.[group]?.[k || key]?.media;
+    const getPct = (dim, group, k) => dims[dim]?.[group]?.[k || key]?.pct_adeq_av;
+
+    // ── Premium KPIs ──
+    const kpiDiv = document.getElementById('desig-kpis');
+    const branca = getVal('raca','Branca');
+    const preta = getVal('raca','Preta');
+    const urbana = getVal('localizacao','Urbana');
+    const rural = getVal('localizacao','Rural');
+    const fem = getVal('sexo','Feminino');
+    const masc = getVal('sexo','Masculino');
+    const semDef = getVal('deficiencia','Sem defici\u00eancia');
+    const comDef = getVal('deficiencia','Com defici\u00eancia');
+    const gapRacial = branca != null && preta != null ? (branca - preta) : null;
+    const gapLoc = urbana != null && rural != null ? (urbana - rural) : null;
+    const gapSexo = fem != null && masc != null ? (fem - masc) : null;
+    const gapDef = semDef != null && comDef != null ? (semDef - comDef) : null;
+
+    const kpis = [
+      { label: 'M\u00e9dia Geral', val: geral?.media?.toFixed(1) || '\u2014', accent: 'blue', icon: 'img/icons/sec_saeb.png',
+        subtext: (geral?.pct_adeq_av != null ? geral.pct_adeq_av.toFixed(1) + '% adequado+avan\u00e7ado' : '') },
+      { label: 'Gap Racial (Branca\u2013Preta)', val: gapRacial != null ? gapRacial.toFixed(1) + ' pts' : 'N/D', accent: 'red', icon: 'img/icons/nav_desigualdades.png',
+        subtext: gapRacial != null ? 'Branca ' + branca?.toFixed(0) + ' \u00d7 Preta ' + preta?.toFixed(0) : '' },
+      { label: 'Gap Urbana\u2013Rural', val: gapLoc != null ? gapLoc.toFixed(1) + ' pts' : 'N/D', accent: 'yellow', icon: 'img/icons/nav_acesso.png',
+        subtext: gapLoc != null ? 'Urb. ' + urbana?.toFixed(0) + ' \u00d7 Rur. ' + rural?.toFixed(0) : '' },
+      { label: 'Gap de G\u00eanero', val: gapSexo != null ? Math.abs(gapSexo).toFixed(1) + ' pts' : 'N/D', accent: 'green', icon: 'img/icons/sec_docentes.png',
+        subtext: gapSexo != null ? (gapSexo > 0 ? 'Feminino acima' : 'Masculino acima') : '' },
+      { label: 'Alunos Avaliados', val: geral?.n?.toLocaleString('pt-BR') || '\u2014', accent: 'blue', icon: 'img/icons/escola.png',
+        subtext: ETAPA_LABELS[etapa] + ' \u2014 ' + (disc === 'LP' ? 'L\u00edngua Portuguesa' : 'Matem\u00e1tica') },
+    ];
+
+    kpiDiv.innerHTML = kpis.map((k, i) => `
+      <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">${k.val}</span>
+        </div>
+        <div class="kpi-footer">
+          ${k.subtext ? '<span class="kpi-abs">' + k.subtext + '</span>' : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // Color palettes
+    const RACA_COLORS = { Branca:'#1d71b9', Parda:'#FFCB04', Preta:'#333', 'Ind\u00edgena':'#E53935', Amarela:'#43A047' };
+    const RACA_ORDER = ['Branca','Parda','Preta','Ind\u00edgena','Amarela'];
+    const SEXO_COLORS = { Feminino:'#E91E63', Masculino:'#1d71b9' };
+    const LOC_COLORS = { Urbana:'#1d71b9', Rural:'#43A047' };
+    const DEF_COLORS = { 'Sem defici\u00eancia':'#1d71b9', 'Com defici\u00eancia':'#E53935' };
+    const TURNO_COLORS = { 'Manh\u00e3':'#FFCB04', Tarde:'#F57C00', Noite:'#333', Integral:'#1d71b9' };
+
+    const DL_VAL = { display: true, font: { size: 10, weight: 'bold' }, color: '#333', anchor: 'end', align: 'top', formatter: v => v != null ? v.toFixed(1) : '' };
+    const DL_PCT = { ...DL_VAL, formatter: v => v != null ? v.toFixed(1) + '%' : '' };
+
+    // ── 1. RA\u00c7A BAR ──
+    const racaGroups = RACA_ORDER.filter(g => dims.raca?.[g]?.[key]);
+    if (racaGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-bar'), {
+        type: 'bar',
+        data: { labels: racaGroups, datasets: [{ label: 'Profici\u00eancia', data: racaGroups.map(g => getVal('raca', g)),
+          backgroundColor: racaGroups.map(g => RACA_COLORS[g] || '#999'), borderRadius: 4, barPercentage: 0.6 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+    }
+
+    // ── 1b. RA\u00c7A LINE (all years) ──
+    if (racaGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-line'), {
+        type: 'line',
+        data: { labels: anos, datasets: racaGroups.map(g => ({
+          label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.raca?.[g]?.[key]?.media || null),
+          borderColor: RACA_COLORS[g] || '#999', tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
+        })) },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+      }));
+    }
+
+    // ── 2. SEXO BAR ──
+    const sexoGroups = ['Feminino', 'Masculino'].filter(g => dims.sexo?.[g]?.[key]);
+    if (sexoGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-sexo-bar'), {
+        type: 'bar',
+        data: { labels: sexoGroups, datasets: [{ label: 'Profici\u00eancia', data: sexoGroups.map(g => getVal('sexo', g)),
+          backgroundColor: sexoGroups.map(g => SEXO_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+    }
+
+    // ── 2b. SEXO LINE (all years) ──
+    if (sexoGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-sexo-line'), {
+        type: 'line',
+        data: { labels: anos, datasets: sexoGroups.map(g => ({
+          label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.sexo?.[g]?.[key]?.media || null),
+          borderColor: SEXO_COLORS[g], tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
+        })) },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+      }));
+    }
+
+    // ── 3. LOCALIZA\u00c7\u00c3O BAR ──
+    const locGroups = ['Urbana', 'Rural'].filter(g => dims.localizacao?.[g]?.[key]);
+    if (locGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-loc-bar'), {
+        type: 'bar',
+        data: { labels: locGroups, datasets: [{ label: 'Profici\u00eancia', data: locGroups.map(g => getVal('localizacao', g)),
+          backgroundColor: locGroups.map(g => LOC_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+    }
+
+    // ── 3b. LOCALIZA\u00c7\u00c3O LINE (all years) ──
+    if (locGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-loc-line'), {
+        type: 'line',
+        data: { labels: anos, datasets: locGroups.map(g => ({
+          label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.localizacao?.[g]?.[key]?.media || null),
+          borderColor: LOC_COLORS[g], tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
+        })) },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+      }));
+    }
+
+    // ── 4. DEFICI\u00caNCIA ──
+    const defGroups = ['Sem defici\u00eancia', 'Com defici\u00eancia'].filter(g => dims.deficiencia?.[g]?.[key]);
+    if (defGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-def-bar'), {
+        type: 'bar',
+        data: { labels: defGroups, datasets: [{ label: 'Profici\u00eancia', data: defGroups.map(g => getVal('deficiencia', g)),
+          backgroundColor: defGroups.map(g => DEF_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+      S.charts.push(new Chart(document.getElementById('chart-desig-def-pct'), {
+        type: 'bar',
+        data: { labels: defGroups, datasets: [{ label: '% Adequado+Avan\u00e7ado', data: defGroups.map(g => getPct('deficiencia', g)),
+          backgroundColor: defGroups.map(g => DEF_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } },
+      }));
+    }
+
+    // ── 5. INTERSEC\u00c7\u00c3O ──
+    const interOrder = ['Branca - Urbana', 'Branca - Rural', 'Parda - Urbana', 'Parda - Rural', 'Preta - Urbana', 'Preta - Rural', 'Ind\u00edgena - Urbana', 'Ind\u00edgena - Rural'];
+    const interGrupos = interOrder.filter(g => dims.raca_loc?.[g]?.[key]);
+    if (interGrupos.length > 0) {
+      const interColors = interGrupos.map(g => RACA_COLORS[g.split(' - ')[0]] || '#999');
+      S.charts.push(new Chart(document.getElementById('chart-desig-inter'), {
+        type: 'bar',
+        data: { labels: interGrupos.map(g => g.replace(' - ', '\n')),
+          datasets: [{ label: 'Profici\u00eancia', data: interGrupos.map(g => getVal('raca_loc', g)),
+            backgroundColor: interGrupos.map((g,i) => g.includes('Rural') ? interColors[i] + '77' : interColors[i] + 'CC'),
+            borderColor: interColors, borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] },
+        options: { ...CHART_DEFAULTS, indexAxis: 'y',
+          plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: { ...DL_VAL, anchor: 'end', align: 'right' } },
+          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 }, y: { ticks: { font: { size: 9, family: 'Inter' } } } } },
+      }));
+    }
+
+    // ── 6. TURNO ──
+    const turnoOrder = ['Manh\u00e3', 'Tarde', 'Integral', 'Noite'];
+    const turnoGrupos = turnoOrder.filter(g => dims.turno?.[g]?.[key]);
+    if (turnoGrupos.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-turno-bar'), {
+        type: 'bar',
+        data: { labels: turnoGrupos, datasets: [{ label: 'Profici\u00eancia', data: turnoGrupos.map(g => getVal('turno', g)),
+          backgroundColor: turnoGrupos.map(g => TURNO_COLORS[g]), borderRadius: 4, barPercentage: 0.6 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+      S.charts.push(new Chart(document.getElementById('chart-desig-turno-pct'), {
+        type: 'bar',
+        data: { labels: turnoGrupos, datasets: [{ label: '% Adequado+Avan\u00e7ado', data: turnoGrupos.map(g => getPct('turno', g)),
+          backgroundColor: turnoGrupos.map(g => TURNO_COLORS[g]), borderRadius: 4, barPercentage: 0.6 }] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } },
+      }));
+    }
+
+    // ── 7. CRE RANKING ──
+    const creData = dims.cre || {};
+    const creLookup = yearData.cre_lookup || {};
+    const creEntries = Object.entries(creData)
+      .map(([cod, d]) => ({ cod, nome: creLookup[cod] || cod + '\u00aa CRE', val: d[key]?.media, n: d[key]?.n || 0 }))
+      .filter(c => c.val != null)
+      .sort((a, b) => b.val - a.val);
+    if (creEntries.length > 0) {
+      const median = geral?.media || 200;
+      S.charts.push(new Chart(document.getElementById('chart-desig-cre'), {
+        type: 'bar',
+        data: { labels: creEntries.map(c => c.cod + '\u00aa \u2013 ' + c.nome),
+          datasets: [{ label: 'Profici\u00eancia', data: creEntries.map(c => c.val),
+            backgroundColor: creEntries.map(c => c.val >= median ? '#1d71b9CC' : '#E53935CC'),
+            borderRadius: 3, barPercentage: 0.7 }] },
+        options: { ...CHART_DEFAULTS, indexAxis: 'y',
+          plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: { ...DL_VAL, anchor: 'end', align: 'right', font: { size: 8, weight: 'bold' } } },
+          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 }, y: { ticks: { font: { size: 8, family: 'Inter' } } } } },
+      }));
+    }
+
+    // ── 8. PANORAMA MULTI-ETAPA ──
+    const panLabels = []; const panBranca = []; const panPreta = [];
+    ETAPAS.forEach(et => {
+      ['LP', 'MT'].forEach(dc => {
+        const k = et + '_' + dc;
+        const b = dims.raca?.Branca?.[k]?.media;
+        const p = dims.raca?.Preta?.[k]?.media;
+        if (b != null && p != null) {
+          panLabels.push(ETAPA_LABELS[et] + ' ' + dc);
+          panBranca.push(b); panPreta.push(p);
+        }
+      });
+    });
+    if (panLabels.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-panorama'), {
+        type: 'bar',
+        data: { labels: panLabels, datasets: [
+          { label: 'Branca', data: panBranca, backgroundColor: '#1d71b9CC', borderRadius: 3, barPercentage: 0.35, categoryPercentage: 0.8 },
+          { label: 'Preta', data: panPreta, backgroundColor: '#333333CC', borderRadius: 3, barPercentage: 0.35, categoryPercentage: 0.8 },
+        ] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+      }));
+    }
+  }
+
+  buildCharts();
+
+  ['desig-sel-ano', 'desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', buildCharts);
+  });
+
+  injectExportButtons();
+}
+
 // ══════════════════════════════════════════════════════════
 
 const ESCOLA_INDICATORS = [
@@ -10308,6 +10879,8 @@ function renderEscolas() {
 // SEÇÃO: SAERS — Avaliação Estadual do RS
 // ══════════════════════════════════════════════════════════
 
+const FONTE_SAERS = 'Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul';
+
 function renderSaers() {
   const main = document.getElementById('main-content');
   destroyCharts(); destroyMap();
@@ -10347,7 +10920,6 @@ function renderSaers() {
     latestYear?.geral?.[`${etapa}_LP`] || latestYear?.geral?.[`${etapa}_MT`]
   );
 
-  const FONTE_SAERS = 'Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul';
 
   // Helper: get geral data
   const getGeral = (yearData, etapa, disc) => yearData?.geral?.[`${etapa}_${disc}`] || {};
@@ -10466,7 +11038,7 @@ function renderSaers() {
             </tbody>
           </table>
           <div style="background:rgba(13,59,102,.05);border:1px solid rgba(13,59,102,.12);border-radius:6px;padding:10px 14px">
-            <p style="font-size:10.5px;margin:0;color:#0D3B66;line-height:1.7">
+            <p style="font-size:10.5px;margin:0;color:#14507F;line-height:1.7">
               <strong>Nota:</strong> O SAERS utiliza a <strong>Teoria de Resposta ao Item (TRI)</strong> para o
               cálculo da proficiência, garantindo comparabilidade entre edições. Os padrões de desempenho
               são definidos pelo <strong>CAED/UFJF</strong> com base nos pontos de corte estabelecidos para cada etapa.
@@ -10810,89 +11382,108 @@ function renderSaers() {
     const tableWrapper = document.getElementById('saers-table-wrapper');
     if (!tableWrapper) return;
 
-    const etapa = document.getElementById('sel-saers-map-etapa')?.value || '5_EF';
+    const ETAPAS_ALL = ['2_EF', '5_EF', '9_EF', '3_EM'];
+    const ETAPA_LBL = S.saersEscolasData.etapa_labels || sd.etapa_labels || {};
     const anoSel = document.getElementById('sel-saers-map-ano')?.textContent || sd.anos[sd.anos.length - 1]?.ano?.toString() || '2025';
     const anoData = S.saersEscolasData.anos?.[anoSel];
     if (!anoData) return;
 
     const porEscola = anoData.por_escola || {};
     const escolaLookup = anoData.escola_lookup || {};
-    const escolas = S.escolasData?.escolas || [];
     const coordMap = {};
-    escolas.forEach(e => { coordMap[e.inep] = e; });
+    (S.escolasData?.escolas || []).forEach(e => { coordMap[e.inep] = e; });
 
-    // Build rows
+    const etapasDisp = ETAPAS_ALL.filter(et =>
+      Object.values(porEscola).some(d => d[`${et}_LP`] || d[`${et}_MT`])
+    );
+
     const rows = [];
     for (const [inep, dados] of Object.entries(porEscola)) {
       const info = escolaLookup[inep] || {};
       const coord = coordMap[inep];
       if (S.creSel && info.cre !== S.creSel) continue;
       if (S.munSel && info.cod_mun !== S.munSel) continue;
-      const dLP = dados[`${etapa}_LP`];
-      const dMT = dados[`${etapa}_MT`];
-      if (!dLP && !dMT) continue;
-      rows.push({
-        inep, nome: info.nome || coord?.nome || inep,
-        municipio: coord?.municipio || '',
-        profLP: dLP?.proficiencia, profMT: dMT?.proficiencia,
-        pctLP: dLP?.padrao?.pct_adequado_avancado, pctMT: dMT?.padrao?.pct_adequado_avancado,
-        avaliados: (dLP?.avaliados || 0) + (dMT?.avaliados || 0),
+      const r = { inep, nome: info.nome || coord?.nome || inep, municipio: coord?.municipio || '' };
+      let hasData = false;
+      etapasDisp.forEach(et => {
+        const dLP = dados[`${et}_LP`], dMT = dados[`${et}_MT`];
+        r[`${et}_profLP`] = dLP?.proficiencia;
+        r[`${et}_profMT`] = dMT?.proficiencia;
+        r[`${et}_pctLP`] = dLP?.padrao?.pct_adequado_avancado;
+        r[`${et}_pctMT`] = dMT?.padrao?.pct_adequado_avancado;
+        if (dLP || dMT) hasData = true;
       });
+      if (hasData) rows.push(r);
     }
 
-    let sortCol = 'profLP', sortAsc = false;
-    rows.sort((a, b) => (b.profLP || 0) - (a.profLP || 0));
-
-    const ETAPA_LABELS = S.saersEscolasData.etapa_labels || {};
     const fmtV = v => v != null ? v.toFixed(1) : '—';
     const fmtP = v => v != null ? v.toFixed(1) + '%' : '—';
+    const pctClr = v => v != null && v >= 50 ? '#27AE60' : '#E53935';
 
-    // Replace table header title
     const titleEl = tableWrapper.querySelector('.table-header h3');
-    if (titleEl) titleEl.textContent = `Tabela por Escola — ${ETAPA_LABELS[etapa] || etapa}`;
+    if (titleEl) titleEl.textContent = `Tabela por Escola — Todas as Etapas (${anoSel})`;
     const searchEl = document.getElementById('saers-mun-search');
     if (searchEl) { searchEl.value = ''; searchEl.placeholder = 'Buscar escola...'; }
 
     const tbody = document.getElementById('saers-mun-tbody');
-    const thead = document.querySelector('#saers-mun-table thead tr');
-    if (!tbody || !thead) return;
+    const theadEl = document.querySelector('#saers-mun-table thead');
+    if (!tbody || !theadEl) return;
 
-    thead.innerHTML = '<th style="cursor:pointer" data-col="rank"># ↕</th><th style="cursor:pointer" data-col="nome">Escola ↕</th><th style="cursor:pointer" data-col="municipio">Município ↕</th><th style="cursor:pointer" data-col="profLP">Prof. LP ↕</th><th style="cursor:pointer" data-col="profMT">Prof. MT ↕</th><th style="cursor:pointer" data-col="pctLP">% Adeq. LP ↕</th><th style="cursor:pointer" data-col="pctMT">% Adeq. MT ↕</th><th style="cursor:pointer" data-col="avaliados">Avaliados ↕</th>';
+    let hdr1 = '<th class="sticky-col sticky-col-0" rowspan="2" style="min-width:32px">#</th>';
+    hdr1 += '<th class="sticky-col sticky-col-1" rowspan="2" style="min-width:200px;cursor:pointer" data-col="nome">Escola ⇅</th>';
+    hdr1 += '<th rowspan="2" style="cursor:pointer;min-width:90px" data-col="municipio">Município ⇅</th>';
+    etapasDisp.forEach(et => {
+      hdr1 += `<th colspan="4" style="text-align:center;background:rgba(29,113,185,.08);border-left:2px solid var(--pri);font-size:10px">${ETAPA_LBL[et] || et}</th>`;
+    });
+    let hdr2 = '';
+    etapasDisp.forEach(et => {
+      hdr2 += `<th style="font-size:8px;border-left:2px solid var(--pri);cursor:pointer;white-space:nowrap" data-col="${et}_profLP">LP ⇅</th>`;
+      hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_profMT">MT ⇅</th>`;
+      hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_pctLP">%A LP ⇅</th>`;
+      hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_pctMT">%A MT ⇅</th>`;
+    });
+    theadEl.innerHTML = `<tr>${hdr1}</tr><tr>${hdr2}</tr>`;
+
+    let sortCol = etapasDisp.length > 0 ? `${etapasDisp[0]}_profLP` : 'nome';
+    let sortAsc = false;
+    rows.sort((a, b) => (b[sortCol] || 0) - (a[sortCol] || 0));
 
     const renderRows = () => {
-      tbody.innerHTML = rows.map((r, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td style="font-size:10px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.nome}">${r.nome}</td>
-          <td style="font-size:10px">${r.municipio}</td>
-          <td style="font-weight:700">${fmtV(r.profLP)}</td>
-          <td style="font-weight:700">${fmtV(r.profMT)}</td>
-          <td style="font-weight:700;color:${r.pctLP != null && r.pctLP >= 50 ? '#27AE60' : '#E53935'}">${fmtP(r.pctLP)}</td>
-          <td style="font-weight:700;color:${r.pctMT != null && r.pctMT >= 50 ? '#27AE60' : '#E53935'}">${fmtP(r.pctMT)}</td>
-          <td>${r.avaliados}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = rows.map((r, i) => {
+        let h = `<tr><td class="sticky-col sticky-col-0">${i+1}</td>`;
+        h += `<td class="sticky-col sticky-col-1" style="font-size:10px;min-width:200px;white-space:normal;word-break:break-word;line-height:1.3">${r.nome}</td>`;
+        h += `<td style="font-size:10px">${r.municipio}</td>`;
+        etapasDisp.forEach(et => {
+          h += `<td style="font-weight:600;border-left:2px solid rgba(29,113,185,.15)">${fmtV(r[`${et}_profLP`])}</td>`;
+          h += `<td style="font-weight:600">${fmtV(r[`${et}_profMT`])}</td>`;
+          h += `<td style="font-weight:600;color:${pctClr(r[`${et}_pctLP`])}">${fmtP(r[`${et}_pctLP`])}</td>`;
+          h += `<td style="font-weight:600;color:${pctClr(r[`${et}_pctMT`])}">${fmtP(r[`${et}_pctMT`])}</td>`;
+        });
+        return h + '</tr>';
+      }).join('');
     };
     renderRows();
 
-    // Sortable
-    thead.querySelectorAll('th[data-col]').forEach(th => {
+    const tableEl = document.getElementById('saers-mun-table');
+    if (tableEl) {
+      const scrollDiv = tableEl.closest('div[style*="overflow"]') || tableEl.parentElement;
+      if (scrollDiv) { scrollDiv.style.overflowX = 'auto'; scrollDiv.style.position = 'relative'; }
+    }
+
+    document.querySelectorAll('#saers-mun-table th[data-col]').forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.col;
-        if (key === 'rank') return;
         if (sortCol === key) sortAsc = !sortAsc;
         else { sortCol = key; sortAsc = (key === 'nome' || key === 'municipio'); }
         rows.sort((a, b) => {
           const va = typeof a[key] === 'string' ? (a[key] || '') : (a[key] ?? -1);
           const vb = typeof b[key] === 'string' ? (b[key] || '') : (b[key] ?? -1);
-          const cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
-          return sortAsc ? cmp : -cmp;
+          return sortAsc ? (typeof va === 'string' ? va.localeCompare(vb) : va - vb) : (typeof va === 'string' ? vb.localeCompare(va) : vb - va);
         });
         renderRows();
       });
     });
 
-    // Search
     if (searchEl) {
       searchEl.oninput = () => {
         const q = searchEl.value.toLowerCase();
@@ -11485,7 +12076,7 @@ async function init() {
   initNav();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc, respDesig] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -11503,6 +12094,7 @@ async function init() {
       fetch('dados/escolas_estaduais.json'),
       fetch('dados/4_saers_estadual.json'),
       fetch('dados/4_saers_escolas.json'),
+      fetch('dados/4_11_desigualdades.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -11522,6 +12114,7 @@ async function init() {
     if (respEscolas.ok)   S.escolasData = await respEscolas.json();
     if (respSaers.ok)     S.saersData   = await respSaers.json();
     if (respSaersEsc.ok)  S.saersEscolasData = await respSaersEsc.json();
+    if (respDesig.ok)     S.desig = await respDesig.json();
 
     // Seed rede cache with initial estadual data
     S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi, saers: S.saersData, saersEscolas: S.saersEscolasData };
