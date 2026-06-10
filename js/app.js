@@ -5349,6 +5349,21 @@ function renderFluxo() {
         </div>
         <div class="chart-source">${FONTE_REND}</div>
       </div>
+      <div class="table-wrapper" id="flx-cre-wrapper" style="display:none">
+        <div class="table-header">
+          <h3>Tabela de CREs</h3>
+          <input type="text" class="table-search" id="flx-cre-search" placeholder="Buscar CRE...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="flx-cre-table">
+            <thead><tr>
+              <th>#</th><th>CRE</th><th>Aprovação Fund.</th><th>Aprovação Médio</th><th>Reprovação Fund.</th><th>Reprovação Médio</th><th>Abandono Fund.</th><th>Abandono Médio</th>
+            </tr></thead>
+            <tbody id="flx-cre-tbody"></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_REND}</div>
+      </div>
       <div class="table-wrapper" id="flx-escola-wrapper" style="display:none">
         <div class="table-header">
           <h3>Tabela de Escolas (2024)</h3>
@@ -5395,18 +5410,22 @@ function renderFluxo() {
     flxBtnMun.addEventListener('click', () => {
       clearFlxMapBtns(); flxBtnMun.classList.add('active');
       document.getElementById('flx-table-wrapper').style.display = '';
+      document.getElementById('flx-cre-wrapper').style.display = 'none';
       document.getElementById('flx-escola-wrapper').style.display = 'none';
       buildFluxoMap(f, anoSel, selMetric?.value || 'aprov_fund');
     });
     flxBtnCre.addEventListener('click', () => {
       clearFlxMapBtns(); flxBtnCre.classList.add('active');
-      document.getElementById('flx-table-wrapper').style.display = '';
+      document.getElementById('flx-table-wrapper').style.display = 'none';
+      document.getElementById('flx-cre-wrapper').style.display = '';
       document.getElementById('flx-escola-wrapper').style.display = 'none';
       buildFluxoCreMap(f, anoSel, selMetric?.value || 'aprov_fund');
+      fluxoBuildCreTable(f, anoSel);
     });
     flxBtnEsc.addEventListener('click', () => {
       clearFlxMapBtns(); flxBtnEsc.classList.add('active');
       document.getElementById('flx-table-wrapper').style.display = 'none';
+      document.getElementById('flx-cre-wrapper').style.display = 'none';
       document.getElementById('flx-escola-wrapper').style.display = '';
       fluxoBuildEscMap(f, anoSel, selMetric?.value || 'aprov_fund');
     });
@@ -5970,6 +5989,103 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
 
   // Search
   document.getElementById('flx-mun-search')?.addEventListener('input', e => {
+    const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      tr.style.display = nome.includes(q) ? '' : 'none';
+    });
+  });
+}
+
+/** Build CRE-level ranking table for Fluxo */
+function fluxoBuildCreTable(f, anoSel) {
+  const munData = f.por_municipio[anoSel] || {};
+  const munToCre = S.creLookup?.mun_to_cre || {};
+  const creList = S.creLookup?.cre_list || [];
+
+  // Aggregate by CRE
+  const creAgg = {};
+  for (const [cod, v] of Object.entries(munData)) {
+    const creInfo = munToCre[cod];
+    if (!creInfo) continue;
+    const cre = creInfo.cod_cre;
+    if (!creAgg[cre]) creAgg[cre] = { nome: creInfo.nome_cre || `CRE ${cre}`, cod: cre, vals: {} };
+    for (const k of ['aprov_fund','aprov_med','reprov_fund','reprov_med','aband_fund','aband_med']) {
+      if (v[k] != null) {
+        if (!creAgg[cre].vals[k]) creAgg[cre].vals[k] = { sum: 0, n: 0 };
+        creAgg[cre].vals[k].sum += v[k];
+        creAgg[cre].vals[k].n += 1;
+      }
+    }
+  }
+
+  let rows = Object.values(creAgg).map(c => {
+    const r = { cod: c.cod, nome: c.nome };
+    for (const k of ['aprov_fund','aprov_med','reprov_fund','reprov_med','aband_fund','aband_med']) {
+      r[k] = c.vals[k] ? +(c.vals[k].sum / c.vals[k].n).toFixed(1) : null;
+    }
+    return r;
+  }).sort((a,b) => (b.aprov_fund||0) - (a.aprov_fund||0));
+
+  const pctCell = (val, higher = true) => {
+    if (val == null) return '<td style="text-align:center;color:var(--text-light)">—</td>';
+    let cls;
+    if (higher) { cls = val >= 90 ? 'color:#00AB4E' : val >= 80 ? 'color:#E6A100' : 'color:#EE302F'; }
+    else { cls = val < 5 ? 'color:#00AB4E' : val < 10 ? 'color:#E6A100' : 'color:#EE302F'; }
+    return `<td style="text-align:center;font-weight:700;${cls}">${val.toFixed(1)}%</td>`;
+  };
+
+  const tbody = document.getElementById('flx-cre-tbody');
+  if (!tbody) return;
+
+  const renderRows = (data) => {
+    tbody.innerHTML = data.map((r, i) =>
+      `<tr data-cod="${r.cod}" style="cursor:pointer" class="${S.creSel === r.cod ? 'selected' : ''}" title="Clique para filtrar por ${r.nome}">
+        <td>${i + 1}</td><td><strong>${r.nome}</strong></td>
+        ${pctCell(r.aprov_fund, true)}${pctCell(r.aprov_med, true)}
+        ${pctCell(r.reprov_fund, false)}${pctCell(r.reprov_med, false)}
+        ${pctCell(r.aband_fund, false)}${pctCell(r.aband_med, false)}
+      </tr>`
+    ).join('');
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const cod = tr.dataset.cod;
+        S.creSel = S.creSel === cod ? null : cod;
+        const selCre = document.getElementById('sel-cre');
+        if (selCre) selCre.value = S.creSel || '';
+        populateMunDropdown(S.creSel || null);
+        refreshActiveTab();
+      });
+    });
+  };
+  renderRows(rows);
+
+  // Sortable
+  const table = document.getElementById('flx-cre-table');
+  if (table) {
+    const colKeys = ['_rank','nome','aprov_fund','aprov_med','reprov_fund','reprov_med','aband_fund','aband_med'];
+    let sortCol = -1, sortAsc = true;
+    table.querySelectorAll('th').forEach((th, ci) => {
+      th.style.cursor = 'pointer';
+      th.title = 'Clique para ordenar';
+      th.addEventListener('click', () => {
+        if (sortCol === ci) sortAsc = !sortAsc; else { sortCol = ci; sortAsc = ci <= 1; }
+        const key = colKeys[ci];
+        rows.sort((a, b) => {
+          const va = key === 'nome' ? a.nome : key === '_rank' ? 0 : (a[key] ?? -999);
+          const vb = key === 'nome' ? b.nome : key === '_rank' ? 0 : (b[key] ?? -999);
+          const cmp = typeof va === 'string' ? va.localeCompare(vb, 'pt-BR') : va - vb;
+          return sortAsc ? cmp : -cmp;
+        });
+        renderRows(rows);
+        table.querySelectorAll('th').forEach(h => h.textContent = h.textContent.replace(/ [▲▼]/g, ''));
+        th.textContent += sortAsc ? ' ▲' : ' ▼';
+      });
+    });
+  }
+
+  // Search
+  document.getElementById('flx-cre-search')?.addEventListener('input', e => {
     const q = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     tbody.querySelectorAll('tr').forEach(tr => {
       const nome = (tr.children[1]?.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
