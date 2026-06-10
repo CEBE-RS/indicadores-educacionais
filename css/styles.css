@@ -1770,10 +1770,14 @@ body.sidebar-hidden .sidebar {
 /* ── Grid ── */
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   animation: fadeSlideUp .7s ease .25s both;
 }
+.col-span-4 { grid-column: span 4; display: flex; align-items: center; justify-content: center; padding: 10px 20px; text-align: center; }
+.col-span-4 .home-card-text { align-items: center; }
+.col-span-4 .home-card-title, .col-span-4 .home-card-desc { text-align: center; }
+.col-span-4 .home-card-arrow { position: absolute; right: 20px; margin-left: 0; }
 
 /* ── Card premium ── */
 .home-card {

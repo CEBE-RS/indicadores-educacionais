@@ -54,7 +54,7 @@ const S = {
   redeCache: {},         // { estadual: { acesso: data, infra: data }, ... }
 };
 
-const FONTE_CENSO = 'Fonte: INEP — <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar Censo Escolar no portal INEP">Censo Escolar da Educação Básica</a> · <a href="https://www.gov.br/inep/pt-br/centrais-de-conteudo/acervo-linha-editorial/publicacoes-institucionais/estatisticas-e-indicadores-educacionais/caderno-de-conceitos-e-orientacoes-do-censo-escolar-2025-1a-etapa-da-coleta" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar o Caderno de Conceitos e Orientações 2025">📘 Caderno do Censo 2025</a>';
+const FONTE_CENSO = 'Fonte: INEP — <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar Censo Escolar no portal INEP">Censo Escolar da Educação Básica</a> · <a href="https://download.inep.gov.br/publicacoes/institucionais/estatisticas_e_indicadores/cadernos_de_conceitos_2025.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar o Caderno de Conceitos e Orientações 2025">📘 Caderno do Censo 2025</a>';
 
 // Paleta Bandeira RS: Verde #00AB4E, Vermelho #EE302F, Amarelo #FFCB04
 const COLORS = {
@@ -179,6 +179,13 @@ function exportChartCSV(btn) {
   const datasets = chart.data.datasets || [];
 
   // Build CSV
+  const metaRows = [
+    ['Fonte', 'Censo Escolar, INEP, extraído e tratado pela equipe SEDUC / Unesco'],
+    ['Rede', getRedeLabel()],
+    ['Ano/Edicao', S.anoSel || 'Geral'],
+    ['Tabela', title],
+    []
+  ];
   const header = ['Categoria', ...datasets.map(ds => ds.label || 'Valor')];
   const rows = labels.map((lbl, i) => {
     return [lbl, ...datasets.map(ds => {
@@ -187,7 +194,7 @@ function exportChartCSV(btn) {
     })];
   });
 
-  const csv = '\uFEFF' + [header, ...rows].map(r => r.join(';')).join('\n');
+  const csv = '\uFEFF' + [...metaRows, header, ...rows].map(r => r.join(';')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -270,7 +277,15 @@ function exportTableCSV(btn) {
     rows.push(cells);
   });
 
-  const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(c => c.replace(/;/g, ',')).join(';')).join('\n');
+  const metaRows = [
+    ['Fonte', 'Censo Escolar, INEP, extraído e tratado pela equipe SEDUC / Unesco'],
+    ['Rede', getRedeLabel()],
+    ['Ano/Edicao', S.anoSel || 'Geral'],
+    ['Tabela', title],
+    []
+  ];
+
+  const csv = '\uFEFF' + [...metaRows, headers, ...rows].map(r => r.map(c => c.replace(/;/g, ',')).join(';')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -332,7 +347,7 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
         <h2>${title}<span id="rede-subtitle">${subtitle || ''}</span></h2>
         <span id="mun-filter-slot" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:12px"></span>
       </div>
-      <div class="section-banner-right">
+      <div class="section-banner-right" style="flex-direction:column;align-items:flex-end;gap:4px">
         <div class="banner-filters">
           <div class="banner-filter-group">
             <label class="banner-filter-label">Ano</label>
@@ -354,6 +369,9 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
               <option value="">Todos</option>
             </select>
           </div>
+        </div>
+        <div style="font-size:9px;color:rgba(255,255,255,.6);text-align:right;font-weight:500;letter-spacing:.3px;padding-right:4px;">
+          💡 Dica: Ajuste o zoom do painel<br>(Ctrl - ou Ctrl +) para sua preferência
         </div>
       </div>
     </div>
@@ -392,7 +410,7 @@ async function loadRedeData(rede) {
     return S.redeCache[rede];
   }
   // Fetch all data sources in parallel; 404s handled gracefully
-  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb', 'tdi', 'saers', 'saersEscolas'];
+  const keys = ['acesso', 'infra', 'fluxo', 'saeb', 'inse', 'icg', 'afd', 'ideb', 'tdi', 'saers', 'saersEscolas', 'docentes'];
   const urls = [
     `dados/4_1_acesso_${rede}.json`,
     `dados/4_5_infra_${rede}.json`,
@@ -407,6 +425,7 @@ async function loadRedeData(rede) {
     rede === 'estadual' ? `dados/4_saers_escolas.json`
       : rede === 'municipal' ? `dados/4_saers_escolas_municipal.json`
       : `dados/4_saers_escolas_${rede}.json`, // will 404 gracefully for other redes
+    `dados/4_5_docentes_${rede}.json`
   ];
   const cb = '_cb=' + Date.now();
   const responses = await Promise.all(urls.map(u => fetch(u + '?' + cb).catch(() => null)));
@@ -466,6 +485,7 @@ async function switchRede(rede) {
     S.tdi   = cached.tdi;
     S.saersData = cached.saers;
     S.saersEscolasData = cached.saersEscolas;
+    S.doc   = cached.docentes;
     // Update rede toggle active state
     document.querySelectorAll('.rede-toggle-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.rede === rede);
@@ -595,6 +615,53 @@ function aggregateCre(d, ano, creCod) {
     }
   }
   return result;
+}
+
+function getInseScope(inse, ano) {
+  if (!inse.serie_temporal[ano]) return null;
+  if (S.munSel && inse.por_municipio?.[ano]?.[S.munSel]) {
+    const m = inse.por_municipio[ano][S.munSel];
+    return {
+      media: m.inse,
+      n_escolas: m.n_escolas,
+      n_alunos: m.n_alunos,
+      dist_niveis_escolas: m.dist_niveis || {},
+      dist_niveis_alunos: m.dist_niveis || {},
+      urbana: { media: m.urbana },
+      rural: { media: m.rural },
+    };
+  } else if (S.creSel && inse.por_municipio?.[ano]) {
+    const muns = getCreMuns(S.creSel);
+    let sumInse = 0, sumEsc = 0, sumAlu = 0, uSum = 0, uCnt = 0, rSum = 0, rCnt = 0;
+    const distEsc = {};
+    for (const cod of muns) {
+      const m = inse.por_municipio[ano][cod];
+      if (!m) continue;
+      if (m.inse && m.n_escolas) { sumInse += (m.inse * m.n_escolas); sumEsc += m.n_escolas; }
+      if (m.n_alunos) sumAlu += m.n_alunos;
+      if (typeof m.urbana === 'number') { uSum += m.urbana; uCnt++; }
+      if (typeof m.rural === 'number') { rSum += m.rural; rCnt++; }
+      if (m.dist_niveis) {
+        for (const [niv, v] of Object.entries(m.dist_niveis)) {
+          if (!distEsc[niv]) distEsc[niv] = { count: 0 };
+          distEsc[niv].count += (v.count || 0);
+        }
+      }
+    }
+    for (const niv of Object.keys(distEsc)) {
+      distEsc[niv].pct = sumEsc ? (distEsc[niv].count / sumEsc * 100) : 0;
+    }
+    return {
+      media: sumEsc ? (sumInse / sumEsc) : null,
+      n_escolas: sumEsc,
+      n_alunos: sumAlu,
+      dist_niveis_escolas: distEsc,
+      dist_niveis_alunos: distEsc,
+      urbana: uCnt ? { media: uSum / uCnt } : {},
+      rural: rCnt ? { media: rSum / rCnt } : {},
+    };
+  }
+  return inse.serie_temporal[ano];
 }
 
 /** Returns a suffix string for chart titles when a geo filter is active */
@@ -2122,25 +2189,32 @@ function buildInfraEscolaLayer(infra) {
     });
     const yesNo = (v) => v ? '<span style="color:#00AB4E">✓</span>' : '<span style="color:#EE302F">✗</span>';
     marker.bindPopup(`
-      <div style="font-family:Inter;min-width:220px">
+      <div style="font-family:Inter;min-width:260px">
         <strong style="font-size:12px">${e.nome}</strong><br>
         <span style="font-size:10px;color:#666">${e.municipio || lookup[e.cod_mun] || ''} — INEP: ${e.inep}</span>
         <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
         <div style="font-size:10px;margin-bottom:4px">
           ${e.salas_total ? `Salas: ${e.salas_total} (${e.salas_clim || 0} clim.)` : ''}
         </div>
-        <div style="font-size:9px;display:grid;grid-template-columns:1fr 1fr;gap:1px;line-height:1.5">
+        <div style="font-size:9px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;line-height:1.5">
           <span>${yesNo(e.internet)} Internet</span>
-          <span>${yesNo(e.biblioteca)} Biblioteca</span>
+          <span>${yesNo(e.banda_larga)} Banda Larga</span>
+          <span>${yesNo(e.computador)} Computador</span>
+          <span>${yesNo(e.biblioteca || e.bib_sala_leit)} Biblioteca</span>
           <span>${yesNo(e.lab_info)} Lab. Info</span>
-          <span>${yesNo(e.quadra)} Quadra</span>
           <span>${yesNo(e.lab_ciencias)} Lab. Ciências</span>
+          <span>${yesNo(e.quadra || e.quadra_coberta)} Quadra</span>
+          <span>${yesNo(e.sala_diretoria)} S. Diretoria</span>
+          <span>${yesNo(e.sala_professor)} S. Professor</span>
           <span>${yesNo(e.rampas)} Rampas</span>
-          <span>${yesNo(e.refeitorio)} Refeitório</span>
+          <span>${yesNo(e.banheiro_pne)} Banh. PNE</span>
           <span>${yesNo(e.sala_aee)} Sala AEE</span>
+          <span>${yesNo(e.refeitorio)} Refeitório</span>
+          <span>${yesNo(e.agua_potavel)} Água Pot.</span>
+          <span>${yesNo(e.alimentacao)} Alimentação</span>
         </div>
       </div>
-    `, { maxWidth: 280 });
+    `, { maxWidth: 320 });
     markers.addLayer(marker);
   });
   markers.addTo(S.map);
@@ -2152,7 +2226,7 @@ function buildInfraEscolaLayer(infra) {
   if (titleEl) titleEl.textContent = 'Infraestrutura por Escola — 2025';
 
   const thead = document.querySelector('#infra-mun-table thead tr');
-  if (thead) thead.innerHTML = '<th style="width:30px">#</th><th style="position:sticky;left:0;z-index:2;background:#f8f9fa;min-width:180px;border-right:2px solid #e0e0e0">Escola</th><th>Município</th><th>Internet</th><th>Banda Larga</th><th>Biblioteca</th><th>Lab.Inf.</th><th>Lab.Ciên.</th><th>Quadra</th><th>Rampas</th><th>Banh.PNE</th><th>Refeitório</th><th>Sala AEE</th><th>Salas</th><th>Climat.</th>';
+  if (thead) thead.innerHTML = '<th style="width:30px">#</th><th style="position:sticky;left:0;z-index:2;background:#f8f9fa;min-width:180px;border-right:2px solid #e0e0e0">Escola</th><th>Município</th><th>Internet</th><th>Banda Larga</th><th>Computador</th><th>Biblioteca</th><th>Lab.Inf.</th><th>Lab.Ciên.</th><th>Quadra</th><th>S.Diretoria</th><th>S.Professor</th><th>Rampas</th><th>Banh.PNE</th><th>Refeitório</th><th>Sala AEE</th><th>Água</th><th>Aliment.</th><th>Salas</th><th>Climat.</th>';
 
   const sorted = [...escolas].filter(e => e.infra_score != null).sort((a, b) => (a.infra_score || 0) - (b.infra_score || 0));
   const tbody = document.getElementById('infra-mun-tbody');
@@ -2170,14 +2244,19 @@ function buildInfraEscolaLayer(infra) {
       <td style="font-size:10px">${e.municipio || lookup[e.cod_mun] || ''}</td>
       ${pctBadge(e.internet)}
       ${pctBadge(e.banda_larga)}
-      ${pctBadge(e.biblioteca)}
+      ${pctBadge(e.computador)}
+      ${pctBadge(e.biblioteca || e.bib_sala_leit)}
       ${pctBadge(e.lab_info)}
       ${pctBadge(e.lab_ciencias)}
-      ${pctBadge(e.quadra)}
+      ${pctBadge(e.quadra || e.quadra_coberta)}
+      ${pctBadge(e.sala_diretoria)}
+      ${pctBadge(e.sala_professor)}
       ${pctBadge(e.rampas)}
       ${pctBadge(e.banheiro_pne)}
       ${pctBadge(e.refeitorio)}
       ${pctBadge(e.sala_aee)}
+      ${pctBadge(e.agua_potavel)}
+      ${pctBadge(e.alimentacao)}
       <td style="text-align:center">${e.salas_total || 0}</td>
       <td style="text-align:center">${e.salas_clim || 0}</td>
     </tr>
@@ -2712,7 +2791,8 @@ function renderDocencia() {
 
   main.innerHTML = `
     <div class="section-sticky">
-    ${sectionBanner('img/icons/sec_docentes.png', 'Docência', 'Rede Estadual do RS', {redeToggle: false})}
+    ${sectionBanner('img/icons/sec_docentes.png', 'Docência')}
+    ${redeToggleHTML()}
 
     <div class="kpi-strip" id="doc-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
@@ -3210,7 +3290,24 @@ function buildDocCharts(doc) {
   const docTotal = p.total || 0;
   const docTotalAno = docAnoData['QT_DOC_BAS'] || docAnoData['total'] || docTotal;
   const sexoTotal = p.por_sexo ? Object.values(p.por_sexo).reduce((a, b) => a + b, 0) : docTotal;
-  const razaoAno = doc.razao_aluno_professor?.[anoSelDoc]?.geral;
+  let razaoAno = null;
+  let matT = 0, docTAno = 0;
+  if (S.munSel) {
+      matT = S.data?.por_municipio?.[anoSelDoc]?.[S.munSel]?.mat_total || doc.serie_temporal_municipio?.[anoSelDoc]?.[S.munSel]?.matriculas || 0;
+      docTAno = (anoSelDoc === '2025' ? doc.por_municipio_2025?.[S.munSel]?.docentes : doc.serie_temporal_municipio?.[anoSelDoc]?.[S.munSel]?.docentes) || 0;
+  } else if (S.creSel) {
+      const creMuns = getCreMuns(S.creSel);
+      const ym_doc = anoSelDoc === '2025' ? doc.por_municipio_2025 : doc.serie_temporal_municipio?.[anoSelDoc] || {};
+      const ym_mat = S.data?.por_municipio?.[anoSelDoc] || {};
+      creMuns.forEach(c => {
+          docTAno += ym_doc?.[c]?.docentes || 0;
+          matT += ym_mat[c]?.mat_total || ym_doc?.[c]?.matriculas || 0;
+      });
+  } else {
+      matT = S.data?.serie_temporal?.[anoSelDoc]?.mat_total || 0;
+      docTAno = doc.serie_temporal_total?.[anoSelDoc]?.QT_DOC_BAS || docTotalAno || 0;
+  }
+  if (docTAno > 0 && matT > 0) razaoAno = Math.round(matT / docTAno * 10) / 10;
   const femPct = p.por_sexo ? (p.por_sexo.Feminino / sexoTotal * 100).toFixed(1) + '%' : '—';
   const supPct = p.por_escolaridade?.Superior ? (p.por_escolaridade.Superior / docTotal * 100).toFixed(1) + '%' : '—';
   const kpis = [
@@ -3277,22 +3374,27 @@ function buildDocCharts(doc) {
 
   // Line: razao aluno/professor — municipality-aware
   const razaoEl = document.getElementById('chart-doc-razao');
-  if (razaoEl && doc.razao_aluno_professor) {
-    const anos = Object.keys(doc.razao_aluno_professor).sort();
-    let razaoData;
-    if (S.munSel && doc.serie_temporal_municipio) {
-      razaoData = anos.map(a => doc.serie_temporal_municipio?.[a]?.[S.munSel]?.razao ?? null);
-    } else if (S.creSel && doc.serie_temporal_municipio) {
-      const creMuns = getCreMuns(S.creSel);
-      razaoData = anos.map(a => {
-        const ym = doc.serie_temporal_municipio?.[a] || {};
-        let docT = 0, matT = 0;
-        creMuns.forEach(c => { const m = ym[c]; if (m) { docT += m.docentes || 0; matT += m.matriculas || 0; } });
-        return docT > 0 ? Math.round(matT / docT * 10) / 10 : null;
-      });
-    } else {
-      razaoData = anos.map(a => doc.razao_aluno_professor[a]?.geral);
-    }
+  if (razaoEl && doc.serie_temporal_total) {
+    const anos = Object.keys(doc.serie_temporal_total).sort();
+    let razaoData = anos.map(a => {
+        let matT = 0, docT = 0;
+        if (S.munSel) {
+            matT = S.data?.por_municipio?.[a]?.[S.munSel]?.mat_total || doc.serie_temporal_municipio?.[a]?.[S.munSel]?.matriculas || 0;
+            docT = (a === '2025' ? doc.por_municipio_2025?.[S.munSel]?.docentes : doc.serie_temporal_municipio?.[a]?.[S.munSel]?.docentes) || 0;
+        } else if (S.creSel) {
+            const creMuns = getCreMuns(S.creSel);
+            const ym_doc = a === '2025' ? doc.por_municipio_2025 : doc.serie_temporal_municipio?.[a] || {};
+            const ym_mat = S.data?.por_municipio?.[a] || {};
+            creMuns.forEach(c => {
+                docT += ym_doc?.[c]?.docentes || 0;
+                matT += ym_mat[c]?.mat_total || ym_doc?.[c]?.matriculas || 0;
+            });
+        } else {
+            matT = S.data?.serie_temporal?.[a]?.mat_total || 0;
+            docT = doc.serie_temporal_total?.[a]?.QT_DOC_BAS || 0;
+        }
+        return docT > 0 && matT > 0 ? Math.round(matT / docT * 10) / 10 : null;
+    });
     const validR = razaoData.filter(Boolean);
     const razaoMin = validR.length ? Math.floor(Math.min(...validR) - 1) : 0;
     const razaoMax = validR.length ? Math.ceil(Math.max(...validR) + 1) : 20;
@@ -3315,12 +3417,13 @@ function buildDocCharts(doc) {
     const stt = doc.serie_temporal_total;
     const docAnos = Object.keys(stt).sort();
     let totalVals;
-    if (S.munSel && doc.serie_temporal_municipio) {
-      totalVals = docAnos.map(a => doc.serie_temporal_municipio?.[a]?.[S.munSel]?.docentes ?? 0);
-    } else if (S.creSel && doc.serie_temporal_municipio) {
+    if (S.munSel) {
+      totalVals = docAnos.map(a => (a === '2025' ? doc.por_municipio_2025?.[S.munSel]?.docentes : doc.serie_temporal_municipio?.[a]?.[S.munSel]?.docentes) ?? null);
+    } else if (S.creSel) {
       const creMuns = getCreMuns(S.creSel);
       totalVals = docAnos.map(a => {
-        const ym = doc.serie_temporal_municipio?.[a] || {};
+        const ym = a === '2025' ? doc.por_municipio_2025 : doc.serie_temporal_municipio?.[a];
+        if (!ym) return null;
         return creMuns.reduce((s, c) => s + (ym[c]?.docentes || 0), 0);
       });
     } else {
@@ -3336,6 +3439,10 @@ function buildDocCharts(doc) {
         plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_LINE } }
     }));
   }
+
+  bindRedeToggle();
+  updateActiveFilters();
+  updateFilterAwareness();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -5019,9 +5126,9 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="home-grid">
           ${sections.map((s, i) => `
-            <div class="home-card" data-nav="${s.view}" style="animation: fadeSlideUp .5s ease ${.2 + i * .06}s both">
+            <div class="home-card ${s.view === 'escolas' ? 'col-span-4' : ''}" data-nav="${s.view}" style="animation: fadeSlideUp .5s ease ${.2 + i * .06}s both">
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
               <div class="home-card-text">
                 <div class="home-card-title">${s.title}</div>
@@ -5869,15 +5976,15 @@ function renderInse() {
   const primeiro = anos[0];
   // Respect year filter: use S.anoSel if it's valid for INSE, otherwise use ultimo
   const anoAtual = (S.anoSel && anos.includes(S.anoSel)) ? S.anoSel : ultimo;
-  const su = inse.serie_temporal[anoAtual];
-  const sp = inse.serie_temporal[primeiro];
+  const su = getInseScope(inse, anoAtual) || inse.serie_temporal[anoAtual];
+  const sp = getInseScope(inse, primeiro) || inse.serie_temporal[primeiro];
 
   // KPI values
   const predominante = Object.entries(su.dist_niveis_escolas)
     .sort((a, b) => b[1].pct - a[1].pct)[0];
   const vulneraveis = Object.entries(su.dist_niveis_escolas)
     .filter(([k]) => ['Nível I','Nível II','Nível III','Nível IV'].includes(k))
-    .reduce((s, [, v]) => s + v.count, 0);
+    .reduce((s, [, v]) => s + (v.count || 0), 0);
   const gapUR = su.urbana?.media && su.rural?.media
     ? Math.abs(su.urbana.media - su.rural.media) : null;
   const gapURPrev = sp?.urbana?.media && sp?.rural?.media
@@ -6063,7 +6170,14 @@ function renderInse() {
         <div style="max-height:340px;overflow-y:auto">
           <table class="data-table" id="inse-mun-table">
             <thead>
-              <tr><th>#</th><th>Município</th><th>INSE</th><th>Nível</th><th>Escolas</th><th>Alunos</th></tr>
+              <tr>
+                <th style="width:30px">#</th>
+                <th data-sort-key="nome" style="cursor:pointer;position:sticky;left:0;z-index:2;background:#f8f9fa;min-width:140px;border-right:2px solid #e0e0e0">Município <span class="sort-icon" style="opacity:0.3;margin-left:4px">↕</span></th>
+                <th data-sort-key="inse" style="cursor:pointer">INSE <span class="sort-icon" style="opacity:0.3;margin-left:4px">↕</span></th>
+                <th data-sort-key="nivel" style="cursor:pointer">Nível <span class="sort-icon" style="opacity:0.3;margin-left:4px">↕</span></th>
+                <th data-sort-key="escolas" style="cursor:pointer">Escolas <span class="sort-icon" style="opacity:0.3;margin-left:4px">↕</span></th>
+                <th data-sort-key="alunos" style="cursor:pointer">Alunos <span class="sort-icon" style="opacity:0.3;margin-left:4px">↕</span></th>
+              </tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -6087,8 +6201,9 @@ function renderInse() {
   ];
 
   // Sparkline for INSE evolution
-  const sparkVals = anos.map(a => inse.serie_temporal[a]?.media || 0);
-  const sparkMin = Math.min(...sparkVals); const sparkMax = Math.max(...sparkVals);
+  const sparkVals = anos.map(a => getInseScope(inse, a)?.media || 0);
+  const sparkMin = Math.min(...sparkVals.filter(v => v > 0)); 
+  const sparkMax = Math.max(...sparkVals);
   const sparkRange = sparkMax - sparkMin || 0.1;
   const sparkPts = sparkVals.map((v, j) => `${(j / Math.max(sparkVals.length - 1, 1)) * 58 + 1},${23 - ((v - sparkMin) / sparkRange) * 20}`).join(' ');
 
@@ -6126,9 +6241,6 @@ function renderInse() {
 
     // Get data for selected scope
     let dist = su.dist_niveis_escolas;
-    if (S.munSel && inse.por_municipio[anoAtual]?.[S.munSel]) {
-      dist = inse.por_municipio[anoAtual][S.munSel].dist_niveis;
-    }
 
     const niveis = Object.keys(INSE_NIVEL_COLORS);
     const counts = niveis.map(n => dist[n]?.count || 0);
@@ -6213,10 +6325,12 @@ function renderInse() {
       data: {
         labels: anos,
         datasets: [
-          { label: 'RS Estadual', data: anos.map(a => inse.serie_temporal[a]?.media), borderColor: COLORS.pri, backgroundColor: COLORS.pri + '22', fill: true, tension: .3, pointRadius: 5, borderWidth: 2.5,
+          { label: geoLabel, data: anos.map(a => getInseScope(inse, a)?.media), borderColor: COLORS.pri, backgroundColor: COLORS.pri + '22', fill: true, tension: .3, pointRadius: 5, borderWidth: 2.5,
             datalabels: { anchor: 'end', align: 'top' } },
           { label: 'Brasil (ref.)', data: anos.map(a => brasMedia[a] || null), borderColor: '#999', borderDash: [5, 5], tension: .3, pointRadius: 4, borderWidth: 2,
-            datalabels: { anchor: 'start', align: 'bottom' } },
+            datalabels: { anchor: 'start', align: 'bottom' }, hidden: true },
+          { label: 'RS Estadual (ref.)', data: anos.map(a => inse.serie_temporal[a]?.media), borderColor: '#B0BEC5', borderDash: [5, 5], tension: .3, pointRadius: 0, borderWidth: 2,
+            datalabels: { display: false }, hidden: (geoLabel === getRedeLabel() + ' do RS') }
         ]
       },
       options: {
@@ -6240,9 +6354,9 @@ function renderInse() {
       data: {
         labels: anos,
         datasets: [
-          { label: 'Urbana', data: anos.map(a => inse.serie_temporal[a]?.urbana?.media), borderColor: COLORS.pri, tension: .3, pointRadius: 5, borderWidth: 2.5,
+          { label: 'Urbana', data: anos.map(a => getInseScope(inse, a)?.urbana?.media), borderColor: COLORS.pri, tension: .3, pointRadius: 5, borderWidth: 2.5,
             datalabels: { anchor: 'end', align: 'top' } },
-          { label: 'Rural', data: anos.map(a => inse.serie_temporal[a]?.rural?.media), borderColor: COLORS.red, borderDash: [5, 5], tension: .3, pointRadius: 5, borderWidth: 2.5,
+          { label: 'Rural', data: anos.map(a => getInseScope(inse, a)?.rural?.media), borderColor: COLORS.red, borderDash: [5, 5], tension: .3, pointRadius: 5, borderWidth: 2.5,
             datalabels: { anchor: 'start', align: 'bottom' } },
         ]
       },
@@ -6427,8 +6541,8 @@ function renderInse() {
 
     tbody.innerHTML = entries.map(([cod, md], i) => `
       <tr data-cod="${cod}" style="cursor:pointer" title="Clique para filtrar">
-        <td>${i + 1}</td>
-        <td>${lookup[cod] || cod}</td>
+        <td style="position:sticky;left:0;z-index:1;background:#fff">${i + 1}</td>
+        <td style="position:sticky;left:30px;z-index:1;background:#fff;border-right:2px solid #e0e0e0">${lookup[cod] || cod}</td>
         <td><strong>${md.inse?.toFixed(2) ?? '—'}</strong></td>
         <td>${md.nivel || '—'}</td>
         <td>${md.n_escolas}</td>
@@ -6447,10 +6561,17 @@ function renderInse() {
 
     // Sortable headers
     if (thead) {
-      const headers = ['#', 'Município', 'INSE', 'Nível', 'Escolas', 'Alunos'];
+      const headers = [
+        { label: '#', style: 'width:30px' },
+        { label: 'Município', style: 'position:sticky;left:0;z-index:2;background:#f8f9fa;min-width:140px;border-right:2px solid #e0e0e0' },
+        { label: 'INSE', style: '' },
+        { label: 'Nível', style: '' },
+        { label: 'Escolas', style: '' },
+        { label: 'Alunos', style: '' }
+      ];
       thead.innerHTML = '<tr>' + headers.map((h, i) => {
         const arrow = inseSortCol === i ? (inseSortAsc ? ' ▲' : ' ▼') : ' ⇅';
-        return `<th style="cursor:pointer" title="Clique para ordenar">${h}${arrow}</th>`;
+        return `<th style="cursor:pointer;${h.style}" title="Clique para ordenar">${h.label} <span style="opacity:0.4">${arrow}</span></th>`;
       }).join('') + '</tr>';
 
       thead.querySelectorAll('th').forEach((th, ci) => {
@@ -6481,7 +6602,7 @@ function renderInse() {
     const datasets = niveis.map(n => ({
       label: n.replace('Nível ', ''),
       data: anos.map(a => {
-        const d = inse.serie_temporal[a]?.dist_niveis_escolas?.[n];
+        const d = getInseScope(inse, a)?.dist_niveis_escolas?.[n];
         return d ? d.pct : 0;
       }),
       backgroundColor: INSE_NIVEL_COLORS[n],
@@ -6509,8 +6630,8 @@ function renderInse() {
   const inseBuildUrbanRuralDetail = () => {
     const el = document.getElementById('inse-chart-ur-detail');
     if (!el) return;
-    const urbVals = anos.map(a => inse.serie_temporal[a]?.urbana?.media || null);
-    const rurVals = anos.map(a => inse.serie_temporal[a]?.rural?.media || null);
+    const urbVals = anos.map(a => getInseScope(inse, a)?.urbana?.media || null);
+    const rurVals = anos.map(a => getInseScope(inse, a)?.rural?.media || null);
     S.charts.push(new Chart(el, {
       type: 'bar',
       data: {
@@ -7627,8 +7748,20 @@ function renderAfd() {
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
         <div class="chart-title" id="afd-evol-title">Evolução por Grupo — Selecione abaixo${geoSuffix()}</div>
-        <div id="afd-evol-group-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"></div>
-        <p style="font-size:10px;color:var(--text-sec);margin:0 0 6px;font-style:italic">💡 Clique na legenda do gráfico para filtrar por etapa</p>
+        <div style="display:flex;align-items:center;gap:16px;margin:8px 0 12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;font-weight:700;color:#555">Etapa:</span>
+            <select id="afd-evol-etapa-select" style="font-size:11px;padding:4px 8px;border-radius:5px;border:1px solid #bbb;font-family:Inter;background:#fff;cursor:pointer;font-weight:600;color:var(--pri)">
+              <option value="medio" selected>Ensino Médio</option>
+              <option value="fund_ai">Anos Iniciais</option>
+              <option value="fund_af">Anos Finais</option>
+              <option value="eja_fund">EJA</option>
+            </select>
+          </div>
+          <div style="width:1px;height:20px;background:#e0e0e0"></div>
+          <div id="afd-evol-group-pills" style="display:flex;align-items:center;flex-wrap:wrap;gap:5px"></div>
+        </div>
+        <p style="font-size:10px;color:var(--text-sec);margin:0 0 6px;font-style:italic">💡 Clique na legenda do gráfico para filtrar por grupo</p>
         <div style="height:280px"><canvas id="afd-chart-evol-unified"></canvas></div>
         <div class="chart-source">${FONTE_AFD}</div>
       </div>
@@ -7664,6 +7797,7 @@ function renderAfd() {
             <div class="map-layer-toggle">
               <button class="map-layer-btn active" id="afd-btn-layer-mun">Municípios</button>
               <button class="map-layer-btn" id="afd-btn-layer-cre">CREs</button>
+              <button class="map-layer-btn" id="afd-btn-layer-esc">Escolas</button>
             </div>
           </div>
         </div>
@@ -7795,30 +7929,36 @@ function renderAfd() {
       { key: 'eja_fund', label: 'EJA', color: COLORS.federal },
     ];
     const evolGroups = ['g1','g2','g3','g4','g5'];
-    let selGroup = 'g1';
+    let selGroups = ['g1'];
+    let selEtapa = 'medio';
     let evolChart = null;
 
     const buildEvolChart = () => {
       if (evolChart) { evolChart.destroy(); S.charts = S.charts.filter(c => c !== evolChart); }
       const title = document.getElementById('afd-evol-title');
-      if (title) title.textContent = `Evolução ${AFD_GROUPS[selGroup].short} (${AFD_GROUPS[selGroup].label.split('—')[1]?.trim() || ''}) — por Etapa`;
+      const titleGroups = selGroups.map(gk => AFD_GROUPS[gk].short).join(' + ');
+      const e = evolEtapas.find(et => et.key === selEtapa);
+      if (title) title.textContent = `Evolução ${titleGroups} — ${e.label}${geoSuffix()}`;
       evolChart = new Chart(evolContainer, {
         type: 'line',
         data: {
           labels: anos,
-          datasets: evolEtapas.map(e => ({
-            label: e.label,
-            data: geoTs.map(s => s?.[e.key]?.[selGroup] ?? null),
-            borderColor: e.color,
-            backgroundColor: e.color + '22',
-            tension: .3, pointRadius: 3, borderWidth: 2.5, fill: false,
+          datasets: selGroups.map(g => ({
+            label: AFD_GROUPS[g].label,
+            data: geoTs.map(s => {
+              if (!s || !s[e.key]) return null;
+              return +(s[e.key][g] || 0).toFixed(1);
+            }),
+            borderColor: AFD_GROUPS[g].color,
+            backgroundColor: AFD_GROUPS[g].color + '22',
+            tension: .3, pointRadius: 4, borderWidth: 2.5, fill: false
           }))
         },
         options: { ...CHART_DEFAULTS, layout: { padding: { top: 20 } },
           plugins: { ...CHART_DEFAULTS.plugins,
-            legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6, usePointStyle: false }, onClick: Chart.defaults.plugins.legend.onClick },
-            datalabels: { display: false } },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: selGroup === 'g1' ? 100 : 40, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' } } }
+            legend: { display: true, labels: { font: { family: 'Inter', size: 10, weight: '600' }, boxWidth: 10, padding: 6, usePointStyle: false }, onClick: null },
+            datalabels: { display: ctx => ctx.dataset.data[ctx.dataIndex] > 0, color: '#333', font: { family: 'Inter', size: 9, weight: '700' }, anchor: 'end', align: 'top', formatter: v => v ? v.toFixed(1) + '%' : '' } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, suggestedMax: selGroups.length === 1 && selGroups[0] === 'g1' ? 100 : 40, ticks: { ...CHART_DEFAULTS.scales.y?.ticks, callback: v => v + '%' } } }
         }
       });
       S.charts.push(evolChart);
@@ -7830,19 +7970,34 @@ function renderAfd() {
       groupPillsEl.innerHTML = '<span style="font-size:10px;font-weight:700;color:#555;margin-right:4px">Grupo:</span>' +
         evolGroups.map(gk => {
           const g = AFD_GROUPS[gk];
-          return `<button class="flx-pill${gk === selGroup ? ' active' : ''}" data-gk="${gk}" style="--pill-color:${g.color};font-size:10px;padding:3px 10px;border-radius:12px;border:1.5px solid ${g.color};background:${gk === selGroup ? g.color : 'transparent'};color:${gk === selGroup ? '#fff' : g.color};cursor:pointer;font-weight:600;font-family:Inter;transition:all .15s">${g.short}</button>`;
+          const isActive = selGroups.includes(gk);
+          return `<button class="flx-pill${isActive ? ' active' : ''}" data-gk="${gk}" style="--pill-color:${g.color};font-size:10px;padding:3px 10px;border-radius:12px;border:1.5px solid ${g.color};background:${isActive ? g.color : 'transparent'};color:${isActive ? '#fff' : g.color};cursor:pointer;font-weight:600;font-family:Inter;transition:all .15s">${g.short}</button>`;
         }).join('');
       groupPillsEl.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', () => {
-          selGroup = btn.dataset.gk;
+          const gk = btn.dataset.gk;
+          if (selGroups.includes(gk)) {
+            if (selGroups.length > 1) selGroups = selGroups.filter(x => x !== gk);
+          } else {
+            selGroups.push(gk);
+          }
           groupPillsEl.querySelectorAll('button').forEach(b => {
             const c = AFD_GROUPS[b.dataset.gk].color;
-            b.style.background = b.dataset.gk === selGroup ? c : 'transparent';
-            b.style.color = b.dataset.gk === selGroup ? '#fff' : c;
-            b.classList.toggle('active', b.dataset.gk === selGroup);
+            const isAct = selGroups.includes(b.dataset.gk);
+            b.style.background = isAct ? c : 'transparent';
+            b.style.color = isAct ? '#fff' : c;
+            b.classList.toggle('active', isAct);
           });
           buildEvolChart();
         });
+      });
+    }
+
+    const etapaSelEl = document.getElementById('afd-evol-etapa-select');
+    if (etapaSelEl) {
+      etapaSelEl.addEventListener('change', (ev) => {
+        selEtapa = ev.target.value;
+        buildEvolChart();
       });
     }
 
@@ -7857,10 +8012,80 @@ function renderAfd() {
     { min: 70,  max: 85, color: '#66BB6A', label: '70–85%' },
     { min: 85,  max: 101, color: '#2874A6', label: '> 85% (Adequado)' },
   ];
-  function getAfdColor(v) {
-    for (const b of AFD_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
-    return '#f0f0f0';
+
+  const AFD_GRADIENTS = {
+    g1: ['#E53935', '#FB8C00', '#FFCB04', '#66BB6A', '#2874A6'], // Custom mapped from original breaks
+    g2: ['#E8F5E9', '#C8E6C9', '#A5D6A7', '#66BB6A', '#2E7D32'], // Greens
+    g3: ['#FFFDE7', '#FFF59D', '#FFEE58', '#FFCB04', '#F57F17'], // Yellows
+    g4: ['#FFF3E0', '#FFE0B2', '#FFB74D', '#FB8C00', '#E65100'], // Oranges
+    g5: ['#FFEBEE', '#FFCDD2', '#EF9A9A', '#E53935', '#B71C1C']  // Reds
+  };
+
+  function getAfdColor(v, grp = 'g1') {
+    if (grp === 'g1') {
+      for (const b of AFD_MAP_BREAKS) { if (v >= b.min && v < b.max) return b.color; }
+      return '#f0f0f0';
+    }
+    const pal = AFD_GRADIENTS[grp] || AFD_GRADIENTS.g5;
+    if (v >= 80) return pal[4];
+    if (v >= 60) return pal[3];
+    if (v >= 40) return pal[2];
+    if (v >= 20) return pal[1];
+    return pal[0];
   }
+
+  function getAfdLegendHTML(grp, title) {
+    if (grp === 'g1') {
+      return `<h4>${title}</h4>` +
+        AFD_MAP_BREAKS.slice().reverse().map(b =>
+          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
+        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+    }
+    const pal = AFD_GRADIENTS[grp] || AFD_GRADIENTS.g5;
+    return `<h4>${title}</h4>` +
+      `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${pal[4]}"></div><span>≥ 80%</span></div>` +
+      `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${pal[3]}"></div><span>60 – 80%</span></div>` +
+      `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${pal[2]}"></div><span>40 – 60%</span></div>` +
+      `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${pal[1]}"></div><span>20 – 40%</span></div>` +
+      `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${pal[0]}"></div><span>< 20%</span></div>` +
+      `<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>`;
+  }
+
+  const afdBindTableSort = (tableId, numColStart) => {
+    const table = document.getElementById(tableId);
+    if (!table || table.dataset.sortBound) return;
+    table.dataset.sortBound = 'true';
+    table.querySelectorAll('thead th').forEach((th, colIdx) => {
+      th.style.cursor = 'pointer';
+      th.title = 'Clique para ordenar';
+      th.addEventListener('click', () => {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        if (!rows.length) return;
+        const dir = th.dataset.sort === 'asc' ? 'desc' : 'asc';
+        th.dataset.sort = dir;
+        
+        table.querySelectorAll('thead th').forEach(t => t.textContent = t.textContent.replace(/[▼▲]/g, '').trim());
+        th.textContent = th.textContent + (dir === 'asc' ? ' ▲' : ' ▼');
+
+        rows.sort((a, b) => {
+          let va = a.children[colIdx]?.textContent.replace(/[%.,]/g, '').trim() || '';
+          let vb = b.children[colIdx]?.textContent.replace(/[%.,]/g, '').trim() || '';
+          if (colIdx >= numColStart) {
+            va = parseFloat(va) || 0;
+            vb = parseFloat(vb) || 0;
+          }
+          if (va === vb) return 0;
+          return dir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+        });
+        tbody.append(...rows);
+        
+        Array.from(tbody.querySelectorAll('tr')).forEach((tr, i) => {
+          if (tr.children[0]) tr.children[0].textContent = i + 1;
+        });
+      });
+    });
+  };
 
   const afdBuildMap = () => {
     if (!S.geo) return;
@@ -7897,7 +8122,7 @@ function renderAfd() {
         const cod = feature.properties.cod_mun?.substring(0, 7);
         const md = munData[cod];
         const v = md?.[etapa]?.[grp] || 0;
-        return { fillColor: v > 0 ? getAfdColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
+        return { fillColor: v > 0 ? getAfdColor(v, grp) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
       },
       onEachFeature: (feature, layer) => {
         const cod = feature.properties.cod_mun?.substring(0, 7);
@@ -7913,10 +8138,7 @@ function renderAfd() {
     const legend = L.control({ position: 'bottomleft' });
     legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = `<h4>% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]}</h4>` +
-        AFD_MAP_BREAKS.slice().reverse().map(b =>
-          `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
-        ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
+      div.innerHTML = getAfdLegendHTML(grp, `% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]}`);
       return div;
     };
     legend.addTo(S.map);
@@ -7949,7 +8171,7 @@ function renderAfd() {
       style: feature => {
         const cod = feature.properties.cod_cre;
         const avg = creData[cod]?.avg || 0;
-        return { fillColor: avg > 0 ? getAfdColor(avg) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
+        return { fillColor: avg > 0 ? getAfdColor(avg, grp) : '#f0f0f0', weight: 2, color: '#fff', fillOpacity: 0.8 };
       },
       onEachFeature: (feature, layer) => {
         const cod = feature.properties.cod_cre;
@@ -7963,8 +8185,7 @@ function renderAfd() {
     const creLegend = L.control({ position: 'bottomleft' });
     creLegend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = `<h4>% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]} (CREs)</h4>` +
-        AFD_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
+      div.innerHTML = getAfdLegendHTML(grp, `% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]} (CREs)`);
       return div;
     };
     creLegend.addTo(S.map);
@@ -8012,26 +8233,158 @@ function renderAfd() {
   // Build everything
   afdBuildMap();
   afdBuildMunTable();
+  afdBindTableSort('afd-mun-table', 2);
   injectExportButtons();
+
+  const afdBuildEscMap = () => {
+    const mapEl = document.getElementById('afd-map-leaflet');
+    if (!mapEl || !S.geo) return;
+    const escData = afd.por_escola_2025 || [];
+    const grp = document.getElementById('sel-afd-map-grupo')?.value || 'g1';
+    const etapa = document.getElementById('sel-afd-map-etapa')?.value || 'fund_total';
+    const ETAPA_LABELS = { fund_total: 'Fund.', fund_ai: 'Anos Iniciais', fund_af: 'Anos Finais', medio: 'Médio', eja_fund: 'EJA Fund.', eja_medio: 'EJA Médio' };
+    const GRP_LABELS = { g1: 'G1', g2: 'G2', g3: 'G3', g4: 'G4', g5: 'G5' };
+
+    destroyMap();
+    S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+      .setView([-29.7, -53.5], 6.5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+
+    // Add polygon outline for RS
+    L.geoJSON(S.geo, {
+      style: { fillColor: '#f8f9fa', weight: 1, color: '#ccc', fillOpacity: 0.5 },
+      interactive: false
+    }).addTo(S.map);
+
+    const info = L.control({ position: 'topright' });
+    info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
+    info.update = function (props, md) {
+      if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre uma escola</h4>'; return; }
+      const etd = md?.[etapa];
+      if (!etd) { this._div.innerHTML = `<h4 style="margin-bottom:2px">${props.nome}</h4><div style="color:#777;font-size:10px">${props.municipio}</div><div style="color:#999;font-size:11px;margin-top:6px">Sem dados AFD</div>`; return; }
+      this._div.innerHTML = `
+        <h4 style="margin-bottom:2px">${props.nome}</h4>
+        <div style="color:#777;font-size:10px;margin-bottom:8px">${props.municipio}</div>
+        ${['g1','g2','g3','g4','g5'].map(g => `<div class="info-row"><span class="info-label">${GRP_LABELS[g]} ${ETAPA_LABELS[etapa]}</span><span class="info-value" style="color:${AFD_GROUPS[g]?.color || '#333'}">${etd[g]?.toFixed(1) ?? '-'}%</span></div>`).join('')}
+      `;
+    };
+    info.addTo(S.map);
+
+    S.mapLayer = L.featureGroup().addTo(S.map);
+    
+    const coordsMap = {};
+    if (S.escolasData && S.escolasData.escolas) {
+      S.escolasData.escolas.forEach(e => {
+        if (e.inep && e.lat && e.lng) coordsMap[e.inep] = { lat: e.lat, lng: e.lng, nome: e.nome, municipio: e.municipio };
+      });
+    }
+
+    escData.forEach(md => {
+      if (!md.cod_escola || !coordsMap[md.cod_escola]) return;
+      const c = coordsMap[md.cod_escola];
+      const v = md?.[etapa]?.[grp];
+      if (v == null) return;
+      
+      const color = getAfdColor(v, grp);
+      const marker = L.circleMarker([c.lat, c.lng], { radius: 4.5, fillColor: color, color: '#fff', weight: 1, fillOpacity: 0.85 });
+      marker.on({
+        mouseover: e => { e.target.setStyle({ weight: 2, radius: 6, fillOpacity: 1 }); info.update(c, md); },
+        mouseout: e => { e.target.setStyle({ weight: 1, radius: 4.5, fillOpacity: 0.85 }); info.update(); }
+      });
+      marker.addTo(S.mapLayer);
+    });
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = getAfdLegendHTML(grp, `% ${GRP_LABELS[grp]} ${ETAPA_LABELS[etapa]}`);
+      return div;
+    };
+    legend.addTo(S.map);
+
+    // Escola table
+    const wrapper = document.getElementById('afd-table-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = `
+        <div class="table-header">
+          <h3>Tabela de Escolas — AFD</h3>
+          <input type="text" class="table-search" id="afd-escola-search" placeholder="Buscar escola...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="afd-escola-table">
+            <thead><tr>
+              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th>
+              <th>G1</th><th>G2</th><th>G3</th><th>G4</th><th>G5</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_AFD}</div>`;
+
+      let escolas = escData.filter(md => md.cod_escola && coordsMap[md.cod_escola] && md[etapa] && md[etapa][grp] != null);
+      if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
+      const creMuns = S.creSel ? getCreMuns(S.creSel) : null;
+      if (creMuns) escolas = escolas.filter(e => creMuns.includes(e.cod_mun));
+      escolas.sort((a, b) => (b[etapa]?.[grp] || 0) - (a[etapa]?.[grp] || 0));
+
+      const tbody = wrapper.querySelector('tbody');
+      tbody.innerHTML = escolas.map((e, i) => {
+        const etd = e[etapa] || {};
+        const v = etd[grp] || 0;
+        return `<tr style="cursor:pointer" data-lat="${coordsMap[e.cod_escola].lat}" data-lng="${coordsMap[e.cod_escola].lng}">
+          <td>${i+1}</td>
+          <td>${e.cod_escola}</td>
+          <td>${e.nome_escola}</td>
+          <td>${e.nome_mun}</td>
+          ${['g1','g2','g3','g4','g5'].map(gk => {
+            const val = etd[gk] ?? 0;
+            return `<td style="color:${AFD_GROUPS[gk].color};font-weight:${val >= 30 ? '700' : '400'}">${val.toFixed(0)}%</td>`;
+          }).join('')}
+        </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const lat = tr.dataset.lat, lng = tr.dataset.lng;
+          if (lat && lng && S.map) S.map.setView([parseFloat(lat), parseFloat(lng)], 13);
+        });
+      });
+
+      const searchEl = document.getElementById('afd-escola-search');
+      if (searchEl) searchEl.addEventListener('input', ev => {
+        const q = ev.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const text = tr.innerText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          tr.style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+
+      // Re-bind table sort after recreating table HTML
+      const table = document.getElementById('afd-escola-table');
+      if (table) delete table.dataset.sortBound;
+      afdBindTableSort('afd-escola-table', 4);
+    }
+  };
 
   // Bind AFD map layer toggle
   const afdBtnMun = document.getElementById('afd-btn-layer-mun');
   const afdBtnCre = document.getElementById('afd-btn-layer-cre');
+  const afdBtnEsc = document.getElementById('afd-btn-layer-esc');
+
+  const clearAfdMapBtns = () => [afdBtnMun, afdBtnCre, afdBtnEsc].forEach(b => b?.classList.remove('active'));
+
   if (afdBtnMun && afdBtnCre) {
-    afdBtnMun.addEventListener('click', () => {
-      afdBtnMun.classList.add('active'); afdBtnCre.classList.remove('active');
-      afdBuildMap();
-    });
-    afdBtnCre.addEventListener('click', () => {
-      afdBtnCre.classList.add('active'); afdBtnMun.classList.remove('active');
-      afdBuildCreMap();
-    });
+    afdBtnMun.addEventListener('click', () => { clearAfdMapBtns(); afdBtnMun.classList.add('active'); afdBuildMap(); afdBuildMunTable(); });
+    afdBtnCre.addEventListener('click', () => { clearAfdMapBtns(); afdBtnCre.classList.add('active'); afdBuildCreMap(); afdBuildMunTable(); });
+    if (afdBtnEsc) {
+      afdBtnEsc.addEventListener('click', () => { clearAfdMapBtns(); afdBtnEsc.classList.add('active'); afdBuildEscMap(); });
+    }
   }
 
-  // Bind AFD map selects
   const afdUpdateActiveMap = () => {
-    const afdBtnCre2 = document.getElementById('afd-btn-layer-cre');
-    if (afdBtnCre2?.classList.contains('active')) { afdBuildCreMap(); } else { afdBuildMap(); }
+    if (afdBtnEsc?.classList.contains('active')) { afdBuildEscMap(); }
+    else if (afdBtnCre?.classList.contains('active')) { afdBuildCreMap(); } 
+    else { afdBuildMap(); }
   };
   document.getElementById('sel-afd-map-grupo')?.addEventListener('change', afdUpdateActiveMap);
   document.getElementById('sel-afd-map-etapa')?.addEventListener('change', afdUpdateActiveMap);
@@ -12080,7 +12433,7 @@ async function init() {
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
-      fetch('dados/4_5_docentes.json'),
+      fetch('dados/4_5_docentes_estadual.json'),
       fetch('dados/4_1_funil_turma_locdif.json'),
       fetch('dados/4_6_saeb.json'),
       fetch('dados/4_3_fluxo_rendimento.json'),
@@ -12117,7 +12470,7 @@ async function init() {
     if (respDesig.ok)     S.desig = await respDesig.json();
 
     // Seed rede cache with initial estadual data
-    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi, saers: S.saersData, saersEscolas: S.saersEscolasData };
+    S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi, saers: S.saersData, saersEscolas: S.saersEscolasData, docentes: S.doc };
 
     // Build universal municipality lookup (persists across rede changes)
     S._universalMunLookup = { ...(S.data?.lookup_municipios || {}) };
