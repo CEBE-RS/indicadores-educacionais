@@ -5261,7 +5261,7 @@ function renderFluxo() {
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_fluxo.png', 'Fluxo e Rendimento', geoLabel)}
       ${redeToggleHTML()}
-      <div id="fluxo-kpi-strip" class="kpi-strip" style="grid-template-columns:repeat(4,1fr)"></div>
+      <div id="fluxo-kpi-strip" class="kpi-strip" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
     </div>
 
     <div class="section-divider">
@@ -5326,6 +5326,7 @@ function renderFluxo() {
           <div class="map-layer-toggle">
             <button class="map-layer-btn active" id="flx-btn-layer-mun">Municípios</button>
             <button class="map-layer-btn" id="flx-btn-layer-cre">CREs</button>
+            <button class="map-layer-btn" id="flx-btn-layer-esc">Escolas</button>
           </div>
         </div>
         <div id="flx-map-leaflet" style="height:480px;width:100%;background:var(--bg)"></div>
@@ -5341,9 +5342,24 @@ function renderFluxo() {
         <div style="max-height:400px;overflow-y:auto">
           <table class="data-table" id="flx-mun-table">
             <thead><tr>
-              <th>#</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.F</th><th>Aband.M</th>
+              <th>#</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.F</th><th>Reprov.M</th><th>Aband.F</th><th>Aband.M</th>
             </tr></thead>
             <tbody id="flx-mun-tbody"></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE_REND}</div>
+      </div>
+      <div class="table-wrapper" id="flx-escola-wrapper" style="display:none">
+        <div class="table-header">
+          <h3>Tabela de Escolas (2024)</h3>
+          <input type="text" class="table-search" id="flx-escola-search" placeholder="Buscar escola...">
+        </div>
+        <div style="max-height:400px;overflow-y:auto">
+          <table class="data-table" id="flx-escola-table">
+            <thead><tr>
+              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.M</th><th>Aband.F</th>
+            </tr></thead>
+            <tbody></tbody>
           </table>
         </div>
         <div class="chart-source">${FONTE_REND}</div>
@@ -5363,25 +5379,36 @@ function renderFluxo() {
   const selMetric = document.getElementById('flx-map-metric');
   const flxBtnMun = document.getElementById('flx-btn-layer-mun');
   const flxBtnCre = document.getElementById('flx-btn-layer-cre');
-  
+  const flxBtnEsc = document.getElementById('flx-btn-layer-esc');
+
+  const clearFlxMapBtns = () => [flxBtnMun, flxBtnCre, flxBtnEsc].forEach(b => b?.classList.remove('active'));
+
   if (selMetric) {
     selMetric.addEventListener('change', () => {
-      if (flxBtnCre?.classList.contains('active')) {
-        buildFluxoCreMap(f, anoSel, selMetric.value);
-      } else {
-        buildFluxoMap(f, anoSel, selMetric.value);
-      }
+      if (flxBtnCre?.classList.contains('active')) buildFluxoCreMap(f, anoSel, selMetric.value);
+      else if (flxBtnEsc?.classList.contains('active')) fluxoBuildEscMap(f, anoSel, selMetric.value);
+      else buildFluxoMap(f, anoSel, selMetric.value);
     });
   }
 
-  if (flxBtnMun && flxBtnCre) {
+  if (flxBtnMun && flxBtnCre && flxBtnEsc) {
     flxBtnMun.addEventListener('click', () => {
-      flxBtnMun.classList.add('active'); flxBtnCre.classList.remove('active');
+      clearFlxMapBtns(); flxBtnMun.classList.add('active');
+      document.getElementById('flx-table-wrapper').style.display = '';
+      document.getElementById('flx-escola-wrapper').style.display = 'none';
       buildFluxoMap(f, anoSel, selMetric?.value || 'aprov_fund');
     });
     flxBtnCre.addEventListener('click', () => {
-      flxBtnCre.classList.add('active'); flxBtnMun.classList.remove('active');
+      clearFlxMapBtns(); flxBtnCre.classList.add('active');
+      document.getElementById('flx-table-wrapper').style.display = '';
+      document.getElementById('flx-escola-wrapper').style.display = 'none';
       buildFluxoCreMap(f, anoSel, selMetric?.value || 'aprov_fund');
+    });
+    flxBtnEsc.addEventListener('click', () => {
+      clearFlxMapBtns(); flxBtnEsc.classList.add('active');
+      document.getElementById('flx-table-wrapper').style.display = 'none';
+      document.getElementById('flx-escola-wrapper').style.display = '';
+      fluxoBuildEscMap(f, anoSel, selMetric?.value || 'aprov_fund');
     });
   }
 
@@ -5441,6 +5468,8 @@ function fluxoUpdateKPIs(st, tdiSrc, f, anos, anoSel) {
     { label: 'Aprovação Fund.', key: 'aprov_fund', value: st.aprov_fund, icon: 'img/icons/fundamental.png', accent: 'green', suffix: '%' },
     { label: 'Aprovação Médio', key: 'aprov_med', value: st.aprov_med, icon: 'img/icons/medio.png', accent: 'green', suffix: '%' },
     { label: 'Reprovação Fund.', key: 'reprov_fund', value: st.reprov_fund, icon: 'img/icons/fundamental.png', accent: 'red', suffix: '%' },
+    { label: 'Reprovação Médio', key: 'reprov_med', value: st.reprov_med, icon: 'img/icons/medio.png', accent: 'red', suffix: '%' },
+    { label: 'Abandono Fund.', key: 'aband_fund', value: st.aband_fund, icon: 'img/icons/fundamental.png', accent: 'red', suffix: '%' },
     { label: 'Abandono Médio', key: 'aband_med', value: st.aband_med, icon: 'img/icons/medio.png', accent: 'red', suffix: '%' },
   ];
   const accentColors = { green: '#1d71b9', yellow: '#FFCB04', red: '#EE302F', blue: '#1565C0' };
@@ -5781,11 +5810,19 @@ function buildFluxoMap(f, anoSel, metricKey) {
   S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
 }
 
+/** Helper: remove all Fluxo map layers (GeoJSON + marker groups) */
+function fluxoClearMapLayers() {
+  if (S.mapLayer) {
+    if (S.mapLayer.markers) { S.map.removeLayer(S.mapLayer.markers); }
+    S.map.removeLayer(S.mapLayer); S.mapLayer = null;
+  }
+  if (S.mapLegend) { S.map.removeControl(S.mapLegend); S.mapLegend = null; }
+}
+
 /** Build CRE-level choropleth for Fluxo */
 function buildFluxoCreMap(f, anoSel, metricKey) {
   if (!S.creGeo || !S.map) return;
-  if (S.mapLayer) { S.map.removeLayer(S.mapLayer); S.mapLayer = null; }
-  if (S.mapLegend) { S.map.removeControl(S.mapLegend); S.mapLegend = null; }
+  fluxoClearMapLayers();
 
   const munData = f.por_municipio[anoSel] || {};
   const tdiData = f.tdi_por_municipio || {};
@@ -5892,7 +5929,8 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
       `<tr data-cod="${r.cod}" style="cursor:pointer" class="${S.munSel === r.cod ? 'selected' : ''}" title="Clique para filtrar por ${r.nome}">
         <td>${i + 1}</td><td><strong>${r.nome}</strong></td>
         ${pctCell(r.aprov_fund, true)}${pctCell(r.aprov_med, true)}
-        ${pctCell(r.reprov_fund, false)}${pctCell(r.aband_med, false)}
+        ${pctCell(r.reprov_fund, false)}${pctCell(r.reprov_med, false)}
+        ${pctCell(r.aband_fund, false)}${pctCell(r.aband_med, false)}
       </tr>`
     ).join('');
     // Click handler
@@ -5909,7 +5947,7 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
   // Sortable headers
   const table = document.getElementById('flx-mun-table');
   if (table) {
-    const colKeys = ['_rank', 'nome', 'aprov_fund', 'aprov_med', 'reprov_fund', 'aband_med'];
+    const colKeys = ['_rank', 'nome', 'aprov_fund', 'aprov_med', 'reprov_fund', 'reprov_med', 'aband_fund', 'aband_med'];
     let sortCol = -1, sortAsc = true;
     table.querySelectorAll('th').forEach((th, ci) => {
       th.style.cursor = 'pointer';
@@ -5938,6 +5976,145 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
       tr.style.display = nome.includes(q) ? '' : 'none';
     });
   });
+}
+
+/** Escolas Map for Fluxo (Fixed 2024 data) */
+function fluxoBuildEscMap(f, anoSel, metricKey) {
+  if (!S.geo || !S.map || !S.escolasData?.escolas) return;
+  fluxoClearMapLayers();
+
+  const escData = f.por_escola_2024 || [];
+  const metricDef = FLUXO_MAP_METRICS.find(m => m.key === metricKey) || FLUXO_MAP_METRICS[0];
+
+  // Build coords lookup from escolas_estaduais.json (inep field = cod_escola)
+  const coordsMap = {};
+  S.escolasData.escolas.forEach(e => {
+    if (e.lat && e.lng) coordsMap[e.inep] = { lat: e.lat, lng: e.lng, nome: e.nome, cod_mun: e.cod_mun };
+  });
+
+  // Merge ETL data with coordinates
+  let escolas = escData
+    .filter(md => md.cod_escola && coordsMap[md.cod_escola] && md[metricKey] != null)
+    .map(md => ({ ...md, lat: coordsMap[md.cod_escola].lat, lng: coordsMap[md.cod_escola].lng }));
+  if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
+  const creMuns = S.creSel ? getCreMuns(S.creSel) : null;
+  if (creMuns) escolas = escolas.filter(e => creMuns.includes(e.cod_mun));
+
+  let tiers;
+  if (metricDef.higher) {
+    tiers = [
+      { min: 95, color: '#14507F', label: '≥ 95%' },
+      { min: 90, color: '#5cba68', label: '90% – 94%' },
+      { min: 80, color: '#FFDF00', label: '80% – 89%' },
+      { min: 0, color: '#EE302F', label: '< 80%' },
+    ];
+  } else if (metricDef.tdi) {
+    tiers = [
+      { min: 0, max: 10, color: '#14507F', label: '< 10%' },
+      { min: 10, max: 20, color: '#5cba68', label: '10% – 19%' },
+      { min: 20, max: 30, color: '#FFDF00', label: '20% – 29%' },
+      { min: 30, max: 999, color: '#EE302F', label: '≥ 30%' },
+    ];
+  } else {
+    tiers = [
+      { min: 0, max: 3, color: '#14507F', label: '< 3%' },
+      { min: 3, max: 8, color: '#5cba68', label: '3% – 7%' },
+      { min: 8, max: 15, color: '#FFDF00', label: '8% – 14%' },
+      { min: 15, max: 999, color: '#EE302F', label: '≥ 15%' },
+    ];
+  }
+
+  const getColor = v => {
+    if (v == null) return '#f0f0f0';
+    if (metricDef.higher) { for (const t of tiers) { if (v >= t.min) return t.color; } return '#f0f0f0'; }
+    for (let i = tiers.length - 1; i >= 0; i--) { if (v >= tiers[i].min) return tiers[i].color; }
+    return '#f0f0f0';
+  };
+
+  // Background polygons (faint)
+  S.mapLayer = L.geoJSON(S.geo, {
+    style: () => ({ fillColor: '#f4f6f9', fillOpacity: 0.4, weight: 0.8, color: '#d0d5dc' })
+  }).addTo(S.map);
+
+  // Circle markers
+  const markers = L.layerGroup().addTo(S.map);
+  escolas.forEach(e => {
+    const val = e[metricKey];
+    const color = getColor(val);
+    const circle = L.circleMarker([e.lat, e.lng], {
+      radius: 4, fillColor: color, fillOpacity: 0.9, color: '#fff', weight: 0.5
+    });
+    circle.bindTooltip(`<strong>${e.nome_escola}</strong><br>${e.nome_mun}<br>${metricDef.label}: ${val != null ? val.toFixed(1) + '%' : 'Sem dados'}`);
+    circle.addTo(markers);
+  });
+  S.mapLayer.markers = markers;
+
+  // Legend
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `<h4>${metricDef.label} (Escolas 2024)</h4>` +
+      tiers.slice().reverse().map(t => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${t.color}"></div><span>${t.label}</span></div>`).join('');
+    div.innerHTML += `<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>`;
+    return div;
+  };
+  legend.addTo(S.map);
+  S.mapLegend = legend;
+  if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+
+  // ── Escolas Table ──
+  const tbody = document.querySelector('#flx-escola-table tbody');
+  if (tbody) {
+    escolas.sort((a, b) => {
+      const va = a[metricKey] || 0; const vb = b[metricKey] || 0;
+      return metricDef.higher ? vb - va : va - vb;
+    });
+
+    const pctCell = (val, higher = true) => {
+      if (val == null) return '<td style="text-align:center;color:var(--text-light)">—</td>';
+      let cls;
+      if (higher) { cls = val >= 90 ? 'color:#00AB4E' : val >= 80 ? 'color:#E6A100' : 'color:#EE302F'; }
+      else { cls = val < 5 ? 'color:#00AB4E' : val < 10 ? 'color:#E6A100' : 'color:#EE302F'; }
+      return `<td style="text-align:center;font-weight:700;${cls}">${val.toFixed(1)}%</td>`;
+    };
+
+    tbody.innerHTML = escolas.map((e, i) => `
+      <tr style="cursor:pointer" data-lat="${e.lat}" data-lng="${e.lng}">
+        <td>${i+1}</td>
+        <td>${e.cod_escola}</td>
+        <td>${e.nome_escola}</td>
+        <td>${e.nome_mun}</td>
+        ${pctCell(e.aprov_fund, true)}${pctCell(e.aprov_med, true)}
+        ${pctCell(e.reprov_med, false)}${pctCell(e.aband_fund, false)}
+      </tr>
+    `).join('');
+
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const lat = tr.dataset.lat, lng = tr.dataset.lng;
+        if (lat && lng && S.map) S.map.setView([parseFloat(lat), parseFloat(lng)], 14);
+      });
+    });
+
+    const searchEl = document.getElementById('flx-escola-search');
+    if (searchEl) {
+      const newEl = searchEl.cloneNode(true);
+      searchEl.parentNode.replaceChild(newEl, searchEl);
+      newEl.addEventListener('input', ev => {
+        const q = ev.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const text = tr.innerText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          tr.style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+    }
+
+    const table = document.getElementById('flx-escola-table');
+    if (table) {
+      delete table.dataset.sortBound;
+      afdBindTableSort('flx-escola-table', 4);
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════
