@@ -5372,7 +5372,7 @@ function renderFluxo() {
         <div style="max-height:400px;overflow-y:auto">
           <table class="data-table" id="flx-escola-table">
             <thead><tr>
-              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th><th>Aprovação Fund.</th><th>Aprovação Médio</th><th>Reprovação Fund.</th><th>Reprovação Médio</th><th>Abandono Fund.</th><th>Abandono Médio</th>
+              <th>#</th><th>Escola</th><th>Município</th><th>Aprovação Fund.</th><th>Aprovação Médio</th><th>Reprovação Fund.</th><th>Reprovação Médio</th><th>Abandono Fund.</th><th>Abandono Médio</th>
             </tr></thead>
             <tbody></tbody>
           </table>
@@ -6203,7 +6203,6 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
     tbody.innerHTML = escolas.map((e, i) => `
       <tr style="cursor:pointer" data-lat="${e.lat}" data-lng="${e.lng}">
         <td>${i+1}</td>
-        <td>${e.cod_escola}</td>
         <td>${e.nome_escola}</td>
         <td>${e.nome_mun}</td>
         ${pctCell(e.aprov_fund, true)}${pctCell(e.aprov_med, true)}
@@ -6235,7 +6234,7 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
     const table = document.getElementById('flx-escola-table');
     if (table) {
       delete table.dataset.sortBound;
-      afdBindTableSort('flx-escola-table', 4);
+      afdBindTableSort('flx-escola-table', 3);
     }
   }
 }
