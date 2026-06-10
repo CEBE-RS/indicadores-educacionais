@@ -5342,7 +5342,7 @@ function renderFluxo() {
         <div style="max-height:400px;overflow-y:auto">
           <table class="data-table" id="flx-mun-table">
             <thead><tr>
-              <th>#</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.F</th><th>Reprov.M</th><th>Aband.F</th><th>Aband.M</th>
+              <th>#</th><th>Município</th><th>Aprovação Fund.</th><th>Aprovação Médio</th><th>Reprovação Fund.</th><th>Reprovação Médio</th><th>Abandono Fund.</th><th>Abandono Médio</th>
             </tr></thead>
             <tbody id="flx-mun-tbody"></tbody>
           </table>
@@ -5357,7 +5357,7 @@ function renderFluxo() {
         <div style="max-height:400px;overflow-y:auto">
           <table class="data-table" id="flx-escola-table">
             <thead><tr>
-              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th><th>Aprov.F</th><th>Aprov.M</th><th>Reprov.M</th><th>Aband.F</th>
+              <th>#</th><th>INEP</th><th>Escola</th><th>Município</th><th>Aprovação Fund.</th><th>Aprovação Médio</th><th>Reprovação Fund.</th><th>Reprovação Médio</th><th>Abandono Fund.</th><th>Abandono Médio</th>
             </tr></thead>
             <tbody></tbody>
           </table>
@@ -5980,8 +5980,9 @@ function fluxoBuildMunTable(f, anoSel, lookup) {
 
 /** Escolas Map for Fluxo (Fixed 2024 data) */
 function fluxoBuildEscMap(f, anoSel, metricKey) {
-  if (!S.geo || !S.map || !S.escolasData?.escolas) return;
-  fluxoClearMapLayers();
+  const mapEl = document.getElementById('flx-map-leaflet');
+  if (!mapEl || !S.geo || !S.escolasData?.escolas) return;
+  destroyMap();
 
   const escData = f.por_escola_2024 || [];
   const metricDef = FLUXO_MAP_METRICS.find(m => m.key === metricKey) || FLUXO_MAP_METRICS[0];
@@ -6031,13 +6032,17 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
     return '#f0f0f0';
   };
 
+  // Create fresh map
+  const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
+
   // Background polygons (faint)
   S.mapLayer = L.geoJSON(S.geo, {
     style: () => ({ fillColor: '#f4f6f9', fillOpacity: 0.4, weight: 0.8, color: '#d0d5dc' })
-  }).addTo(S.map);
+  }).addTo(map);
 
   // Circle markers
-  const markers = L.layerGroup().addTo(S.map);
+  const markers = L.layerGroup().addTo(map);
   escolas.forEach(e => {
     const val = e[metricKey];
     const color = getColor(val);
@@ -6058,9 +6063,10 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
     div.innerHTML += `<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>`;
     return div;
   };
-  legend.addTo(S.map);
+  legend.addTo(map);
+  S.map = map;
   S.mapLegend = legend;
-  if (S.mapLayer) S.map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
+  if (S.mapLayer) map.fitBounds(S.mapLayer.getBounds(), { padding: [20, 20] });
 
   // ── Escolas Table ──
   const tbody = document.querySelector('#flx-escola-table tbody');
@@ -6085,7 +6091,8 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
         <td>${e.nome_escola}</td>
         <td>${e.nome_mun}</td>
         ${pctCell(e.aprov_fund, true)}${pctCell(e.aprov_med, true)}
-        ${pctCell(e.reprov_med, false)}${pctCell(e.aband_fund, false)}
+        ${pctCell(e.reprov_fund, false)}${pctCell(e.reprov_med, false)}
+        ${pctCell(e.aband_fund, false)}${pctCell(e.aband_med, false)}
       </tr>
     `).join('');
 
