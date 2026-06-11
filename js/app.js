@@ -10762,13 +10762,8 @@ function renderDesigualdades() {
   const FONTE = 'Fonte: ' + meta.fonte;
   const defaultEtapa = ETAPAS.includes('5_EF') ? '5_EF' : ETAPAS[0];
 
-  // Populate global topbar sel-ano with desig years
   const anoSel0 = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
-  const selAnoGlobal = document.getElementById('sel-ano');
-  if (selAnoGlobal) {
-    selAnoGlobal.innerHTML = anos.map(a => '<option value="' + a + '"' + (a === anoSel0 ? ' selected' : '') + '>' + a + '</option>').join('');
-    S.anoSel = String(anoSel0);
-  }
+  S.anoSel = String(anoSel0);
 
   main.innerHTML = `
     <div class="section-sticky">
@@ -10782,11 +10777,11 @@ function renderDesigualdades() {
       <div style="display:flex;gap:12px;align-items:center;padding:4px 20px 2px;flex-wrap:wrap;background:rgba(255,255,255,.92)">
         <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
           Etapa:
-          <select id="desig-sel-etapa" class="filter-select" style="font-size:10px;padding:2px 6px">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
+          <select id="desig-sel-etapa" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#333;cursor:pointer">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
         </label>
         <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
           Disciplina:
-          <select id="desig-sel-disc" class="filter-select" style="font-size:10px;padding:2px 6px">
+          <select id="desig-sel-disc" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#333;cursor:pointer">
             <option value="LP">L\u00edngua Portuguesa</option>
             <option value="MT">Matem\u00e1tica</option>
           </select>
@@ -10947,6 +10942,18 @@ function renderDesigualdades() {
       <div class="chart-card"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:440px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
   `;
+
+  // Re-populate topbar filters
+  const selAnoGlobal = document.getElementById('sel-ano');
+  if (selAnoGlobal) {
+    selAnoGlobal.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel0 ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  const selCre = document.getElementById('sel-cre');
+  if (selCre) selCre.value = S.creSel || '';
+  const selMun = document.getElementById('sel-mun');
+  if (selMun) selMun.value = S.munSel || '';
 
   function buildCharts() {
     destroyCharts();
