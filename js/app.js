@@ -9408,6 +9408,26 @@ function renderTdi() {
       return div;
     };
     S.mapLegend.addTo(S.map);
+
+    // Update table
+    const tableCont = document.getElementById('desig-table-container');
+    const tableBody = document.querySelector('#desig-table tbody');
+    if (isEsc && tableCont && tableBody) {
+      tableCont.style.display = 'block';
+      tableData.sort((a, b) => (b.media || 0) - (a.media || 0));
+      tableBody.innerHTML = tableData.map(d => `
+        <tr>
+          <td style="text-align:left;font-weight:500">${d.nome}</td>
+          <td style="text-align:right;font-weight:600;color:var(--pri)">${d.media != null ? d.media.toFixed(1) : '-'}</td>
+          <td style="text-align:right">${d.avancado != null ? d.avancado.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right">${d.adequado != null ? d.adequado.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right">${d.basico != null ? d.basico.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right;color:#C62828">${d.abaixo != null ? d.abaixo.toFixed(1) + '%' : '-'}</td>
+        </tr>
+      `).join('');
+    } else if (tableCont) {
+      tableCont.style.display = 'none';
+    }
   };
 
   // ── School table builder (reuses tdi-mun-table container) ──
@@ -10769,25 +10789,7 @@ function renderDesigualdades() {
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades Educacionais', geoSuffix('Desigualdades no desempenho por recortes sociodemográficos — SAERS'))}
 
-      <div class="kpi-strip" style="position:relative" id="desig-kpis">
-        <div style="display:none">
-          <select id="desig-sel-ano">${anos.map(a => '<option value="' + a + '"' + (a===anos[anos.length-1]?' selected':'') + '>' + a + '</option>').join('')}</select>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center;padding:4px 20px 2px;flex-wrap:wrap;background:rgba(255,255,255,.92)">
-        <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
-          Etapa:
-          <select id="desig-sel-etapa" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#333;cursor:pointer">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
-        </label>
-        <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
-          Disciplina:
-          <select id="desig-sel-disc" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#333;cursor:pointer">
-            <option value="LP">L\u00edngua Portuguesa</option>
-            <option value="MT">Matem\u00e1tica</option>
-          </select>
-        </label>
-        <span id="desig-aviso" style="font-size:10px;color:#E65100;font-style:italic;display:none;margin-left:auto"></span>
-      </div>
+      <div class="kpi-strip" style="position:relative" id="desig-kpis"></div>
     </div>
 
     <!-- ═══ BLOCO INFORMATIVO ═══ -->
@@ -10933,8 +10935,9 @@ function renderDesigualdades() {
     </div>
     <div style="display:flex;gap:10px;align-items:center;padding:0 0 8px;flex-wrap:wrap">
       <div class="map-layer-toggle">
-        <button id="desig-btn-layer-mun" class="active">Munic\u00edpios</button>
-        <button id="desig-btn-layer-cre">CREs</button>
+        <button id="desig-btn-layer-mun" class="map-layer-btn active">Municípios</button>
+        <button id="desig-btn-layer-cre" class="map-layer-btn">CREs</button>
+        <button id="desig-btn-layer-esc" class="map-layer-btn">Escolas</button>
       </div>
     </div>
     <div class="charts-grid" style="grid-template-columns:1fr 1fr">
@@ -10947,6 +10950,25 @@ function renderDesigualdades() {
   const selAnoGlobal = document.getElementById('sel-ano');
   if (selAnoGlobal) {
     selAnoGlobal.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel0 ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  
+  const bannerFilters = main.querySelector('.banner-filters');
+  if (bannerFilters) {
+    bannerFilters.insertAdjacentHTML('beforeend', `
+      <div class="banner-filter-group">
+        <label class="banner-filter-label">Etapa de Ensino</label>
+        <select id="desig-sel-etapa" class="banner-filter-select">
+          ${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}
+        </select>
+      </div>
+      <div class="banner-filter-group">
+        <label class="banner-filter-label">Componente Curricular</label>
+        <select id="desig-sel-disc" class="banner-filter-select">
+          <option value="LP">Língua Portuguesa</option>
+          <option value="MT">Matemática</option>
+        </select>
+      </div>
+    `);
   }
   populateCreDropdown();
   populateMunDropdown(S.creSel || null);
@@ -10994,7 +11016,7 @@ function renderDesigualdades() {
     }
 
     const getVal = (dim, group, k) => dims[dim]?.[group]?.[k || key]?.media;
-    const getPct = (dim, group, k) => dims[dim]?.[group]?.[k || key]?.pct_adeq_av;
+    const getPct = (dim, group, prop, k) => dims[dim]?.[group]?.[k || key]?.[prop || 'pct_adeq_av'];
 
     // ── Premium KPIs ──
     const kpiDiv = document.getElementById('desig-kpis');
@@ -11059,6 +11081,18 @@ function renderDesigualdades() {
           backgroundColor: racaGroups.map(g => RACA_COLORS[g] || '#999'), borderRadius: 4, barPercentage: 0.6 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
+      }));
+
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-padrao'), {
+        type: 'bar',
+        data: { labels: racaGroups, datasets: [
+          { label: 'Abaixo do Básico', data: racaGroups.map(g => getPct('raca', g, 'pct_abaixo')), backgroundColor: '#E53935', borderRadius: 4 },
+          { label: 'Básico', data: racaGroups.map(g => getPct('raca', g, 'pct_basico')), backgroundColor: '#F57C00', borderRadius: 4 },
+          { label: 'Adequado', data: racaGroups.map(g => getPct('raca', g, 'pct_adequado')), backgroundColor: '#43A047', borderRadius: 4 },
+          { label: 'Avançado', data: racaGroups.map(g => getPct('raca', g, 'pct_avancado')), backgroundColor: '#1d71b9', borderRadius: 4 }
+        ] },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: DL_PCT },
+          scales: { ...CHART_DEFAULTS.scales, x: { stacked: true }, y: { stacked: true, max: 100, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } }
       }));
     }
 
@@ -11200,26 +11234,33 @@ function renderDesigualdades() {
     }
 
     // ── 8. PANORAMA MULTI-ETAPA ──
-    const panLabels = []; const panBranca = []; const panPreta = [];
+    const panLabels = [];
+    const panRacas = { 'Branca': [], 'Parda': [], 'Preta': [], 'Indígena': [], 'Amarela': [] };
+    const racaCoresPan = { 'Branca': '#1d71b9CC', 'Parda': '#FFCB04CC', 'Preta': '#333333CC', 'Indígena': '#E53935CC', 'Amarela': '#43A047CC' };
+    
     ETAPAS.forEach(et => {
       ['LP', 'MT'].forEach(dc => {
         const k = et + '_' + dc;
-        const b = dims.raca?.Branca?.[k]?.media;
-        const p = dims.raca?.Preta?.[k]?.media;
-        if (b != null && p != null) {
+        let hasData = false;
+        Object.keys(panRacas).forEach(r => {
+          if (dims.raca?.[r]?.[k]?.media != null) hasData = true;
+        });
+        if (hasData) {
           panLabels.push(ETAPA_LABELS[et] + ' ' + dc);
-          panBranca.push(b); panPreta.push(p);
+          Object.keys(panRacas).forEach(r => {
+            panRacas[r].push(dims.raca?.[r]?.[k]?.media);
+          });
         }
       });
     });
     if (panLabels.length > 0) {
+      const activeRacas = Object.keys(panRacas).filter(r => panRacas[r].some(v => v != null));
       S.charts.push(new Chart(document.getElementById('chart-desig-panorama'), {
         type: 'bar',
-        data: { labels: panLabels, datasets: [
-          { label: 'Branca', data: panBranca, backgroundColor: '#1d71b9CC', borderRadius: 3, barPercentage: 0.35, categoryPercentage: 0.8 },
-          { label: 'Preta', data: panPreta, backgroundColor: '#333333CC', borderRadius: 3, barPercentage: 0.35, categoryPercentage: 0.8 },
-        ] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' } } },
+        data: { labels: panLabels, datasets: activeRacas.map(r => ({
+          label: r, data: panRacas[r], backgroundColor: racaCoresPan[r], borderRadius: 3, barPercentage: 0.4, categoryPercentage: 0.8
+        })) },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom' }, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' }, formatter: v => v != null ? Math.round(v) : '' } },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
@@ -11237,14 +11278,21 @@ function renderDesigualdades() {
   // Map layer toggle
   const desigBtnMun = document.getElementById('desig-btn-layer-mun');
   const desigBtnCre = document.getElementById('desig-btn-layer-cre');
+  const desigBtnEsc = document.getElementById('desig-btn-layer-esc');
+  
+  if (desigBtnEsc) desigBtnEsc.addEventListener('click', () => {
+    S._desigMapMode = 'esc';
+    desigBtnEsc.classList.add('active'); desigBtnMun?.classList.remove('active'); desigBtnCre?.classList.remove('active');
+    buildDesigMap();
+  });
   if (desigBtnMun) desigBtnMun.addEventListener('click', () => {
     S._desigMapMode = 'mun';
-    desigBtnMun.classList.add('active'); desigBtnCre?.classList.remove('active');
+    desigBtnMun.classList.add('active'); desigBtnEsc?.classList.remove('active'); desigBtnCre?.classList.remove('active');
     buildDesigMap();
   });
   if (desigBtnCre) desigBtnCre.addEventListener('click', () => {
     S._desigMapMode = 'cre';
-    desigBtnCre.classList.add('active'); desigBtnMun?.classList.remove('active');
+    desigBtnCre.classList.add('active'); desigBtnEsc?.classList.remove('active'); desigBtnMun?.classList.remove('active');
     buildDesigMap();
   });
 
@@ -11262,10 +11310,30 @@ function renderDesigualdades() {
     if (!yearData) return;
 
     const isCre = S._desigMapMode === 'cre';
+    const isEsc = S._desigMapMode === 'esc';
     const dataMap = {};
     const vals = [];
+    const tableData = [];
 
-    if (isCre && yearData.dimensoes?.cre) {
+    if (isEsc && yearData.por_escola) {
+      const escolasLookup = yearData.escolas_lookup || S._universalEscolaLookup || {};
+      for (const [codEsc, escData] of Object.entries(yearData.por_escola)) {
+        const kData = escData?.geral?.[key];
+        const geralVal = kData?.media;
+        if (geralVal != null) { 
+          dataMap[codEsc] = geralVal; vals.push(geralVal); 
+          tableData.push({
+            nome: escolasLookup[codEsc]?.nome || codEsc,
+            cod: codEsc,
+            media: kData.media,
+            avancado: kData.pct_avancado,
+            adequado: kData.pct_adequado,
+            basico: kData.pct_basico,
+            abaixo: kData.pct_abaixo
+          });
+        }
+      }
+    } else if (isCre && yearData.dimensoes?.cre) {
       for (const [codCre, creData] of Object.entries(yearData.dimensoes.cre)) {
         const val = creData[key]?.media;
         const paddedCode = codCre.padStart(2, '0');
@@ -11324,6 +11392,21 @@ function renderDesigualdades() {
           layer.bindTooltip(`<strong>${nome}</strong><br>Profici\u00eancia ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
         }
       }).addTo(S.map);
+    } else if (isEsc && S.escolasGeo) {
+      const escolasLookup = yearData.escolas_lookup || S._universalEscolaLookup || {};
+      S.mapLayer = L.geoJSON(S.escolasGeo, {
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, weight: 1, color: '#fff', fillOpacity: 0.9 }),
+        style: f => {
+          const cod = String(f.properties.cod_escola || f.properties.co_entidade);
+          return { fillColor: getClr(dataMap[cod]) };
+        },
+        onEachFeature: (f, layer) => {
+          const cod = String(f.properties.cod_escola || f.properties.co_entidade);
+          const nome = escolasLookup[cod] || f.properties.nome || cod;
+          const val = dataMap[cod];
+          layer.bindTooltip(`<strong>${nome}</strong><br>Proficiência ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
+        }
+      }).addTo(S.map);
     } else if (S.geo) {
       const munLookup = yearData.mun_lookup || S._universalMunLookup || {};
       S.mapLayer = L.geoJSON(S.geo, {
@@ -11353,6 +11436,26 @@ function renderDesigualdades() {
       return div;
     };
     S.mapLegend.addTo(S.map);
+
+    // Update table
+    const tableCont = document.getElementById('desig-table-container');
+    const tableBody = document.querySelector('#desig-table tbody');
+    if (isEsc && tableCont && tableBody) {
+      tableCont.style.display = 'block';
+      tableData.sort((a, b) => (b.media || 0) - (a.media || 0));
+      tableBody.innerHTML = tableData.map(d => `
+        <tr>
+          <td style="text-align:left;font-weight:500">${d.nome}</td>
+          <td style="text-align:right;font-weight:600;color:var(--pri)">${d.media != null ? d.media.toFixed(1) : '-'}</td>
+          <td style="text-align:right">${d.avancado != null ? d.avancado.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right">${d.adequado != null ? d.adequado.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right">${d.basico != null ? d.basico.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right;color:#C62828">${d.abaixo != null ? d.abaixo.toFixed(1) + '%' : '-'}</td>
+        </tr>
+      `).join('');
+    } else if (tableCont) {
+      tableCont.style.display = 'none';
+    }
   }
 
   // Populate standard topbar filters
