@@ -5138,7 +5138,7 @@ function renderHome() {
     { view: 'afd', icon: 'img/icons/professor.png', title: 'Formação Docente', desc: 'Adequação da formação por etapa' },
     { view: 'fluxo', icon: 'img/icons/sec_evolucao.png', title: 'Fluxo e Rendimento', desc: 'Aprovação, reprovação e abandono' },
     { view: 'saers', icon: 'img/icons/sec_saeb.png', title: 'SAERS', desc: 'Avaliação Estadual — Proficiência e Padrão de Desempenho' },
-    { view: 'desigualdades', icon: 'img/icons/nav_desigualdades.png', title: 'Desigualdades', desc: 'Gaps de desempenho por raça, sexo, localização e outros recortes' },
+    { view: 'desigualdades', icon: 'img/icons/nav_desigualdades.png', title: 'Desigualdades', desc: 'Desigualdades no desempenho por raça, sexo, localização e outros recortes' },
     { view: 'saeb', icon: 'img/icons/sec_saeb.png', title: 'SAEB', desc: 'Proficiência em Língua Portuguesa e Matemática' },
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
@@ -10762,9 +10762,17 @@ function renderDesigualdades() {
   const FONTE = 'Fonte: ' + meta.fonte;
   const defaultEtapa = ETAPAS.includes('5_EF') ? '5_EF' : ETAPAS[0];
 
+  // Populate global topbar sel-ano with desig years
+  const selAnoGlobal = document.getElementById('sel-ano');
+  if (selAnoGlobal) {
+    const anoSel = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
+    selAnoGlobal.innerHTML = anos.map(a => '<option value="' + a + '"' + (a === anoSel ? ' selected' : '') + '>' + a + '</option>').join('');
+    S.anoSel = String(anoSel);
+  }
+
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades Educacionais', geoSuffix('Gaps de desempenho por recortes sociodemográficos — SAERS'))}
+      ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades Educacionais', geoSuffix('Desigualdades no desempenho por recortes sociodemográficos — SAERS'))}
 
       <!-- Filtros no header -->
       <div class="rede-toggle-strip" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:6px 20px">
@@ -10804,7 +10812,7 @@ function renderDesigualdades() {
             <span style="font-size:14px;font-weight:700;color:var(--pri)">Desigualdades Educacionais</span>
           </div>
           <p style="font-size:11.5px;margin:0 0 16px;color:#333;line-height:1.75">
-            Esta se\u00e7\u00e3o analisa os <strong>gaps de desempenho</strong> entre grupos sociodemogr\u00e1ficos
+            Esta se\u00e7\u00e3o analisa os <strong>desigualdades no desempenho</strong> entre grupos sociodemogr\u00e1ficos
             a partir dos <strong>microdados do SAERS</strong> (Sistema de Avalia\u00e7\u00e3o do Rendimento Escolar do RS).
             S\u00e3o investigadas <strong>7 dimens\u00f5es de desigualdade</strong>: ra\u00e7a/cor, sexo, localiza\u00e7\u00e3o
             (urbana/rural), defici\u00eancia, turno, CRE e intersec\u00e7\u00f5es.
@@ -10852,7 +10860,7 @@ function renderDesigualdades() {
     <!-- ═══ 1. Gap Racial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/nav_desigualdades.png" alt=""></span>
-      <span class="section-divider-text">Gap Racial</span>
+      <span class="section-divider-text">Recorte Racial</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
@@ -10863,7 +10871,7 @@ function renderDesigualdades() {
     <!-- ═══ 2. Gap de G\u00eanero ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
-      <span class="section-divider-text">Gap de G\u00eanero</span>
+      <span class="section-divider-text">Recorte de G\u00eanero</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
@@ -10874,7 +10882,7 @@ function renderDesigualdades() {
     <!-- ═══ 3. Urbana vs Rural ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/nav_acesso.png" alt=""></span>
-      <span class="section-divider-text">Gap por Localiza\u00e7\u00e3o</span>
+      <span class="section-divider-text">Recorte por Localiza\u00e7\u00e3o</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
@@ -10885,7 +10893,7 @@ function renderDesigualdades() {
     <!-- ═══ 4. Defici\u00eancia ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/politicas.png" alt=""></span>
-      <span class="section-divider-text">Gap por Defici\u00eancia</span>
+      <span class="section-divider-text">Recorte por Defici\u00eancia</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
@@ -10906,7 +10914,7 @@ function renderDesigualdades() {
     <!-- ═══ 6. Turno ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-      <span class="section-divider-text">Gap por Turno</span>
+      <span class="section-divider-text">Recorte por Turno</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
@@ -10914,24 +10922,31 @@ function renderDesigualdades() {
       <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
-    <!-- ═══ 7. CRE ═══ -->
+    <!-- ═══ 7. Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
-      <span class="section-divider-text">Ranking por Coordenadoria Regional</span>
+      <span class="section-divider-text">Distribui\u00e7\u00e3o Territorial</span>
       <span class="section-divider-line"></span>
     </div>
-    <div class="charts-grid">
-      <div class="chart-card full-width"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:480px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    <div style="display:flex;gap:10px;align-items:center;padding:0 0 8px;flex-wrap:wrap">
+      <div class="map-layer-toggle">
+        <button id="desig-btn-layer-mun" class="active">Munic\u00edpios</button>
+        <button id="desig-btn-layer-cre">CREs</button>
+      </div>
+    </div>
+    <div class="charts-grid" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card" style="min-height:460px"><div id="desig-map-leaflet" style="height:440px;border-radius:8px"></div></div>
+      <div class="chart-card"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:440px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
     <!-- ═══ 8. Panorama ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
-      <span class="section-divider-text">Panorama: Gap Racial por Etapa</span>
+      <span class="section-divider-text">Panorama: Desigualdade Racial por Etapa</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid">
-      <div class="chart-card full-width"><div class="chart-title">Gap Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card full-width"><div class="chart-title">Desigualdade Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
   `;
 
@@ -10994,11 +11009,11 @@ function renderDesigualdades() {
     const kpis = [
       { label: 'M\u00e9dia Geral', val: geral?.media?.toFixed(1) || '\u2014', accent: 'blue', icon: 'img/icons/sec_saeb.png',
         subtext: (geral?.pct_adeq_av != null ? geral.pct_adeq_av.toFixed(1) + '% adequado+avan\u00e7ado' : '') },
-      { label: 'Gap Racial (Branca\u2013Preta)', val: gapRacial != null ? gapRacial.toFixed(1) + ' pts' : 'N/D', accent: 'red', icon: 'img/icons/nav_desigualdades.png',
+      { label: 'Desig. Racial (Branca\u2013Preta)', val: gapRacial != null ? gapRacial.toFixed(1) + ' pts' : 'N/D', accent: 'red', icon: 'img/icons/nav_desigualdades.png',
         subtext: gapRacial != null ? 'Branca ' + branca?.toFixed(0) + ' \u00d7 Preta ' + preta?.toFixed(0) : '' },
-      { label: 'Gap Urbana\u2013Rural', val: gapLoc != null ? gapLoc.toFixed(1) + ' pts' : 'N/D', accent: 'yellow', icon: 'img/icons/nav_acesso.png',
+      { label: 'Desig. Urbana\u2013Rural', val: gapLoc != null ? gapLoc.toFixed(1) + ' pts' : 'N/D', accent: 'yellow', icon: 'img/icons/nav_acesso.png',
         subtext: gapLoc != null ? 'Urb. ' + urbana?.toFixed(0) + ' \u00d7 Rur. ' + rural?.toFixed(0) : '' },
-      { label: 'Gap de G\u00eanero', val: gapSexo != null ? Math.abs(gapSexo).toFixed(1) + ' pts' : 'N/D', accent: 'green', icon: 'img/icons/sec_docentes.png',
+      { label: 'Desig. de G\u00eanero', val: gapSexo != null ? Math.abs(gapSexo).toFixed(1) + ' pts' : 'N/D', accent: 'green', icon: 'img/icons/sec_docentes.png',
         subtext: gapSexo != null ? (gapSexo > 0 ? 'Feminino acima' : 'Masculino acima') : '' },
       { label: 'Alunos Avaliados', val: geral?.n?.toLocaleString('pt-BR') || '\u2014', accent: 'blue', icon: 'img/icons/escola.png',
         subtext: ETAPA_LABELS[etapa] + ' \u2014 ' + (disc === 'LP' ? 'L\u00edngua Portuguesa' : 'Matem\u00e1tica') },
@@ -11206,11 +11221,136 @@ function renderDesigualdades() {
   }
 
   buildCharts();
+  buildDesigMap();
 
   ['desig-sel-ano', 'desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', buildCharts);
+    document.getElementById(id)?.addEventListener('change', () => { buildCharts(); buildDesigMap(); });
   });
 
+  // Map layer toggle
+  const desigBtnMun = document.getElementById('desig-btn-layer-mun');
+  const desigBtnCre = document.getElementById('desig-btn-layer-cre');
+  if (desigBtnMun) desigBtnMun.addEventListener('click', () => {
+    S._desigMapMode = 'mun';
+    desigBtnMun.classList.add('active'); desigBtnCre?.classList.remove('active');
+    buildDesigMap();
+  });
+  if (desigBtnCre) desigBtnCre.addEventListener('click', () => {
+    S._desigMapMode = 'cre';
+    desigBtnCre.classList.add('active'); desigBtnMun?.classList.remove('active');
+    buildDesigMap();
+  });
+
+  function buildDesigMap() {
+    if (S.map) { S.map.remove(); S.map = null; S.mapLayer = null; }
+    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    const mapEl = document.getElementById('desig-map-leaflet');
+    if (!mapEl) return;
+
+    const anoSel = parseInt(document.getElementById('desig-sel-ano').value);
+    const etapa = document.getElementById('desig-sel-etapa').value;
+    const disc = document.getElementById('desig-sel-disc').value;
+    const key = etapa + '_' + disc;
+    const yearData = dd.anos.find(a => a.ano === anoSel);
+    if (!yearData) return;
+
+    const isCre = S._desigMapMode === 'cre';
+    const dataMap = {};
+    const vals = [];
+
+    if (isCre && yearData.dimensoes?.cre) {
+      for (const [codCre, creData] of Object.entries(yearData.dimensoes.cre)) {
+        const val = creData[key]?.media;
+        const paddedCode = codCre.padStart(2, '0');
+        if (val != null) { dataMap[paddedCode] = val; vals.push(val); }
+      }
+    } else if (yearData.por_municipio) {
+      // por_municipio keys are municipality NAMES, not IBGE codes
+      // Build reverse lookup: name → cod_mun for GeoJSON matching
+      const nameToCod = {};
+      const lookup = S._universalMunLookup || {};
+      for (const [cod, nome] of Object.entries(lookup)) nameToCod[nome] = cod;
+      // Also build from GeoJSON features
+      if (S.geo) S.geo.features.forEach(f => { if (f.properties.nome) nameToCod[f.properties.nome] = String(f.properties.cod_mun); });
+      for (const [munName, munData] of Object.entries(yearData.por_municipio)) {
+        const geralVal = munData?.geral?.[key]?.media;
+        const cod = nameToCod[munName];
+        if (geralVal != null && cod) { dataMap[cod] = geralVal; vals.push(geralVal); }
+      }
+    }
+
+    if (vals.length === 0) { mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999">Sem dados georreferenciados</div>'; return; }
+
+    vals.sort((a, b) => a - b);
+    const breaks = [];
+    for (let i = 0; i < MAP_SCALE.length; i++) {
+      const idx = Math.min(Math.floor((i / MAP_SCALE.length) * vals.length), vals.length - 1);
+      breaks.push(vals[idx]);
+    }
+    function getClr(v) {
+      if (v == null) return '#f0f0f0';
+      for (let i = breaks.length - 1; i >= 0; i--) { if (v >= breaks[i]) return MAP_SCALE[i]; }
+      return MAP_SCALE[0];
+    }
+
+    S.map = L.map(mapEl).setView([-29.8, -53.5], 6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '\u00a9 CartoDB \u00a9 OSM', maxZoom: 18,
+    }).addTo(S.map);
+
+    const discLabel = disc === 'LP' ? 'L\u00edngua Portuguesa' : 'Matem\u00e1tica';
+    const etapaLabel = ETAPA_LABELS[etapa] || etapa;
+
+    if (isCre && S.creGeo) {
+      const creLookup = {};
+      const creLookupRaw = yearData.cre_lookup || {};
+      for (const [k, v] of Object.entries(creLookupRaw)) creLookup[k.padStart(2, '0')] = v;
+      S.mapLayer = L.geoJSON(S.creGeo, {
+        style: f => {
+          const cod = String(f.properties.cod_cre || f.properties.CD_GEOCODR || '');
+          return { fillColor: getClr(dataMap[cod]), weight: 1.5, color: '#fff', fillOpacity: 0.8 };
+        },
+        onEachFeature: (f, layer) => {
+          const cod = String(f.properties.cod_cre || f.properties.CD_GEOCODR || '');
+          const nome = creLookup[cod] || f.properties.nome || cod;
+          const val = dataMap[cod];
+          layer.bindTooltip(`<strong>${nome}</strong><br>Profici\u00eancia ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
+        }
+      }).addTo(S.map);
+    } else if (S.geo) {
+      const munLookup = yearData.mun_lookup || S._universalMunLookup || {};
+      S.mapLayer = L.geoJSON(S.geo, {
+        style: f => {
+          const cod = String(f.properties.cod_mun);
+          return { fillColor: getClr(dataMap[cod]), weight: 0.8, color: '#fff', fillOpacity: 0.85 };
+        },
+        onEachFeature: (f, layer) => {
+          const cod = String(f.properties.cod_mun);
+          const nome = munLookup[cod] || f.properties.nome || cod;
+          const val = dataMap[cod];
+          layer.bindTooltip(`<strong>${nome}</strong><br>Profici\u00eancia ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
+        }
+      }).addTo(S.map);
+    }
+
+    // Legend
+    S.mapLegend = L.control({ position: 'bottomright' });
+    S.mapLegend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = '<strong>Profici\u00eancia ' + discLabel + '</strong><br>' +
+        MAP_SCALE.map((c, i) => {
+          const from = i === 0 ? 'Menor' : breaks[i]?.toFixed(0);
+          const to = i < MAP_SCALE.length - 1 ? breaks[i + 1]?.toFixed(0) : 'Maior';
+          return '<i style="background:' + c + '"></i> ' + from + '\u2013' + to;
+        }).join('<br>') + '<br><i style="background:#f0f0f0"></i> Sem dados';
+      return div;
+    };
+    S.mapLegend.addTo(S.map);
+  }
+
+  // Populate standard topbar filters
+  populateMunDropdown(S.creSel || null);
+  bindTopbarFilters();
   injectExportButtons();
 }
 
