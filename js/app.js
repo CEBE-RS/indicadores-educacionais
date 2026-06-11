@@ -10763,38 +10763,36 @@ function renderDesigualdades() {
   const defaultEtapa = ETAPAS.includes('5_EF') ? '5_EF' : ETAPAS[0];
 
   // Populate global topbar sel-ano with desig years
+  const anoSel0 = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
   const selAnoGlobal = document.getElementById('sel-ano');
   if (selAnoGlobal) {
-    const anoSel = S.anoSel ? parseInt(S.anoSel) : anos[anos.length - 1];
-    selAnoGlobal.innerHTML = anos.map(a => '<option value="' + a + '"' + (a === anoSel ? ' selected' : '') + '>' + a + '</option>').join('');
-    S.anoSel = String(anoSel);
+    selAnoGlobal.innerHTML = anos.map(a => '<option value="' + a + '"' + (a === anoSel0 ? ' selected' : '') + '>' + a + '</option>').join('');
+    S.anoSel = String(anoSel0);
   }
 
   main.innerHTML = `
     <div class="section-sticky">
       ${sectionBanner('img/icons/nav_desigualdades.png', 'Desigualdades Educacionais', geoSuffix('Desigualdades no desempenho por recortes sociodemográficos — SAERS'))}
 
-      <!-- Filtros no header -->
-      <div class="rede-toggle-strip" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:6px 20px">
-        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
-          <img src="img/icons/sec_evolucao.png" alt="" style="width:14px;height:14px"> Ano:
-          <select id="desig-sel-ano" class="filter-select">${anos.map(a => '<option value="' + a + '"' + (a===anos[anos.length-1]?' selected':'') + '>' + a + '</option>').join('')}</select>
+      <div class="kpi-strip" style="position:relative" id="desig-kpis">
+        <div style="display:none">
+          <select id="desig-sel-ano">${anos.map(a => '<option value="' + a + '"' + (a===anos[anos.length-1]?' selected':'') + '>' + a + '</option>').join('')}</select>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;padding:4px 20px 2px;flex-wrap:wrap;background:rgba(255,255,255,.92)">
+        <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
+          Etapa:
+          <select id="desig-sel-etapa" class="filter-select" style="font-size:10px;padding:2px 6px">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
         </label>
-        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
-          <img src="img/icons/sec_saeb.png" alt="" style="width:14px;height:14px"> Etapa:
-          <select id="desig-sel-etapa" class="filter-select">${ETAPAS.map(e => '<option value="' + e + '"' + (e===defaultEtapa?' selected':'') + '>' + ETAPA_LABELS[e] + '</option>').join('')}</select>
-        </label>
-        <label style="font-size:11px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:5px">
-          <img src="img/icons/panorama.png" alt="" style="width:14px;height:14px"> Disciplina:
-          <select id="desig-sel-disc" class="filter-select">
+        <label style="font-size:10px;font-weight:600;color:var(--pri);display:flex;align-items:center;gap:4px">
+          Disciplina:
+          <select id="desig-sel-disc" class="filter-select" style="font-size:10px;padding:2px 6px">
             <option value="LP">L\u00edngua Portuguesa</option>
             <option value="MT">Matem\u00e1tica</option>
           </select>
         </label>
         <span id="desig-aviso" style="font-size:10px;color:#E65100;font-style:italic;display:none;margin-left:auto"></span>
       </div>
-
-      <div class="kpi-strip" id="desig-kpis"></div>
     </div>
 
     <!-- ═══ BLOCO INFORMATIVO ═══ -->
@@ -10922,7 +10920,17 @@ function renderDesigualdades() {
       <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
-    <!-- ═══ 7. Distribuição Territorial ═══ -->
+    <!-- ═══ 7. Panorama ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Panorama: Desigualdade Racial por Etapa</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card full-width"><div class="chart-title">Desigualdade Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+
+    <!-- ═══ 8. Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
       <span class="section-divider-text">Distribui\u00e7\u00e3o Territorial</span>
@@ -10935,24 +10943,14 @@ function renderDesigualdades() {
       </div>
     </div>
     <div class="charts-grid" style="grid-template-columns:1fr 1fr">
-      <div class="chart-card" style="min-height:460px"><div id="desig-map-leaflet" style="height:440px;border-radius:8px"></div></div>
+      <div class="chart-card" style="min-height:460px"><div id="desig-map-leaflet" style="height:440px;border-radius:8px;z-index:1"></div></div>
       <div class="chart-card"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:440px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
-    </div>
-
-    <!-- ═══ 8. Panorama ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
-      <span class="section-divider-text">Panorama: Desigualdade Racial por Etapa</span>
-      <span class="section-divider-line"></span>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card full-width"><div class="chart-title">Desigualdade Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
   `;
 
   function buildCharts() {
     destroyCharts();
-    const anoSel = parseInt(document.getElementById('desig-sel-ano').value);
+    const anoSel = parseInt(document.getElementById('desig-sel-ano')?.value || S.anoSel);
     const etapa = document.getElementById('desig-sel-etapa').value;
     const disc = document.getElementById('desig-sel-disc').value;
     const key = etapa + '_' + disc;
@@ -11053,7 +11051,7 @@ function renderDesigualdades() {
         data: { labels: racaGroups, datasets: [{ label: 'Profici\u00eancia', data: racaGroups.map(g => getVal('raca', g)),
           backgroundColor: racaGroups.map(g => RACA_COLORS[g] || '#999'), borderRadius: 4, barPercentage: 0.6 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11065,7 +11063,7 @@ function renderDesigualdades() {
           label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.raca?.[g]?.[key]?.media || null),
           borderColor: RACA_COLORS[g] || '#999', tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
         })) },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11077,7 +11075,7 @@ function renderDesigualdades() {
         data: { labels: sexoGroups, datasets: [{ label: 'Profici\u00eancia', data: sexoGroups.map(g => getVal('sexo', g)),
           backgroundColor: sexoGroups.map(g => SEXO_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11089,7 +11087,7 @@ function renderDesigualdades() {
           label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.sexo?.[g]?.[key]?.media || null),
           borderColor: SEXO_COLORS[g], tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
         })) },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11101,7 +11099,7 @@ function renderDesigualdades() {
         data: { labels: locGroups, datasets: [{ label: 'Profici\u00eancia', data: locGroups.map(g => getVal('localizacao', g)),
           backgroundColor: locGroups.map(g => LOC_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11113,7 +11111,7 @@ function renderDesigualdades() {
           label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.localizacao?.[g]?.[key]?.media || null),
           borderColor: LOC_COLORS[g], tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
         })) },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 150, max: 250 } } },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
 
@@ -11125,7 +11123,7 @@ function renderDesigualdades() {
         data: { labels: defGroups, datasets: [{ label: 'Profici\u00eancia', data: defGroups.map(g => getVal('deficiencia', g)),
           backgroundColor: defGroups.map(g => DEF_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
       S.charts.push(new Chart(document.getElementById('chart-desig-def-pct'), {
         type: 'bar',
@@ -11149,7 +11147,7 @@ function renderDesigualdades() {
             borderColor: interColors, borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] },
         options: { ...CHART_DEFAULTS, indexAxis: 'y',
           plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: { ...DL_VAL, anchor: 'end', align: 'right' } },
-          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 }, y: { ticks: { font: { size: 9, family: 'Inter' } } } } },
+          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false }, y: { ticks: { font: { size: 9, family: 'Inter' } } } } },
       }));
     }
 
@@ -11162,7 +11160,7 @@ function renderDesigualdades() {
         data: { labels: turnoGrupos, datasets: [{ label: 'Profici\u00eancia', data: turnoGrupos.map(g => getVal('turno', g)),
           backgroundColor: turnoGrupos.map(g => TURNO_COLORS[g]), borderRadius: 4, barPercentage: 0.6 }] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
       S.charts.push(new Chart(document.getElementById('chart-desig-turno-pct'), {
         type: 'bar',
@@ -11190,7 +11188,7 @@ function renderDesigualdades() {
             borderRadius: 3, barPercentage: 0.7 }] },
         options: { ...CHART_DEFAULTS, indexAxis: 'y',
           plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: { ...DL_VAL, anchor: 'end', align: 'right', font: { size: 8, weight: 'bold' } } },
-          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 }, y: { ticks: { font: { size: 8, family: 'Inter' } } } } },
+          scales: { x: { ...CHART_DEFAULTS.scales.y, beginAtZero: false }, y: { ticks: { font: { size: 8, family: 'Inter' } } } } },
       }));
     }
 
@@ -11215,7 +11213,7 @@ function renderDesigualdades() {
           { label: 'Preta', data: panPreta, backgroundColor: '#333333CC', borderRadius: 3, barPercentage: 0.35, categoryPercentage: 0.8 },
         ] },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' } } },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 190, max: 230 } } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
   }
@@ -11223,9 +11221,11 @@ function renderDesigualdades() {
   buildCharts();
   buildDesigMap();
 
-  ['desig-sel-ano', 'desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
+  ['desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', () => { buildCharts(); buildDesigMap(); });
   });
+  // Sync hidden desig-sel-ano with topbar sel-ano
+  document.getElementById('desig-sel-ano')?.addEventListener('change', () => { buildCharts(); buildDesigMap(); });
 
   // Map layer toggle
   const desigBtnMun = document.getElementById('desig-btn-layer-mun');
@@ -11247,7 +11247,7 @@ function renderDesigualdades() {
     const mapEl = document.getElementById('desig-map-leaflet');
     if (!mapEl) return;
 
-    const anoSel = parseInt(document.getElementById('desig-sel-ano').value);
+    const anoSel = parseInt(document.getElementById('desig-sel-ano')?.value || S.anoSel);
     const etapa = document.getElementById('desig-sel-etapa').value;
     const disc = document.getElementById('desig-sel-disc').value;
     const key = etapa + '_' + disc;
