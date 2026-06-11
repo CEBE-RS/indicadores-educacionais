@@ -8734,6 +8734,8 @@ function renderTdi() {
   const anoSel = (S.anoSel && tdi.serie_temporal[S.anoSel]) ? S.anoSel : ultimo;
   const st = tdi.serie_temporal[anoSel];
   const lookup = tdi.lookup_municipios || {};
+  const TDI_MET_LABELS = { tdi_fund: 'Fundamental', tdi_ai: 'Anos Iniciais', tdi_af: 'Anos Finais', tdi_med: 'Ensino Médio' };
+  const getTdiMetrica = () => document.getElementById('tdi-map-metrica')?.value || 'tdi_fund';
 
   // Geo-aware display data
   const displayData = S.munSel
@@ -8869,11 +8871,19 @@ function renderTdi() {
     <div class="map-table-row d1">
       <div class="map-container">
         <div class="map-toolbar">
-          <h3>Mapa — TDI Fundamental <span id="tdi-map-ano">${anoSel}</span></h3>
-          <div class="map-layer-toggle">
-            <button class="map-layer-btn active" id="tdi-btn-layer-mun">Municípios</button>
-            <button class="map-layer-btn" id="tdi-btn-layer-cre">CREs</button>
-            ${S.escolasData && S.redeSel === 'estadual' ? '<button class="map-layer-btn" id="tdi-btn-layer-escola">Escolas</button>' : ''}
+          <h3>Mapa — TDI <span id="tdi-map-metrica-label">Fundamental</span> <span id="tdi-map-ano">${anoSel}</span></h3>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <select id="tdi-map-metrica" class="map-select" style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;font-family:Inter">
+              <option value="tdi_fund">Fundamental</option>
+              <option value="tdi_ai">Anos Iniciais</option>
+              <option value="tdi_af">Anos Finais</option>
+              <option value="tdi_med">Ensino Médio</option>
+            </select>
+            <div class="map-layer-toggle">
+              <button class="map-layer-btn active" id="tdi-btn-layer-mun">Municípios</button>
+              <button class="map-layer-btn" id="tdi-btn-layer-cre">CREs</button>
+              ${S.escolasData && S.redeSel === 'estadual' ? '<button class="map-layer-btn" id="tdi-btn-layer-escola">Escolas</button>' : ''}
+            </div>
           </div>
         </div>
         <div id="tdi-map-leaflet" style="height:380px;border-radius:8px"></div>
@@ -9127,6 +9137,8 @@ function renderTdi() {
     const mapEl = document.getElementById('tdi-map-leaflet');
     if (!mapEl) return;
     const munData = tdi.por_municipio[anoSel] || {};
+    const metrica = getTdiMetrica();
+    const metLabel = TDI_MET_LABELS[metrica];
 
     destroyMap();
     S.map = L.map('tdi-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
@@ -9139,12 +9151,13 @@ function renderTdi() {
       if (!props) { this._div.innerHTML = '<h4>Passe o mouse sobre um município</h4>'; return; }
       const nome = props.nome || props.cod_mun;
       if (!md) { this._div.innerHTML = `<h4>${nome}</h4><div style="color:#999;font-size:11px">Sem dados TDI</div>`; return; }
+      const _tdiR = (lbl, key) => { const v = md[key]; const sel = key === metrica; return '<div class="info-row"><span class="info-label"' + (sel ? ' style="font-weight:700"' : '') + '>' + lbl + '</span><span class="info-value" style="color:' + getTdiColor(v||0) + ';' + (sel ? 'font-weight:700;font-size:13px' : '') + '">' + (v != null ? v.toFixed(1) + '%' : '—') + '</span></div>'; };
       this._div.innerHTML = `
         <h4>${nome}</h4>
-        <div class="info-row"><span class="info-label">TDI Fund.</span><span class="info-value" style="color:${getTdiColor(md.tdi_fund||0)}">${md.tdi_fund?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">TDI Anos Iniciais</span><span class="info-value">${md.tdi_ai?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">TDI Anos Finais</span><span class="info-value">${md.tdi_af?.toFixed(1) ?? '—'}%</span></div>
-        <div class="info-row"><span class="info-label">TDI Médio</span><span class="info-value" style="color:${getTdiColor(md.tdi_med||0)}">${md.tdi_med?.toFixed(1) ?? '—'}%</span></div>
+        ${_tdiR('TDI Fund.','tdi_fund')}
+        ${_tdiR('TDI Anos Iniciais','tdi_ai')}
+        ${_tdiR('TDI Anos Finais','tdi_af')}
+        ${_tdiR('TDI Médio','tdi_med')}
         <div class="info-row"><span class="info-label">Escolas</span><span class="info-value">${md.n_escolas || '—'}</span></div>
       `;
     };
@@ -9154,7 +9167,7 @@ function renderTdi() {
       style: feature => {
         const cod = feature.properties.cod_mun?.substring(0, 7);
         const md = munData[cod];
-        const v = md?.tdi_fund ?? -1;
+        const v = md?.[metrica] ?? -1;
         return { fillColor: v >= 0 ? getTdiColor(v) : '#f0f0f0', weight: 0.8, opacity: 1, color: '#fff', fillOpacity: 0.85 };
       },
       onEachFeature: (feature, layer) => {
@@ -9171,7 +9184,7 @@ function renderTdi() {
     const legend = L.control({ position: 'bottomleft' });
     legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<h4>TDI Fundamental (%)</h4>' +
+      div.innerHTML = '<h4>TDI ' + metLabel + ' (%)</h4>' +
         TDI_MAP_BREAKS.slice().reverse().map(b =>
           `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`
         ).join('') + '<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>';
@@ -9187,6 +9200,8 @@ function renderTdi() {
     if (!S.creGeo || !S.map) return;
     if (S.mapLayer) { S.mapLayer.remove(); S.mapLayer = null; }
     if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
+    const metrica = getTdiMetrica();
+    const metLabel = TDI_MET_LABELS[metrica];
     const munToCre = S.creLookup?.mun_to_cre || {};
     const munData = tdi.por_municipio[anoSel] || {};
     const creData = {};
@@ -9194,7 +9209,7 @@ function renderTdi() {
       const cre = munToCre[cod]?.cod_cre;
       if (!cre) continue;
       if (!creData[cre]) creData[cre] = { sum: 0, count: 0, nome: munToCre[cod]?.nome_cre || cre };
-      if (v.tdi_fund != null) { creData[cre].sum += v.tdi_fund; creData[cre].count++; }
+      if (v[metrica] != null) { creData[cre].sum += v[metrica]; creData[cre].count++; }
     }
     for (const c of Object.values(creData)) c.avg = c.count > 0 ? c.sum / c.count : 0;
 
@@ -9208,7 +9223,7 @@ function renderTdi() {
         const cod = feature.properties.cod_cre;
         const nome = feature.properties.nome_cre || cod;
         const d = creData[cod];
-        layer.bindTooltip(`<strong>${nome}</strong><br>TDI Fund.: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
+        layer.bindTooltip(`<strong>${nome}</strong><br>TDI ${metLabel}: ${d?.avg?.toFixed(1) ?? '—'}%<br>${d?.count || 0} municípios`, { sticky: true });
         layer.on('click', () => { S.creSel = cod; const selCre = document.getElementById('sel-cre'); if (selCre) selCre.value = cod; populateMunDropdown(cod); refreshActiveTab(); });
       }
     }).addTo(S.map);
@@ -9216,7 +9231,7 @@ function renderTdi() {
     const creLegend = L.control({ position: 'bottomleft' });
     creLegend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<h4>TDI Fund. (CREs)</h4>' +
+      div.innerHTML = '<h4>TDI ' + metLabel + ' (CREs)</h4>' +
         TDI_MAP_BREAKS.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('');
       return div;
     };
@@ -9301,11 +9316,13 @@ function renderTdi() {
     destroyMap();
     const mapEl = document.getElementById('tdi-map-leaflet');
     if (!mapEl) return;
+    const metrica = getTdiMetrica();
+    const metLabel = TDI_MET_LABELS[metrica];
     const ed = S.escolasData;
     let escolas = ed.escolas || [];
     if (S.creSel) escolas = escolas.filter(e => e.cre === S.creSel);
     if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
-    const withCoords = escolas.filter(e => e.lat && e.lng && e.tdi_fund != null);
+    const withCoords = escolas.filter(e => e.lat && e.lng && e[metrica] != null);
 
     S.map = L.map('tdi-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
@@ -9313,7 +9330,7 @@ function renderTdi() {
 
     const markers = L.featureGroup();
     withCoords.forEach(e => {
-      const tdiVal = e.tdi_fund || 0;
+      const tdiVal = e[metrica] || 0;
       const marker = L.circleMarker([e.lat, e.lng], {
         radius: 4, fillColor: getTdiColor(tdiVal), color: '#fff', weight: 1, fillOpacity: 0.85,
       });
@@ -9324,10 +9341,10 @@ function renderTdi() {
           <span style="font-size:10px;color:#666">${e.municipio || ''} — INEP: ${e.inep}</span>
           <hr style="margin:4px 0;border:none;border-top:1px solid #eee">
           <div style="font-size:10px;display:grid;grid-template-columns:1fr 1fr;gap:2px">
-            <span>TDI Fund.: <b style="color:${getTdiColor(e.tdi_fund||0)}">${fmtTdi(e.tdi_fund)}</b></span>
-            <span>TDI AI: <b>${fmtTdi(e.tdi_ai)}</b></span>
-            <span>TDI AF: <b>${fmtTdi(e.tdi_af)}</b></span>
-            <span>TDI Médio: <b style="color:${getTdiColor(e.tdi_med||0)}">${fmtTdi(e.tdi_med)}</b></span>
+            <span${metrica==='tdi_fund'?' style="font-weight:800"':''}>TDI Fund.: <b style="color:${getTdiColor(e.tdi_fund||0)}">${fmtTdi(e.tdi_fund)}</b></span>
+            <span${metrica==='tdi_ai'?' style="font-weight:800"':''}>TDI AI: <b style="color:${getTdiColor(e.tdi_ai||0)}">${fmtTdi(e.tdi_ai)}</b></span>
+            <span${metrica==='tdi_af'?' style="font-weight:800"':''}>TDI AF: <b style="color:${getTdiColor(e.tdi_af||0)}">${fmtTdi(e.tdi_af)}</b></span>
+            <span${metrica==='tdi_med'?' style="font-weight:800"':''}>TDI Médio: <b style="color:${getTdiColor(e.tdi_med||0)}">${fmtTdi(e.tdi_med)}</b></span>
           </div>
         </div>
       `);
@@ -9340,7 +9357,7 @@ function renderTdi() {
     S.mapLegend = L.control({ position: 'bottomright' });
     S.mapLegend.onAdd = function () {
       const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<strong style="font-size:10px">TDI Fundamental</strong>' +
+      div.innerHTML = '<strong style="font-size:10px">TDI ' + metLabel + '</strong>' +
         TDI_MAP_BREAKS.map(b => `<div style="display:flex;align-items:center;gap:4px;font-size:9px"><span style="width:12px;height:12px;border-radius:50%;background:${b.color};display:inline-block"></span>${b.label}</div>`).join('');
       return div;
     };
@@ -9360,9 +9377,10 @@ function renderTdi() {
     if (S.creSel) escolas = escolas.filter(e => e.cre === S.creSel);
     if (S.munSel) escolas = escolas.filter(e => e.cod_mun === S.munSel);
 
-    const escolasSorted = [...escolas].filter(e => e.tdi_fund != null);
-    let sortCol = 'tdi_fund', sortAsc = false; // default: highest TDI first
-    escolasSorted.sort((a, b) => (b.tdi_fund || 0) - (a.tdi_fund || 0));
+    const metrica = getTdiMetrica();
+    const escolasSorted = [...escolas].filter(e => e[metrica] != null);
+    let sortCol = metrica, sortAsc = false; // default: highest TDI first
+    escolasSorted.sort((a, b) => (b[metrica] || 0) - (a[metrica] || 0));
 
     const scrollEl = document.getElementById('tdi-table-scroll');
     if (!scrollEl) return;
@@ -9461,6 +9479,19 @@ function renderTdi() {
       tdiSetActive(tdiBtnEsc);
       tdiBuildEscolaMap();
       tdiBuildEscolaTable();
+    });
+  }
+
+  // Bind TDI metric dropdown change
+  const tdiMetricSel = document.getElementById('tdi-map-metrica');
+  if (tdiMetricSel) {
+    tdiMetricSel.addEventListener('change', () => {
+      const label = tdiMetricSel.options[tdiMetricSel.selectedIndex]?.text || 'Fundamental';
+      const titleEl = document.getElementById('tdi-map-metrica-label');
+      if (titleEl) titleEl.textContent = label;
+      if (tdiBtnEsc?.classList.contains('active')) { tdiBuildEscolaMap(); tdiBuildEscolaTable(); }
+      else if (tdiBtnCre?.classList.contains('active')) { tdiBuildCreMap(); }
+      else { tdiBuildMap(); }
     });
   }
 
