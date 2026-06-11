@@ -162,6 +162,28 @@ function deltaArrow(n) {
   return n > 0 ? '↑' : '↓';
 }
 
+/** Returns the correct data source attribution for the active section */
+function getExportSource() {
+  const v = S._currentView || '';
+  const sources = {
+    acesso: 'Censo Escolar, INEP',
+    infra: 'Censo Escolar, INEP',
+    docencia: 'Censo Escolar, INEP',
+    escolas: 'Censo Escolar, INEP',
+    fluxo: 'INEP — Indicadores de Rendimento Escolar',
+    saeb: 'Microdados SAEB — INEP',
+    desempenho: 'Microdados SAEB — INEP',
+    ideb: 'IDEB/INEP',
+    inse: 'INEP — Indicador de Nível Socioeconômico (INSE/SAEB)',
+    icg: 'INEP — Indicador de Complexidade de Gestão da Escola',
+    afd: 'INEP — Indicador de Adequação da Formação Docente',
+    tdi: 'INEP — Indicador de Distorção Idade-Série',
+    saers: 'SAERS/CAED — Avaliação do Estado do Rio Grande do Sul',
+    desigualdades: 'INEP — Indicadores Educacionais',
+  };
+  return (sources[v] || 'INEP') + ', extraído e tratado pela equipe SEDUC / Unesco';
+}
+
 /**
  * Export chart data as CSV.
  * Finds the Chart.js instance from the canvas inside the same chart-card.
@@ -180,7 +202,7 @@ function exportChartCSV(btn) {
 
   // Build CSV
   const metaRows = [
-    ['Fonte', 'Censo Escolar, INEP, extraído e tratado pela equipe SEDUC / Unesco'],
+    ['Fonte', getExportSource()],
     ['Rede', getRedeLabel()],
     ['Ano/Edicao', S.anoSel || 'Geral'],
     ['Tabela', title],
@@ -264,9 +286,33 @@ function exportTableCSV(btn) {
 
   const title = wrapper.querySelector('.table-header h3')?.textContent || wrapper.querySelector('.chart-title')?.textContent || 'tabela';
 
-  // Extract headers
+  // Extract headers — handle multi-row thead (rowspan/colspan)
   const headers = [];
-  table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+  const theadRows = table.querySelectorAll('thead tr');
+  if (theadRows.length > 1) {
+    // Multi-row: build a grid and flatten
+    const nCols = [...theadRows[0].querySelectorAll('th')].reduce((s, th) => s + (parseInt(th.colSpan) || 1), 0);
+    const grid = Array.from({ length: theadRows.length }, () => new Array(nCols).fill(''));
+    theadRows.forEach((tr, ri) => {
+      let ci = 0;
+      tr.querySelectorAll('th').forEach(th => {
+        while (grid[ri][ci]) ci++;
+        const rs = parseInt(th.rowSpan) || 1, cs = parseInt(th.colSpan) || 1;
+        const txt = th.textContent.trim().replace(/[⇅↑↓]/g, '').trim();
+        for (let r = 0; r < rs; r++) for (let c = 0; c < cs; c++) {
+          if (grid[ri + r]) grid[ri + r][ci + c] = grid[ri + r][ci + c] || txt;
+        }
+        ci += cs;
+      });
+    });
+    // Flatten: combine top row + bottom row labels
+    for (let c = 0; c < nCols; c++) {
+      const parts = [...new Set(grid.map(row => row[c]).filter(Boolean))];
+      headers.push(parts.join(' — '));
+    }
+  } else {
+    table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+  }
 
   // Extract visible rows
   const rows = [];
@@ -278,7 +324,7 @@ function exportTableCSV(btn) {
   });
 
   const metaRows = [
-    ['Fonte', 'Censo Escolar, INEP, extraído e tratado pela equipe SEDUC / Unesco'],
+    ['Fonte', getExportSource()],
     ['Rede', getRedeLabel()],
     ['Ano/Edicao', S.anoSel || 'Geral'],
     ['Tabela', title],
@@ -11828,10 +11874,22 @@ function renderSaers() {
             ${S.saersEscolasData ? '<button class="map-layer-btn" id="saers-btn-layer-escola">Escolas</button>' : ''}
           </div>
           <select id="sel-saers-map-metric" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
-            <option value="LP">Proficiência LP</option>
-            <option value="MT">Proficiência MT</option>
-            <option value="pctLP">% Adeq.+Av. LP</option>
-            <option value="pctMT">% Adeq.+Av. MT</option>
+            <optgroup label="Proficiência">
+              <option value="LP">Proficiência LP</option>
+              <option value="MT">Proficiência MT</option>
+            </optgroup>
+            <optgroup label="Língua Portuguesa — Padrão">
+              <option value="avancado_LP">% Avançado LP</option>
+              <option value="adequado_LP">% Adequado LP</option>
+              <option value="basico_LP">% Básico LP</option>
+              <option value="abaixo_LP">% Abaixo do Básico LP</option>
+            </optgroup>
+            <optgroup label="Matemática — Padrão">
+              <option value="avancado_MT">% Avançado MT</option>
+              <option value="adequado_MT">% Adequado MT</option>
+              <option value="basico_MT">% Básico MT</option>
+              <option value="abaixo_MT">% Abaixo do Básico MT</option>
+            </optgroup>
           </select>
           <select id="sel-saers-map-etapa" style="font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid #ccc">
             ${renderableEtapas.map(e => `<option value="${e}">${ETAPA_LABELS[e]}</option>`).join('')}
@@ -11847,7 +11905,7 @@ function renderSaers() {
         <div style="max-height:500px;overflow-y:auto">
           <table class="data-table" id="saers-mun-table">
             <thead><tr>
-              <th>#</th><th>Município</th><th>Prof. LP</th><th>Prof. MT</th><th>% Adeq.+Av. LP</th><th>% Adeq.+Av. MT</th><th>Avaliados</th>
+              <th>#</th><th>Município</th><th>Prof. LP</th><th>Prof. MT</th><th>%Av. LP</th><th>%Ad. LP</th><th>%Bás. LP</th><th>%Ab. LP</th><th>%Av. MT</th><th>%Ad. MT</th><th>%Bás. MT</th><th>%Ab. MT</th><th>Avaliados</th>
             </tr></thead>
             <tbody id="saers-mun-tbody"></tbody>
           </table>
@@ -11860,11 +11918,16 @@ function renderSaers() {
 
   `;
 
-  // ── Populate banner filters ──
+  // ── Populate banner filters (standard, like all other sections) ──
   const selAno = document.getElementById('sel-ano');
   if (selAno) {
     selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
     S.anoSel = String(anoSel);
+  }
+  // Merge SAERS mun_lookup into universal lookup so the standard dropdown works
+  if (sd.anos[0]?.mun_lookup) {
+    if (!S._universalMunLookup) S._universalMunLookup = {};
+    Object.assign(S._universalMunLookup, sd.anos[0].mun_lookup);
   }
   // Populate CRE dropdown
   const selCre = document.getElementById('sel-cre');
@@ -11874,50 +11937,9 @@ function renderSaers() {
         .sort(([a],[b]) => a.localeCompare(b))
         .map(([cod, nome]) => `<option value="${cod}" ${S.creSel === cod ? 'selected' : ''}>${nome}</option>`).join('');
   }
-  // Populate municipality dropdown from SAERS data
-  if (sd.anos[0]?.mun_lookup) {
-    const munInput = document.getElementById('mun-search-input');
-    const munDd = document.getElementById('mun-dropdown-list');
-    if (munInput && munDd) {
-      const munEntries = Object.entries(sd.anos[0].mun_lookup).sort((a,b) => a[1].localeCompare(b[1]));
-      munDd.innerHTML = munEntries.map(([cod, nome]) => `<div class="mun-dropdown-item" data-cod="${cod}">${nome}</div>`).join('');
-      munInput.addEventListener('focus', () => { munDd.style.display = 'block'; });
-      munInput.addEventListener('input', e => {
-        const q = e.target.value.toLowerCase();
-        munDd.querySelectorAll('.mun-dropdown-item').forEach(item => {
-          item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
-        munDd.style.display = 'block';
-      });
-      munDd.addEventListener('click', e => {
-        const item = e.target.closest('.mun-dropdown-item');
-        if (!item) return;
-        S.munSel = item.dataset.cod;
-        munInput.value = item.textContent;
-        munDd.style.display = 'none';
-        buildSaersAll(sd);
-      });
-      document.addEventListener('click', e => {
-        if (!e.target.closest('#mun-search-wrapper')) munDd.style.display = 'none';
-      });
-      if (S.munSel) {
-        munInput.value = sd.anos[0].mun_lookup[S.munSel] || '';
-      }
-    }
-  }
-
-  // ── Bind banner filter events ──
-  selAno?.addEventListener('change', e => {
-    S.anoSel = e.target.value;
-    buildSaersAll(sd);
-  });
-  selCre?.addEventListener('change', e => {
-    S.creSel = e.target.value || null;
-    S.munSel = null;
-    const mi = document.getElementById('mun-search-input');
-    if (mi) mi.value = '';
-    buildSaersAll(sd);
-  });
+  // Use standard municipality dropdown + topbar filter bindings
+  populateMunDropdown(S.creSel || null);
+  bindTopbarFilters();
 
   // Search in table
   document.getElementById('saers-mun-search')?.addEventListener('input', e => {
@@ -11951,7 +11973,7 @@ function renderSaers() {
       saersSetActive(saersBtnMun);
       // Restore mun table headers
       const thead = document.querySelector('#saers-mun-table thead tr');
-      if (thead) thead.innerHTML = '<th>#</th><th>Município</th><th>Prof. LP</th><th>Prof. MT</th><th>% Adeq.+Av. LP</th><th>% Adeq.+Av. MT</th><th>Avaliados</th>';
+      if (thead) thead.innerHTML = '<th>#</th><th>Município</th><th>Prof. LP</th><th>Prof. MT</th><th>%Av. LP</th><th>%Ad. LP</th><th>%Bás. LP</th><th>%Ab. LP</th><th>%Av. MT</th><th>%Ad. MT</th><th>%Bás. MT</th><th>%Ab. MT</th><th>Avaliados</th>';
       const titleEl = document.querySelector('#saers-table-wrapper .table-header h3');
       if (titleEl) titleEl.textContent = 'Tabela por Município';
       const searchEl = document.getElementById('saers-mun-search');
@@ -12028,8 +12050,14 @@ function renderSaers() {
       let val;
       if (metric === 'LP') val = dLP?.proficiencia;
       else if (metric === 'MT') val = dMT?.proficiencia;
-      else if (metric === 'pctLP') val = dLP?.padrao?.pct_adequado_avancado;
-      else if (metric === 'pctMT') val = dMT?.padrao?.pct_adequado_avancado;
+      else if (metric.match(/^(avancado|adequado|basico|abaixo)_/)) {
+        const padKey = metric.split('_')[0];
+        const d = metric.endsWith('_LP') ? dLP : dMT;
+        if (d?.padrao) {
+          const total = (d.padrao.avancado||0) + (d.padrao.adequado||0) + (d.padrao.basico||0) + (d.padrao.abaixo||0);
+          val = total > 0 ? round2((d.padrao[padKey]||0) / total * 100) : null;
+        }
+      }
 
       if (val == null) continue;
       count++;
@@ -12046,8 +12074,10 @@ function renderSaers() {
           <div style="font-size:10px;display:grid;grid-template-columns:1fr 1fr;gap:2px">
             <span>Prof. LP: <b>${fmtV(dLP?.proficiencia)}</b></span>
             <span>Prof. MT: <b>${fmtV(dMT?.proficiencia)}</b></span>
-            <span>% Adeq.+Av. LP: <b>${dLP?.padrao?.pct_adequado_avancado != null ? dLP.padrao.pct_adequado_avancado.toFixed(1) + '%' : '—'}</b></span>
-            <span>% Adeq.+Av. MT: <b>${dMT?.padrao?.pct_adequado_avancado != null ? dMT.padrao.pct_adequado_avancado.toFixed(1) + '%' : '—'}</b></span>
+            <span style="color:#00AB4E">%Av. LP: <b>${dLP?.padrao ? ((dLP.padrao.avancado||0)/((dLP.padrao.avancado||0)+(dLP.padrao.adequado||0)+(dLP.padrao.basico||0)+(dLP.padrao.abaixo||0))*100).toFixed(1)+'%' : '—'}</b></span>
+            <span style="color:#0097A7">%Ad. LP: <b>${dLP?.padrao ? ((dLP.padrao.adequado||0)/((dLP.padrao.avancado||0)+(dLP.padrao.adequado||0)+(dLP.padrao.basico||0)+(dLP.padrao.abaixo||0))*100).toFixed(1)+'%' : '—'}</b></span>
+            <span style="color:#00AB4E">%Av. MT: <b>${dMT?.padrao ? ((dMT.padrao.avancado||0)/((dMT.padrao.avancado||0)+(dMT.padrao.adequado||0)+(dMT.padrao.basico||0)+(dMT.padrao.abaixo||0))*100).toFixed(1)+'%' : '—'}</b></span>
+            <span style="color:#0097A7">%Ad. MT: <b>${dMT?.padrao ? ((dMT.padrao.adequado||0)/((dMT.padrao.avancado||0)+(dMT.padrao.adequado||0)+(dMT.padrao.basico||0)+(dMT.padrao.abaixo||0))*100).toFixed(1)+'%' : '—'}</b></span>
             <span>Avaliados LP: <b>${dLP?.avaliados || '—'}</b></span>
             <span>Avaliados MT: <b>${dMT?.avaliados || '—'}</b></span>
           </div>
@@ -12092,8 +12122,17 @@ function renderSaers() {
         const dLP = dados[`${et}_LP`], dMT = dados[`${et}_MT`];
         r[`${et}_profLP`] = dLP?.proficiencia;
         r[`${et}_profMT`] = dMT?.proficiencia;
-        r[`${et}_pctLP`] = dLP?.padrao?.pct_adequado_avancado;
-        r[`${et}_pctMT`] = dMT?.padrao?.pct_adequado_avancado;
+        // Individual padrao percentages
+        ['LP', 'MT'].forEach(disc => {
+          const d = disc === 'LP' ? dLP : dMT;
+          if (d?.padrao) {
+            const tot = (d.padrao.avancado||0)+(d.padrao.adequado||0)+(d.padrao.basico||0)+(d.padrao.abaixo||0);
+            r[`${et}_pctAv${disc}`] = tot > 0 ? round2((d.padrao.avancado||0)/tot*100) : null;
+            r[`${et}_pctAd${disc}`] = tot > 0 ? round2((d.padrao.adequado||0)/tot*100) : null;
+            r[`${et}_pctBa${disc}`] = tot > 0 ? round2((d.padrao.basico||0)/tot*100) : null;
+            r[`${et}_pctAb${disc}`] = tot > 0 ? round2((d.padrao.abaixo||0)/tot*100) : null;
+          }
+        });
         if (dLP || dMT) hasData = true;
       });
       if (hasData) rows.push(r);
@@ -12116,14 +12155,20 @@ function renderSaers() {
     hdr1 += '<th class="sticky-col sticky-col-1" rowspan="2" style="min-width:200px;cursor:pointer" data-col="nome">Escola ⇅</th>';
     hdr1 += '<th rowspan="2" style="cursor:pointer;min-width:90px" data-col="municipio">Município ⇅</th>';
     etapasDisp.forEach(et => {
-      hdr1 += `<th colspan="4" style="text-align:center;background:rgba(29,113,185,.08);border-left:2px solid var(--pri);font-size:10px">${ETAPA_LBL[et] || et}</th>`;
+      hdr1 += `<th colspan="10" style="text-align:center;background:rgba(29,113,185,.08);border-left:2px solid var(--pri);font-size:10px">${ETAPA_LBL[et] || et}</th>`;
     });
     let hdr2 = '';
     etapasDisp.forEach(et => {
       hdr2 += `<th style="font-size:8px;border-left:2px solid var(--pri);cursor:pointer;white-space:nowrap" data-col="${et}_profLP">LP ⇅</th>`;
       hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_profMT">MT ⇅</th>`;
-      hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_pctLP">%A LP ⇅</th>`;
-      hdr2 += `<th style="font-size:8px;cursor:pointer;white-space:nowrap" data-col="${et}_pctMT">%A MT ⇅</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#00AB4E" data-col="${et}_pctAvLP">%Av LP</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#0097A7" data-col="${et}_pctAdLP">%Ad LP</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#B8860B" data-col="${et}_pctBaLP">%Bs LP</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#EE302F" data-col="${et}_pctAbLP">%Ab LP</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#00AB4E" data-col="${et}_pctAvMT">%Av MT</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#0097A7" data-col="${et}_pctAdMT">%Ad MT</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#B8860B" data-col="${et}_pctBaMT">%Bs MT</th>`;
+      hdr2 += `<th style="font-size:7px;cursor:pointer;white-space:nowrap;color:#EE302F" data-col="${et}_pctAbMT">%Ab MT</th>`;
     });
     theadEl.innerHTML = `<tr>${hdr1}</tr><tr>${hdr2}</tr>`;
 
@@ -12139,8 +12184,14 @@ function renderSaers() {
         etapasDisp.forEach(et => {
           h += `<td style="font-weight:600;border-left:2px solid rgba(29,113,185,.15)">${fmtV(r[`${et}_profLP`])}</td>`;
           h += `<td style="font-weight:600">${fmtV(r[`${et}_profMT`])}</td>`;
-          h += `<td style="font-weight:600;color:${pctClr(r[`${et}_pctLP`])}">${fmtP(r[`${et}_pctLP`])}</td>`;
-          h += `<td style="font-weight:600;color:${pctClr(r[`${et}_pctMT`])}">${fmtP(r[`${et}_pctMT`])}</td>`;
+          h += `<td style="font-weight:600;color:#00AB4E">${fmtP(r[`${et}_pctAvLP`])}</td>`;
+          h += `<td style="font-weight:600;color:#0097A7">${fmtP(r[`${et}_pctAdLP`])}</td>`;
+          h += `<td style="font-weight:600;color:#B8860B">${fmtP(r[`${et}_pctBaLP`])}</td>`;
+          h += `<td style="font-weight:600;color:#EE302F">${fmtP(r[`${et}_pctAbLP`])}</td>`;
+          h += `<td style="font-weight:600;color:#00AB4E">${fmtP(r[`${et}_pctAvMT`])}</td>`;
+          h += `<td style="font-weight:600;color:#0097A7">${fmtP(r[`${et}_pctAdMT`])}</td>`;
+          h += `<td style="font-weight:600;color:#B8860B">${fmtP(r[`${et}_pctBaMT`])}</td>`;
+          h += `<td style="font-weight:600;color:#EE302F">${fmtP(r[`${et}_pctAbMT`])}</td>`;
         });
         return h + '</tr>';
       }).join('');
@@ -12547,12 +12598,13 @@ function buildSaersMap(sd) {
   const ETAPAS = ['2_EF', '5_EF', '9_EF', '3_EM'];
   const metric = document.getElementById('sel-saers-map-metric')?.value || 'LP';
   const etapa = document.getElementById('sel-saers-map-etapa')?.value || '5_EF';
-  const disc = (metric === 'LP' || metric === 'pctLP') ? 'LP' : 'MT';
+  const disc = (metric === 'LP' || metric.endsWith('_LP')) ? 'LP' : 'MT';
   const key = `${etapa}_${disc}`;
-  const isPct = metric.startsWith('pct');
+  const isPct = metric !== 'LP' && metric !== 'MT';
 
   const ETAPA_LABELS = sd.etapa_labels;
-  const metricLabel = isPct ? '% Adeq.+Av.' : 'Proficiência';
+  const padLabels = { avancado: '% Avançado', adequado: '% Adequado', basico: '% Básico', abaixo: '% Abaixo Básico' };
+  const metricLabel = metric.match(/^(avancado|adequado|basico|abaixo)_/) ? padLabels[metric.split('_')[0]] : (isPct ? '% Adeq.+Av.' : 'Proficiência');
   const discLabel = disc;
 
   const isCre = S.saersMapMode === 'cre';
@@ -12566,7 +12618,13 @@ function buildSaersMap(sd) {
     for (const [codCre, creData] of Object.entries(yearData.por_cre)) {
       const d = creData[key];
       if (!d) continue;
-      const val = isPct ? d.padrao?.pct_adequado_avancado : d.proficiencia;
+      let val;
+      if (metric === 'LP' || metric === 'MT') val = d.proficiencia;
+      else if (metric.match(/^(avancado|adequado|basico|abaixo)_/)) {
+        const padKey = metric.split('_')[0];
+        const total = (d.padrao?.avancado||0) + (d.padrao?.adequado||0) + (d.padrao?.basico||0) + (d.padrao?.abaixo||0);
+        val = total > 0 ? round2((d.padrao?.[padKey]||0) / total * 100) : null;
+      } else val = d.padrao?.pct_adequado_avancado;
       const paddedCode = codCre.padStart(2, '0');
       if (val != null) { dataMap[paddedCode] = val; vals.push(val); }
     }
@@ -12575,7 +12633,13 @@ function buildSaersMap(sd) {
     for (const [cod, munData] of Object.entries(yearData.por_municipio)) {
       const d = munData[key];
       if (!d) continue;
-      const val = isPct ? d.padrao?.pct_adequado_avancado : d.proficiencia;
+      let val;
+      if (metric === 'LP' || metric === 'MT') val = d.proficiencia;
+      else if (metric.match(/^(avancado|adequado|basico|abaixo)_/)) {
+        const padKey = metric.split('_')[0];
+        const total = (d.padrao?.avancado||0) + (d.padrao?.adequado||0) + (d.padrao?.basico||0) + (d.padrao?.abaixo||0);
+        val = total > 0 ? round2((d.padrao?.[padKey]||0) / total * 100) : null;
+      } else val = d.padrao?.pct_adequado_avancado;
       if (val != null) { dataMap[cod] = val; vals.push(val); }
     }
   }
@@ -12683,7 +12747,8 @@ function buildSaersMunTable(yearData, etapaFilt) {
   // Aggregate LP and MT across selected etapas per municipality
   const rows = Object.entries(yearData.por_municipio).map(([cod, munData]) => {
     let lpSum = 0, lpN = 0, mtSum = 0, mtN = 0;
-    let lpAA = 0, lpTotal = 0, mtAA = 0, mtTotal = 0;
+    let lpAv = 0, lpAd = 0, lpBa = 0, lpAb = 0, lpTotal = 0;
+    let mtAv = 0, mtAd = 0, mtBa = 0, mtAb = 0, mtTotal = 0;
     let avaliados = 0;
 
     etapas.forEach(etapa => {
@@ -12691,7 +12756,8 @@ function buildSaersMunTable(yearData, etapaFilt) {
       if (lp) {
         if (lp.proficiencia != null) { lpSum += lp.proficiencia * lp.n_proficiencia; lpN += lp.n_proficiencia; }
         if (lp.padrao) {
-          lpAA += (lp.padrao.avancado || 0) + (lp.padrao.adequado || 0);
+          lpAv += lp.padrao.avancado || 0; lpAd += lp.padrao.adequado || 0;
+          lpBa += lp.padrao.basico || 0; lpAb += lp.padrao.abaixo || 0;
           lpTotal += (lp.padrao.avancado || 0) + (lp.padrao.adequado || 0) + (lp.padrao.basico || 0) + (lp.padrao.abaixo || 0);
         }
         avaliados += lp.avaliados || 0;
@@ -12700,18 +12766,23 @@ function buildSaersMunTable(yearData, etapaFilt) {
       if (mt) {
         if (mt.proficiencia != null) { mtSum += mt.proficiencia * mt.n_proficiencia; mtN += mt.n_proficiencia; }
         if (mt.padrao) {
-          mtAA += (mt.padrao.avancado || 0) + (mt.padrao.adequado || 0);
+          mtAv += mt.padrao.avancado || 0; mtAd += mt.padrao.adequado || 0;
+          mtBa += mt.padrao.basico || 0; mtAb += mt.padrao.abaixo || 0;
           mtTotal += (mt.padrao.avancado || 0) + (mt.padrao.adequado || 0) + (mt.padrao.basico || 0) + (mt.padrao.abaixo || 0);
         }
       }
     });
 
+    // Compute individual padrao percentages
+    const pctCalc = (count, total) => total > 0 ? round2(count / total * 100) : null;
     return {
       cod, nome: yearData.mun_lookup?.[cod] || cod,
       profLP: lpN > 0 ? round2(lpSum / lpN) : null,
       profMT: mtN > 0 ? round2(mtSum / mtN) : null,
-      pctLP: lpTotal > 0 ? round2(lpAA / lpTotal * 100) : null,
-      pctMT: mtTotal > 0 ? round2(mtAA / mtTotal * 100) : null,
+      pctAvLP: pctCalc(lpAv, lpTotal), pctAdLP: pctCalc(lpAd, lpTotal),
+      pctBaLP: pctCalc(lpBa, lpTotal), pctAbLP: pctCalc(lpAb, lpTotal),
+      pctAvMT: pctCalc(mtAv, mtTotal), pctAdMT: pctCalc(mtAd, mtTotal),
+      pctBaMT: pctCalc(mtBa, mtTotal), pctAbMT: pctCalc(mtAb, mtTotal),
       avaliados,
     };
   }).filter(r => r.profLP != null || r.profMT != null)
@@ -12723,8 +12794,14 @@ function buildSaersMunTable(yearData, etapaFilt) {
       <td><strong>${r.nome}</strong></td>
       <td>${r.profLP != null ? r.profLP.toFixed(1) : '—'}</td>
       <td>${r.profMT != null ? r.profMT.toFixed(1) : '—'}</td>
-      <td>${r.pctLP != null ? r.pctLP.toFixed(1) + '%' : '—'}</td>
-      <td>${r.pctMT != null ? r.pctMT.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#00AB4E">${r.pctAvLP != null ? r.pctAvLP.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#0097A7">${r.pctAdLP != null ? r.pctAdLP.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#B8860B">${r.pctBaLP != null ? r.pctBaLP.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#EE302F">${r.pctAbLP != null ? r.pctAbLP.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#00AB4E">${r.pctAvMT != null ? r.pctAvMT.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#0097A7">${r.pctAdMT != null ? r.pctAdMT.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#B8860B">${r.pctBaMT != null ? r.pctBaMT.toFixed(1) + '%' : '—'}</td>
+      <td style="color:#EE302F">${r.pctAbMT != null ? r.pctAbMT.toFixed(1) + '%' : '—'}</td>
       <td>${formatNum(r.avaliados)}</td>
     </tr>
   `).join('');
