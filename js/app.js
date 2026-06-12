@@ -9414,15 +9414,36 @@ function renderTdi() {
     const tableBody = document.querySelector('#desig-table tbody');
     if (isEsc && tableCont && tableBody) {
       tableCont.style.display = 'block';
-      tableData.sort((a, b) => (b.media || 0) - (a.media || 0));
-      tableBody.innerHTML = tableData.map(d => `
+      
+      const escRows = [];
+      const escolasLookup = yearData.escolas_lookup || S._universalEscolaLookup || {};
+      for (const [codEsc, escData] of Object.entries(yearData.por_escola || {})) {
+        const kData = escData?.geral?.[key];
+        if (kData?.media != null) {
+          const mRaca = escData?.dimensoes?.raca || {};
+          const mSexo = escData?.dimensoes?.sexo || {};
+          escRows.push({
+            nome: escolasLookup[codEsc]?.nome || codEsc,
+            media: kData.media,
+            branca: mRaca['Branca']?.[key]?.media,
+            preta: mRaca['Preta']?.[key]?.media,
+            parda: mRaca['Parda']?.[key]?.media,
+            fem: mSexo['Feminino']?.[key]?.media,
+            masc: mSexo['Masculino']?.[key]?.media
+          });
+        }
+      }
+      escRows.sort((a, b) => (b.media || 0) - (a.media || 0));
+
+      tableBody.innerHTML = escRows.map(d => `
         <tr>
           <td style="text-align:left;font-weight:500">${d.nome}</td>
           <td style="text-align:right;font-weight:600;color:var(--pri)">${d.media != null ? d.media.toFixed(1) : '-'}</td>
-          <td style="text-align:right">${d.avancado != null ? d.avancado.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right">${d.adequado != null ? d.adequado.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right">${d.basico != null ? d.basico.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right;color:#C62828">${d.abaixo != null ? d.abaixo.toFixed(1) + '%' : '-'}</td>
+          <td style="text-align:right;color:#1d71b9">${d.branca != null ? d.branca.toFixed(1) : '-'}</td>
+          <td style="text-align:right;color:#333">${d.preta != null ? d.preta.toFixed(1) : '-'}</td>
+          <td style="text-align:right;color:#FFCB04">${d.parda != null ? d.parda.toFixed(1) : '-'}</td>
+          <td style="text-align:right;color:#E91E63">${d.fem != null ? d.fem.toFixed(1) : '-'}</td>
+          <td style="text-align:right;color:#1d71b9">${d.masc != null ? d.masc.toFixed(1) : '-'}</td>
         </tr>
       `).join('');
     } else if (tableCont) {
@@ -10861,7 +10882,13 @@ function renderDesigualdades() {
     <div class="charts-grid">
       <div class="chart-card"><div class="chart-title">Profici\u00eancia M\u00e9dia por Ra\u00e7a/Cor</div><div style="height:280px"><canvas id="chart-desig-raca-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
       <div class="chart-card"><div class="chart-title">Padr\u00f5es de Desempenho (Defasagem)</div><div style="height:280px"><canvas id="chart-desig-raca-padrao"></canvas></div><div class="chart-source">${FONTE}</div></div>
-      <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Ra\u00e7a/Cor</div><div style="height:280px"><canvas id="chart-desig-raca-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+    <div class="charts-grid" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card full-width"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Ra\u00e7a/Cor</div><div style="height:320px"><canvas id="chart-desig-raca-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+      <div class="chart-card full-width"><div class="chart-title">Evolu\u00e7\u00e3o da Defasagem por Ra\u00e7a/Cor (%)</div><div style="height:320px"><canvas id="chart-desig-raca-defasagem-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+    <div class="charts-grid" style="grid-template-columns:1fr">
+      <div class="chart-card full-width"><div class="chart-title">Desigualdade Racial \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
     <!-- ═══ 2. Gap de G\u00eanero ═══ -->
@@ -10873,7 +10900,9 @@ function renderDesigualdades() {
     <div class="charts-grid">
       <div class="chart-card"><div class="chart-title">Profici\u00eancia M\u00e9dia por Sexo</div><div style="height:280px"><canvas id="chart-desig-sexo-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
       <div class="chart-card"><div class="chart-title">Padr\u00f5es de Desempenho (Defasagem)</div><div style="height:280px"><canvas id="chart-desig-sexo-padrao"></canvas></div><div class="chart-source">${FONTE}</div></div>
-      <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Sexo</div><div style="height:280px"><canvas id="chart-desig-sexo-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
+    <div class="charts-grid" style="grid-template-columns:1fr">
+      <div class="chart-card full-width"><div class="chart-title">Evolu\u00e7\u00e3o Temporal por Sexo</div><div style="height:320px"><canvas id="chart-desig-sexo-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
     <!-- ═══ 3B. Interseccionalidade Raça x Gênero ═══ -->
@@ -10898,7 +10927,8 @@ function renderDesigualdades() {
       <div class="chart-card"><div class="chart-title">Evolu\u00e7\u00e3o Temporal Urbana vs Rural</div><div style="height:280px"><canvas id="chart-desig-loc-line"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
-    <!-- ═══ 4. Defici\u00eancia ═══ -->
+    <div id="desig-section-def">
+    <!-- ═══ 4. Deficiência ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/politicas.png" alt=""></span>
       <span class="section-divider-text">Recorte por Defici\u00eancia</span>
@@ -10907,6 +10937,7 @@ function renderDesigualdades() {
     <div class="charts-grid">
       <div class="chart-card"><div class="chart-title">Profici\u00eancia: Com vs Sem Defici\u00eancia</div><div style="height:280px"><canvas id="chart-desig-def-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
       <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado: Com vs Sem Defici\u00eancia</div><div style="height:280px"><canvas id="chart-desig-def-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
+    </div>
     </div>
 
     <!-- ═══ 5. Interseccionalidade ═══ -->
@@ -10919,6 +10950,7 @@ function renderDesigualdades() {
       <div class="chart-card full-width"><div class="chart-title">Profici\u00eancia M\u00e9dia \u2014 Ra\u00e7a/Cor \u00d7 Localiza\u00e7\u00e3o</div><div style="height:350px"><canvas id="chart-desig-inter"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
+    <div id="desig-section-turno">
     <!-- ═══ 6. Turno ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
@@ -10929,33 +10961,66 @@ function renderDesigualdades() {
       <div class="chart-card"><div class="chart-title">Profici\u00eancia por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-bar"></canvas></div><div class="chart-source">${FONTE}</div></div>
       <div class="chart-card"><div class="chart-title">% Adequado + Avan\u00e7ado por Turno</div><div style="height:280px"><canvas id="chart-desig-turno-pct"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
-
-    <!-- ═══ 7. Panorama ═══ -->
-    <div class="section-divider">
-      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
-      <span class="section-divider-text">Panorama: Desigualdade Racial por Etapa</span>
-      <span class="section-divider-line"></span>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card full-width"><div class="chart-title">Desigualdade Racial (Branca vs Preta) \u2014 Todas as Etapas e Disciplinas</div><div style="height:300px"><canvas id="chart-desig-panorama"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
 
-    <!-- ═══ 8. Distribuição Territorial ═══ -->
+
+
+    <!-- ═══ 8. Ranking CRE ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
-      <span class="section-divider-text">Distribui\u00e7\u00e3o Territorial</span>
+      <span class="section-divider-text">Ranking por CRE</span>
       <span class="section-divider-line"></span>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;padding:0 0 8px;flex-wrap:wrap">
-      <div class="map-layer-toggle">
-        <button id="desig-btn-layer-mun" class="map-layer-btn active">Municípios</button>
-        <button id="desig-btn-layer-cre" class="map-layer-btn">CREs</button>
-        <button id="desig-btn-layer-esc" class="map-layer-btn">Escolas</button>
-      </div>
+    <div class="charts-grid" style="grid-template-columns:1fr">
+      <div class="chart-card full-width"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:440px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
     </div>
-    <div class="charts-grid" style="grid-template-columns:1fr 1fr">
-      <div class="chart-card" style="min-height:460px"><div id="desig-map-leaflet" style="height:440px;border-radius:8px;z-index:1"></div></div>
-      <div class="chart-card"><div class="chart-title">Profici\u00eancia por CRE</div><div style="height:440px"><canvas id="chart-desig-cre"></canvas></div><div class="chart-source">${FONTE}</div></div>
+
+    <!-- ═══ 9. Recortes Sociais por Escola ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/escola.png" alt=""></span>
+      <span class="section-divider-text">Recortes Sociais por Escola</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div id="desig-table-container" style="margin-top:10px">
+      <div class="chart-card full-width">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+            <div class="chart-title" id="desig-table-title">Profici\u00eancias M\u00e9dias por Escola e Recortes Sociodemogr\u00e1ficos</div>
+            <input type="text" id="desig-escola-search" placeholder="\ud83d\udd0d Buscar escola..." style="padding:5px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;width:220px;outline:none" />
+          </div>
+          <button id="desig-export-csv" style="background:var(--pri);color:#fff;border:none;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:Inter,sans-serif" title="Exportar tabela como CSV">
+            <span style="font-size:14px">📥</span> Exportar CSV
+          </button>
+        </div>
+        <div style="overflow-x:auto;max-height:500px;overflow-y:auto;margin-top:10px">
+          <table id="desig-table" class="data-table" style="font-size:10.5px">
+            <thead style="position:sticky;top:0;background:#f0f4f8;z-index:2">
+              <tr>
+                <th rowspan="2" data-col="nome" class="sortable" style="min-width:220px;cursor:pointer;vertical-align:bottom">Escola \u25b2\u25bc</th>
+                <th colspan="2" style="text-align:center;border-bottom:2px solid var(--pri);font-size:10px;color:var(--pri)">Geral</th>
+                <th colspan="5" style="text-align:center;border-bottom:2px solid #1d71b9;font-size:10px;color:#1d71b9">Ra\u00e7a/Cor</th>
+                <th colspan="2" style="text-align:center;border-bottom:2px solid #E91E63;font-size:10px;color:#E91E63">Sexo</th>
+                <th colspan="2" style="text-align:center;border-bottom:2px solid #2E7D32;font-size:10px;color:#2E7D32">Local.</th>
+              </tr>
+              <tr>
+                <th data-col="media_lp" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">LP \u25b2\u25bc</th>
+                <th data-col="media_mt" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">MT \u25b2\u25bc</th>
+                <th data-col="branca" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Branca \u25b2\u25bc</th>
+                <th data-col="preta" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Preta \u25b2\u25bc</th>
+                <th data-col="parda" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Parda \u25b2\u25bc</th>
+                <th data-col="indigena" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Ind\u00edg. \u25b2\u25bc</th>
+                <th data-col="amarela" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Amarela \u25b2\u25bc</th>
+                <th data-col="fem" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Fem. \u25b2\u25bc</th>
+                <th data-col="masc" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Masc. \u25b2\u25bc</th>
+                <th data-col="urbana" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Urb. \u25b2\u25bc</th>
+                <th data-col="rural" class="sortable" style="text-align:right;cursor:pointer;font-size:10px">Rural \u25b2\u25bc</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-source">${FONTE}</div>
+      </div>
     </div>
   `;
 
@@ -10991,11 +11056,44 @@ function renderDesigualdades() {
   if (selMun) selMun.value = S.munSel || '';
 
   function buildCharts() {
-    destroyCharts();
-    const anoSel = parseInt(document.getElementById('desig-sel-ano')?.value || S.anoSel);
+      destroyCharts();
+    const anoSel = parseInt(document.getElementById('sel-ano')?.value || S.anoSel);
     const etapa = document.getElementById('desig-sel-etapa').value;
     const disc = document.getElementById('desig-sel-disc').value;
     const key = etapa + '_' + disc;
+
+    // Dynamic title suffix
+    const etapaLabel = ETAPA_LABELS[etapa] || etapa;
+    const discLabel = disc === 'LP' ? 'Língua Portuguesa' : 'Matemática';
+    const titleSuffix = ` — ${etapaLabel} · ${discLabel}${geoSuffix()}`;
+
+    // Update chart titles dynamically
+    const titleMap = {
+      'chart-desig-raca-bar': `Proficiência Média por Raça/Cor${titleSuffix}`,
+      'chart-desig-raca-padrao': `Padrões de Desempenho por Raça/Cor${titleSuffix}`,
+      'chart-desig-raca-line': `Evolução Temporal por Raça/Cor — ${discLabel}${geoSuffix()}`,
+      'chart-desig-raca-defasagem-line': `Evolução da Defasagem por Raça/Cor (%) — ${discLabel}${geoSuffix()}`,
+      'chart-desig-sexo-bar': `Proficiência Média por Sexo${titleSuffix}`,
+      'chart-desig-sexo-padrao': `Padrões de Desempenho por Sexo${titleSuffix}`,
+      'chart-desig-sexo-line': `Evolução Temporal por Sexo — ${discLabel}${geoSuffix()}`,
+      'chart-desig-raca-sexo-bar': `Proficiência Média: Raça × Gênero${titleSuffix}`,
+      'chart-desig-raca-sexo-padrao': `Padrões de Desempenho: Raça × Gênero${titleSuffix}`,
+      'chart-desig-loc-bar': `Proficiência: Urbana vs Rural${titleSuffix}`,
+      'chart-desig-loc-line': `Evolução Temporal: Urbana vs Rural — ${discLabel}${geoSuffix()}`,
+      'chart-desig-def-bar': `Proficiência: Com vs Sem Deficiência${titleSuffix}`,
+      'chart-desig-def-pct': `% Adequado+Avançado: Com vs Sem Deficiência${titleSuffix}`,
+      'chart-desig-turno-bar': `Proficiência por Turno${titleSuffix}`,
+      'chart-desig-turno-pct': `% Adequado+Avançado por Turno${titleSuffix}`,
+      'chart-desig-cre': `Proficiência por CRE${titleSuffix}`,
+      'chart-desig-panorama': `Desigualdade Racial — Todas as Etapas e Disciplinas${geoSuffix()}`,
+    };
+    for (const [canvasId, title] of Object.entries(titleMap)) {
+      const canvas = document.getElementById(canvasId);
+      if (canvas) {
+        const titleEl = canvas.closest('.chart-card')?.querySelector('.chart-title');
+        if (titleEl) titleEl.textContent = title;
+      }
+    }
 
     function getDesigYearData(ano) {
       const yd = dd.anos.find(a => a.ano === ano);
@@ -11030,6 +11128,11 @@ function renderDesigualdades() {
 
     const getVal = (dim, group, k) => dims[dim]?.[group]?.[k || key]?.media;
     const getPct = (dim, group, prop, k) => dims[dim]?.[group]?.[k || key]?.[prop || 'pct_adeq_av'];
+    const getPadrao = (dim, group, prop, k) => {
+      const p = dims[dim]?.[group]?.[k || key];
+      if (!p || !p.padrao || !p.n_padrao) return null;
+      return (p.padrao[prop] / p.n_padrao) * 100;
+    };
 
     // ── Premium KPIs ──
     const kpiDiv = document.getElementById('desig-kpis');
@@ -11039,8 +11142,8 @@ function renderDesigualdades() {
     const rural = getVal('localizacao','Rural');
     const fem = getVal('sexo','Feminino');
     const masc = getVal('sexo','Masculino');
-    const semDef = getVal('deficiencia','Sem defici\u00eancia');
-    const comDef = getVal('deficiencia','Com defici\u00eancia');
+    const semDef = getVal('deficiencia','Sem Defici\u00eancia');
+    const comDef = getVal('deficiencia','Com Defici\u00eancia');
     const gapRacial = branca != null && preta != null ? (branca - preta) : null;
     const gapLoc = urbana != null && rural != null ? (urbana - rural) : null;
     const gapSexo = fem != null && masc != null ? (fem - masc) : null;
@@ -11079,11 +11182,12 @@ function renderDesigualdades() {
     const RACA_ORDER = ['Branca','Parda','Preta','Ind\u00edgena','Amarela'];
     const SEXO_COLORS = { Feminino:'#E91E63', Masculino:'#1d71b9' };
     const LOC_COLORS = { Urbana:'#1d71b9', Rural:'#43A047' };
-    const DEF_COLORS = { 'Sem defici\u00eancia':'#1d71b9', 'Com defici\u00eancia':'#E53935' };
+    const DEF_COLORS = { 'Sem Defici\u00eancia':'#1d71b9', 'Com Defici\u00eancia':'#E53935' };
     const TURNO_COLORS = { 'Manh\u00e3':'#FFCB04', Tarde:'#F57C00', Noite:'#333', Integral:'#1d71b9' };
 
     const DL_VAL = { display: true, font: { size: 10, weight: 'bold' }, color: '#333', anchor: 'end', align: 'top', formatter: v => v != null ? v.toFixed(1) : '' };
     const DL_PCT = { ...DL_VAL, formatter: v => v != null ? v.toFixed(1) + '%' : '' };
+    const DESIG_PAD = { top: 24 }; // layout padding to prevent datalabel clipping
 
     // ── 1. RA\u00c7A BAR ──
     const racaGroups = RACA_ORDER.filter(g => dims.raca?.[g]?.[key]);
@@ -11092,32 +11196,51 @@ function renderDesigualdades() {
         type: 'bar',
         data: { labels: racaGroups, datasets: [{ label: 'Profici\u00eancia', data: racaGroups.map(g => getVal('raca', g)),
           backgroundColor: racaGroups.map(g => RACA_COLORS[g] || '#999'), borderRadius: 4, barPercentage: 0.6 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
 
       S.charts.push(new Chart(document.getElementById('chart-desig-raca-padrao'), {
         type: 'bar',
         data: { labels: racaGroups, datasets: [
-          { label: 'Abaixo do Básico', data: racaGroups.map(g => getPct('raca', g, 'pct_abaixo')), backgroundColor: '#E53935', borderRadius: 4 },
-          { label: 'Básico', data: racaGroups.map(g => getPct('raca', g, 'pct_basico')), backgroundColor: '#F57C00', borderRadius: 4 },
-          { label: 'Adequado', data: racaGroups.map(g => getPct('raca', g, 'pct_adequado')), backgroundColor: '#43A047', borderRadius: 4 },
-          { label: 'Avançado', data: racaGroups.map(g => getPct('raca', g, 'pct_avancado')), backgroundColor: '#1d71b9', borderRadius: 4 }
+          { label: 'Abaixo do Básico', data: racaGroups.map(g => getPadrao('raca', g, 'abaixo')), backgroundColor: '#E53935', borderRadius: 4 },
+          { label: 'Básico', data: racaGroups.map(g => getPadrao('raca', g, 'basico')), backgroundColor: '#F57C00', borderRadius: 4 },
+          { label: 'Adequado', data: racaGroups.map(g => getPadrao('raca', g, 'adequado')), backgroundColor: '#43A047', borderRadius: 4 },
+          { label: 'Avançado', data: racaGroups.map(g => getPadrao('raca', g, 'avancado')), backgroundColor: '#1d71b9', borderRadius: 4 }
         ] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: DL_PCT },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: DL_PCT },
           scales: { ...CHART_DEFAULTS.scales, x: { stacked: true }, y: { stacked: true, max: 100, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } }
       }));
     }
 
-    // ── 1b. RA\u00c7A LINE (all years) ──
+    // ── 1b. RAÇA LINE (all years with race data) ──
     if (racaGroups.length > 0) {
+      const anosComRaca = dd.anos.filter(a => a.dimensoes?.raca && Object.keys(a.dimensoes.raca).length > 1).map(a => a.ano);
       S.charts.push(new Chart(document.getElementById('chart-desig-raca-line'), {
         type: 'line',
-        data: { labels: anos, datasets: racaGroups.map(g => ({
-          label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.raca?.[g]?.[key]?.media || null),
+        data: { labels: anosComRaca, datasets: racaGroups.map(g => ({
+          label: g, data: anosComRaca.map(ano => getDesigYearData(ano)?.dimensoes?.raca?.[g]?.[key]?.media || null),
           borderColor: RACA_COLORS[g] || '#999', tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
         })) },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
+      }));
+
+      // ── 1c. RAÇA DEFASAGEM LINE (% abaixo+básico over time) ──
+      const getDefasagemPct = (ano, g) => {
+        const yd = getDesigYearData(ano);
+        const p = yd?.dimensoes?.raca?.[g]?.[key];
+        if (!p || !p.padrao || !p.n_padrao) return null;
+        return ((p.padrao.abaixo || 0) + (p.padrao.basico || 0)) / p.n_padrao * 100;
+      };
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-defasagem-line'), {
+        type: 'line',
+        data: { labels: anosComRaca, datasets: racaGroups.map(g => ({
+          label: g, data: anosComRaca.map(ano => getDefasagemPct(ano, g)),
+          borderColor: RACA_COLORS[g] || '#999', tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
+          borderDash: [5, 3],
+        })) },
+        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: { display: false } },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v.toFixed(0) + '%' } } } },
       }));
     }
 
@@ -11128,17 +11251,30 @@ function renderDesigualdades() {
         type: 'bar',
         data: { labels: sexoGroups, datasets: [{ label: 'Profici\u00eancia', data: sexoGroups.map(g => getVal('sexo', g)),
           backgroundColor: sexoGroups.map(g => SEXO_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
+      S.charts.push(new Chart(document.getElementById('chart-desig-sexo-padrao'), {
+        type: 'bar',
+        data: { labels: sexoGroups, datasets: [
+          { label: 'Abaixo do Básico', data: sexoGroups.map(g => getPadrao('sexo', g, 'abaixo')), backgroundColor: '#E53935', borderRadius: 4 },
+          { label: 'Básico', data: sexoGroups.map(g => getPadrao('sexo', g, 'basico')), backgroundColor: '#F57C00', borderRadius: 4 },
+          { label: 'Adequado', data: sexoGroups.map(g => getPadrao('sexo', g, 'adequado')), backgroundColor: '#43A047', borderRadius: 4 },
+          { label: 'Avançado', data: sexoGroups.map(g => getPadrao('sexo', g, 'avancado')), backgroundColor: '#1d71b9', borderRadius: 4 }
+        ] },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: DL_PCT },
+          scales: { ...CHART_DEFAULTS.scales, x: { stacked: true }, y: { stacked: true, max: 100, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } }
+      }));
+
     }
 
-    // ── 2b. SEXO LINE (all years) ──
+    // ── 2b. SEXO LINE (all years with sex data) ──
     if (sexoGroups.length > 0) {
+      const anosComSexo = dd.anos.filter(a => a.dimensoes?.sexo && Object.keys(a.dimensoes.sexo).length > 0).map(a => a.ano);
       S.charts.push(new Chart(document.getElementById('chart-desig-sexo-line'), {
         type: 'line',
-        data: { labels: anos, datasets: sexoGroups.map(g => ({
-          label: g, data: dd.anos.map(a => getDesigYearData(a.ano)?.dimensoes?.sexo?.[g]?.[key]?.media || null),
+        data: { labels: anosComSexo, datasets: sexoGroups.map(g => ({
+          label: g, data: anosComSexo.map(ano => getDesigYearData(ano)?.dimensoes?.sexo?.[g]?.[key]?.media || null),
           borderColor: SEXO_COLORS[g], tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2.5,
         })) },
         options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, datalabels: { display: false } }, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
@@ -11152,8 +11288,8 @@ function renderDesigualdades() {
         type: 'bar',
         data: { labels: locGroups, datasets: [{ label: 'Profici\u00eancia', data: locGroups.map(g => getVal('localizacao', g)),
           backgroundColor: locGroups.map(g => LOC_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 150, suggestedMax: 280 } } },
       }));
     }
 
@@ -11170,21 +11306,50 @@ function renderDesigualdades() {
     }
 
     // ── 4. DEFICI\u00caNCIA ──
-    const defGroups = ['Sem defici\u00eancia', 'Com defici\u00eancia'].filter(g => dims.deficiencia?.[g]?.[key]);
+    const defGroups = ['Sem Defici\u00eancia', 'Com Defici\u00eancia'].filter(g => dims.deficiencia?.[g]?.[key]);
+    const defSection = document.getElementById('desig-section-def');
+    if (defSection) defSection.style.display = defGroups.length > 0 ? '' : 'none';
     if (defGroups.length > 0) {
       S.charts.push(new Chart(document.getElementById('chart-desig-def-bar'), {
         type: 'bar',
         data: { labels: defGroups, datasets: [{ label: 'Profici\u00eancia', data: defGroups.map(g => getVal('deficiencia', g)),
           backgroundColor: defGroups.map(g => DEF_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
-          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 150, suggestedMax: 280 } } },
       }));
       S.charts.push(new Chart(document.getElementById('chart-desig-def-pct'), {
         type: 'bar',
         data: { labels: defGroups, datasets: [{ label: '% Adequado+Avan\u00e7ado', data: defGroups.map(g => getPct('deficiencia', g)),
           backgroundColor: defGroups.map(g => DEF_COLORS[g]), borderRadius: 4, barPercentage: 0.5 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } },
+      }));
+    }
+
+    // ── 3B. RAÇA X SEXO ──
+    const rxOrder = ['Branca - Feminino', 'Branca - Masculino', 'Parda - Feminino', 'Parda - Masculino', 'Preta - Feminino', 'Preta - Masculino'];
+    const rxGroups = rxOrder.filter(g => dims.raca_sexo?.[g]?.[key]);
+    if (rxGroups.length > 0) {
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-sexo-bar'), {
+        type: 'bar',
+        data: { labels: rxGroups.map(g => g.replace(' - ', '\n')),
+          datasets: [{ label: 'Proficiência', data: rxGroups.map(g => getVal('raca_sexo', g)),
+            backgroundColor: rxGroups.map(g => g.includes('Feminino') ? '#E91E63CC' : '#1d71b9CC'),
+            borderRadius: 4, barPercentage: 0.6 }] },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+          scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false }, x: { ticks: { font: { size: 9, family: 'Inter' } } } } },
+      }));
+
+      S.charts.push(new Chart(document.getElementById('chart-desig-raca-sexo-padrao'), {
+        type: 'bar',
+        data: { labels: rxGroups.map(g => g.replace(' - ', '\n')), datasets: [
+          { label: 'Abaixo do Básico', data: rxGroups.map(g => getPadrao('raca_sexo', g, 'abaixo')), backgroundColor: '#E53935', borderRadius: 4 },
+          { label: 'Básico', data: rxGroups.map(g => getPadrao('raca_sexo', g, 'basico')), backgroundColor: '#F57C00', borderRadius: 4 },
+          { label: 'Adequado', data: rxGroups.map(g => getPadrao('raca_sexo', g, 'adequado')), backgroundColor: '#43A047', borderRadius: 4 },
+          { label: 'Avançado', data: rxGroups.map(g => getPadrao('raca_sexo', g, 'avancado')), backgroundColor: '#1d71b9', borderRadius: 4 }
+        ] },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } }, datalabels: DL_PCT },
+          scales: { ...CHART_DEFAULTS.scales, x: { stacked: true, ticks: { font: { size: 9, family: 'Inter' } } }, y: { stacked: true, max: 100, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } }
       }));
     }
 
@@ -11208,35 +11373,37 @@ function renderDesigualdades() {
     // ── 6. TURNO ──
     const turnoOrder = ['Manh\u00e3', 'Tarde', 'Integral', 'Noite'];
     const turnoGrupos = turnoOrder.filter(g => dims.turno?.[g]?.[key]);
+    const turnoSection = document.getElementById('desig-section-turno');
+    if (turnoSection) turnoSection.style.display = turnoGrupos.length > 0 ? '' : 'none';
     if (turnoGrupos.length > 0) {
       S.charts.push(new Chart(document.getElementById('chart-desig-turno-bar'), {
         type: 'bar',
         data: { labels: turnoGrupos, datasets: [{ label: 'Profici\u00eancia', data: turnoGrupos.map(g => getVal('turno', g)),
           backgroundColor: turnoGrupos.map(g => TURNO_COLORS[g]), borderRadius: 4, barPercentage: 0.6 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_VAL },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
       S.charts.push(new Chart(document.getElementById('chart-desig-turno-pct'), {
         type: 'bar',
         data: { labels: turnoGrupos, datasets: [{ label: '% Adequado+Avan\u00e7ado', data: turnoGrupos.map(g => getPct('turno', g)),
           backgroundColor: turnoGrupos.map(g => TURNO_COLORS[g]), borderRadius: 4, barPercentage: 0.6 }] },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false }, datalabels: DL_PCT },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + '%' } } } },
       }));
     }
 
     // ── 7. CRE RANKING ──
-    const creData = dims.cre || {};
+    const creDataRaw = yearData.por_cre || {};
     const creLookup = yearData.cre_lookup || {};
-    const creEntries = Object.entries(creData)
-      .map(([cod, d]) => ({ cod, nome: creLookup[cod] || cod + '\u00aa CRE', val: d[key]?.media, n: d[key]?.n || 0 }))
+    const creEntries = Object.entries(creDataRaw)
+      .map(([cod, d]) => ({ cod, nome: creLookup[cod] || cod + '\u00aa CRE', val: d?.geral?.[key]?.media, n: d?.geral?.[key]?.n || 0 }))
       .filter(c => c.val != null)
       .sort((a, b) => b.val - a.val);
     if (creEntries.length > 0) {
       const median = geral?.media || 200;
       S.charts.push(new Chart(document.getElementById('chart-desig-cre'), {
         type: 'bar',
-        data: { labels: creEntries.map(c => c.cod + '\u00aa \u2013 ' + c.nome),
+        data: { labels: creEntries.map(c => c.nome),
           datasets: [{ label: 'Profici\u00eancia', data: creEntries.map(c => c.val),
             backgroundColor: creEntries.map(c => c.val >= median ? '#1d71b9CC' : '#E53935CC'),
             borderRadius: 3, barPercentage: 0.7 }] },
@@ -11273,208 +11440,179 @@ function renderDesigualdades() {
         data: { labels: panLabels, datasets: activeRacas.map(r => ({
           label: r, data: panRacas[r], backgroundColor: racaCoresPan[r], borderRadius: 3, barPercentage: 0.4, categoryPercentage: 0.8
         })) },
-        options: { ...CHART_DEFAULTS, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom' }, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' }, formatter: v => v != null ? Math.round(v) : '' } },
+        options: { ...CHART_DEFAULTS, layout: { padding: DESIG_PAD }, plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, position: 'bottom' }, datalabels: { ...DL_VAL, font: { size: 8, weight: 'bold' }, formatter: v => v != null ? Math.round(v) : '' } },
           scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false } } },
       }));
     }
   }
 
+  // ── Table sort state ──
+  let _desigSortCol = 'media_lp';
+  let _desigSortAsc = false;
+
   buildCharts();
-  buildDesigMap();
+  buildDesigTable();
 
   ['desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', () => { buildCharts(); buildDesigMap(); });
+    document.getElementById(id)?.addEventListener('change', () => { buildCharts(); buildDesigTable(); });
   });
-  // Sync hidden desig-sel-ano with topbar sel-ano
-  document.getElementById('desig-sel-ano')?.addEventListener('change', () => { buildCharts(); buildDesigMap(); });
+  // Sync global sel-ano with desigualdades charts
+  document.getElementById('sel-ano')?.addEventListener('change', () => { buildCharts(); buildDesigTable(); });
 
-  // Map layer toggle
-  const desigBtnMun = document.getElementById('desig-btn-layer-mun');
-  const desigBtnCre = document.getElementById('desig-btn-layer-cre');
-  const desigBtnEsc = document.getElementById('desig-btn-layer-esc');
-  
-  if (desigBtnEsc) desigBtnEsc.addEventListener('click', () => {
-    S._desigMapMode = 'esc';
-    desigBtnEsc.classList.add('active'); desigBtnMun?.classList.remove('active'); desigBtnCre?.classList.remove('active');
-    buildDesigMap();
-  });
-  if (desigBtnMun) desigBtnMun.addEventListener('click', () => {
-    S._desigMapMode = 'mun';
-    desigBtnMun.classList.add('active'); desigBtnEsc?.classList.remove('active'); desigBtnCre?.classList.remove('active');
-    buildDesigMap();
-  });
-  if (desigBtnCre) desigBtnCre.addEventListener('click', () => {
-    S._desigMapMode = 'cre';
-    desigBtnCre.classList.add('active'); desigBtnEsc?.classList.remove('active'); desigBtnMun?.classList.remove('active');
-    buildDesigMap();
-  });
-
-  function buildDesigMap() {
-    if (S.map) { S.map.remove(); S.map = null; S.mapLayer = null; }
-    if (S.mapLegend) { S.mapLegend.remove(); S.mapLegend = null; }
-    const mapEl = document.getElementById('desig-map-leaflet');
-    if (!mapEl) return;
-
-    const anoSel = parseInt(document.getElementById('desig-sel-ano')?.value || S.anoSel);
-    const etapa = document.getElementById('desig-sel-etapa').value;
-    const disc = document.getElementById('desig-sel-disc').value;
-    const key = etapa + '_' + disc;
-    const yearData = dd.anos.find(a => a.ano === anoSel);
-    if (!yearData) return;
-
-    const isCre = S._desigMapMode === 'cre';
-    const isEsc = S._desigMapMode === 'esc';
-    const dataMap = {};
-    const vals = [];
-    const tableData = [];
-
-    if (isEsc && yearData.por_escola) {
-      const escolasLookup = yearData.escolas_lookup || S._universalEscolaLookup || {};
-      for (const [codEsc, escData] of Object.entries(yearData.por_escola)) {
-        const kData = escData?.geral?.[key];
-        const geralVal = kData?.media;
-        if (geralVal != null) { 
-          dataMap[codEsc] = geralVal; vals.push(geralVal); 
-          tableData.push({
-            nome: escolasLookup[codEsc]?.nome || codEsc,
-            cod: codEsc,
-            media: kData.media,
-            avancado: kData.pct_avancado,
-            adequado: kData.pct_adequado,
-            basico: kData.pct_basico,
-            abaixo: kData.pct_abaixo
-          });
-        }
-      }
-    } else if (isCre && yearData.dimensoes?.cre) {
-      for (const [codCre, creData] of Object.entries(yearData.dimensoes.cre)) {
-        const val = creData[key]?.media;
-        const paddedCode = codCre.padStart(2, '0');
-        if (val != null) { dataMap[paddedCode] = val; vals.push(val); }
-      }
-    } else if (yearData.por_municipio) {
-      // por_municipio keys are municipality NAMES, not IBGE codes
-      // Build reverse lookup: name → cod_mun for GeoJSON matching
-      const nameToCod = {};
-      const lookup = S._universalMunLookup || {};
-      for (const [cod, nome] of Object.entries(lookup)) nameToCod[nome] = cod;
-      // Also build from GeoJSON features
-      if (S.geo) S.geo.features.forEach(f => { if (f.properties.nome) nameToCod[f.properties.nome] = String(f.properties.cod_mun); });
-      for (const [munName, munData] of Object.entries(yearData.por_municipio)) {
-        const geralVal = munData?.geral?.[key]?.media;
-        const cod = nameToCod[munName];
-        if (geralVal != null && cod) { dataMap[cod] = geralVal; vals.push(geralVal); }
-      }
-    }
-
-    if (vals.length === 0) { mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999">Sem dados georreferenciados</div>'; return; }
-
-    vals.sort((a, b) => a - b);
-    const breaks = [];
-    for (let i = 0; i < MAP_SCALE.length; i++) {
-      const idx = Math.min(Math.floor((i / MAP_SCALE.length) * vals.length), vals.length - 1);
-      breaks.push(vals[idx]);
-    }
-    function getClr(v) {
-      if (v == null) return '#f0f0f0';
-      for (let i = breaks.length - 1; i >= 0; i--) { if (v >= breaks[i]) return MAP_SCALE[i]; }
-      return MAP_SCALE[0];
-    }
-
-    S.map = L.map(mapEl).setView([-29.8, -53.5], 6);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '\u00a9 CartoDB \u00a9 OSM', maxZoom: 18,
-    }).addTo(S.map);
-
-    const discLabel = disc === 'LP' ? 'L\u00edngua Portuguesa' : 'Matem\u00e1tica';
-    const etapaLabel = ETAPA_LABELS[etapa] || etapa;
-
-    if (isCre && S.creGeo) {
-      const creLookup = {};
-      const creLookupRaw = yearData.cre_lookup || {};
-      for (const [k, v] of Object.entries(creLookupRaw)) creLookup[k.padStart(2, '0')] = v;
-      S.mapLayer = L.geoJSON(S.creGeo, {
-        style: f => {
-          const cod = String(f.properties.cod_cre || f.properties.CD_GEOCODR || '');
-          return { fillColor: getClr(dataMap[cod]), weight: 1.5, color: '#fff', fillOpacity: 0.8 };
-        },
-        onEachFeature: (f, layer) => {
-          const cod = String(f.properties.cod_cre || f.properties.CD_GEOCODR || '');
-          const nome = creLookup[cod] || f.properties.nome || cod;
-          const val = dataMap[cod];
-          layer.bindTooltip(`<strong>${nome}</strong><br>Profici\u00eancia ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
-        }
-      }).addTo(S.map);
-    } else if (isEsc && S.escolasGeo) {
-      const escolasLookup = yearData.escolas_lookup || S._universalEscolaLookup || {};
-      S.mapLayer = L.geoJSON(S.escolasGeo, {
-        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, weight: 1, color: '#fff', fillOpacity: 0.9 }),
-        style: f => {
-          const cod = String(f.properties.cod_escola || f.properties.co_entidade);
-          return { fillColor: getClr(dataMap[cod]) };
-        },
-        onEachFeature: (f, layer) => {
-          const cod = String(f.properties.cod_escola || f.properties.co_entidade);
-          const nome = escolasLookup[cod] || f.properties.nome || cod;
-          const val = dataMap[cod];
-          layer.bindTooltip(`<strong>${nome}</strong><br>Proficiência ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
-        }
-      }).addTo(S.map);
-    } else if (S.geo) {
-      const munLookup = yearData.mun_lookup || S._universalMunLookup || {};
-      S.mapLayer = L.geoJSON(S.geo, {
-        style: f => {
-          const cod = String(f.properties.cod_mun);
-          return { fillColor: getClr(dataMap[cod]), weight: 0.8, color: '#fff', fillOpacity: 0.85 };
-        },
-        onEachFeature: (f, layer) => {
-          const cod = String(f.properties.cod_mun);
-          const nome = munLookup[cod] || f.properties.nome || cod;
-          const val = dataMap[cod];
-          layer.bindTooltip(`<strong>${nome}</strong><br>Profici\u00eancia ${discLabel} (${etapaLabel}): ${val != null ? val.toFixed(1) : 'Sem dados'}`, { sticky: true, className: 'map-tooltip' });
-        }
-      }).addTo(S.map);
-    }
-
-    // Legend
-    S.mapLegend = L.control({ position: 'bottomright' });
-    S.mapLegend.onAdd = () => {
-      const div = L.DomUtil.create('div', 'map-legend');
-      div.innerHTML = '<strong>Profici\u00eancia ' + discLabel + '</strong><br>' +
-        MAP_SCALE.map((c, i) => {
-          const from = i === 0 ? 'Menor' : breaks[i]?.toFixed(0);
-          const to = i < MAP_SCALE.length - 1 ? breaks[i + 1]?.toFixed(0) : 'Maior';
-          return '<i style="background:' + c + '"></i> ' + from + '\u2013' + to;
-        }).join('<br>') + '<br><i style="background:#f0f0f0"></i> Sem dados';
-      return div;
-    };
-    S.mapLegend.addTo(S.map);
-
-    // Update table
+  function buildDesigTable() {
     const tableCont = document.getElementById('desig-table-container');
     const tableBody = document.querySelector('#desig-table tbody');
-    if (isEsc && tableCont && tableBody) {
-      tableCont.style.display = 'block';
-      tableData.sort((a, b) => (b.media || 0) - (a.media || 0));
-      tableBody.innerHTML = tableData.map(d => `
-        <tr>
-          <td style="text-align:left;font-weight:500">${d.nome}</td>
-          <td style="text-align:right;font-weight:600;color:var(--pri)">${d.media != null ? d.media.toFixed(1) : '-'}</td>
-          <td style="text-align:right">${d.avancado != null ? d.avancado.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right">${d.adequado != null ? d.adequado.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right">${d.basico != null ? d.basico.toFixed(1) + '%' : '-'}</td>
-          <td style="text-align:right;color:#C62828">${d.abaixo != null ? d.abaixo.toFixed(1) + '%' : '-'}</td>
-        </tr>
-      `).join('');
-    } else if (tableCont) {
-      tableCont.style.display = 'none';
+    if (!tableCont || !tableBody) return;
+
+    const anoSel = parseInt(document.getElementById('sel-ano')?.value || S.anoSel);
+    const etapa = document.getElementById('desig-sel-etapa').value;
+    const disc = document.getElementById('desig-sel-disc').value;
+    const keyLP = etapa + '_LP';
+    const keyMT = etapa + '_MT';
+    const key = etapa + '_' + disc; // used for race/sex/loc breakdowns
+    const yearData = dd.anos.find(a => a.ano === anoSel);
+    if (!yearData || !yearData.por_escola) return;
+
+    // Update table title dynamically
+    const etLabel = ETAPA_LABELS[etapa] || etapa;
+    const titleEl = document.getElementById('desig-table-title');
+    if (titleEl) titleEl.textContent = `Proficiências Médias por Escola — ${etLabel} · ${anoSel}${geoSuffix()}`;
+
+    const escolasLookup = yearData.escola_lookup || {};
+    const escRows = [];
+    for (const [codEsc, escData] of Object.entries(yearData.por_escola)) {
+      const lpData = escData?.geral?.[keyLP];
+      const mtData = escData?.geral?.[keyMT];
+      if (lpData?.media == null && mtData?.media == null) continue;
+      const mRaca = escData?.dimensoes?.raca || {};
+      const mSexo = escData?.dimensoes?.sexo || {};
+      const mLoc = escData?.dimensoes?.localizacao || {};
+      escRows.push({
+        nome: escolasLookup[codEsc]?.nome || codEsc,
+        media_lp: lpData?.media ?? null,
+        media_mt: mtData?.media ?? null,
+        branca: mRaca['Branca']?.[key]?.media ?? null,
+        preta: mRaca['Preta']?.[key]?.media ?? null,
+        parda: mRaca['Parda']?.[key]?.media ?? null,
+        indigena: mRaca['Indígena']?.[key]?.media ?? null,
+        amarela: mRaca['Amarela']?.[key]?.media ?? null,
+        fem: mSexo['Feminino']?.[key]?.media ?? null,
+        masc: mSexo['Masculino']?.[key]?.media ?? null,
+        urbana: mLoc['Urbana']?.[key]?.media ?? null,
+        rural: mLoc['Rural']?.[key]?.media ?? null,
+      });
     }
+
+    // Sort
+    escRows.sort((a, b) => {
+      const va = a[_desigSortCol], vb = b[_desigSortCol];
+      if (_desigSortCol === 'nome') {
+        return _desigSortAsc ? (va || '').localeCompare(vb || '') : (vb || '').localeCompare(va || '');
+      }
+      const na = va ?? -Infinity, nb = vb ?? -Infinity;
+      return _desigSortAsc ? na - nb : nb - na;
+    });
+
+    // Search filter
+    const searchTerm = (document.getElementById('desig-escola-search')?.value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const filteredRows = searchTerm
+      ? escRows.filter(d => d.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(searchTerm))
+      : escRows;
+
+    const fmt = v => v != null ? v.toFixed(1) : '-';
+    tableBody.innerHTML = filteredRows.map(d => `
+      <tr>
+        <td style="text-align:left;font-weight:500;font-size:10px">${d.nome}</td>
+        <td style="text-align:right;font-weight:600;color:var(--pri)">${fmt(d.media_lp)}</td>
+        <td style="text-align:right;font-weight:600;color:var(--pri)">${fmt(d.media_mt)}</td>
+        <td style="text-align:right;color:#1d71b9">${fmt(d.branca)}</td>
+        <td style="text-align:right;color:#333">${fmt(d.preta)}</td>
+        <td style="text-align:right;color:#FFCB04">${fmt(d.parda)}</td>
+        <td style="text-align:right;color:#8B4513">${fmt(d.indigena)}</td>
+        <td style="text-align:right;color:#FF8C00">${fmt(d.amarela)}</td>
+        <td style="text-align:right;color:#E91E63">${fmt(d.fem)}</td>
+        <td style="text-align:right;color:#1d71b9">${fmt(d.masc)}</td>
+        <td style="text-align:right;color:#2E7D32">${fmt(d.urbana)}</td>
+        <td style="text-align:right;color:#795548">${fmt(d.rural)}</td>
+      </tr>
+    `).join('');
+
+    // Store rows for export (filtered)
+    S._desigExportRows = filteredRows;
   }
+
+  // Sortable headers
+  document.querySelectorAll('#desig-table th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (_desigSortCol === col) { _desigSortAsc = !_desigSortAsc; } else { _desigSortCol = col; _desigSortAsc = col === 'nome'; }
+      buildDesigTable();
+    });
+  });
+
+  // Search filter for escola table
+  document.getElementById('desig-escola-search')?.addEventListener('input', () => buildDesigTable());
+
+  // Export CSV
+  document.getElementById('desig-export-csv')?.addEventListener('click', () => {
+    const rows = S._desigExportRows;
+    if (!rows || rows.length === 0) return;
+    const etLabel = ETAPA_LABELS[document.getElementById('desig-sel-etapa')?.value] || '';
+    const disc = document.getElementById('desig-sel-disc')?.value === 'LP' ? 'Língua Portuguesa' : 'Matemática';
+    const headers = ['Escola', 'Geral LP', 'Geral MT', `Branca (${disc})`, `Preta (${disc})`, `Parda (${disc})`, `Indígena (${disc})`, `Amarela (${disc})`, `Feminino (${disc})`, `Masculino (${disc})`, `Urbana (${disc})`, `Rural (${disc})`];
+    const csvRows = [headers.join(';')];
+    const fmtCSV = v => v != null ? v.toFixed(1).replace('.', ',') : '';
+    rows.forEach(d => {
+      csvRows.push([
+        `"${d.nome}"`, fmtCSV(d.media_lp), fmtCSV(d.media_mt),
+        fmtCSV(d.branca), fmtCSV(d.preta), fmtCSV(d.parda), fmtCSV(d.indigena), fmtCSV(d.amarela),
+        fmtCSV(d.fem), fmtCSV(d.masc), fmtCSV(d.urbana), fmtCSV(d.rural)
+      ].join(';'));
+    });
+    const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `desigualdades_escola_${etLabel}_${document.getElementById('sel-ano')?.value || ''}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
 
   // Populate standard topbar filters
   populateMunDropdown(S.creSel || null);
   bindTopbarFilters();
   injectExportButtons();
+  updateActiveFilters();
+  updateDesigFilterBadges();
+
+  function updateDesigFilterBadges() {
+    const slot = document.getElementById('mun-filter-slot');
+    if (!slot) return;
+    // Remove old desig badges
+    slot.querySelectorAll('.filter-chip-desig').forEach(el => el.remove());
+    const etapaSel = document.getElementById('desig-sel-etapa')?.value;
+    const discSel = document.getElementById('desig-sel-disc')?.value;
+    if (etapaSel) {
+      const etapaLabel = ETAPA_LABELS[etapaSel] || etapaSel;
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip filter-chip-desig';
+      chip.innerHTML = `📊 ${etapaLabel}`;
+      chip.title = 'Etapa selecionada';
+      slot.appendChild(chip);
+    }
+    if (discSel) {
+      const discLabel = discSel === 'LP' ? 'Língua Portuguesa' : 'Matemática';
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip filter-chip-desig';
+      chip.innerHTML = `📘 ${discLabel}`;
+      chip.title = 'Disciplina selecionada';
+      slot.appendChild(chip);
+    }
+  }
+
+  // Also update badges when desig filters change
+  ['desig-sel-etapa', 'desig-sel-disc'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', updateDesigFilterBadges);
+  });
 }
 
 // ══════════════════════════════════════════════════════════
