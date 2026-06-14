@@ -11888,6 +11888,147 @@ function renderEscolas() {
     document.getElementById('btn-mapa-carto').classList.remove('active'); document.getElementById('btn-mapa-carto').style.background = '#f5f5f5'; document.getElementById('btn-mapa-carto').style.color = '#666';
   });
 
+  // Boletim SAERS Render
+  window.renderBoletimSaers = function(inep) {
+    const visao = document.getElementById('boletim-saers-visao')?.value || 'geral';
+    const etapaFilter = document.getElementById('boletim-saers-etapa')?.value || 'todas';
+    const e = S.escolasData.escolas.find(x => x.inep === inep);
+    if (!e) return;
+    const content = document.getElementById('boletim-saers-content');
+    if (!content) return;
+
+    if (window.saersBoletimCharts) {
+      window.saersBoletimCharts.forEach(c => c.destroy());
+    }
+    window.saersBoletimCharts = [];
+
+    const saersMetrics = [
+      { keyLP: 'saers_2ef_lp', keyMT: 'saers_2ef_mt', title: '2º Ano EF', id: '2ef' },
+      { keyLP: 'saers_5ef_lp', keyMT: 'saers_5ef_mt', title: '5º Ano EF', id: '5ef' },
+      { keyLP: 'saers_9ef_lp', keyMT: 'saers_9ef_mt', title: '9º Ano EF', id: '9ef' },
+      { keyLP: 'saers_em_lp', keyMT: 'saers_em_mt', title: 'Ensino Médio', id: 'em' }
+    ].filter(m => etapaFilter === 'todas' || m.id === etapaFilter);
+
+    const hist = e.saers_hist || {};
+    const histYears = Object.keys(hist).sort();
+
+    if (histYears.length === 0) {
+      content.innerHTML = `<div style="font-size:13px;color:#888;text-align:center;padding:20px;width:100%">Sem dados históricos do SAERS para esta escola.</div>`;
+      return;
+    }
+
+    let cHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;width:100%">';
+    const saersChartsData = [];
+
+    for (const m of saersMetrics) {
+      if (visao === 'geral') {
+        const hasData = histYears.some(y => hist[y][m.keyLP] != null || hist[y][m.keyMT] != null);
+        if (!hasData) continue;
+        
+        cHtml += `
+          <div style="background:#fff;padding:16px;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
+            <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${m.title}</div>
+            <div style="height:180px;position:relative;width:100%">
+              <canvas id="saers-chart-${m.id}"></canvas>
+            </div>
+          </div>
+        `;
+        const dataLP = histYears.map(y => hist[y][m.keyLP] || null);
+        const dataMT = histYears.map(y => hist[y][m.keyMT] || null);
+        saersChartsData.push({ id: m.id, type: 'line', labels: histYears, dataLP, dataMT });
+      } else {
+        const latestYear = histYears[histYears.length - 1];
+        if (!S.desigData || !S.desigData.anos) continue;
+        const yearData = S.desigData.anos.find(a => a.ano === parseInt(latestYear));
+        if (!yearData || !yearData.por_escola || !yearData.por_escola[inep]) continue;
+        
+        const escDesig = yearData.por_escola[inep];
+        const mDim = escDesig.dimensoes?.[visao] || {};
+        
+        let cats = [];
+        if (visao === 'raca') {
+          cats = [
+            { k: 'Branca', l: 'Branca' },
+            { k: 'Preta', l: 'Preta' },
+            { k: 'Parda', l: 'Parda' },
+            { k: 'Indígena', l: 'Indígena' },
+            { k: 'Amarela', l: 'Amarela' }
+          ];
+        } else if (visao === 'sexo') {
+          cats = [
+            { k: 'Feminino', l: 'Feminino' },
+            { k: 'Masculino', l: 'Masculino' }
+          ];
+        }
+
+        const desigKeyLP = { '2ef': '2_EF_LP', '5ef': '5_EF_LP', '9ef': '9_EF_LP', 'em': '3_EM_LP' }[m.id];
+        const desigKeyMT = { '2ef': '2_EF_MT', '5ef': '5_EF_MT', '9ef': '9_EF_MT', 'em': '3_EM_MT' }[m.id];
+
+        const labels = cats.map(c => c.l);
+        const dataLP = cats.map(c => mDim[c.k]?.[desigKeyLP]?.media || null);
+        const dataMT = cats.map(c => mDim[c.k]?.[desigKeyMT]?.media || null);
+        
+        if (dataLP.every(v => v == null) && dataMT.every(v => v == null)) continue;
+        
+        cHtml += `
+          <div style="background:#fff;padding:16px;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
+            <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${m.title} (${latestYear})</div>
+            <div style="height:220px;position:relative;width:100%">
+              <canvas id="saers-chart-${m.id}"></canvas>
+            </div>
+          </div>
+        `;
+        saersChartsData.push({ id: m.id, type: 'bar', labels, dataLP, dataMT });
+      }
+    }
+
+    if (saersChartsData.length === 0) {
+      cHtml += `<div style="font-size:13px;color:#888;grid-column:1/-1;text-align:center;padding:20px">Sem dados de SAERS para a visão selecionada.</div>`;
+    }
+    
+    cHtml += '</div>';
+    content.innerHTML = cHtml;
+
+    saersChartsData.forEach(c => {
+      const ctx = document.getElementById(`saers-chart-${c.id}`);
+      if (!ctx) return;
+      const chart = new Chart(ctx, {
+        type: c.type,
+        data: {
+          labels: c.labels,
+          datasets: [
+            {
+              label: 'Língua Portuguesa',
+              data: c.dataLP,
+              borderColor: '#1565c0',
+              backgroundColor: c.type === 'bar' ? '#1565c0' : '#1565c0',
+              tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2, spanGaps: true
+            },
+            {
+              label: 'Matemática',
+              data: c.dataMT,
+              borderColor: '#e65100',
+              backgroundColor: c.type === 'bar' ? '#e65100' : '#e65100',
+              tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2, spanGaps: true
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: { beginAtZero: false, ticks: { font: { size: 10 }, color: '#888' }, grid: { color: '#f0f0f0' } },
+            x: { ticks: { font: { size: 10, weight: 'bold' }, color: '#555' }, grid: { display: false } }
+          }
+        }
+      });
+      window.saersBoletimCharts.push(chart);
+    });
+  };
+
   // Boletim Builder
   window.abrirBoletim = function(inep) {
     const e = escolas.find(x => x.inep === inep);
@@ -11952,7 +12093,7 @@ function renderEscolas() {
     cHtml += `
       <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
         <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/matriculas.png" style="width:16px;height:16px;filter:opacity(0.8)"> Matrículas e Docentes
+          <img src="img/icons/matriculas.png" style="width:16px;height:16px;filter:opacity(0.8)"> Matrículas e Docentes (2025)
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed #eee">
            <div><b>Alunos:</b> <span style="color:#1565c0">${e.mat_total ? e.mat_total.toLocaleString('pt-BR') : '-'}</span></div>
@@ -11969,7 +12110,7 @@ function renderEscolas() {
     cHtml += `
       <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
         <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/nav_ideb.png" style="width:16px;height:16px;filter:opacity(0.8)"> Desempenho (IDEB)
+          <img src="img/icons/nav_ideb.png" style="width:16px;height:16px;filter:opacity(0.8)"> Desempenho IDEB (2023)
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed #eee">
            <div><b>Anos Iniciais:</b> <span style="color:${getIdebColor(e.ideb_ai)}">${e.ideb_ai ? e.ideb_ai.toFixed(1) : '-'}</span></div>
@@ -11986,7 +12127,7 @@ function renderEscolas() {
     cHtml += `
       <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
         <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/nav_fluxo.png" style="width:16px;height:16px;filter:opacity(0.8)"> Atraso Escolar (TDI)
+          <img src="img/icons/nav_fluxo.png" style="width:16px;height:16px;filter:opacity(0.8)"> Atraso Escolar TDI (2024)
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed #eee">
            <div><b>Fundamental:</b> <span style="color:#d32f2f">${e.tdi_fund ? e.tdi_fund.toFixed(1)+'%' : '-'}</span></div>
@@ -11998,12 +12139,21 @@ function renderEscolas() {
       </div>
     `;
 
-    cHtml += cardHtml('Contexto Socioeconômico', 'img/icons/social.png', [
-      { label: 'Nível Socioeconômico (INSE)', val: e.inse_media, fmt: v=>v.toFixed(2) + (e.inse_nivel ? ` (${e.inse_nivel.replace('Nvel','Nível')})` : '') },
-      { label: 'Complexidade de Gestão', val: e.icg_nivel, fmt: v=>`Nível ${v}` }
+    cHtml += cardHtml('Fluxo e Rendimento (2024)', 'img/icons/nav_fluxo.png', [
+      { label: 'Aprovação (Fundamental)', val: e.aprov_fund, fmt: v=>v.toFixed(1)+'%' },
+      { label: 'Aprovação (Médio)', val: e.aprov_med, fmt: v=>v.toFixed(1)+'%' },
+      { label: 'Reprovação (Fundamental)', val: e.reprov_fund, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
+      { label: 'Reprovação (Médio)', val: e.reprov_med, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
+      { label: 'Abandono (Fundamental)', val: e.aband_fund, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
+      { label: 'Abandono (Médio)', val: e.aband_med, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
     ]);
 
-    cHtml += cardHtml('Infraestrutura Escolar', 'img/icons/sec_infra.png', [
+    cHtml += cardHtml('Contexto Socioeconômico e Gestão', 'img/icons/social.png', [
+      { label: 'Nível Socioeconômico INSE (2023)', val: e.inse_media, fmt: v=>v.toFixed(2) + (e.inse_nivel ? ` (${e.inse_nivel.replace('Nvel','Nível')})` : '') },
+      { label: 'Complexidade de Gestão (2025)', val: e.icg_nivel, fmt: v=>`Nível ${v}` }
+    ]);
+
+    cHtml += cardHtml('Infraestrutura Escolar (2025)', 'img/icons/sec_infra.png', [
       { label: 'Índice de Infraestrutura', val: e.infra_score, fmt: v=>v.toFixed(0) },
       { label: 'Acesso à Internet / Banda Larga', val: e.internet || e.banda_larga, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.internet || e.banda_larga) },
       { label: 'Computadores p/ Alunos / Lab', val: e.computador || e.lab_info, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.computador || e.lab_info) },
@@ -12012,7 +12162,7 @@ function renderEscolas() {
       { label: 'Rampas / Acessibilidade', val: e.rampas, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.rampas) }
     ]);
 
-    cHtml += cardHtml('Corpo Docente', 'img/icons/sec_docentes.png', [
+    cHtml += cardHtml('Corpo Docente (2025)', 'img/icons/sec_docentes.png', [
       { label: 'Total de Professores', val: e.doc_total, fmt: v=>v },
       { label: 'Licenciatura Plena', val: e.doc_licen, fmt: v=>v + ' ('+Math.round(v/e.doc_total*100)+'%)' },
       { label: 'Concursados', val: e.doc_concur, fmt: v=>v + ' ('+Math.round(v/e.doc_total*100)+'%)' },
@@ -12025,116 +12175,34 @@ function renderEscolas() {
     // SEÇÃO SAERS (Full width inside Boletim)
     cHtml += `
       <div style="background:#fafbfc;border:1px solid #e0e0e0;border-radius:12px;padding:24px">
-        <div style="font-size:16px;font-weight:800;color:#0D47A1;margin-bottom:20px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/nav_saeb.png" style="width:24px;height:24px;filter:opacity(0.9)">
-          Desempenho no SAERS (Evolução Histórica)
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px">
-    `;
-
-    const saersMetrics = [
-      { keyLP: 'saers_2ef_lp', keyMT: 'saers_2ef_mt', title: '2º Ano EF', id: '2ef' },
-      { keyLP: 'saers_5ef_lp', keyMT: 'saers_5ef_mt', title: '5º Ano EF', id: '5ef' },
-      { keyLP: 'saers_9ef_lp', keyMT: 'saers_9ef_mt', title: '9º Ano EF', id: '9ef' },
-      { keyLP: 'saers_em_lp', keyMT: 'saers_em_mt', title: 'Ensino Médio', id: 'em' }
-    ];
-
-    const hist = e.saers_hist || {};
-    const histYears = Object.keys(hist).sort();
-
-    const saersChartsData = [];
-
-    for (const m of saersMetrics) {
-      // Check if any year has data for this metric
-      const hasData = histYears.some(y => hist[y][m.keyLP] != null || hist[y][m.keyMT] != null);
-      if (!hasData) continue;
-
-      cHtml += `
-        <div style="background:#fff;padding:16px;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
-          <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${m.title}</div>
-          <div style="height:180px;position:relative;width:100%">
-            <canvas id="saers-chart-${m.id}"></canvas>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div style="font-size:16px;font-weight:800;color:#0D47A1;display:flex;align-items:center;gap:8px">
+            <img src="img/icons/nav_saeb.png" style="width:24px;height:24px;filter:opacity(0.9)">
+            Desempenho no SAERS
+          </div>
+          <div>
+            <select id="boletim-saers-etapa" onchange="window.renderBoletimSaers('${e.inep}')" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;background:#fff;cursor:pointer;color:#333;outline:none;margin-right:8px">
+              <option value="todas">Todas as Etapas</option>
+              <option value="2ef">2º Ano EF</option>
+              <option value="5ef">5º Ano EF</option>
+              <option value="9ef">9º Ano EF</option>
+              <option value="em">Ensino Médio</option>
+            </select>
+            <select id="boletim-saers-visao" onchange="window.renderBoletimSaers('${e.inep}')" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;background:#fff;cursor:pointer;color:#333;outline:none;">
+              <option value="geral">Visão Geral (Evolução Histórica)</option>
+              <option value="raca">Desigualdade: Raça/Cor</option>
+              <option value="sexo">Desigualdade: Sexo</option>
+            </select>
           </div>
         </div>
-      `;
-
-      const dataLP = histYears.map(y => hist[y][m.keyLP] || null);
-      const dataMT = histYears.map(y => hist[y][m.keyMT] || null);
-      saersChartsData.push({ id: m.id, labels: histYears, dataLP, dataMT });
-    }
-
-    if (saersChartsData.length === 0) {
-      cHtml += `<div style="font-size:13px;color:#888;grid-column:1/-1;text-align:center;padding:20px">Sem dados históricos do SAERS para esta escola.</div>`;
-    }
-
-    cHtml += `
-        </div>
+        <div id="boletim-saers-content"></div>
       </div>
     </div>`; // close Boletim container card
 
     container.innerHTML = cHtml;
     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    // Render charts
-    if (window.saersBoletimCharts) {
-      window.saersBoletimCharts.forEach(c => c.destroy());
-    }
-    window.saersBoletimCharts = [];
-
-    saersChartsData.forEach(c => {
-      const ctx = document.getElementById(`saers-chart-${c.id}`);
-      if (!ctx) return;
-      const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: c.labels,
-          datasets: [
-            {
-              label: 'Língua Portuguesa',
-              data: c.dataLP,
-              borderColor: '#1565c0',
-              backgroundColor: '#1565c0',
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              borderWidth: 2,
-              spanGaps: true
-            },
-            {
-              label: 'Matemática',
-              data: c.dataMT,
-              borderColor: '#e65100',
-              backgroundColor: '#e65100',
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              borderWidth: 2,
-              spanGaps: true
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-            tooltip: { mode: 'index', intersect: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: { font: { size: 10 }, color: '#888' },
-              grid: { color: '#f0f0f0' }
-            },
-            x: {
-              ticks: { font: { size: 10, weight: 'bold' }, color: '#555' },
-              grid: { display: false }
-            }
-          }
-        }
-      });
-      window.saersBoletimCharts.push(chart);
-    });
+    window.renderBoletimSaers(e.inep);
   };
   // Update function
   function updateEscolas() {
