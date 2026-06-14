@@ -10814,22 +10814,17 @@ function bindTopbarFilters() {
     }
   }
 
-  // Hamburger menu (register only once since these elements persist)
-  if (!bindTopbarFilters._hamburgerRegistered) {
-    bindTopbarFilters._hamburgerRegistered = true;
-    const hamburger = document.getElementById('hamburger');
+  // Sidebar mobile events (register only once since these elements persist)
+  if (!bindTopbarFilters._sidebarMobileEventsRegistered) {
+    bindTopbarFilters._sidebarMobileEventsRegistered = true;
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    if (hamburger && sidebar && overlay) {
-      hamburger.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('visible');
-      });
+    if (sidebar && overlay) {
       overlay.addEventListener('click', () => {
         sidebar.classList.remove('open');
         overlay.classList.remove('visible');
       });
-      document.querySelectorAll('.sidebar-tab').forEach(tab => {
+      document.querySelectorAll('.sidebar-tab, .sidebar-brand').forEach(tab => {
         tab.addEventListener('click', () => {
           sidebar.classList.remove('open');
           overlay.classList.remove('visible');
