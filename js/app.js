@@ -389,6 +389,9 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
     <div class="section-banner-bg"></div>
     <div class="section-banner-content">
       <div class="section-banner-left">
+        <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('visible');">
+          <span></span><span></span><span></span>
+        </button>
         <div class="section-banner-icon"><img src="${icon}" alt=""></div>
         <h2>${title}<span id="rede-subtitle">${subtitle || ''}</span></h2>
         <span id="mun-filter-slot" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:12px"></span>
