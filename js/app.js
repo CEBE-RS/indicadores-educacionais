@@ -11888,6 +11888,87 @@ function renderEscolas() {
     document.getElementById('btn-mapa-carto').classList.remove('active'); document.getElementById('btn-mapa-carto').style.background = '#f5f5f5'; document.getElementById('btn-mapa-carto').style.color = '#666';
   });
 
+  // Boletim Fluxo Render
+  window.renderBoletimFluxo = function(inep) {
+    const e = S.escolasData.escolas.find(x => x.inep === inep);
+    if (!e) return;
+    const content = document.getElementById('boletim-fluxo-content');
+    if (!content) return;
+
+    if (window.fluxoBoletimCharts) {
+      window.fluxoBoletimCharts.forEach(c => c.destroy());
+    }
+    window.fluxoBoletimCharts = [];
+
+    const hist = e.fluxo_hist || {};
+    const histYears = Object.keys(hist).sort();
+
+    if (histYears.length === 0) {
+      content.innerHTML = `<div style="font-size:13px;color:#888;text-align:center;padding:20px;width:100%">Sem dados históricos de Fluxo para esta escola.</div>`;
+      return;
+    }
+
+    let cHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;width:100%">';
+    const chartsData = [];
+
+    const etapas = [
+      { id: 'fund', title: 'Ensino Fundamental', k_aprov: 'aprov_fund', k_reprov: 'reprov_fund', k_aband: 'aband_fund' },
+      { id: 'med', title: 'Ensino Médio', k_aprov: 'aprov_med', k_reprov: 'reprov_med', k_aband: 'aband_med' }
+    ];
+
+    for (const et of etapas) {
+      const hasData = histYears.some(y => hist[y][et.k_aprov] != null || hist[y][et.k_reprov] != null || hist[y][et.k_aband] != null);
+      if (!hasData) continue;
+
+      cHtml += `
+        <div style="background:#fff;padding:16px;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
+          <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${et.title}</div>
+          <div style="height:200px;width:100%;position:relative"><canvas id="boletim-fluxo-chart-${et.id}"></canvas></div>
+        </div>
+      `;
+
+      chartsData.push({
+        id: et.id,
+        labels: histYears,
+        aprov: histYears.map(y => hist[y][et.k_aprov]),
+        reprov: histYears.map(y => hist[y][et.k_reprov]),
+        aband: histYears.map(y => hist[y][et.k_aband])
+      });
+    }
+
+    cHtml += '</div>';
+    content.innerHTML = cHtml;
+
+    setTimeout(() => {
+      for (const d of chartsData) {
+        const ctx = document.getElementById(`boletim-fluxo-chart-${d.id}`);
+        if (!ctx) continue;
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: d.labels,
+            datasets: [
+              { label: 'Aprovação', data: d.aprov, borderColor: '#4CAF50', backgroundColor: '#4CAF50', tension: 0.3, pointRadius: 4 },
+              { label: 'Reprovação', data: d.reprov, borderColor: '#FF9800', backgroundColor: '#FF9800', tension: 0.3, pointRadius: 4 },
+              { label: 'Abandono', data: d.aband, borderColor: '#F44336', backgroundColor: '#F44336', tension: 0.3, pointRadius: 4 }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 10 } } },
+              tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw != null ? c.raw + '%' : '-'}` } }
+            },
+            scales: {
+              y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+            }
+          }
+        });
+        window.fluxoBoletimCharts.push(chart);
+      }
+    }, 50);
+  };
+
   // Boletim SAERS Render
   window.renderBoletimSaers = function(inep) {
     const visao = document.getElementById('boletim-saers-visao')?.value || 'geral';
@@ -11938,8 +12019,8 @@ function renderEscolas() {
         saersChartsData.push({ id: m.id, type: 'line', labels: histYears, dataLP, dataMT });
       } else {
         const latestYear = histYears[histYears.length - 1];
-        if (!S.desigData || !S.desigData.anos) continue;
-        const yearData = S.desigData.anos.find(a => a.ano === parseInt(latestYear));
+        if (!S.desig || !S.desig.anos) continue;
+        const yearData = S.desig.anos.find(a => a.ano === parseInt(latestYear));
         if (!yearData || !yearData.por_escola || !yearData.por_escola[inep]) continue;
         
         const escDesig = yearData.por_escola[inep];
@@ -12139,14 +12220,7 @@ function renderEscolas() {
       </div>
     `;
 
-    cHtml += cardHtml('Fluxo e Rendimento (2024)', 'img/icons/nav_fluxo.png', [
-      { label: 'Aprovação (Fundamental)', val: e.aprov_fund, fmt: v=>v.toFixed(1)+'%' },
-      { label: 'Aprovação (Médio)', val: e.aprov_med, fmt: v=>v.toFixed(1)+'%' },
-      { label: 'Reprovação (Fundamental)', val: e.reprov_fund, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
-      { label: 'Reprovação (Médio)', val: e.reprov_med, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
-      { label: 'Abandono (Fundamental)', val: e.aband_fund, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
-      { label: 'Abandono (Médio)', val: e.aband_med, fmt: v=>v.toFixed(1)+'%', color: '#EE302F' },
-    ]);
+    // Removendo os cards de Fluxo para incluir na seção visual abaixo
 
     cHtml += cardHtml('Contexto Socioeconômico e Gestão', 'img/icons/social.png', [
       { label: 'Nível Socioeconômico INSE (2023)', val: e.inse_media, fmt: v=>v.toFixed(2) + (e.inse_nivel ? ` (${e.inse_nivel.replace('Nvel','Nível')})` : '') },
@@ -12154,7 +12228,6 @@ function renderEscolas() {
     ]);
 
     cHtml += cardHtml('Infraestrutura Escolar (2025)', 'img/icons/sec_infra.png', [
-      { label: 'Índice de Infraestrutura', val: e.infra_score, fmt: v=>v.toFixed(0) },
       { label: 'Acesso à Internet / Banda Larga', val: e.internet || e.banda_larga, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.internet || e.banda_larga) },
       { label: 'Computadores p/ Alunos / Lab', val: e.computador || e.lab_info, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.computador || e.lab_info) },
       { label: 'Biblioteca / Sala Leitura', val: e.biblioteca || e.bib_sala_leit, fmt: v=>v?'Sim':'Não', color: simNaoColor(e.biblioteca || e.bib_sala_leit) },
@@ -12171,6 +12244,19 @@ function renderEscolas() {
     ]);
 
     cHtml += `</div>`; // Close grid
+
+    // SEÇÃO FLUXO E RENDIMENTO (Full width inside Boletim)
+    cHtml += `
+      <div style="background:#fafbfc;border:1px solid #e0e0e0;border-radius:12px;padding:24px;margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div style="font-size:16px;font-weight:800;color:#0D47A1;display:flex;align-items:center;gap:8px">
+            <img src="img/icons/nav_fluxo.png" style="width:24px;height:24px;filter:opacity(0.9)">
+            Fluxo e Rendimento (Evolução Histórica)
+          </div>
+        </div>
+        <div id="boletim-fluxo-content"></div>
+      </div>
+    `;
 
     // SEÇÃO SAERS (Full width inside Boletim)
     cHtml += `
@@ -12202,6 +12288,7 @@ function renderEscolas() {
     container.innerHTML = cHtml;
     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+    window.renderBoletimFluxo(e.inep);
     window.renderBoletimSaers(e.inep);
   };
   // Update function
