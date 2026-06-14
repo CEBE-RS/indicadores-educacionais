@@ -2000,10 +2000,12 @@ body.sidebar-hidden .sidebar {
   .home-hero h1 { font-size: 24px; }
   .home-content { padding: 28px 16px 40px; }
   .home-grid { grid-template-columns: 1fr 1fr !important; }
+  .col-span-4 { grid-column: span 2 !important; }
 }
 
 @media (max-width: 480px) {
   .kpi-strip { grid-template-columns: 1fr 1fr !important; }
   .home-grid { grid-template-columns: 1fr !important; }
   .topbar-divider { display: none; }
+  .col-span-4 { grid-column: span 1 !important; }
 }
