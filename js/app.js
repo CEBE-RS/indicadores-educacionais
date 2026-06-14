@@ -11900,8 +11900,9 @@ function renderEscolas() {
     }
     window.fluxoBoletimCharts = [];
 
-    const hist = e.fluxo_hist || {};
-    const histYears = Object.keys(hist).sort();
+    const histFluxo = e.fluxo_hist || {};
+    const histTdi = e.tdi_hist || {};
+    const histYears = [...new Set([...Object.keys(histFluxo), ...Object.keys(histTdi)])].sort();
 
     if (histYears.length === 0) {
       content.innerHTML = `<div style="font-size:13px;color:#888;text-align:center;padding:20px;width:100%">Sem dados históricos de Fluxo para esta escola.</div>`;
@@ -11911,28 +11912,30 @@ function renderEscolas() {
     let cHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;width:100%">';
     const chartsData = [];
 
-    const etapas = [
-      { id: 'fund', title: 'Ensino Fundamental', k_aprov: 'aprov_fund', k_reprov: 'reprov_fund', k_aband: 'aband_fund' },
-      { id: 'med', title: 'Ensino Médio', k_aprov: 'aprov_med', k_reprov: 'reprov_med', k_aband: 'aband_med' }
+    const metrics = [
+      { id: 'aprov', title: 'Aprovação', keys: { fund: 'aprov_fund', med: 'aprov_med' }, source: histFluxo },
+      { id: 'reprov', title: 'Reprovação', keys: { fund: 'reprov_fund', med: 'reprov_med' }, source: histFluxo },
+      { id: 'aband', title: 'Abandono', keys: { fund: 'aband_fund', med: 'aband_med' }, source: histFluxo },
+      { id: 'tdi', title: 'Distorção Idade-Série', keys: { fund: 'tdi_fund', med: 'tdi_med' }, source: histTdi }
     ];
 
-    for (const et of etapas) {
-      const hasData = histYears.some(y => hist[y][et.k_aprov] != null || hist[y][et.k_reprov] != null || hist[y][et.k_aband] != null);
+    for (const m of metrics) {
+      const hasData = histYears.some(y => m.source[y] && (m.source[y][m.keys.fund] != null || m.source[y][m.keys.med] != null));
       if (!hasData) continue;
 
       cHtml += `
         <div style="background:#fff;padding:16px;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
-          <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${et.title}</div>
-          <div style="height:200px;width:100%;position:relative"><canvas id="boletim-fluxo-chart-${et.id}"></canvas></div>
+          <div style="font-weight:800;color:#333;margin-bottom:16px;text-align:center;font-size:13px;border-bottom:2px solid #f0f0f0;padding-bottom:8px">${m.title}</div>
+          <div style="height:200px;width:100%;position:relative"><canvas id="boletim-fluxo-chart-${m.id}"></canvas></div>
         </div>
       `;
 
       chartsData.push({
-        id: et.id,
+        id: m.id,
         labels: histYears,
-        aprov: histYears.map(y => hist[y][et.k_aprov]),
-        reprov: histYears.map(y => hist[y][et.k_reprov]),
-        aband: histYears.map(y => hist[y][et.k_aband])
+        title: m.title,
+        dataFund: histYears.map(y => m.source[y] ? m.source[y][m.keys.fund] : null),
+        dataMed: histYears.map(y => m.source[y] ? m.source[y][m.keys.med] : null)
       });
     }
 
@@ -11948,9 +11951,8 @@ function renderEscolas() {
           data: {
             labels: d.labels,
             datasets: [
-              { label: 'Aprovação', data: d.aprov, borderColor: '#4CAF50', backgroundColor: '#4CAF50', tension: 0.3, pointRadius: 4 },
-              { label: 'Reprovação', data: d.reprov, borderColor: '#FF9800', backgroundColor: '#FF9800', tension: 0.3, pointRadius: 4 },
-              { label: 'Abandono', data: d.aband, borderColor: '#F44336', backgroundColor: '#F44336', tension: 0.3, pointRadius: 4 }
+              { label: 'Ensino Fundamental', data: d.dataFund, borderColor: '#0D47A1', backgroundColor: '#0D47A1', tension: 0.3, pointRadius: 4 },
+              { label: 'Ensino Médio', data: d.dataMed, borderColor: '#FF9800', backgroundColor: '#FF9800', tension: 0.3, pointRadius: 4 }
             ]
           },
           options: {
@@ -11960,7 +11962,7 @@ function renderEscolas() {
               tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw != null ? c.raw + '%' : '-'}` } }
             },
             scales: {
-              y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+              y: { min: 0, max: d.id === 'aprov' ? 100 : undefined, ticks: { callback: v => v + '%' } }
             }
           }
         });
