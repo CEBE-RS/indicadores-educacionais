@@ -1990,7 +1990,7 @@ body.sidebar-hidden .sidebar {
   .table-wrapper { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
   .data-table { min-width: 700px; }
 
-  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr) !important; }
   .charts-grid { grid-template-columns: 1fr !important; }
   .charts-grid.g3 { grid-template-columns: 1fr !important; }
   .charts-grid.g4 { grid-template-columns: 1fr !important; }
@@ -1999,11 +1999,11 @@ body.sidebar-hidden .sidebar {
 
   .home-hero h1 { font-size: 24px; }
   .home-content { padding: 28px 16px 40px; }
-  .home-grid { grid-template-columns: 1fr 1fr; }
+  .home-grid { grid-template-columns: 1fr 1fr !important; }
 }
 
 @media (max-width: 480px) {
-  .kpi-strip { grid-template-columns: 1fr 1fr; }
-  .home-grid { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+  .home-grid { grid-template-columns: 1fr !important; }
   .topbar-divider { display: none; }
 }
