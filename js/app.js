@@ -511,8 +511,6 @@ async function switchRede(rede) {
   try {
     const cached = await loadRedeData(rede);
     S.redeSel = rede;
-    // Clear municipality selection — the old municipality may not exist in the new rede
-    S.munSel = null;
     if (cached.acesso) {
       S.data = cached.acesso;
       // Re-populate year dropdown for this rede
@@ -988,21 +986,25 @@ function renderAcesso() {
   bindTopbarFilters();
   bindRedeToggle();
 
-  updateKPIs(anoSel, su, d);
-  buildCharts(d, anos, anoSel);
-  buildFaixaEtaria(d, anoSel);
-  buildNoturno(d, anos, anoSel);
-  buildEdEspecial(d, anos, anoSel);
-  buildIntegralDelta(d);
-  buildIntegralPct(d);
-  buildLocDif();
-  buildPorSerie(d, anoSel);
-  buildProfissional(d, anos, anoSel);
-  buildTurnoEtapa(d, anoSel);
-  buildMap(d, anoSel, 'mat_total');
-  buildMunTable(d, anoSel);
-  bindMapMetric(d, anos);
-  injectExportButtons();
+  try {
+    updateKPIs(anoSel, su, d);
+    buildCharts(d, anos, anoSel);
+    buildFaixaEtaria(d, anoSel);
+    buildNoturno(d, anos, anoSel);
+    buildEdEspecial(d, anos, anoSel);
+    buildIntegralDelta(d);
+    buildIntegralPct(d);
+    buildLocDif();
+    buildPorSerie(d, anoSel);
+    buildProfissional(d, anos, anoSel);
+    buildTurnoEtapa(d, anoSel);
+    buildMap(d, anoSel, 'mat_total');
+    buildMunTable(d, anoSel);
+    bindMapMetric(d, anos);
+    injectExportButtons();
+  } catch (err) {
+    console.warn('[renderAcesso] build error (munSel=' + S.munSel + '):', err);
+  }
   // Re-populate and restore ALL dropdown selections after build
   // (applyMunFilter inside buildMunTable may have destroyed/rebuilt parts)
   if (selAno) {
