@@ -19,6 +19,9 @@ document.addEventListener('error', e => {
 // ══════════════════════════════════════════════════════════
 
 const S = {
+  loaded: false,
+  pendingView: null,
+  _currentView: 'home',
   data: null,
   infra: null,
   doc: null,
@@ -9720,7 +9723,26 @@ function initNav() {
       }
       S._currentView = view;
 
-      if (view === 'home') { renderHome(); return; }
+      if (view === 'home') {
+        S.pendingView = null;
+        renderHome();
+        return;
+      }
+
+      if (!S.loaded) {
+        S.pendingView = view;
+        const main = document.getElementById('main-content');
+        destroyCharts();
+        destroyMap();
+        document.body.classList.remove('sidebar-hidden');
+        main.innerHTML = `
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span>Carregando dados do Censo Escolar...</span>
+          </div>
+        `;
+        return;
+      }
 
       document.body.classList.remove('sidebar-hidden');
 
@@ -13681,6 +13703,7 @@ function buildSaersMunTable(yearData, etapaFilt) {
 
 async function init() {
   initNav();
+  renderHome();
 
   try {
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc, respDesig] = await Promise.all([
@@ -13743,8 +13766,17 @@ async function init() {
 
     bindSidebarFilters();
     bindTopbarFilters();
-  bindRedeToggle();
-    renderHome();
+    bindRedeToggle();
+
+    S.loaded = true;
+
+    // Navigate to user's pending selection if they clicked one while loading
+    if (S.pendingView) {
+      const view = S.pendingView;
+      S.pendingView = null;
+      const tab = document.querySelector(`.sidebar-tab[data-view="${view}"]`);
+      if (tab) tab.click();
+    }
   } catch (err) {
     document.getElementById('main-content').innerHTML = `
       <div class="loading" style="color:#C62828">
