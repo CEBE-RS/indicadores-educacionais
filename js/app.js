@@ -2609,8 +2609,14 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
             const yr = ctx.datasetIndex === 0 ? baseYear : anoComp;
             const yrData = ctx.datasetIndex === 0 ? suBase : (munSu || su);
             const ind = yrData?.indicadores?.[col];
+            if (col === 'PCT_SALAS_CLIMATIZADAS') {
+              const clim = ind?.total_clim || 0;
+              const total = ind?.total_salas || 0;
+              return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}% (${formatNum(clim)} de ${formatNum(total)} salas)`;
+            }
             const count = ind?.count || 0;
             return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}% (${formatNum(count)} escolas)`;
+
           }
         } },
         datalabels: {
