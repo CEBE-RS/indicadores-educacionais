@@ -511,6 +511,8 @@ async function switchRede(rede) {
   try {
     const cached = await loadRedeData(rede);
     S.redeSel = rede;
+    // Clear municipality selection — the old municipality may not exist in the new rede
+    S.munSel = null;
     if (cached.acesso) {
       S.data = cached.acesso;
       // Re-populate year dropdown for this rede
@@ -552,12 +554,18 @@ async function switchRede(rede) {
 function bindRedeToggle() {
   const toggle = document.getElementById('rede-toggle');
   if (!toggle) return;
-  toggle.addEventListener('click', e => {
+  // Remove previous handler to prevent listener accumulation across re-renders
+  if (toggle._redeHandler) {
+    toggle.removeEventListener('click', toggle._redeHandler);
+  }
+  toggle._redeHandler = e => {
     const btn = e.target.closest('.rede-toggle-btn');
-    if (!btn || btn.dataset.rede === S.redeSel) return;
+    if (!btn || btn.disabled || btn.dataset.rede === S.redeSel) return;
     switchRede(btn.dataset.rede);
-  });
+  };
+  toggle.addEventListener('click', toggle._redeHandler);
 }
+
 
 
 /**
@@ -975,6 +983,11 @@ function renderAcesso() {
   const selMun = document.getElementById('sel-mun');
   if (selMun && S.munSel) selMun.value = S.munSel;
 
+  // Bind filter event listeners EARLY — before build* functions —
+  // so the rede toggle stays functional even if a chart build throws
+  bindTopbarFilters();
+  bindRedeToggle();
+
   updateKPIs(anoSel, su, d);
   buildCharts(d, anos, anoSel);
   buildFaixaEtaria(d, anoSel);
@@ -1010,13 +1023,11 @@ function renderAcesso() {
     }
   }
 
-  // Re-bind filter event listeners
-  bindTopbarFilters();
-  bindRedeToggle();
   bindFilters(d, anos);
   updateActiveFilters();
   updateFilterAwareness();
 }
+
 
 function updateKPIs(ano, su, d) {
   const strip = document.getElementById('kpi-strip');
