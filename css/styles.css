@@ -2009,3 +2009,75 @@ body.sidebar-hidden .sidebar {
   .topbar-divider { display: none; }
   .col-span-4 { grid-column: span 1 !important; }
 }
+
+/* ── Central de Dados Abertos ─────────────────────────────── */
+.dados-intro {
+  background: linear-gradient(135deg, rgba(29,113,185,.06), rgba(255,179,0,.05));
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--pri);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 4px 0 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-sec);
+}
+.dados-intro strong { color: var(--text); font-weight: 700; }
+.dados-intro em { color: var(--pri); font-style: normal; font-weight: 600; }
+
+.dados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.dados-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--pri);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.dados-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(20,80,127,.14); }
+.dados-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.dados-card-icon {
+  width: 42px; height: 42px; flex: 0 0 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--pri), var(--pri-dark));
+  border-radius: 10px;
+}
+.dados-card-icon img { width: 22px; height: 22px; filter: brightness(0) invert(1); }
+.dados-card-title { font-size: 15px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.dados-card-desc { font-size: 12.5px; color: var(--text-sec); line-height: 1.5; flex: 1; margin-bottom: 12px; }
+.dados-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.dados-chip {
+  font-size: 10.5px; font-weight: 600; color: var(--pri-dark);
+  background: rgba(29,113,185,.08); border: 1px solid rgba(29,113,185,.16);
+  border-radius: 20px; padding: 3px 10px;
+}
+.dados-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: linear-gradient(135deg, var(--pri), var(--pri-dark));
+  color: #fff; text-decoration: none; font-weight: 700; font-size: 13px;
+  padding: 10px 14px; border-radius: 8px;
+  transition: filter .15s ease, transform .15s ease;
+}
+.dados-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.dados-btn-ico {
+  font-size: 14px; font-weight: 800;
+  background: rgba(255,255,255,.22); border-radius: 50%;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+}
+.dados-foot {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 0 8px;
+}
+.dados-foot-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; font-size: 12.5px; color: var(--text-sec); line-height: 1.5;
+}
+.dados-foot-title { font-size: 12px; font-weight: 800; color: var(--pri); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.dados-foot-card a { color: var(--pri); font-weight: 600; }
+@media (max-width: 760px) { .dados-foot { grid-template-columns: 1fr; } }

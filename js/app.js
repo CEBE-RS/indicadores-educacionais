@@ -5361,6 +5361,101 @@ function renderHome() {
 }
 
 // ══════════════════════════════════════════════════════════
+// CENTRAL DE DADOS ABERTOS (download de planilhas)
+// ══════════════════════════════════════════════════════════
+
+const DADOS_TEMAS = [
+  { id: 'acesso', icon: 'img/icons/nav_acesso.png', nome: 'Acesso e Matrículas',
+    arquivo: 'dados_acesso_matriculas.xlsx',
+    desc: 'Matrículas por etapa, dependência, localização, perfil dos alunos, ensino integral e funil de fluxo.',
+    fonte: 'INEP — Censo Escolar' },
+  { id: 'fluxo', icon: 'img/icons/sec_evolucao.png', nome: 'Fluxo e Rendimento',
+    arquivo: 'dados_fluxo_rendimento.xlsx',
+    desc: 'Taxas de aprovação, reprovação e abandono (por etapa e por série) e distorção idade-série (TDI).',
+    fonte: 'INEP — Indicadores Educacionais' },
+  { id: 'infra', icon: 'img/icons/nav_infra.png', nome: 'Infraestrutura',
+    arquivo: 'dados_infraestrutura.xlsx',
+    desc: 'Indicadores de infraestrutura escolar: tecnologia, espaços pedagógicos, acessibilidade e saneamento.',
+    fonte: 'INEP — Censo Escolar' },
+  { id: 'docencia', icon: 'img/icons/sec_docentes.png', nome: 'Docência',
+    arquivo: 'dados_docencia.xlsx',
+    desc: 'Perfil docente, razão aluno-professor, adequação da formação (AFD) e complexidade de gestão (ICG).',
+    fonte: 'INEP — Censo Escolar / AFD / ICG' },
+  { id: 'aprendizagem', icon: 'img/icons/nav_ideb.png', nome: 'IDEB, SAEB e Aprendizagem',
+    arquivo: 'dados_ideb_saeb.xlsx',
+    desc: 'IDEB e SAEB por rede, nível socioeconômico (INSE) e proficiências do SAERS/RS.',
+    fonte: 'INEP — IDEB/SAEB/INSE · SEDUC-RS — SAERS' },
+];
+
+function renderDados() {
+  const main = document.getElementById('main-content');
+  destroyCharts(); destroyMap();
+  document.body.classList.remove('sidebar-hidden');
+
+  const cardsHTML = DADOS_TEMAS.map((t, i) => `
+    <div class="dados-card" style="animation: fadeSlideUp .5s ease ${.05 + i * .06}s both">
+      <div class="dados-card-head">
+        <div class="dados-card-icon"><img src="${t.icon}" alt="" onerror="this.style.display='none'"></div>
+        <div class="dados-card-title">${t.nome}</div>
+      </div>
+      <div class="dados-card-desc">${t.desc}</div>
+      <div class="dados-card-meta">
+        <span class="dados-chip" id="chip-abas-${t.id}">planilha .xlsx</span>
+        <span class="dados-chip" id="chip-size-${t.id}">${t.fonte}</span>
+      </div>
+      <a class="dados-btn" href="dados/downloads/${t.arquivo}" download>
+        <span>Baixar planilha</span>
+        <span class="dados-btn-ico">↓</span>
+      </a>
+    </div>
+  `).join('');
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/territorial.png', 'Central de Dados Abertos', 'Extraia as bases do painel em planilha (.xlsx)')}
+    </div>
+
+    <div class="dados-intro">
+      <p>Todas as bases que alimentam este painel estão disponíveis para download em planilhas <strong>.xlsx</strong>,
+      organizadas por tema. Cada arquivo traz <strong>abas separadas por rede</strong> (Estadual, Municipal, Federal, Privada e Todas),
+      com a <strong>série histórica</strong> e a <strong>base por município</strong>. A aba <em>"Sobre"</em> de cada planilha descreve o conteúdo e a fonte.</p>
+    </div>
+
+    <div class="dados-grid">
+      ${cardsHTML}
+    </div>
+
+    <div class="dados-foot">
+      <div class="dados-foot-card">
+        <div class="dados-foot-title">Como citar</div>
+        <p>Ao reutilizar os dados, cite a fonte original (INEP / SEDUC-RS) e o painel.
+        As definições e metodologias dos indicadores estão no
+        <a href="${URL_CADERNO_CENSO}" target="_blank" rel="noopener">Caderno de Conceitos do Censo (INEP)</a>.</p>
+      </div>
+      <div class="dados-foot-card">
+        <div class="dados-foot-title">Precisa de outro recorte?</div>
+        <p>Para solicitações específicas (outros anos, cruzamentos ou microdados), acesse o
+        <a href="${URL_CENSO}" target="_blank" rel="noopener">Portal do Censo Escolar (INEP)</a>
+        ou entre em contato com a equipe da SEDUC-RS.</p>
+      </div>
+    </div>
+  `;
+
+  // Enriquecer chips com nº de abas e tamanho (best-effort via manifest)
+  fetch('dados/downloads/manifest.json')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(man => {
+      man.forEach(m => {
+        const abas = document.getElementById(`chip-abas-${m.id}`);
+        const size = document.getElementById(`chip-size-${m.id}`);
+        if (abas) abas.textContent = `${m.abas} abas · ${m.tamanho_kb >= 1024 ? (m.tamanho_kb / 1024).toFixed(1) + ' MB' : m.tamanho_kb + ' KB'}`;
+        if (size) size.textContent = m.fonte;
+      });
+    })
+    .catch(() => {});
+}
+
+// ══════════════════════════════════════════════════════════
 // FLUXO E RENDIMENTO
 // ══════════════════════════════════════════════════════════
 
@@ -9894,6 +9989,13 @@ function initNav() {
         return;
       }
 
+      if (view === 'dados') {
+        S.pendingView = null;
+        document.body.classList.remove('sidebar-hidden');
+        renderDados();
+        return;
+      }
+
       if (!S.loaded) {
         S.pendingView = view;
         const main = document.getElementById('main-content');
@@ -11049,6 +11151,7 @@ function refreshActiveTab() {
   if (activeTab) activeTab.classList.add('active');
   // Render directly (avoids .click() which can trigger initNav reset logic)
   if (view === 'home') renderHome();
+  else if (view === 'dados') renderDados();
   else if (view === 'acesso' && S.data) renderAcesso();
   else if (view === 'fluxo') renderFluxo();
   else if (view === 'infra' && S.infra) renderInfra();
