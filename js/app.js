@@ -5424,21 +5424,6 @@ function renderDados() {
     <div class="dados-grid">
       ${cardsHTML}
     </div>
-
-    <div class="dados-foot">
-      <div class="dados-foot-card">
-        <div class="dados-foot-title">Como citar</div>
-        <p>Ao reutilizar os dados, cite a fonte original (INEP / SEDUC-RS) e o painel.
-        As definições e metodologias dos indicadores estão no
-        <a href="${URL_CADERNO_CENSO}" target="_blank" rel="noopener">Caderno de Conceitos do Censo (INEP)</a>.</p>
-      </div>
-      <div class="dados-foot-card">
-        <div class="dados-foot-title">Precisa de outro recorte?</div>
-        <p>Para solicitações específicas (outros anos, cruzamentos ou microdados), acesse o
-        <a href="${URL_CENSO}" target="_blank" rel="noopener">Portal do Censo Escolar (INEP)</a>
-        ou entre em contato com a equipe da SEDUC-RS.</p>
-      </div>
-    </div>
   `;
 
   // Enriquecer chips com nº de abas e tamanho (best-effort via manifest)
