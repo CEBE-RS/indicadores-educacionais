@@ -5315,7 +5315,15 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="home-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="home-card" data-nav="dados" style="cursor:pointer">
+            <div class="home-card-icon"><img src="img/icons/territorial.png" alt=""></div>
+            <div class="home-card-text">
+              <div class="home-card-title">Central de Dados Abertos</div>
+              <div class="home-card-desc">Baixe as bases do painel em planilha (.xlsx), por tema</div>
+            </div>
+            <span class="home-card-arrow">›</span>
+          </div>
           <a class="home-card" href="${URL_CADERNO_CENSO}" target="_blank" rel="noopener" style="text-decoration:none">
             <div class="home-card-icon"><img src="img/icons/politicas.png" alt=""></div>
             <div class="home-card-text">
