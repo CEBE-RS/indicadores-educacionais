@@ -5367,10 +5367,14 @@ function renderHome() {
 const FONTE_REND = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicadores Educacionais (Taxas de Rendimento)', 'Acessar Indicadores Educacionais no portal INEP') + ' · ' + fonteLink(URL_CADERNO_CENSO, '📘 Caderno de Conceitos', 'Caderno de Conceitos e Orientações (INEP)');
 
 /** Aggregate fluxo rates for a CRE (simple average of municipality percentages) */
+// Sufixos de série (Fund. 1º-9º + Médio 1ª-4ª) usados em chaves aprov_/reprov_/aband_
+const FLX_SERIE_SUFIXOS = ['fund_01','fund_02','fund_03','fund_04','fund_05','fund_06','fund_07','fund_08','fund_09','med_01','med_02','med_03','med_04'];
+
 function aggregateCreFluxo(f, ano, creCod) {
   const muns = getCreMuns(creCod);
   const munData = f.por_municipio[ano] || {};
-  const keys = ['aprov_fund','aprov_fund_ai','aprov_fund_af','aprov_med','reprov_fund','reprov_fund_ai','reprov_fund_af','reprov_med','aband_fund','aband_fund_ai','aband_fund_af','aband_med'];
+  const keys = ['aprov_fund','aprov_fund_ai','aprov_fund_af','aprov_med','reprov_fund','reprov_fund_ai','reprov_fund_af','reprov_med','aband_fund','aband_fund_ai','aband_fund_af','aband_med',
+    ...['aprov','reprov','aband'].flatMap(r => FLX_SERIE_SUFIXOS.map(s => `${r}_${s}`))];
   const sums = {}; const counts = {};
   for (const cod of muns) {
     const m = munData[cod];
@@ -5505,6 +5509,25 @@ function renderFluxo() {
       </div>
     </div>
 
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/panorama.png" alt=""></span>
+      <span class="section-divider-text">Rendimento por Série</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card d2">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+          <div class="chart-title" style="margin:0">Taxa por Série — <span id="flx-serie-ano">${anoSel}</span> (%)${geoSuffix()}</div>
+          <div class="flx-toggle-pills" id="flx-serie-pills">
+            <button class="flx-pill active" data-rate="aprov" style="--pill-color:#2E9B6B">Aprovação</button>
+            <button class="flx-pill" data-rate="reprov" style="--pill-color:#F57C00">Reprovação</button>
+            <button class="flx-pill" data-rate="aband" style="--pill-color:${COLORS.red}">Abandono</button>
+          </div>
+        </div>
+        <div style="height:320px"><canvas id="flx-chart-serie"></canvas></div>
+        <div class="chart-source">${FONTE_REND} · Recorte por série disponível a partir de 2019 (arquivos por município INEP).</div>
+      </div>
+    </div>
 
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
@@ -5581,6 +5604,8 @@ function renderFluxo() {
   fluxoUpdateKPIs(st, tdiSrc, f, anos, anoSel);
   // Build Charts — need to build per-year data source for time-series
   fluxoBuildCharts(f, anos, anoSel, st, tdiSrc);
+  // Build Série chart (rendimento por série, ano selecionado + geo atual)
+  fluxoBuildSerieChart(st);
   // Build Map
   buildFluxoMap(f, anoSel, 'aprov_fund');
   // Build Table
@@ -5922,6 +5947,103 @@ function fluxoBuildCharts(f, anos, anoSel, st, tdiSrc) {
 
   // 4. (Taxas por Etapa removed)
   // 5. (TDI removed — now has its own section)
+}
+
+/** Definição das séries (ordem e rótulos) para o gráfico por série */
+const FLX_SERIE_DEFS = [
+  { suf: 'fund_01', label: '1º Ano' }, { suf: 'fund_02', label: '2º Ano' },
+  { suf: 'fund_03', label: '3º Ano' }, { suf: 'fund_04', label: '4º Ano' },
+  { suf: 'fund_05', label: '5º Ano' }, { suf: 'fund_06', label: '6º Ano' },
+  { suf: 'fund_07', label: '7º Ano' }, { suf: 'fund_08', label: '8º Ano' },
+  { suf: 'fund_09', label: '9º Ano' },
+  { suf: 'med_01', label: '1ª Série EM' }, { suf: 'med_02', label: '2ª Série EM' },
+  { suf: 'med_03', label: '3ª Série EM' }, { suf: 'med_04', label: '4ª Série EM' },
+];
+
+const FLX_SERIE_RATE_CFG = {
+  aprov:  { color: '#2E9B6B', label: 'Aprovação' },
+  reprov: { color: '#F57C00', label: 'Reprovação' },
+  aband:  { color: COLORS.red, label: 'Abandono' },
+};
+
+/** Barras de taxa (aprov/reprov/aband) por série, para o ano + recorte geográfico atuais */
+function fluxoBuildSerieChart(st) {
+  const el = document.getElementById('flx-chart-serie');
+  if (!el) return;
+  st = st || {};
+
+  const labels = FLX_SERIE_DEFS.map(s => s.label);
+  // Cor mais clara entre Fund. (1-9) e Médio (10-13) para diferenciar etapa
+  const isMed = FLX_SERIE_DEFS.map(s => s.suf.startsWith('med'));
+
+  const buildData = (rate) => FLX_SERIE_DEFS.map(s => st[`${rate}_${s.suf}`] ?? null);
+
+  const colorFor = (rate) => {
+    const base = FLX_SERIE_RATE_CFG[rate].color;
+    return FLX_SERIE_DEFS.map((s, i) => isMed[i] ? base : base + 'B3');
+  };
+
+  const initialRate = 'aprov';
+  const data0 = buildData(initialRate);
+
+  const serieChart = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: FLX_SERIE_RATE_CFG[initialRate].label,
+        data: data0,
+        backgroundColor: colorFor(initialRate),
+        borderRadius: 4,
+        maxBarThickness: 46,
+      }],
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      layout: { padding: { top: 26 } },
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: false },
+        datalabels: { ...DL_BAR_PCT, anchor: 'end', align: 'end' },
+        tooltip: {
+          enabled: true, mode: 'index', intersect: false,
+          backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family: 'Inter', size: 12, weight: '700' },
+          bodyFont: { family: 'Inter', size: 11 }, padding: 10, cornerRadius: 8,
+          callbacks: {
+            title: items => items[0]?.label || '',
+            label: item => item.raw != null ? `  ${item.dataset.label}: ${item.raw.toFixed(1)}%` : '  Sem dado',
+          },
+        },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        x: { ...CHART_DEFAULTS.scales.x, grid: { display: false } },
+        y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 100, grace: '12%' },
+      },
+    },
+  });
+  S.charts.push(serieChart);
+
+  const applyRate = (rate) => {
+    const cfg = FLX_SERIE_RATE_CFG[rate];
+    const ds = serieChart.data.datasets[0];
+    ds.label = cfg.label;
+    ds.data = buildData(rate);
+    ds.backgroundColor = colorFor(rate);
+    // Aprovação fica perto de 100; demais perto de 0 — ajusta o eixo
+    serieChart.options.scales.y.suggestedMax = rate === 'aprov' ? 100 : Math.max(15, Math.ceil(Math.max(0, ...ds.data.filter(v => v != null)) * 1.2));
+    serieChart.options.scales.y.min = rate === 'aprov' ? 50 : 0;
+    serieChart.update();
+  };
+  applyRate(initialRate);
+
+  document.querySelectorAll('#flx-serie-pills .flx-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('#flx-serie-pills .flx-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      applyRate(pill.dataset.rate);
+    });
+  });
 }
 
 /** Leaflet choropleth for Fluxo rates */
