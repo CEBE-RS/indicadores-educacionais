@@ -1,1 +1,556 @@
-{"metadata":{"fonte":"IDEB/INEP — Divulgação 2023","recorte":"Rede Federal RS","gerado_em":"2026-05-27T16:09:29.827211","formula":"IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)"},"serie_temporal":{"2007":{"AI":{"ideb":5.9,"nota_saeb":6.15,"rendimento":0.967,"n_escolas":1},"AF":{"ideb":6.13,"nota_saeb":6.75,"rendimento":0.9115,"n_escolas":3,"meta":5.65}},"2009":{"AI":{"ideb":6.2,"nota_saeb":6.4,"rendimento":0.9715,"n_escolas":1,"meta":6.1},"AF":{"ideb":6.07,"nota_saeb":6.79,"rendimento":0.8867,"n_escolas":3,"meta":6.07}},"2013":{"AI":{"ideb":6.0,"nota_saeb":6.27,"rendimento":0.96,"n_escolas":1,"meta":6.6},"AF":{"ideb":6.07,"nota_saeb":6.74,"rendimento":0.895,"n_escolas":3,"meta":6.53}},"2015":{"AI":{"ideb":7.3,"nota_saeb":7.31,"rendimento":0.9957,"n_escolas":1,"meta":6.8},"AF":{"ideb":6.87,"nota_saeb":7.22,"rendimento":0.9476,"n_escolas":3,"meta":6.8}},"2017":{"AI":{"ideb":5.9,"nota_saeb":5.97,"rendimento":0.99,"n_escolas":1,"meta":7.0},"AF":{"ideb":6.8,"nota_saeb":7.14,"rendimento":0.9446,"n_escolas":3,"meta":7.0},"EM":{"ideb":5.27,"nota_saeb":5.86,"rendimento":0.8937,"n_escolas":13}},"2019":{"AI":{"ideb":7.8,"nota_saeb":7.75,"rendimento":1.0,"n_escolas":1,"meta":7.2},"AF":{"ideb":6.9,"nota_saeb":7.17,"rendimento":0.9587,"n_escolas":3,"meta":7.17},"EM":{"ideb":5.81,"nota_saeb":6.26,"rendimento":0.9286,"n_escolas":8,"meta":5.58}},"2023":{"AI":{"ideb":6.8,"nota_saeb":6.76,"rendimento":1.0,"n_escolas":1},"AF":{"ideb":7.0,"nota_saeb":7.28,"rendimento":0.9594,"n_escolas":3},"EM":{"ideb":5.59,"nota_saeb":5.94,"rendimento":0.9406,"n_escolas":13}},"2005":{"AF":{"ideb":5.65,"nota_saeb":6.09,"rendimento":0.9269,"n_escolas":2}},"2011":{"AF":{"ideb":6.33,"nota_saeb":7.0,"rendimento":0.9028,"n_escolas":3,"meta":6.23}},"2021":{"AF":{"ideb":7.0,"nota_saeb":6.99,"rendimento":0.9975,"n_escolas":1,"meta":7.4},"EM":{"ideb":5.9,"nota_saeb":6.59,"rendimento":0.8962,"n_escolas":2,"meta":6.2}}},"por_municipio":{"2007":{"4314902":{"AI":{"ideb":5.9,"n_escolas":1},"AF":{"ideb":5.95,"n_escolas":2}},"4316907":{"AF":{"ideb":6.5,"n_escolas":1}}},"2009":{"4314902":{"AI":{"ideb":6.2,"n_escolas":1},"AF":{"ideb":5.45,"n_escolas":2}},"4316907":{"AF":{"ideb":7.3,"n_escolas":1}}},"2013":{"4314902":{"AI":{"ideb":6.0,"n_escolas":1},"AF":{"ideb":5.45,"n_escolas":2}},"4316907":{"AF":{"ideb":7.3,"n_escolas":1}}},"2015":{"4314902":{"AI":{"ideb":7.3,"n_escolas":1},"AF":{"ideb":6.65,"n_escolas":2}},"4316907":{"AF":{"ideb":7.3,"n_escolas":1}}},"2017":{"4314902":{"AI":{"ideb":5.9,"n_escolas":1},"AF":{"ideb":6.45,"n_escolas":2},"EM":{"ideb":5.0,"n_escolas":1}},"4316907":{"AF":{"ideb":7.5,"n_escolas":1},"EM":{"ideb":7.2,"n_escolas":1}},"4302105":{"EM":{"ideb":5.8,"n_escolas":1}},"4307906":{"EM":{"ideb":7.0,"n_escolas":1}},"4308508":{"EM":{"ideb":5.1,"n_escolas":1}},"4310009":{"EM":{"ideb":5.4,"n_escolas":1}},"4311007":{"EM":{"ideb":3.0,"n_escolas":1}},"4314779":{"EM":{"ideb":4.4,"n_escolas":1}},"4317202":{"EM":{"ideb":6.7,"n_escolas":1}},"4317509":{"EM":{"ideb":5.5,"n_escolas":1}},"4318002":{"EM":{"ideb":5.1,"n_escolas":1}},"4320503":{"EM":{"ideb":1.9,"n_escolas":1}},"4322608":{"EM":{"ideb":6.4,"n_escolas":1}}},"2019":{"4314902":{"AI":{"ideb":7.8,"n_escolas":1},"AF":{"ideb":6.65,"n_escolas":2}},"4316907":{"AF":{"ideb":7.4,"n_escolas":1}},"4307906":{"EM":{"ideb":6.8,"n_escolas":1}},"4310009":{"EM":{"ideb":6.0,"n_escolas":1}},"4313904":{"EM":{"ideb":5.7,"n_escolas":1}},"4317202":{"EM":{"ideb":6.7,"n_escolas":1}},"4318002":{"EM":{"ideb":4.9,"n_escolas":1}},"4319901":{"EM":{"ideb":5.5,"n_escolas":1}},"4320503":{"EM":{"ideb":4.9,"n_escolas":1}},"4322608":{"EM":{"ideb":6.0,"n_escolas":1}}},"2023":{"4314902":{"AI":{"ideb":6.8,"n_escolas":1},"AF":{"ideb":6.8,"n_escolas":2},"EM":{"ideb":5.6,"n_escolas":2}},"4316907":{"AF":{"ideb":7.4,"n_escolas":1},"EM":{"ideb":6.3,"n_escolas":2}},"4307005":{"EM":{"ideb":6.4,"n_escolas":1}},"4308508":{"EM":{"ideb":5.2,"n_escolas":1}},"4311106":{"EM":{"ideb":4.7,"n_escolas":1}},"4311205":{"EM":{"ideb":4.6,"n_escolas":1}},"4313409":{"EM":{"ideb":6.5,"n_escolas":1}},"4314100":{"EM":{"ideb":5.0,"n_escolas":1}},"4317202":{"EM":{"ideb":5.7,"n_escolas":1}},"4317509":{"EM":{"ideb":5.2,"n_escolas":1}},"4322806":{"EM":{"ideb":5.6,"n_escolas":1}}},"2005":{"4314902":{"AF":{"ideb":5.3,"n_escolas":1}},"4316907":{"AF":{"ideb":6.0,"n_escolas":1}}},"2011":{"4314902":{"AF":{"ideb":6.1,"n_escolas":2}},"4316907":{"AF":{"ideb":6.8,"n_escolas":1}}},"2021":{"4316907":{"AF":{"ideb":7.0,"n_escolas":1}},"4302105":{"EM":{"ideb":5.5,"n_escolas":1}},"4311403":{"EM":{"ideb":6.3,"n_escolas":1}}}},"lookup_municipios":{"4314902":"Porto Alegre","4316907":"Santa Maria","4302105":"Bento Gonçalves","4307906":"Farroupilha","4308508":"Frederico Westphalen","4310009":"Ibirubá","4311007":"Jaguarão","4314779":"Pontão","4317202":"Santa Rosa","4317509":"Santo Ângelo","4318002":"São Borja","4320503":"Sertão","4322608":"Venâncio Aires","4313904":"Panambi","4319901":"Sapiranga","4311403":"Lajeado","4307005":"Erechim","4311106":"Jaguari","4311205":"Júlio de Castilhos","4313409":"Novo Hamburgo","4314100":"Passo Fundo","4322806":"Veranópolis"}}
+{
+  "metadata": {
+    "fonte": "IDEB/INEP — Divulgação 2023",
+    "recorte": "Rede Federal RS",
+    "gerado_em": "2026-06-23T06:51:59.588247",
+    "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
+    "serie_temporal_fonte": "Sem agregado oficial por UF para esta rede; serie_temporal = media dos IDEBs das escolas (aproximacao)."
+  },
+  "serie_temporal": {
+    "2007": {
+      "AI": {
+        "ideb": 5.9,
+        "nota_saeb": 6.15,
+        "rendimento": 0.967,
+        "n_escolas": 1
+      },
+      "AF": {
+        "ideb": 6.13,
+        "nota_saeb": 6.75,
+        "rendimento": 0.9115,
+        "n_escolas": 3,
+        "meta": 5.65
+      }
+    },
+    "2009": {
+      "AI": {
+        "ideb": 6.2,
+        "nota_saeb": 6.4,
+        "rendimento": 0.9715,
+        "n_escolas": 1,
+        "meta": 6.1
+      },
+      "AF": {
+        "ideb": 6.07,
+        "nota_saeb": 6.79,
+        "rendimento": 0.8867,
+        "n_escolas": 3,
+        "meta": 6.07
+      }
+    },
+    "2013": {
+      "AI": {
+        "ideb": 6.0,
+        "nota_saeb": 6.27,
+        "rendimento": 0.96,
+        "n_escolas": 1,
+        "meta": 6.6
+      },
+      "AF": {
+        "ideb": 6.07,
+        "nota_saeb": 6.74,
+        "rendimento": 0.895,
+        "n_escolas": 3,
+        "meta": 6.53
+      }
+    },
+    "2015": {
+      "AI": {
+        "ideb": 7.3,
+        "nota_saeb": 7.31,
+        "rendimento": 0.9957,
+        "n_escolas": 1,
+        "meta": 6.8
+      },
+      "AF": {
+        "ideb": 6.87,
+        "nota_saeb": 7.22,
+        "rendimento": 0.9476,
+        "n_escolas": 3,
+        "meta": 6.8
+      }
+    },
+    "2017": {
+      "AI": {
+        "ideb": 5.9,
+        "nota_saeb": 5.97,
+        "rendimento": 0.99,
+        "n_escolas": 1,
+        "meta": 7.0
+      },
+      "AF": {
+        "ideb": 6.8,
+        "nota_saeb": 7.14,
+        "rendimento": 0.9446,
+        "n_escolas": 3,
+        "meta": 7.0
+      },
+      "EM": {
+        "ideb": 5.27,
+        "nota_saeb": 5.86,
+        "rendimento": 0.8937,
+        "n_escolas": 13
+      }
+    },
+    "2019": {
+      "AI": {
+        "ideb": 7.8,
+        "nota_saeb": 7.75,
+        "rendimento": 1.0,
+        "n_escolas": 1,
+        "meta": 7.2
+      },
+      "AF": {
+        "ideb": 6.9,
+        "nota_saeb": 7.17,
+        "rendimento": 0.9587,
+        "n_escolas": 3,
+        "meta": 7.17
+      },
+      "EM": {
+        "ideb": 5.81,
+        "nota_saeb": 6.26,
+        "rendimento": 0.9286,
+        "n_escolas": 8,
+        "meta": 5.58
+      }
+    },
+    "2023": {
+      "AI": {
+        "ideb": 6.8,
+        "nota_saeb": 6.76,
+        "rendimento": 1.0,
+        "n_escolas": 1
+      },
+      "AF": {
+        "ideb": 7.0,
+        "nota_saeb": 7.28,
+        "rendimento": 0.9594,
+        "n_escolas": 3
+      },
+      "EM": {
+        "ideb": 5.59,
+        "nota_saeb": 5.94,
+        "rendimento": 0.9406,
+        "n_escolas": 13
+      }
+    },
+    "2005": {
+      "AF": {
+        "ideb": 5.65,
+        "nota_saeb": 6.09,
+        "rendimento": 0.9269,
+        "n_escolas": 2
+      }
+    },
+    "2011": {
+      "AF": {
+        "ideb": 6.33,
+        "nota_saeb": 7.0,
+        "rendimento": 0.9028,
+        "n_escolas": 3,
+        "meta": 6.23
+      }
+    },
+    "2021": {
+      "AF": {
+        "ideb": 7.0,
+        "nota_saeb": 6.99,
+        "rendimento": 0.9975,
+        "n_escolas": 1,
+        "meta": 7.4
+      },
+      "EM": {
+        "ideb": 5.9,
+        "nota_saeb": 6.59,
+        "rendimento": 0.8962,
+        "n_escolas": 2,
+        "meta": 6.2
+      }
+    }
+  },
+  "por_municipio": {
+    "2007": {
+      "4314902": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2009": {
+      "4314902": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2013": {
+      "4314902": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2015": {
+      "4314902": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.65,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2017": {
+      "4314902": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        }
+      },
+      "4302105": {
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4307906": {
+        "EM": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        }
+      },
+      "4308508": {
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4310009": {
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4311007": {
+        "EM": {
+          "ideb": 3.0,
+          "n_escolas": 1
+        }
+      },
+      "4314779": {
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4317202": {
+        "EM": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        }
+      },
+      "4317509": {
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4318002": {
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4320503": {
+        "EM": {
+          "ideb": 1.9,
+          "n_escolas": 1
+        }
+      },
+      "4322608": {
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2019": {
+      "4314902": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.65,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        }
+      },
+      "4307906": {
+        "EM": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        }
+      },
+      "4310009": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4313904": {
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4317202": {
+        "EM": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        }
+      },
+      "4318002": {
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4319901": {
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4320503": {
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4322608": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2023": {
+      "4314902": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.3,
+          "n_escolas": 2
+        }
+      },
+      "4307005": {
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4308508": {
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4311106": {
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4311205": {
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4313409": {
+        "EM": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        }
+      },
+      "4314100": {
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4317202": {
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4317509": {
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4322806": {
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2005": {
+      "4314902": {
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2011": {
+      "4314902": {
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2021": {
+      "4316907": {
+        "AF": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        }
+      },
+      "4302105": {
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4311403": {
+        "EM": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        }
+      }
+    }
+  },
+  "lookup_municipios": {
+    "4314902": "Porto Alegre",
+    "4316907": "Santa Maria",
+    "4302105": "Bento Gonçalves",
+    "4307906": "Farroupilha",
+    "4308508": "Frederico Westphalen",
+    "4310009": "Ibirubá",
+    "4311007": "Jaguarão",
+    "4314779": "Pontão",
+    "4317202": "Santa Rosa",
+    "4317509": "Santo Ângelo",
+    "4318002": "São Borja",
+    "4320503": "Sertão",
+    "4322608": "Venâncio Aires",
+    "4313904": "Panambi",
+    "4319901": "Sapiranga",
+    "4311403": "Lajeado",
+    "4307005": "Erechim",
+    "4311106": "Jaguari",
+    "4311205": "Júlio de Castilhos",
+    "4313409": "Novo Hamburgo",
+    "4314100": "Passo Fundo",
+    "4322806": "Veranópolis"
+  }
+}

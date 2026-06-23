@@ -57,7 +57,25 @@ const S = {
   redeCache: {},         // { estadual: { acesso: data, infra: data }, ... }
 };
 
-const FONTE_CENSO = 'Fonte: INEP — <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar Censo Escolar no portal INEP">Censo Escolar da Educação Básica</a> · <a href="https://download.inep.gov.br/publicacoes/institucionais/estatisticas_e_indicadores/cadernos_de_conceitos_2025.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:2px" title="Acessar o Caderno de Conceitos e Orientações 2025">📘 Caderno do Censo 2025</a>';
+// ── Hiperlinks de fonte/conceito (caderno conceitual e notas técnicas) ──
+const LINK_FONTE = 'color:inherit;text-decoration:underline dotted;text-underline-offset:2px';
+/** Monta um link de fonte/conceito padronizado para os rodapés dos gráficos. */
+function fonteLink(url, label, title) {
+  return `<a href="${url}" target="_blank" rel="noopener" style="${LINK_FONTE}" title="${(title || '').replace(/"/g, '&quot;')}">${label}</a>`;
+}
+
+// URLs institucionais de referência conceitual (INEP / CAEd)
+const URL_CENSO = 'https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar';
+const URL_CADERNO_CENSO = 'https://download.inep.gov.br/publicacoes/institucionais/estatisticas_e_indicadores/cadernos_de_conceitos_2025.pdf';
+const URL_INDICADORES = 'https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais';
+const URL_SAEB = 'https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/saeb';
+const URL_IDEB = 'https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb';
+const URL_IDEB_NOTA = 'http://download.inep.gov.br/educacao_basica/portal_ideb/o_que_e_o_ideb/Nota_Tecnica_n1_concepcaoIDEB.pdf';
+const URL_SAERS = 'https://saers.caeddigital.net/';
+
+const FONTE_CENSO = 'Fonte: INEP — ' +
+  fonteLink(URL_CENSO, 'Censo Escolar da Educação Básica', 'Acessar Censo Escolar no portal INEP') + ' · ' +
+  fonteLink(URL_CADERNO_CENSO, '📘 Caderno de Conceitos do Censo', 'Acessar o Caderno de Conceitos e Orientações (INEP)');
 
 // Paleta Bandeira RS: Verde #00AB4E, Vermelho #EE302F, Amarelo #FFCB04
 const COLORS = {
@@ -3595,8 +3613,8 @@ function buildFunilTurma(ano) {
 // IDEB / SAEB
 // ══════════════════════════════════════════════════════════
 
-const FONTE_SAEB = 'Fonte: Microdados SAEB — INEP';
-const FONTE_IDEB = 'Fonte: IDEB/INEP — Divulgação 2023';
+const FONTE_SAEB = 'Fonte: ' + fonteLink(URL_SAEB, 'Microdados SAEB — INEP', 'Acessar o SAEB no portal INEP');
+const FONTE_IDEB = 'Fonte: ' + fonteLink(URL_IDEB, 'IDEB/INEP — Divulgação 2023', 'Acessar o IDEB no portal INEP') + ' · ' + fonteLink(URL_IDEB_NOTA, '📘 Nota Técnica do IDEB', 'Nota Técnica nº 1 — Concepção do IDEB (INEP)');
 
 function renderSaeb() {
   const saeb = S.saeb;
@@ -5291,6 +5309,31 @@ function renderHome() {
           `).join('')}
         </div>
 
+        <div class="home-divider" style="margin:28px 0 16px">
+          <span class="home-divider-line"></span>
+          <span class="home-divider-text">Documentos e Recursos</span>
+          <span class="home-divider-line"></span>
+        </div>
+
+        <div class="home-grid" style="grid-template-columns:repeat(2,1fr)">
+          <a class="home-card" href="${URL_CADERNO_CENSO}" target="_blank" rel="noopener" style="text-decoration:none">
+            <div class="home-card-icon"><img src="img/icons/politicas.png" alt=""></div>
+            <div class="home-card-text">
+              <div class="home-card-title">Caderno de Conceitos do Censo</div>
+              <div class="home-card-desc">Definições e orientações oficiais dos indicadores (INEP) — PDF</div>
+            </div>
+            <span class="home-card-arrow">↗</span>
+          </a>
+          <a class="home-card" href="${URL_CENSO}" target="_blank" rel="noopener" style="text-decoration:none">
+            <div class="home-card-icon"><img src="img/icons/panorama.png" alt=""></div>
+            <div class="home-card-text">
+              <div class="home-card-title">Portal do Censo Escolar (INEP)</div>
+              <div class="home-card-desc">Microdados, notas técnicas e indicadores educacionais</div>
+            </div>
+            <span class="home-card-arrow">↗</span>
+          </a>
+        </div>
+
         <div class="home-footer" style="margin-top:32px">
           <div class="home-footer-text">
             Dados: INEP — Censo Escolar da Educação Básica & Microdados SAEB<br>
@@ -5321,7 +5364,7 @@ function renderHome() {
 // FLUXO E RENDIMENTO
 // ══════════════════════════════════════════════════════════
 
-const FONTE_REND = 'Fonte: INEP — Indicadores Educacionais';
+const FONTE_REND = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicadores Educacionais (Taxas de Rendimento)', 'Acessar Indicadores Educacionais no portal INEP') + ' · ' + fonteLink(URL_CADERNO_CENSO, '📘 Caderno de Conceitos', 'Caderno de Conceitos e Orientações (INEP)');
 
 /** Aggregate fluxo rates for a CRE (simple average of municipality percentages) */
 function aggregateCreFluxo(f, ano, creCod) {
@@ -6395,7 +6438,7 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
 // RENDER — CONTEXTO SOCIOECONÔMICO (INSE)
 // ══════════════════════════════════════════════════════════
 
-const FONTE_INSE = 'Fonte: INEP — Indicador de Nível Socioeconômico (INSE/SAEB)';
+const FONTE_INSE = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicador de Nível Socioeconômico (INSE/SAEB)', 'Acessar o INSE / Indicadores Educacionais no portal INEP');
 
 const INSE_NIVEL_COLORS = {
   'Nível I': '#C62828', 'Nível II': '#E53935', 'Nível III': '#FB8C00',
@@ -7292,7 +7335,7 @@ function renderInse() {
 // COMPLEXIDADE DE GESTÃO (ICG)
 // ══════════════════════════════════════════════════════════
 
-const FONTE_ICG = 'Fonte: INEP — Indicador de Complexidade de Gestão da Escola';
+const FONTE_ICG = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicador de Complexidade de Gestão da Escola', 'Acessar o ICG / Indicadores Educacionais no portal INEP');
 
 const ICG_COLORS = {
   1: '#43A047',  // simples — verde
@@ -8038,7 +8081,7 @@ function renderIcg() {
 // ADEQUAÇÃO DA FORMAÇÃO DOCENTE (AFD)
 // ══════════════════════════════════════════════════════════
 
-const FONTE_AFD = 'Fonte: INEP — Indicador de Adequação da Formação Docente';
+const FONTE_AFD = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicador de Adequação da Formação Docente', 'Acessar o AFD / Indicadores Educacionais no portal INEP');
 
 const AFD_GROUPS = {
   g1: { label: 'G1 — Licenciatura na área', short: 'G1', color: '#43A047' },
@@ -8860,7 +8903,7 @@ function renderAfd() {
 // DISTORÇÃO IDADE-SÉRIE (TDI)
 // ══════════════════════════════════════════════════════════
 
-const FONTE_TDI = 'Fonte: INEP — Indicador de Distorção Idade-Série';
+const FONTE_TDI = 'Fonte: INEP — ' + fonteLink(URL_INDICADORES, 'Indicador de Distorção Idade-Série', 'Acessar a TDI / Indicadores Educacionais no portal INEP');
 
 function renderTdi() {
   const main = document.getElementById('main-content');
@@ -12477,7 +12520,7 @@ function renderEscolas() {
 // SEÇÃO: SAERS — Avaliação Estadual do RS
 // ══════════════════════════════════════════════════════════
 
-const FONTE_SAERS = 'Fonte: SAERS/CAED — Avaliação do Estado do Rio Grande do Sul';
+const FONTE_SAERS = 'Fonte: ' + fonteLink(URL_SAERS, 'SAERS/CAEd — Avaliação do Estado do Rio Grande do Sul', 'Acessar o portal do SAERS (CAEd)');
 
 function renderSaers() {
   const main = document.getElementById('main-content');

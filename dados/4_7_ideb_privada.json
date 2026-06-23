@@ -2,16 +2,210 @@
   "metadata": {
     "fonte": "IDEB/INEP — Divulgação 2023",
     "recorte": "Rede Privada RS",
-    "gerado_em": "2026-05-27T16:09:29.931569",
-    "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)"
+    "gerado_em": "2026-06-23T06:51:59.632778",
+    "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
+    "serie_temporal_fonte": "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2023). IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
   },
   "serie_temporal": {
     "2017": {
       "EM": {
-        "ideb": 6.03,
-        "nota_saeb": 6.34,
-        "rendimento": 0.9518,
-        "n_escolas": 28
+        "ideb": 5.9,
+        "nota_saeb": 6.25,
+        "rendimento": 0.9514,
+        "n_escolas": 28,
+        "fonte": "oficial_inep_uf"
+      },
+      "AI": {
+        "ideb": 7.4,
+        "nota_saeb": 7.51,
+        "rendimento": 0.9896,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.7,
+        "nota_saeb": 6.98,
+        "rendimento": 0.9602,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2005": {
+      "AI": {
+        "ideb": 5.8,
+        "nota_saeb": 6.19,
+        "rendimento": 0.9436,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.1,
+        "nota_saeb": 6.41,
+        "rendimento": 0.9507,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 6.11,
+        "rendimento": 0.9394,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2007": {
+      "AI": {
+        "ideb": 6.1,
+        "nota_saeb": 6.21,
+        "rendimento": 0.9765,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 5.7,
+        "nota_saeb": 6.02,
+        "rendimento": 0.9477,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 6.09,
+        "rendimento": 0.9417,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2009": {
+      "AI": {
+        "ideb": 6.4,
+        "nota_saeb": 6.54,
+        "rendimento": 0.9724,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 5.8,
+        "nota_saeb": 6.16,
+        "rendimento": 0.943,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 6.13,
+        "rendimento": 0.925,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2011": {
+      "AI": {
+        "ideb": 6.7,
+        "nota_saeb": 6.86,
+        "rendimento": 0.9769,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.1,
+        "nota_saeb": 6.43,
+        "rendimento": 0.9429,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.9,
+        "nota_saeb": 6.31,
+        "rendimento": 0.9287,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2013": {
+      "AI": {
+        "ideb": 7.2,
+        "nota_saeb": 7.33,
+        "rendimento": 0.9813,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.1,
+        "nota_saeb": 6.5,
+        "rendimento": 0.9424,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 6.12,
+        "rendimento": 0.9317,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2015": {
+      "AI": {
+        "ideb": 7.4,
+        "nota_saeb": 7.46,
+        "rendimento": 0.9854,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.2,
+        "nota_saeb": 6.55,
+        "rendimento": 0.9466,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 5.99,
+        "rendimento": 0.9443,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2019": {
+      "AI": {
+        "ideb": 7.5,
+        "nota_saeb": 7.61,
+        "rendimento": 0.9906,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.6,
+        "nota_saeb": 6.86,
+        "rendimento": 0.9652,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 6.1,
+        "nota_saeb": 6.28,
+        "rendimento": 0.9636,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2021": {
+      "AI": {
+        "ideb": 7.4,
+        "nota_saeb": 7.46,
+        "rendimento": 0.993,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.6,
+        "nota_saeb": 6.7,
+        "rendimento": 0.982,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.8,
+        "nota_saeb": 5.98,
+        "rendimento": 0.9622,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2023": {
+      "AI": {
+        "ideb": 7.5,
+        "nota_saeb": 7.52,
+        "rendimento": 0.9938,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 6.5,
+        "nota_saeb": 6.64,
+        "rendimento": 0.9807,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 5.7,
+        "nota_saeb": 5.84,
+        "rendimento": 0.9698,
+        "fonte": "oficial_inep_uf"
       }
     }
   },
