@@ -5613,7 +5613,7 @@ function renderFluxo() {
           </div>
         </div>
         <div style="height:320px"><canvas id="flx-chart-serie"></canvas></div>
-        <div class="chart-source">${FONTE_REND} · Recorte por série disponível a partir de 2020 (arquivos por município INEP).</div>
+        <div class="chart-source">${FONTE_REND} · Recorte por série disponível a partir de 2019 (arquivos por município INEP).</div>
       </div>
     </div>
 
@@ -6075,7 +6075,7 @@ function fluxoBuildSerieChart(st) {
         <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-sec);gap:6px;padding:20px">
           <img src="img/icons/panorama.png" alt="" style="width:34px;height:34px;opacity:.35">
           <div style="font-size:13px;font-weight:600;color:var(--text)">Recorte por série indisponível para este ano</div>
-          <div style="font-size:11.5px;max-width:420px;line-height:1.5">As taxas por série (1º–9º ano e 1ª–4ª série EM) estão disponíveis a partir de <strong>2020</strong>. Selecione 2020 ou um ano posterior para visualizar.</div>
+          <div style="font-size:11.5px;max-width:420px;line-height:1.5">As taxas por série (1º–9º ano e 1ª–4ª série EM) estão disponíveis a partir de <strong>2019</strong>. Selecione 2019 ou um ano posterior para visualizar.</div>
         </div>`;
     }
     return;
