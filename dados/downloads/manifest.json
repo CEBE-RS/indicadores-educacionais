@@ -15,7 +15,7 @@
     "descricao": "Taxas de aprovacao, reprovacao e abandono (por etapa e serie) e distorcao idade-serie.",
     "fonte": "INEP - Indicadores Educacionais (Taxas de Rendimento e TDI)",
     "abas": 15,
-    "tamanho_kb": 405
+    "tamanho_kb": 402
   },
   {
     "id": "infra",
