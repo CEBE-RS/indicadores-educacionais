@@ -5613,7 +5613,7 @@ function renderFluxo() {
           </div>
         </div>
         <div style="height:320px"><canvas id="flx-chart-serie"></canvas></div>
-        <div class="chart-source">${FONTE_REND} · Recorte por série disponível a partir de 2019 (arquivos por município INEP).</div>
+        <div class="chart-source">${FONTE_REND} · Recorte por série disponível a partir de 2020 (arquivos por município INEP).</div>
       </div>
     </div>
 
@@ -6066,6 +6066,21 @@ function fluxoBuildSerieChart(st) {
 
   const buildData = (rate) => FLX_SERIE_DEFS.map(s => st[`${rate}_${s.suf}`] ?? null);
 
+  // Sem dados por série (anos anteriores a 2020 ou recorte sem dado): estado vazio amigável
+  const temSerie = ['aprov', 'reprov', 'aband'].some(r => buildData(r).some(v => v != null));
+  if (!temSerie) {
+    const host = el.parentElement;
+    if (host) {
+      host.innerHTML = `
+        <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-sec);gap:6px;padding:20px">
+          <img src="img/icons/panorama.png" alt="" style="width:34px;height:34px;opacity:.35">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">Recorte por série indisponível para este ano</div>
+          <div style="font-size:11.5px;max-width:420px;line-height:1.5">As taxas por série (1º–9º ano e 1ª–4ª série EM) estão disponíveis a partir de <strong>2020</strong>. Selecione 2020 ou um ano posterior para visualizar.</div>
+        </div>`;
+    }
+    return;
+  }
+
   const colorFor = (rate) => {
     const base = FLX_SERIE_RATE_CFG[rate].color;
     return FLX_SERIE_DEFS.map((s, i) => isMed[i] ? base : base + 'B3');
@@ -6092,7 +6107,12 @@ function fluxoBuildSerieChart(st) {
       plugins: {
         ...CHART_DEFAULTS.plugins,
         legend: { display: false },
-        datalabels: { ...DL_BAR_PCT, anchor: 'end', align: 'end' },
+        datalabels: {
+          ...DL_BAR_PCT,
+          anchor: 'end', align: 'end',
+          display: ctx => ctx.dataset.data[ctx.dataIndex] != null,
+          formatter: v => (v == null ? '' : v.toFixed(1) + '%'),
+        },
         tooltip: {
           enabled: true, mode: 'index', intersect: false,
           backgroundColor: 'rgba(30,30,30,.92)', titleFont: { family: 'Inter', size: 12, weight: '700' },
