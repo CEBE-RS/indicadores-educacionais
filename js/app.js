@@ -10061,7 +10061,7 @@ function initNav() {
       else if (view === 'icg') { renderIcg(); }
       else if (view === 'afd') { renderAfd(); }
       else if (view === 'tdi') { renderTdi(); }
-      else if (view === 'desigualdades' && S.desig) { renderDesigualdades(); }
+      else if (view === 'desigualdades') { ensureDesig(); }
       else if (view === 'escolas') { renderEscolas(); }
       else {
         const main = document.getElementById('main-content');
@@ -11199,7 +11199,7 @@ function refreshActiveTab() {
   else if (view === 'icg') renderIcg();
   else if (view === 'afd') renderAfd();
   else if (view === 'tdi') renderTdi();
-  else if (view === 'desigualdades' && S.desig) renderDesigualdades();
+  else if (view === 'desigualdades') ensureDesig();
   else if (view === 'escola') renderEscola();
 }
 
@@ -11212,13 +11212,47 @@ function refreshActiveTab() {
 // DESIGUALDADES EDUCACIONAIS (SAERS)
 // ══════════════════════════════════════════════════════════
 
+/**
+ * Carrega sob demanda o arquivo grande de Desigualdades (~100 MB) e então renderiza.
+ * Evita travar o boot do painel (esse arquivo é servido lentamente no GitHub Pages).
+ */
+async function ensureDesig() {
+  if (S.desig) { renderDesigualdades(); return; }
+  if (S._desigLoading) return;
+  S._desigLoading = true;
+  const main = document.getElementById('main-content');
+  if (main) {
+    main.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Carregando dados de Desigualdades (arquivo grande, pode levar alguns segundos)...</span>
+      </div>`;
+  }
+  try {
+    const resp = await fetch('dados/4_11_desigualdades.json?_cb=' + Date.now());
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    S.desig = await resp.json();
+    renderDesigualdades();
+  } catch (err) {
+    if (main) {
+      main.innerHTML = `
+        <div class="loading" style="color:#C62828;text-align:center;padding:40px">
+          <span>Não foi possível carregar os dados de Desigualdades.<br>${err.message}</span>
+          <button onclick="ensureDesig()" style="margin-top:14px;padding:8px 18px;border-radius:6px;border:1px solid #C62828;background:#fff;color:#C62828;cursor:pointer;font-weight:600">Tentar novamente</button>
+        </div>`;
+    }
+  } finally {
+    S._desigLoading = false;
+  }
+}
+
 function renderDesigualdades() {
   const main = document.getElementById('main-content');
   destroyCharts(); destroyMap();
   document.body.classList.remove('sidebar-hidden');
 
   const dd = S.desig;
-  if (!dd) return;
+  if (!dd) { ensureDesig(); return; }
 
   const meta = dd.metadata;
   const anos = dd.anos.map(a => a.ano);
@@ -14010,7 +14044,9 @@ async function init() {
   renderHome();
 
   try {
-    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc, respDesig] = await Promise.all([
+    // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
+    // Desigualdades — ver ensureDesig(). Mantê-lo aqui travava o boot no GitHub Pages.
+    const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json'),
       fetch('dados/rs_municipios.geojson'),
       fetch('dados/4_5_infra_estadual.json'),
@@ -14028,7 +14064,6 @@ async function init() {
       fetch('dados/escolas_estaduais.json'),
       fetch('dados/4_saers_estadual.json'),
       fetch('dados/4_saers_escolas.json'),
-      fetch('dados/4_11_desigualdades.json'),
     ]);
     if (!respData.ok) throw new Error(`HTTP ${respData.status}`);
     S.data = await respData.json();
@@ -14048,7 +14083,6 @@ async function init() {
     if (respEscolas.ok)   S.escolasData = await respEscolas.json();
     if (respSaers.ok)     S.saersData   = await respSaers.json();
     if (respSaersEsc.ok)  S.saersEscolasData = await respSaersEsc.json();
-    if (respDesig.ok)     S.desig = await respDesig.json();
 
     // Seed rede cache with initial estadual data
     S.redeCache.estadual = { acesso: S.data, infra: S.infra, fluxo: S.fluxo, saeb: S.saeb, inse: S.inse, icg: S.icg, afd: S.afd, ideb: S.ideb, tdi: S.tdi, saers: S.saersData, saersEscolas: S.saersEscolasData, docentes: S.doc };
