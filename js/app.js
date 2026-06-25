@@ -474,6 +474,13 @@ function getRedeLabel() {
   return REDE_LABELS[S.redeSel] || 'Rede Estadual';
 }
 
+/** Texto do separador "Distribuição Territorial" com rótulo dinâmico da rede + popup informativo */
+function territorialDividerText() {
+  const rede = getRedeLabel();
+  const tip = `Esta subseção (mapas e tabela de municípios) reflete os dados da rede atualmente selecionada no seletor de rede: ${rede}. A Rede Estadual é o foco analítico e a visão padrão deste painel.`;
+  return `Distribuição Territorial — Visão da ${rede}<span class="info-tooltip" title="${tip.replace(/"/g, '&quot;')}">ⓘ</span>`;
+}
+
 /** Lazy-load JSON data for a given rede. Returns cached if already loaded. */
 async function loadRedeData(rede) {
   if (S.redeCache[rede]?.acesso && S.redeCache[rede]?.infra) {
@@ -939,7 +946,7 @@ function renderAcesso() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -2145,7 +2152,7 @@ function renderInfra() {
     <!-- ═══ EIXO: Infraestrutura por Município ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -2173,7 +2180,7 @@ function renderInfra() {
             <option value="IN_ALIMENTACAO">Alimentação</option>
             <option value="IN_SALA_DIRETORIA">Sala Diretoria</option>
             <option value="IN_SALA_PROFESSOR">Sala Professor</option>
-            <option value="IN_CLIMATIZACAO">Ar Condicionado</option>
+            <option value="IN_CLIMATIZACAO">Climatização</option>
           </select>
         </div>
         <div id="infra-map" style="height:480px;width:100%"></div>
@@ -2192,7 +2199,7 @@ function renderInfra() {
               <th style="position:sticky;left:0;z-index:3;background:#f8f9fa;width:30px">#</th>
               <th style="position:sticky;left:30px;z-index:3;background:#f8f9fa;min-width:140px;border-right:2px solid #e0e0e0">Município</th>
               <th>Esc.</th>
-              <th>Internet</th><th>Banda L.</th><th>Biblioteca</th><th>Quadra</th><th>Lab.Inf.</th><th>Lab.Ciên.</th><th>Sala AEE</th><th>Refeitório</th><th>Rampas</th><th>Banh.PNE</th><th>Água Pot.</th><th>Ar Cond.</th>
+              <th>Internet</th><th>Banda L.</th><th>Biblioteca</th><th>Quadra</th><th>Lab.Inf.</th><th>Lab.Ciên.</th><th>Sala AEE</th><th>Refeitório</th><th>Rampas</th><th>Banh.PNE</th><th>Água Pot.</th><th>Climatiz.</th>
             </tr></thead>
             <tbody id="infra-mun-tbody"></tbody>
           </table>
@@ -2373,12 +2380,18 @@ function buildInfraEscolaLayer(infra) {
   }
 }
 
+/** Latest year available in infra.por_municipio (was hardcoded to 2024) */
+function infraLatestMunYear(infra) {
+  const keys = Object.keys(infra?.por_municipio || {});
+  return keys.length ? keys.sort().pop() : null;
+}
+
 /* ── Infra Municipality Table ── */
 function buildInfraMunTable(infra) {
   const tbody = document.getElementById('infra-mun-tbody');
   if (!tbody) return;
   const lookup = S.data?.lookup_municipios || {};
-  const munData = infra.por_municipio?.['2024'] || {};
+  const munData = infra.por_municipio?.[infraLatestMunYear(infra)] || {};
   const indicators = ['IN_INTERNET', 'IN_BANDA_LARGA', 'IN_BIBLIOTECA', 'IN_QUADRA_ESPORTES', 'IN_LABORATORIO_INFORMATICA', 'IN_LABORATORIO_CIENCIAS', 'IN_SALA_ATENDIMENTO_ESPECIAL', 'IN_REFEITORIO', 'IN_ACESSIBILIDADE_RAMPAS', 'IN_BANHEIRO_PNE', 'IN_AGUA_POTAVEL', 'IN_CLIMATIZACAO'];
 
   let entries = Object.entries(munData);
@@ -2462,15 +2475,16 @@ function buildInfraKPIs(infra, ano, anos) {
   const refLabel = prev ? `vs ${prev}` : '';
 
   // If municipality is selected, override with per-municipality data
+  const pmYear = infraLatestMunYear(infra);
   let munMode = false;
   let munSu = null;
-  if (S.munSel && infra.por_municipio?.['2024']?.[S.munSel]) {
+  if (S.munSel && infra.por_municipio?.[pmYear]?.[S.munSel]) {
     munMode = true;
-    munSu = infra.por_municipio['2024'][S.munSel];
+    munSu = infra.por_municipio[pmYear][S.munSel];
   } else if (S.creSel) {
     // Aggregate CRE municipalities
     const creMuns = getCreMuns(S.creSel);
-    const pm = infra.por_municipio?.['2024'] || {};
+    const pm = infra.por_municipio?.[pmYear] || {};
     munMode = true;
     munSu = { escolas: 0, indicadores: {} };
     for (const cod of creMuns) {
@@ -2505,7 +2519,7 @@ function buildInfraKPIs(infra, ano, anos) {
     { label: 'Biblioteca', key: 'IN_BIBLIOTECA', prevVal: suPrev?.indicadores?.IN_BIBLIOTECA?.pct, icon: 'img/icons/biblioteca.png', accent: 'green', fmt: 'pct' },
     { label: 'Quadra', key: 'IN_QUADRA_ESPORTES', prevVal: suPrev?.indicadores?.IN_QUADRA_ESPORTES?.pct, icon: 'img/icons/quadra.png', accent: 'green', fmt: 'pct' },
     { label: 'Lab. Informática', key: 'IN_LABORATORIO_INFORMATICA', prevVal: suPrev?.indicadores?.IN_LABORATORIO_INFORMATICA?.pct, icon: 'img/icons/laboratorio.png', accent: 'green', fmt: 'pct' },
-    { label: 'Ar Condicionado', key: 'IN_CLIMATIZACAO', prevVal: suPrev?.indicadores?.IN_CLIMATIZACAO?.pct, icon: 'img/icons/ar_condicionado.png', accent: 'green', fmt: 'pct' },
+    { label: 'Climatização', key: 'IN_CLIMATIZACAO', prevVal: suPrev?.indicadores?.IN_CLIMATIZACAO?.pct, icon: 'img/icons/ar_condicionado.png', accent: 'green', fmt: 'pct', info: 'Percentual de escolas com ao menos uma sala climatizada (ar-condicionado, aquecedor ou climatizadores), conforme o Censo Escolar (QT_SALAS_UTILIZA_CLIMATIZADAS).' },
   ].map(k => ({ ...k, val: getVal(k.key, k.fmt) }));
 
   // Build sparklines from historical data (only state-level)
@@ -2539,7 +2553,7 @@ function buildInfraKPIs(infra, ano, anos) {
     return `
     <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms" title="${k.label}: ${displayVal}">
       <div class="kpi-top">
-        <span class="kpi-label">${k.label}</span>
+        <span class="kpi-label">${k.label}${k.info ? `<span class="info-tooltip" title="${k.info.replace(/"/g, '&quot;')}">ⓘ</span>` : ''}</span>
         <img class="kpi-icon" src="${k.icon}" alt="${k.label}">
       </div>
       <div class="kpi-body">
@@ -2564,12 +2578,13 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
   const suBase = infra.serie_temporal[baseYear];
 
   // Municipality/CRE override
+  const pmYear = infraLatestMunYear(infra);
   let munSu = null;
-  if (S.munSel && infra.por_municipio?.['2024']?.[S.munSel]) {
-    munSu = infra.por_municipio['2024'][S.munSel];
+  if (S.munSel && infra.por_municipio?.[pmYear]?.[S.munSel]) {
+    munSu = infra.por_municipio[pmYear][S.munSel];
   } else if (S.creSel) {
     const creMuns = getCreMuns(S.creSel);
-    const pm = infra.por_municipio?.['2024'] || {};
+    const pm = infra.por_municipio?.[pmYear] || {};
     munSu = { escolas: 0, indicadores: {} };
     for (const cod of creMuns) {
       const m = pm[cod]; if (!m) continue;
@@ -2592,10 +2607,18 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
 
   // Parse category keys (can be comma-separated)
   const catKeys = catKey.split(',');
-  const catNames = { 'Tecnologia': 'Tecnologia', 'Espacos Pedagogicos': 'Espaços Pedagógicos', 'Acessibilidade': 'Acessibilidade', 'Saneamento e Energia': 'Saneamento & Alimentação', 'Alimentacao': 'Alimentação', 'Climatizacao': 'Climatização (Ar Condicionado)' };
-  const catLabel = catKeys.length > 1 ? 'Saneamento & Alimentação' : (catNames[catKeys[0]] || catKeys[0]);
+  const catNames = { 'Tecnologia': 'Tecnologia', 'Espacos Pedagogicos': 'Espaços Pedagógicos', 'Estrutura Administrativa': 'Estrutura Administrativa', 'Acessibilidade': 'Acessibilidade', 'Saneamento e Energia': 'Saneamento & Alimentação', 'Alimentacao': 'Alimentação', 'Sustentabilidade': 'Sustentabilidade', 'Climatizacao': 'Climatização', 'Espacos Adicionais': 'Espaços Adicionais' };
+  const comboNames = { 'Saneamento e Energia,Alimentacao': 'Saneamento & Alimentação', 'Climatizacao,Espacos Adicionais': 'Climatização & Outros' };
+  const catLabel = comboNames[catKey] || (catKeys.length > 1 ? catKeys.map(c => catNames[c] || c).join(' & ') : (catNames[catKeys[0]] || catKeys[0]));
   const titleEl = document.getElementById('infra-chart-title');
-  if (titleEl) titleEl.textContent = `${catLabel} — ${munSu ? '2024' : baseYear + ' vs ' + anoComp}${geoSuffix()}`;
+  if (titleEl) {
+    const titleTxt = `${catLabel} — ${munSu ? pmYear : baseYear + ' vs ' + anoComp}${geoSuffix()}`;
+    if (catKeys.includes('Climatizacao')) {
+      titleEl.innerHTML = `${titleTxt} <span class="info-tooltip" title="Climatização: percentual de escolas com ao menos uma sala climatizada (ar-condicionado, aquecedor ou climatizadores), conforme definição do Censo Escolar (QT_SALAS_UTILIZA_CLIMATIZADAS).&#10;&#10;% Salas Climatizadas: razão entre salas climatizadas e o total de salas utilizadas.">ⓘ</span>`;
+    } else {
+      titleEl.textContent = titleTxt;
+    }
+  }
 
   const allCols = [];
   catKeys.forEach(cat => { if (cats[cat]) allCols.push(...cats[cat]); });
@@ -2716,7 +2739,7 @@ function buildInfraMap(infra, metricKey) {
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
   
-  const munData = infra.por_municipio?.['2024'] || {};
+  const munData = infra.por_municipio?.[infraLatestMunYear(infra)] || {};
   const lookup = S.data?.lookup_municipios || {};
   const label = infra.labels?.[metricKey] || metricKey;
   
@@ -2786,7 +2809,7 @@ function buildInfraMapCre(infra, metricKey) {
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
 
-  const munData = infra.por_municipio?.['2024'] || {};
+  const munData = infra.por_municipio?.[infraLatestMunYear(infra)] || {};
   const label = infra.labels?.[metricKey] || metricKey;
 
   // Aggregate infra data per CRE
@@ -2950,7 +2973,7 @@ function renderDocencia() {
     <!-- ═══ Distribuição Territorial ═══ -->
     <div class="section-divider" style="margin-top:12px">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -4797,7 +4820,7 @@ function renderIdeb() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -5619,7 +5642,7 @@ function renderFluxo() {
 
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="map-table-row d1">
@@ -7757,7 +7780,7 @@ function renderIcg() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial — ${anoAtual}</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -8494,7 +8517,7 @@ function renderAfd() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -9289,7 +9312,7 @@ function renderTdi() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial — ${anoSel}</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -13010,7 +13033,7 @@ function renderSaers() {
     <!-- ═══ EIXO: Distribuição Territorial ═══ -->
     <div class="section-divider" style="margin-top:20px">
       <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-      <span class="section-divider-text">Distribuição Territorial</span>
+      <span class="section-divider-text">${territorialDividerText()}</span>
       <span class="section-divider-line"></span>
     </div>
 
