@@ -9,15 +9,6 @@
     "tamanho_kb": 554
   },
   {
-    "id": "fluxo",
-    "nome": "Fluxo e Rendimento",
-    "arquivo": "dados_fluxo_rendimento.xlsx",
-    "descricao": "Taxas de aprovacao, reprovacao e abandono (por etapa e serie) e distorcao idade-serie.",
-    "fonte": "INEP - Indicadores Educacionais (Taxas de Rendimento e TDI)",
-    "abas": 15,
-    "tamanho_kb": 394
-  },
-  {
     "id": "infra",
     "nome": "Infraestrutura",
     "arquivo": "dados_infraestrutura.xlsx",
@@ -27,21 +18,93 @@
     "tamanho_kb": 410
   },
   {
+    "id": "icg",
+    "nome": "Complexidade de Gestao",
+    "arquivo": "dados_complexidade_gestao.xlsx",
+    "descricao": "Indicador de Complexidade de Gestao das escolas por nivel e por municipio.",
+    "fonte": "INEP - Indicador de Complexidade de Gestao (ICG)",
+    "abas": 10,
+    "tamanho_kb": 149
+  },
+  {
+    "id": "inse",
+    "nome": "Contexto Socioeconomico (INSE)",
+    "arquivo": "dados_inse.xlsx",
+    "descricao": "Nivel socioeconomico medio dos estudantes (INSE) por rede e por municipio.",
+    "fonte": "INEP - Nivel Socioeconomico (INSE)",
+    "abas": 8,
+    "tamanho_kb": 160
+  },
+  {
     "id": "docencia",
     "nome": "Docencia",
     "arquivo": "dados_docencia.xlsx",
-    "descricao": "Perfil docente, adequacao da formacao (AFD) e complexidade de gestao escolar (ICG).",
-    "fonte": "INEP - Censo Escolar, Adequacao da Formacao Docente e Complexidade de Gestao",
-    "abas": 20,
-    "tamanho_kb": 336
+    "descricao": "Perfil docente, escolaridade, vinculo, faixa etaria e razao aluno-professor.",
+    "fonte": "INEP - Censo Escolar (Microdados de Docentes)",
+    "abas": 10,
+    "tamanho_kb": 299
   },
   {
-    "id": "aprendizagem",
-    "nome": "IDEB, SAEB e Aprendizagem",
-    "arquivo": "dados_ideb_saeb.xlsx",
-    "descricao": "IDEB e SAEB por rede, nivel socioeconomico (INSE) e proficiencias do SAERS/RS.",
-    "fonte": "INEP - IDEB/SAEB e INSE; SEDUC-RS - SAERS",
-    "abas": 20,
-    "tamanho_kb": 101
+    "id": "afd",
+    "nome": "Formacao Docente (AFD)",
+    "arquivo": "dados_afd.xlsx",
+    "descricao": "Adequacao da formacao docente (AFD) por etapa de ensino e por municipio.",
+    "fonte": "INEP - Adequacao da Formacao Docente (AFD)",
+    "abas": 10,
+    "tamanho_kb": 308
+  },
+  {
+    "id": "fluxo",
+    "nome": "Fluxo e Rendimento",
+    "arquivo": "dados_fluxo_rendimento.xlsx",
+    "descricao": "Taxas de aprovacao, reprovacao e abandono por etapa e por serie.",
+    "fonte": "INEP - Indicadores Educacionais (Taxas de Rendimento)",
+    "abas": 10,
+    "tamanho_kb": 385
+  },
+  {
+    "id": "tdi",
+    "nome": "Distorcao Idade-Serie",
+    "arquivo": "dados_tdi.xlsx",
+    "descricao": "Taxa de distorcao idade-serie (TDI) por etapa de ensino e por municipio.",
+    "fonte": "INEP - Distorcao Idade-Serie (TDI)",
+    "abas": 10,
+    "tamanho_kb": 139
+  },
+  {
+    "id": "saers",
+    "nome": "SAERS",
+    "arquivo": "dados_saers.xlsx",
+    "descricao": "Proficiencias medias e padroes de desempenho do SAERS/RS por etapa e disciplina.",
+    "fonte": "SEDUC-RS / CAED - SAERS",
+    "abas": 3,
+    "tamanho_kb": 18
+  },
+  {
+    "id": "desigualdades",
+    "nome": "Desigualdades",
+    "arquivo": "dados_desigualdades.xlsx",
+    "descricao": "Resultados do SAERS por recortes de equidade (sexo, raca, deficiencia, localizacao, turno).",
+    "fonte": "SEDUC-RS / CAED - SAERS (Microdados)",
+    "abas": 3,
+    "tamanho_kb": 189
+  },
+  {
+    "id": "saeb",
+    "nome": "SAEB",
+    "arquivo": "dados_saeb.xlsx",
+    "descricao": "Proficiencias do SAEB em Lingua Portuguesa e Matematica por rede, etapa e municipio.",
+    "fonte": "INEP - SAEB",
+    "abas": 5,
+    "tamanho_kb": 58
+  },
+  {
+    "id": "ideb",
+    "nome": "IDEB",
+    "arquivo": "dados_ideb.xlsx",
+    "descricao": "IDEB observado e metas por rede, etapa de ensino e por municipio.",
+    "fonte": "INEP - IDEB",
+    "abas": 10,
+    "tamanho_kb": 81
   }
 ]
