@@ -5695,7 +5695,7 @@ function renderFluxo() {
       </div>
       <div class="table-wrapper" id="flx-escola-wrapper" style="display:none">
         <div class="table-header">
-          <h3>Tabela de Escolas (2024)</h3>
+          <h3>Tabela de Escolas (${f.ano_escola_recente || '2025'})</h3>
           <input type="text" class="table-search" id="flx-escola-search" placeholder="Buscar escola...">
         </div>
         <div style="max-height:400px;overflow-y:auto">
@@ -6622,7 +6622,7 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
   const legend = L.control({ position: 'bottomleft' });
   legend.onAdd = function () {
     const div = L.DomUtil.create('div', 'map-legend');
-    div.innerHTML = `<h4>${metricDef.label} (Escolas 2024)</h4>` +
+    div.innerHTML = `<h4>${metricDef.label} (Escolas ${f.ano_escola_recente || '2025'})</h4>` +
       tiers.slice().reverse().map(t => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${t.color}"></div><span>${t.label}</span></div>`).join('');
     div.innerHTML += `<div class="map-legend-row" style="margin-top:4px"><div class="map-legend-swatch" style="background:#f0f0f0"></div><span>Sem dados</span></div>`;
     return div;
