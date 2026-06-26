@@ -6542,13 +6542,13 @@ function fluxoBuildCreTable(f, anoSel) {
   });
 }
 
-/** Escolas Map for Fluxo (Fixed 2024 data) */
+/** Escolas Map for Fluxo (snapshot do ano mais recente disponível — 2025) */
 function fluxoBuildEscMap(f, anoSel, metricKey) {
   const mapEl = document.getElementById('flx-map-leaflet');
   if (!mapEl || !S.geo || !S.escolasData?.escolas) return;
   destroyMap();
 
-  const escData = f.por_escola_2024 || [];
+  const escData = f.por_escola_recente || f.por_escola_2025 || f.por_escola_2024 || [];
   const metricDef = FLUXO_MAP_METRICS.find(m => m.key === metricKey) || FLUXO_MAP_METRICS[0];
 
   // Build coords lookup from escolas_estaduais.json (inep field = cod_escola)
