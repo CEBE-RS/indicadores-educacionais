@@ -15,7 +15,7 @@
     "descricao": "Taxas de aprovacao, reprovacao e abandono (por etapa e serie) e distorcao idade-serie.",
     "fonte": "INEP - Indicadores Educacionais (Taxas de Rendimento e TDI)",
     "abas": 15,
-    "tamanho_kb": 403
+    "tamanho_kb": 394
   },
   {
     "id": "infra",
@@ -24,7 +24,7 @@
     "descricao": "Indicadores de infraestrutura escolar (tecnologia, espacos, acessibilidade, saneamento).",
     "fonte": "INEP - Censo Escolar (Microdados de Escolas)",
     "abas": 10,
-    "tamanho_kb": 409
+    "tamanho_kb": 410
   },
   {
     "id": "docencia",
