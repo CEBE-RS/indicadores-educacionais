@@ -7067,18 +7067,26 @@ function renderInse() {
 
     const brasMedia = { '2019': 5.10, '2021': 5.07, '2023': 5.10 }; // national reference
 
+    // A série "RS Estadual (ref.)" é idêntica à série principal quando o recorte
+    // é a própria Rede Estadual (sem CRE/município filtrado). Nesse caso ela é
+    // omitida para evitar legenda duplicada.
+    const mostraRefEstadual = (geoLabel !== getRedeLabel() + ' do RS');
+    const evolDatasets = [
+      { label: geoLabel, data: anos.map(a => getInseScope(inse, a)?.media), borderColor: COLORS.pri, backgroundColor: COLORS.pri + '22', fill: true, tension: .3, pointRadius: 5, borderWidth: 2.5,
+        datalabels: { anchor: 'end', align: 'top' } },
+      { label: 'Brasil (ref.)', data: anos.map(a => brasMedia[a] || null), borderColor: '#999', borderDash: [5, 5], tension: .3, pointRadius: 4, borderWidth: 2,
+        datalabels: { anchor: 'start', align: 'bottom' }, hidden: true }
+    ];
+    if (mostraRefEstadual) {
+      evolDatasets.push({ label: 'RS Estadual (ref.)', data: anos.map(a => inse.serie_temporal[a]?.media), borderColor: '#B0BEC5', borderDash: [5, 5], tension: .3, pointRadius: 0, borderWidth: 2,
+        datalabels: { display: false } });
+    }
+
     S.charts.push(new Chart(el, {
       type: 'line',
       data: {
         labels: anos,
-        datasets: [
-          { label: geoLabel, data: anos.map(a => getInseScope(inse, a)?.media), borderColor: COLORS.pri, backgroundColor: COLORS.pri + '22', fill: true, tension: .3, pointRadius: 5, borderWidth: 2.5,
-            datalabels: { anchor: 'end', align: 'top' } },
-          { label: 'Brasil (ref.)', data: anos.map(a => brasMedia[a] || null), borderColor: '#999', borderDash: [5, 5], tension: .3, pointRadius: 4, borderWidth: 2,
-            datalabels: { anchor: 'start', align: 'bottom' }, hidden: true },
-          { label: 'RS Estadual (ref.)', data: anos.map(a => inse.serie_temporal[a]?.media), borderColor: '#B0BEC5', borderDash: [5, 5], tension: .3, pointRadius: 0, borderWidth: 2,
-            datalabels: { display: false }, hidden: (geoLabel === getRedeLabel() + ' do RS') }
-        ]
+        datasets: evolDatasets
       },
       options: {
         ...CHART_DEFAULTS, layout: { padding: { top: 25, bottom: 20 } },
@@ -14039,8 +14047,62 @@ function buildSaersMunTable(yearData, etapaFilt) {
 // INIT
 // ══════════════════════════════════════════════════════════
 
+/**
+ * Tooltip flutuante para os ícones .info-tooltip.
+ * Renderiza um único elemento anexado ao <body>, escapando de containers com
+ * overflow:hidden (ex.: .kpi-card) e de contextos com -webkit-text-fill-color
+ * transparent (ex.: .section-divider-text). Também remove o atributo title no
+ * primeiro hover para suprimir o tooltip nativo duplicado do navegador.
+ */
+function initInfoTooltips() {
+  let tip = null;
+  const getEl = () => {
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'info-tip-float';
+      document.body.appendChild(tip);
+    }
+    return tip;
+  };
+  const show = (target) => {
+    if (target.hasAttribute('title')) {
+      if (!target.getAttribute('data-tip')) target.setAttribute('data-tip', target.getAttribute('title'));
+      target.removeAttribute('title');
+    }
+    const text = target.getAttribute('data-tip') || '';
+    if (!text) return;
+    const t = getEl();
+    t.textContent = text;
+    t.style.display = 'block';
+    t.style.visibility = 'hidden';
+    const r = target.getBoundingClientRect();
+    const tw = t.offsetWidth, th = t.offsetHeight;
+    let left = r.left + r.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    let top = r.top - th - 8;
+    if (top < 8) top = r.bottom + 8;
+    t.style.left = left + 'px';
+    t.style.top = top + 'px';
+    t.style.visibility = 'visible';
+    t.classList.add('visible');
+  };
+  const hide = () => {
+    if (tip) { tip.classList.remove('visible'); tip.style.display = 'none'; }
+  };
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest && e.target.closest('.info-tooltip');
+    if (el) show(el);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const el = e.target.closest && e.target.closest('.info-tooltip');
+    if (el) hide();
+  });
+  window.addEventListener('scroll', hide, true);
+}
+
 async function init() {
   initNav();
+  initInfoTooltips();
   renderHome();
 
   try {
