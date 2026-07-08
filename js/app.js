@@ -5503,7 +5503,8 @@ function renderDados() {
     <div class="dados-intro">
       <p>Todas as bases que alimentam este painel estão disponíveis para download em planilhas <strong>.xlsx</strong>,
       organizadas por tema. Cada arquivo traz <strong>abas separadas por rede</strong> (Estadual, Municipal, Federal, Privada e Todas),
-      com a <strong>série histórica</strong> e a <strong>base por município</strong>. A aba <em>"Sobre"</em> de cada planilha descreve o conteúdo e a fonte.</p>
+      com a <strong>série histórica</strong> (nível estado/rede) e a <strong>base por município com coluna Ano</strong>
+      (todos os anos disponíveis — use o autofiltro do Excel para selecionar município e período). A aba <em>"Sobre"</em> de cada planilha descreve o conteúdo e a fonte.</p>
     </div>
 
     <div class="dados-grid">
