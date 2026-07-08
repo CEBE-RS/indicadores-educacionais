@@ -6,7 +6,7 @@
     "descricao": "Matriculas por etapa, dependencia, localizacao, perfil dos alunos e funil de fluxo.",
     "fonte": "INEP - Censo Escolar (Microdados)",
     "abas": 13,
-    "tamanho_kb": 554
+    "tamanho_kb": 8149
   },
   {
     "id": "infra",
@@ -15,7 +15,7 @@
     "descricao": "Indicadores de infraestrutura escolar (tecnologia, espacos, acessibilidade, saneamento).",
     "fonte": "INEP - Censo Escolar (Microdados de Escolas)",
     "abas": 10,
-    "tamanho_kb": 410
+    "tamanho_kb": 423
   },
   {
     "id": "icg",
@@ -24,7 +24,7 @@
     "descricao": "Indicador de Complexidade de Gestao das escolas por nivel e por municipio.",
     "fonte": "INEP - Indicador de Complexidade de Gestao (ICG)",
     "abas": 10,
-    "tamanho_kb": 149
+    "tamanho_kb": 1736
   },
   {
     "id": "inse",
@@ -33,7 +33,7 @@
     "descricao": "Nivel socioeconomico medio dos estudantes (INSE) por rede e por municipio.",
     "fonte": "INEP - Nivel Socioeconomico (INSE)",
     "abas": 8,
-    "tamanho_kb": 160
+    "tamanho_kb": 476
   },
   {
     "id": "docencia",
@@ -42,7 +42,7 @@
     "descricao": "Perfil docente, escolaridade, vinculo, faixa etaria e razao aluno-professor.",
     "fonte": "INEP - Censo Escolar (Microdados de Docentes)",
     "abas": 10,
-    "tamanho_kb": 299
+    "tamanho_kb": 309
   },
   {
     "id": "afd",
@@ -51,7 +51,7 @@
     "descricao": "Adequacao da formacao docente (AFD) por etapa de ensino e por municipio.",
     "fonte": "INEP - Adequacao da Formacao Docente (AFD)",
     "abas": 10,
-    "tamanho_kb": 308
+    "tamanho_kb": 3905
   },
   {
     "id": "fluxo",
@@ -60,7 +60,7 @@
     "descricao": "Taxas de aprovacao, reprovacao e abandono por etapa e por serie.",
     "fonte": "INEP - Indicadores Educacionais (Taxas de Rendimento)",
     "abas": 10,
-    "tamanho_kb": 385
+    "tamanho_kb": 6015
   },
   {
     "id": "tdi",
@@ -69,7 +69,7 @@
     "descricao": "Taxa de distorcao idade-serie (TDI) por etapa de ensino e por municipio.",
     "fonte": "INEP - Distorcao Idade-Serie (TDI)",
     "abas": 10,
-    "tamanho_kb": 139
+    "tamanho_kb": 1997
   },
   {
     "id": "saers",
@@ -87,7 +87,7 @@
     "descricao": "Resultados do SAERS por recortes de equidade (sexo, raca, deficiencia, localizacao, turno).",
     "fonte": "SEDUC-RS / CAED - SAERS (Microdados)",
     "abas": 3,
-    "tamanho_kb": 189
+    "tamanho_kb": 657
   },
   {
     "id": "saeb",
@@ -96,7 +96,7 @@
     "descricao": "Proficiencias do SAEB em Lingua Portuguesa e Matematica por rede, etapa e municipio.",
     "fonte": "INEP - SAEB",
     "abas": 5,
-    "tamanho_kb": 58
+    "tamanho_kb": 168
   },
   {
     "id": "ideb",
@@ -105,6 +105,6 @@
     "descricao": "IDEB observado e metas por rede, etapa de ensino e por municipio.",
     "fonte": "INEP - IDEB",
     "abas": 10,
-    "tamanho_kb": 81
+    "tamanho_kb": 625
   }
 ]
