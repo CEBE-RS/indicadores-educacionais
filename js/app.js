@@ -5295,7 +5295,7 @@ function renderHome() {
   main.innerHTML = `
     <div class="home-wrap">
       <div class="home-bg"></div>
-      <div class="home-particles">
+      <div class="home-particles" aria-hidden="true" style="display:none">
         <div class="home-particle"></div>
         <div class="home-particle"></div>
         <div class="home-particle"></div>
@@ -5368,11 +5368,10 @@ function renderHome() {
         <div class="home-footer" style="margin-top:32px">
           <div class="home-footer-text">
             Dados: INEP — Censo Escolar da Educação Básica & Microdados SAEB<br>
-            Desenvolvido no âmbito do contrato UNESCO / SEDUC-RS
+            Secretaria da Educação do Estado do Rio Grande do Sul
           </div>
           <div class="home-footer-logos">
-            <img src="img/logo_rs.avif" alt="Governo RS" style="height:56px" onerror="this.style.display='none'">
-            <img src="img/UNESCO_logo_white.png" alt="UNESCO" style="height:52px;filter:none" onerror="this.style.display='none'">
+            <img src="img/brasao_rs.png" alt="Brasão RS" style="height:64px" onerror="this.style.display='none'">
             <img src="img/logo_cebe.png" alt="CEBE" style="height:56px" onerror="this.style.display='none'">
           </div>
         </div>
