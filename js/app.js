@@ -5295,6 +5295,7 @@ function renderHome() {
   main.innerHTML = `
     <div class="home-wrap">
       <div class="home-bg"></div>
+      <p class="home-photo-credit">Foto: Alberto Flores/PMPA</p>
       <div class="home-particles" aria-hidden="true" style="display:none">
         <div class="home-particle"></div>
         <div class="home-particle"></div>

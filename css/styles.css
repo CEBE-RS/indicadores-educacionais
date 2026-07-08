@@ -13,6 +13,9 @@
   --sec: #33AD5C;
   --accent: #009639;
   --accent-light: #4CBF6A;
+  --header-dark: #0A3D28;
+  --header-mid: #0D4A32;
+  --header-light: #116339;
   --icon-green-filter: brightness(0) saturate(100%) invert(38%) sepia(85%) saturate(1800%) hue-rotate(115deg) brightness(0.9);
 
   --bg: #F0F2F5;
@@ -279,7 +282,7 @@ body.sidebar-hidden .sidebar {
 }
 
 .filter-select option {
-  background: #14507F;
+  background: var(--header-mid);
   color: #fff;
 }
 
@@ -548,7 +551,7 @@ body.sidebar-hidden .sidebar {
   background: rgba(255,255,255,.18);
 }
 .banner-filter-select option {
-  background: #14507F;
+  background: var(--header-mid);
   color: #fff;
 }
 
@@ -573,7 +576,7 @@ body.sidebar-hidden .sidebar {
   min-width: 220px;
   max-height: 350px;
   overflow-y: auto;
-  background: #14507F;
+  background: var(--header-mid);
   border: 1px solid rgba(255,255,255,.2);
   border-radius: 0 0 6px 6px;
   z-index: 1000;
@@ -643,7 +646,7 @@ body.sidebar-hidden .sidebar {
 
 .kpi-card.accent-yellow { border-left-color: #FFCB04; background: linear-gradient(135deg, #fff 0%, #fffdf0 100%); }
 .kpi-card.accent-yellow::after { background: radial-gradient(circle at 100% 0%, rgba(255,203,4,.08) 0%, transparent 70%); }
-.kpi-card.accent-green  { border-left-color: #1d71b9; }
+.kpi-card.accent-green  { border-left-color: var(--pri); }
 .kpi-card.accent-red    { border-left-color: #EE302F; background: linear-gradient(135deg, #fff 0%, #fef8f8 100%); }
 .kpi-card.accent-red::after { background: radial-gradient(circle at 100% 0%, rgba(238,48,47,.06) 0%, transparent 70%); }
 .kpi-card.accent-blue   { border-left-color: #1565C0; background: linear-gradient(135deg, #fff 0%, #f6f9fe 100%); }
@@ -764,7 +767,7 @@ body.sidebar-hidden .sidebar {
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--pri);
-  background: linear-gradient(90deg, var(--pri) 0%, #3A8CC7 100%);
+  background: linear-gradient(90deg, var(--pri) 0%, var(--pri-light) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -786,18 +789,18 @@ body.sidebar-hidden .sidebar {
   overflow: visible;
   margin-bottom: 6px;
   padding: 16px 22px;
-  background: linear-gradient(135deg, #0A2240 0%, #14507F 35%, #1d71b9 65%, #2E8AD4 100%);
+  background: linear-gradient(135deg, var(--header-dark) 0%, var(--header-mid) 40%, var(--header-light) 75%, var(--pri-light) 100%);
   animation: fadeUp .4s ease forwards;
   opacity: 0;
   z-index: 10;
 }
-/* Gold accent line at bottom */
+/* Linha de destaque verde no rodapé do banner */
 .section-banner::after {
   content: '';
   position: absolute;
   bottom: 0; left: 20px; right: 20px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,203,4,.5) 30%, rgba(255,203,4,.8) 50%, rgba(255,203,4,.5) 70%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,184,74,.45) 30%, rgba(76,191,106,.75) 50%, rgba(0,184,74,.45) 70%, transparent);
   border-radius: 1px;
 }
 
@@ -864,17 +867,6 @@ body.sidebar-hidden .sidebar {
   letter-spacing: -.3px;
   margin: 0;
   text-shadow: 0 1px 3px rgba(0,0,0,.2);
-  /* Shimmer animation */
-  background: linear-gradient(90deg, #fff 0%, #fff 40%, rgba(255,215,0,.85) 50%, #fff 60%, #fff 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s ease-in-out infinite;
-}
-@keyframes shimmer {
-  0%, 100% { background-position: 200% center; }
-  50% { background-position: -200% center; }
 }
 
 .section-banner h2 span {
@@ -903,7 +895,7 @@ body.sidebar-hidden .sidebar {
   box-shadow: 0 1px 3px rgba(0,0,0,.15);
 }
 .filter-chip:hover {
-  background: #FFD54F;
+  background: var(--accent-light);
   transform: scale(1.03);
 }
 .filter-chip .close {
@@ -921,14 +913,14 @@ body.sidebar-hidden .sidebar {
   background: linear-gradient(135deg, #64B5F6 0%, #42A5F5 100%);
 }
 .filter-chip-rede {
-  background: linear-gradient(135deg, #3A8CC7 0%, #1d71b9 100%);
+  background: linear-gradient(135deg, var(--pri-light) 0%, var(--pri) 100%);
   color: #fff;
-  box-shadow: 0 1px 4px rgba(29,113,185,.35);
+  box-shadow: 0 1px 4px rgba(0,150,57,.35);
   cursor: default;
   font-size: 10px;
 }
 .filter-chip-rede:hover {
-  background: linear-gradient(135deg, #3A8CC7 0%, #1d71b9 100%);
+  background: linear-gradient(135deg, var(--pri-light) 0%, var(--pri) 100%);
   transform: none;
 }
 
@@ -936,7 +928,7 @@ body.sidebar-hidden .sidebar {
 .rede-toggle-strip {
   display: flex;
   gap: 0;
-  background: linear-gradient(90deg, #0B2A47 0%, #14507F 100%);
+  background: linear-gradient(90deg, var(--header-dark) 0%, var(--header-mid) 100%);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   overflow: hidden;
   padding: 0;
@@ -961,9 +953,9 @@ body.sidebar-hidden .sidebar {
 .rede-toggle-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
 .rede-toggle-btn.active {
   background: rgba(255,255,255,.15);
-  color: var(--accent);
+  color: var(--accent-light);
   font-weight: 700;
-  box-shadow: inset 0 -3px 0 var(--accent);
+  box-shadow: inset 0 -3px 0 var(--accent-light);
 }
 .rede-toggle-btn.disabled,
 .rede-toggle-btn:disabled {
@@ -1175,7 +1167,7 @@ body.sidebar-hidden .sidebar {
   border: 1.5px solid #5B9BD5;
   border-radius: 6px;
   background: linear-gradient(135deg, #e8f0f8, #dce8f5);
-  color: #3A8CC7;
+  color: var(--pri-light);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -1190,11 +1182,11 @@ body.sidebar-hidden .sidebar {
 
 .chart-card:hover .export-btn { opacity: 1; }
 .export-btn:hover {
-  background: linear-gradient(135deg, #dce8f5, #c4d7ed);
-  color: #1d71b9;
+  background: linear-gradient(135deg, #d4edda, #b8dfc4);
+  color: var(--pri-dark);
   transform: scale(1.08);
-  box-shadow: 0 2px 8px rgba(91,155,213,.3);
-  border-color: #3A8CC7;
+  box-shadow: 0 2px 8px rgba(0,150,57,.25);
+  border-color: var(--pri-light);
 }
 
 /* ── Filter awareness badges ── */
@@ -1511,7 +1503,7 @@ body.sidebar-hidden .sidebar {
   width: 280px;
   max-width: calc(100vw - 16px);
   padding: 10px 12px;
-  background: #14507F;
+  background: var(--header-mid);
   color: rgba(255,255,255,.92);
   -webkit-text-fill-color: rgba(255,255,255,.92);
   font-family: 'Inter', system-ui, sans-serif;
@@ -1639,6 +1631,18 @@ body.sidebar-hidden .sidebar {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.92) 72%, #fff 100%);
+}
+
+.home-photo-credit {
+  position: absolute;
+  top: 252px;
+  right: 28px;
+  z-index: 2;
+  margin: 0;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(55,65,81,.7);
+  letter-spacing: 0.2px;
 }
 
 .home-content {
