@@ -1070,7 +1070,8 @@ body.sidebar-hidden .sidebar {
   border: 1px solid var(--border);
   animation: fadeUp .4s ease forwards;
   opacity: 0;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .chart-card.full-width { grid-column: 1 / -1; }
@@ -1176,23 +1177,26 @@ body.sidebar-hidden .sidebar {
 
 .export-btn {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 26px;
+  top: 8px;
+  right: 8px;
+  width: auto;
+  min-width: 26px;
   height: 26px;
+  padding: 0 6px;
+  gap: 3px;
   border: 1.5px solid #5B9BD5;
   border-radius: 6px;
   background: linear-gradient(135deg, #e8f0f8, #dce8f5);
   color: var(--pri-light);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.88;
   transition: opacity .2s, background .15s, transform .15s, box-shadow .15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  z-index: 5;
   box-shadow: 0 1px 4px rgba(91,155,213,.18);
 }
 
