@@ -304,12 +304,28 @@ body.sidebar-hidden .sidebar {
 .sidebar-footer-logo {
   height: 28px;
   object-fit: contain;
-  opacity: .7;
-  filter: brightness(0) invert(1);
   transition: opacity .2s;
 }
 
-.sidebar-footer-logo:hover {
+.sidebar-footer-logo--mono {
+  opacity: .7;
+  filter: brightness(0) invert(1);
+}
+
+.sidebar-footer-logo--mono:hover {
+  opacity: 1;
+}
+
+.sidebar-footer-logo--brasao {
+  height: 32px;
+  opacity: 1;
+  background: #fff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
+.sidebar-footer-logo--brasao:hover {
   opacity: 1;
 }
 
