@@ -119,12 +119,12 @@ body.sidebar-hidden .sidebar {
 }
 
 .sidebar-logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   background: #fff;
   object-fit: contain;
-  padding: 3px;
+  padding: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,.2), 0 0 0 1px rgba(255,255,255,.1);
 }
 
@@ -1738,14 +1738,14 @@ body.sidebar-hidden .sidebar {
 .col-span-4 .home-card-title, .col-span-4 .home-card-desc { text-align: center; }
 .col-span-4 .home-card-arrow { position: absolute; right: 12px; margin-left: 0; }
 
-/* ── Card flat (sem caixa) ── */
+/* ── Card flat com caixa sutil ── */
 .home-card {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 14px 8px;
+  background: rgba(0,150,57,.03);
+  border: 1px solid rgba(0,150,57,.1);
+  border-radius: 12px;
+  padding: 16px 12px;
   cursor: pointer;
-  transition: color .2s ease, transform .2s ease;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
   position: relative;
   overflow: visible;
   display: flex;
@@ -1759,14 +1759,14 @@ body.sidebar-hidden .sidebar {
 }
 
 .home-card:hover {
-  background: transparent;
-  border-color: transparent;
-  transform: translateX(2px);
-  box-shadow: none;
+  background: rgba(0,150,57,.09);
+  border-color: rgba(0,150,57,.28);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,150,57,.14);
 }
 
 .home-card:active {
-  transform: translateX(1px);
+  transform: translateY(-2px);
   transition-duration: .1s;
 }
 
@@ -1849,7 +1849,7 @@ body.sidebar-hidden .sidebar {
 
 .home-card:hover .home-card-arrow {
   color: var(--pri-dark);
-  transform: translateX(4px);
+  transform: translateX(6px);
 }
 
 /* ── Footer ── */

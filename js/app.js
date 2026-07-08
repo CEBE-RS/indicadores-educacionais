@@ -12212,6 +12212,7 @@ function renderEscolas() {
 
   const escolas = ed.escolas;
   const withCoords = escolas.filter(e => e.lat && e.lng);
+  S.escolaInepSel = null;
 
   // Build CRE list
   const creSet = new Set(escolas.map(e => e.cre));
@@ -12243,7 +12244,7 @@ function renderEscolas() {
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:350px;margin-left:auto;position:relative">
           <label style="font-size:11px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:0.5px">Buscar escola:</label>
-          <input type="text" id="escola-search" placeholder="Nome ou município..." autocomplete="off" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;width:100%;background:#f9fafb;color:#333;outline:none;transition:all 0.2s">
+          <input type="text" id="escola-search" placeholder="Nome, município ou INEP..." autocomplete="off" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;width:100%;background:#f9fafb;color:#333;outline:none;transition:all 0.2s">
           <div id="escola-autocomplete" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);z-index:1500;max-height:300px;overflow-y:auto;margin-top:4px"></div>
         </div>
       </div>
@@ -12703,25 +12704,77 @@ function renderEscolas() {
     container.innerHTML = cHtml;
     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    window.renderBoletimFluxo(e.inep);
     window.renderBoletimSaers(e.inep);
+    window.renderBoletimMatriculas(e.inep);
+  };
+
+  window.renderBoletimMatriculas = function(inep) {
+    const esc = escolas.find(x => x.inep === inep);
+    const ctx = document.getElementById('boletim-chart-mat');
+    if (!ctx || !esc) return;
+    if (window.boletimMatChart) { window.boletimMatChart.destroy(); window.boletimMatChart = null; }
+
+    const hist = esc.mat_hist || {};
+    const years = Object.keys(hist).sort();
+    if (!years.length) {
+      ctx.parentElement.innerHTML = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0">Sem histórico de matrículas para esta escola.</div>';
+      return;
+    }
+
+    window.boletimMatChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'Matrículas',
+          data: years.map(y => hist[y]),
+          borderColor: '#009639',
+          backgroundColor: 'rgba(0,150,57,.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: { ...DL_LINE, formatter: v => v != null ? formatNumChart(v) : '' }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            suggestedMax: Math.max(...years.map(y => hist[y])) * 1.15,
+            ticks: { callback: v => formatNumChart(v) }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
   };
   // Update function
   function updateEscolas() {
     const indicator = document.getElementById('escola-indicator').value;
     const creFilter = document.getElementById('escola-cre-filter').value;
-    const search = (document.getElementById('escola-search').value || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    const searchRaw = (document.getElementById('escola-search').value || '').trim();
+    const search = searchRaw.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
     const cfg = ESCOLA_INDICATORS.find(i => i.key === indicator);
 
-    // Filter schools
+    // Filter schools — seleção explícita por INEP (evita duplicatas de nome)
     let filtered = escolas;
     if (creFilter) filtered = filtered.filter(e => e.cre === creFilter);
-    if (search) filtered = filtered.filter(e => {
-      const nome = (e.nome || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const mun = (e.municipio || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const inep = e.inep || '';
-      return nome.includes(search) || mun.includes(search) || inep.includes(search);
-    });
+    if (S.escolaInepSel) {
+      filtered = filtered.filter(e => e.inep === S.escolaInepSel);
+    } else if (search) {
+      filtered = filtered.filter(e => {
+        const nome = (e.nome || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const mun = (e.municipio || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const inep = e.inep || '';
+        return nome.includes(search) || mun.includes(search) || inep.includes(search);
+      });
+    }
 
     const withVal = filtered.filter(e => e[indicator] != null);
     const vals = withVal.map(e => e[indicator]);
@@ -12729,11 +12782,21 @@ function renderEscolas() {
     const minV = vals.length ? Math.min(...vals) : null;
     const maxV = vals.length ? Math.max(...vals) : null;
 
+    const nameCounts = {};
+    filtered.forEach(e => { if (e.nome) nameCounts[e.nome] = (nameCounts[e.nome] || 0) + 1; });
+    const hasDupNames = Object.values(nameCounts).some(c => c > 1);
+    const kpiSub = hasDupNames && !S.escolaInepSel
+      ? `<div style="font-size:9px;color:#888;margin-top:4px">${filtered.length} cód. INEP · selecione no menu</div>`
+      : S.escolaInepSel
+        ? `<div style="font-size:9px;color:#888;margin-top:4px">INEP ${S.escolaInepSel}</div>`
+        : '';
+
     // KPIs
     document.getElementById('escola-kpis').innerHTML = `
       <div class="kpi-card" style="text-align:center;padding:16px;border-radius:12px;background:linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid #f0f0f0">
-        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:700">Escolas</div>
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:700">Escolas (INEP)</div>
         <div style="font-size:26px;font-weight:800;color:#0D47A1;line-height:1">${filtered.length.toLocaleString('pt-BR')}</div>
+        ${kpiSub}
       </div>
       <div class="kpi-card" style="text-align:center;padding:16px;border-radius:12px;background:linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid #f0f0f0">
         <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:700">Média ${cfg ? cfg.label.split(' ')[0] : ''}</div>
@@ -12770,15 +12833,17 @@ function renderEscolas() {
       });
 
       // Show Boletim instead of Popup on click
-      marker.bindTooltip(`<strong>${e.nome}</strong><br><span style="font-size:10px;color:#666">${e.municipio}</span>`, {direction: 'top'});
+      marker.bindTooltip(`<strong>${e.nome}</strong><br><span style="font-size:10px;color:#666">${e.municipio} · INEP ${e.inep}</span>`, {direction: 'top'});
       marker.on('click', () => abrirBoletim(e.inep));
       S.escolasMarkers.addLayer(marker);
     }
 
-    // Auto-focus logic: If search leaves only 1 school, show boletim
-    if (search && filtered.length === 1 && filteredWithCoords.length === 1) {
+    // Auto-focus: escola única ou seleção explícita por INEP
+    if (S.escolaInepSel && filtered.length === 1) {
+      abrirBoletim(filtered[0].inep);
+    } else if (search && !S.escolaInepSel && filtered.length === 1 && filteredWithCoords.length === 1) {
       abrirBoletim(filteredWithCoords[0].inep);
-    } else if (creFilter && filteredWithCoords.length > 0) {
+    } else if (creFilter && filteredWithCoords.length > 0 && !search && !S.escolaInepSel) {
       const bounds = L.latLngBounds(filteredWithCoords.map(e => [e.lat, e.lng]));
       map.fitBounds(bounds.pad(0.1));
     }
@@ -12789,6 +12854,7 @@ function renderEscolas() {
   document.getElementById('escola-cre-filter').addEventListener('change', updateEscolas);
   let searchTimeout;
   document.getElementById('escola-search').addEventListener('input', (e) => {
+    S.escolaInepSel = null;
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(updateEscolas, 300);
 
@@ -12814,15 +12880,16 @@ function renderEscolas() {
       autocompleteBox.innerHTML = '<div style="padding:8px 12px;font-size:11px;color:#888">Nenhuma escola encontrada</div>';
     } else {
       autocompleteBox.innerHTML = filtered.map(x => `
-        <div class="escola-ac-item" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:11.5px;color:#333" data-inep="${x.inep}">
+        <div class="escola-ac-item" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:11.5px;color:#333" data-inep="${x.inep}" data-label="${x.nome} · ${x.municipio}">
           <div style="font-weight:700;font-size:12px;">${x.nome}</div>
-          <div style="font-size:10px;color:#666">${x.municipio} · ${x.cre}ª CRE · INEP: ${x.inep}</div>
+          <div style="font-size:10px;color:#666"><strong>${x.municipio}</strong> · ${x.cre}ª CRE · <span style="font-family:monospace">INEP ${x.inep}</span></div>
         </div>
       `).join('');
       
       autocompleteBox.querySelectorAll('.escola-ac-item').forEach(el => {
         el.addEventListener('click', () => {
-          document.getElementById('escola-search').value = el.querySelector('div').textContent;
+          S.escolaInepSel = el.dataset.inep;
+          document.getElementById('escola-search').value = el.dataset.label;
           autocompleteBox.style.display = 'none';
           abrirBoletim(el.dataset.inep);
           updateEscolas();
