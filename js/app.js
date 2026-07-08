@@ -225,6 +225,7 @@ function exportChartCSV(btn) {
   const metaRows = [
     ['Fonte', getExportSource()],
     ['Rede', getRedeLabel()],
+    ['Recorte geográfico', getExportGeoLabel()],
     ['Ano/Edicao', S.anoSel || 'Geral'],
     ['Tabela', title],
     []
@@ -347,6 +348,7 @@ function exportTableCSV(btn) {
   const metaRows = [
     ['Fonte', getExportSource()],
     ['Rede', getRedeLabel()],
+    ['Recorte geográfico', getExportGeoLabel()],
     ['Ano/Edicao', S.anoSel || 'Geral'],
     ['Tabela', title],
     []
@@ -364,10 +366,11 @@ function exportTableCSV(btn) {
 
 /** Add export CSV buttons to all chart-cards and data-tables */
 function injectExportButtons() {
-  // Charts
+  // Charts — sempre reinjetar após rebuild (filtro município/CRE recria gráficos)
   document.querySelectorAll('.chart-card canvas').forEach(canvas => {
     const card = canvas.closest('.chart-card');
-    if (!card || card.querySelector('.export-btn')) return;
+    if (!card) return;
+    card.querySelectorAll('.export-btn').forEach(b => b.remove());
     const btn = document.createElement('button');
     btn.className = 'export-btn';
     btn.title = 'Baixar dados (CSV/Excel)';
@@ -380,7 +383,8 @@ function injectExportButtons() {
   // Tables
   document.querySelectorAll('.data-table').forEach(table => {
     const wrapper = table.closest('.table-wrapper') || table.closest('.chart-card');
-    if (!wrapper || wrapper.querySelector('.export-table-btn')) return;
+    if (!wrapper) return;
+    wrapper.querySelectorAll('.export-table-btn').forEach(b => b.remove());
     const header = wrapper.querySelector('.table-header');
     if (!header) return;
     const btn = document.createElement('button');
@@ -472,6 +476,17 @@ function getRedeData(d, ano) {
 
 function getRedeLabel() {
   return REDE_LABELS[S.redeSel] || 'Rede Estadual';
+}
+
+/** Rótulo geográfico ativo para exportação (município / CRE / estado) */
+function getExportGeoLabel() {
+  if (S.munSel) {
+    return S.data?.lookup_municipios?.[S.munSel] || S._universalMunLookup?.[S.munSel] || S.munSel;
+  }
+  if (S.creSel) {
+    return S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`;
+  }
+  return 'Rio Grande do Sul (estado)';
 }
 
 /** Texto do separador "Distribuição Territorial" com rótulo dinâmico da rede + popup informativo */
@@ -1515,7 +1530,10 @@ function applyMunFilter(d, anoSel, lookup) {
   // ── Specific municipality selected ──
   if (S.munSel) {
     const munData = d.por_municipio[anoSel]?.[S.munSel];
-    if (!munData) return;
+    if (!munData) {
+      injectExportButtons();
+      return;
+    }
 
     // ── Update KPIs ──
     const strip = document.getElementById('kpi-strip');
@@ -1574,6 +1592,7 @@ function applyMunFilter(d, anoSel, lookup) {
     setTitle('title-faixa', `Faixa Etária — ${nome} — ${anoSel}`);
     setTitle('title-noturno', `Matrículas Noturnas — ${nome}`);
     setTitle('title-integral', `Ed. Integral — ${nome}`);
+    setTitle('title-integral-pct', `Educação Integral — Proporção do Total (%) — ${nome}`);
     setTitle('title-locdif', `Loc. Diferenciada — ${nome}`);
     setTitle('title-esp-evo', `Alunos Ed. Especial — ${nome}`);
     setTitle('title-esp-tipo', `Classes Comuns vs Exclusivas — ${nome} — ${anoSel}`);
@@ -1629,6 +1648,7 @@ function applyMunFilter(d, anoSel, lookup) {
     buildNoturno(d, anos, anoSel);
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
+    buildIntegralPct(d);
     buildLocDif();
     buildPorSerie(d, anoSel);
     buildProfissional(d, anos, anoSel);
@@ -1737,6 +1757,7 @@ function applyMunFilter(d, anoSel, lookup) {
     buildNoturno(d, anos, anoSel);
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
+    buildIntegralPct(d);
     buildLocDif();
     buildPorSerie(d, anoSel);
     buildProfissional(d, anos, anoSel);
@@ -1751,6 +1772,7 @@ function applyMunFilter(d, anoSel, lookup) {
     buildNoturno(d, anos, anoSel);
     buildEdEspecial(d, anos, anoSel);
     buildIntegralDelta(d);
+    buildIntegralPct(d);
     buildLocDif();
     buildPorSerie(d, anoSel);
     buildProfissional(d, anos, anoSel);
