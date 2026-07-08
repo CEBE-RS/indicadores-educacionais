@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   deploy:
+    # CEBE-RS usa deploy por branch (gh-pages); este workflow fica só no piloto pessoal
+    if: github.repository == 'Matheus-Bianco/piloto_unesco'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

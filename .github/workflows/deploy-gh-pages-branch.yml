@@ -1,0 +1,30 @@
+# Deploy alternativo para org CEBE-RS (evita falha do deploy-pages no environment github-pages)
+name: Deploy painel (branch gh-pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.repository == 'CEBE-RS/indicadores-educacionais'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publicar em gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          force_orphan: false
