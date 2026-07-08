@@ -5295,7 +5295,7 @@ function renderHome() {
   main.innerHTML = `
     <div class="home-wrap">
       <div class="home-bg"></div>
-      <p class="home-photo-credit">Foto: Alberto Flores/PMPA</p>
+      <p class="home-photo-credit">Foto: Filipe Karam/PMPA</p>
       <div class="home-particles" aria-hidden="true" style="display:none">
         <div class="home-particle"></div>
         <div class="home-particle"></div>
@@ -5368,8 +5368,8 @@ function renderHome() {
 
         <div class="home-footer" style="margin-top:32px">
           <div class="home-footer-text">
-            Dados: INEP — Censo Escolar da Educação Básica & Microdados SAEB<br>
-            Secretaria da Educação do Estado do Rio Grande do Sul
+            Secretaria da Educação do Estado do Rio Grande do Sul<br>
+            Centro de Educação Baseada em Evidências (CEBE)
           </div>
           <div class="home-footer-logos">
             <img src="img/brasao_rs.png" alt="Brasão RS" style="height:64px" onerror="this.style.display='none'">
