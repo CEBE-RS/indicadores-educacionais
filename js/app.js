@@ -12200,25 +12200,28 @@ function updateEscolasCreOverlay(map, creFilter) {
 
   const creCod = creFilter ? String(creFilter).padStart(2, '0') : null;
   S.escolasCreOverlay = L.geoJSON(S.creGeo, {
+    interactive: false,
     style: (feature) => {
       const cod = feature.properties.cod_cre;
       const isActive = creCod ? cod === creCod : false;
       return {
         fillColor: isActive ? '#0D47A1' : 'transparent',
-        fillOpacity: isActive ? 0.1 : 0,
-        weight: isActive ? 3 : 2,
-        color: isActive ? '#0D47A1' : 'rgba(255,255,255,0.9)',
-        dashArray: isActive ? null : '6,4',
-        opacity: isActive ? 0.95 : 0.65,
+        fillOpacity: isActive ? 0.08 : 0,
+        weight: isActive ? 2.5 : 1.5,
+        color: isActive ? '#0D47A1' : 'rgba(13,71,161,0.55)',
+        dashArray: isActive ? null : '5,5',
+        opacity: isActive ? 0.9 : 0.5,
       };
     },
     onEachFeature: (feature, layer) => {
+      if (layer.setStyle) layer.options.interactive = false;
       if (!creCod) {
         const shortName = (feature.properties.nome_cre || '').replace(/^\d+\s*CRE\s*-\s*/, '');
         layer.bindTooltip(shortName, {
           permanent: false,
           direction: 'center',
           className: 'cre-overlay-label',
+          interactive: false,
         });
       }
     },
@@ -13102,11 +13105,7 @@ function renderEscolas() {
       }
     }
 
-    // Contornos CRE no mapa
-    updateEscolasCreOverlay(map, creFilter);
-    if (S.escolasMarkers) S.escolasMarkers.bringToFront();
-
-    // Map markers
+    // Map markers (sempre acima dos contornos CRE)
     S.escolasMarkers.clearLayers();
     const filteredWithCoords = filtered.filter(e => e.lat && e.lng);
     for (const e of filteredWithCoords) {
@@ -13114,23 +13113,27 @@ function renderEscolas() {
       const color = getEscolaColor(val, indicator);
       const isSelected = S.escolaInepSel === e.inep;
       const marker = L.circleMarker([e.lat, e.lng], {
-        radius: isSelected ? 8 : 5,
+        radius: isSelected ? 9 : 6,
         fillColor: color,
-        fillOpacity: 0.9,
-        color: isSelected ? '#0D47A1' : '#fff',
-        weight: isSelected ? 2.5 : 1,
+        fillOpacity: 0.95,
+        color: isSelected ? '#0D47A1' : '#1e293b',
+        weight: isSelected ? 3 : 2,
         opacity: 1,
       });
 
       marker.bindTooltip(escolaTooltipHtml(e, indicator, cfg), {
         direction: 'top',
-        offset: [0, -6],
+        offset: [0, -8],
         className: 'escola-marker-tip-wrap',
         opacity: 1,
       });
       marker.on('click', () => abrirBoletim(e.inep));
       S.escolasMarkers.addLayer(marker);
     }
+
+    // Contornos CRE abaixo dos pontos
+    updateEscolasCreOverlay(map, creFilter);
+    if (S.escolasMarkers) S.escolasMarkers.bringToFront();
 
     // Auto-focus mapa
     if (S.escolaInepSel && filtered.length === 1 && filteredWithCoords.length === 1) {
