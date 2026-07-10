@@ -366,7 +366,7 @@ function exportTableCSV(btn) {
 
 /** Add export CSV buttons to all chart-cards and data-tables */
 function injectExportButtons() {
-  // Charts — sempre reinjetar após rebuild (filtro município/CRE recria gráficos)
+  // Charts — botão no rodapé (chart-source) para não sobrepor filtros/legendas do cabeçalho
   document.querySelectorAll('.chart-card canvas').forEach(canvas => {
     const card = canvas.closest('.chart-card');
     if (!card) return;
@@ -376,8 +376,23 @@ function injectExportButtons() {
     btn.title = 'Baixar dados (CSV/Excel)';
     btn.innerHTML = '<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/></svg><span>CSV</span>';
     btn.addEventListener('click', function(e) { e.stopPropagation(); exportChartCSV(this); });
-    card.style.position = 'relative';
-    card.appendChild(btn);
+    const source = card.querySelector('.chart-source');
+    if (source) {
+      btn.classList.add('export-btn--footer');
+      source.classList.add('chart-source--with-export');
+      let wrap = source.querySelector('.chart-source-actions');
+      if (!wrap) {
+        wrap = document.createElement('span');
+        wrap.className = 'chart-source-actions';
+        source.appendChild(wrap);
+      } else {
+        wrap.innerHTML = '';
+      }
+      wrap.appendChild(btn);
+    } else {
+      card.style.position = 'relative';
+      card.appendChild(btn);
+    }
   });
 
   // Tables
@@ -12240,10 +12255,21 @@ function renderEscolas() {
   const escolas = ed.escolas;
   const withCoords = escolas.filter(e => e.lat && e.lng);
   S.escolaInepSel = null;
+  S.escolaMunSel = S.escolaMunSel || '';
 
   // Build CRE list
   const creSet = new Set(escolas.map(e => e.cre));
   const creList = [...creSet].sort((a, b) => parseInt(a) - parseInt(b));
+
+  // Build municipality list
+  const munMap = new Map();
+  escolas.forEach(e => {
+    const cod = e.cod_mun || e.cod_ibge;
+    if (cod && e.municipio) munMap.set(String(cod), e.municipio);
+  });
+  const munList = [...munMap.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+
+  const ESCOLA_LIST_MAX = 40;
 
   const defaultIndicator = 'ideb_af';
 
@@ -12269,6 +12295,13 @@ function renderEscolas() {
             ${creList.map(c => `<option value="${c}">${c}ª CRE</option>`).join('')}
           </select>
         </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:11px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:0.5px">Município:</label>
+          <select id="escola-mun-filter" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;background:#f9fafb;cursor:pointer;color:#333;outline:none;transition:all 0.2s;max-width:220px">
+            <option value="">Todos os municípios</option>
+            ${munList.map(([cod, nome]) => `<option value="${cod}" ${cod === S.escolaMunSel ? 'selected' : ''}>${nome}</option>`).join('')}
+          </select>
+        </div>
         <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:350px;margin-left:auto;position:relative">
           <label style="font-size:11px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:0.5px">Buscar escola:</label>
           <input type="text" id="escola-search" placeholder="Nome, município ou INEP..." autocomplete="off" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;width:100%;background:#f9fafb;color:#333;outline:none;transition:all 0.2s">
@@ -12278,6 +12311,9 @@ function renderEscolas() {
 
       <!-- KPIs -->
       <div id="escola-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+
+      <!-- Lista compacta de escolas (município com poucas escolas) -->
+      <div id="escola-list-panel" style="display:none;margin-bottom:14px"></div>
 
       <!-- Map Container -->
       <div class="chart-card" style="padding:0;overflow:hidden;border-radius:10px;margin-bottom:16px;position:relative">
@@ -12559,7 +12595,7 @@ function renderEscolas() {
     if (!e) return;
     
     if (e.lat && e.lng && S.escolasMap) {
-      S.escolasMap.flyTo([e.lat, e.lng], 16, { duration: 1.5 });
+      S.escolasMap.flyTo([e.lat, e.lng], 18, { duration: 1.2 });
     }
     
     const container = document.getElementById('escola-boletim-container');
@@ -12733,6 +12769,91 @@ function renderEscolas() {
 
     window.renderBoletimSaers(e.inep);
     window.renderBoletimMatriculas(e.inep);
+    window.renderBoletimIdeb(e.inep);
+    window.renderBoletimTdi(e.inep);
+    window.renderBoletimFluxo(e.inep);
+  };
+
+  window.renderBoletimIdeb = function(inep) {
+    const esc = escolas.find(x => x.inep === inep);
+    const ctx = document.getElementById('boletim-chart-ideb');
+    if (!ctx || !esc) return;
+    if (window.boletimIdebChart) { window.boletimIdebChart.destroy(); window.boletimIdebChart = null; }
+
+    const hist = esc.ideb_hist || {};
+    const series = [
+      { key: 'ideb_ai', label: 'Anos Iniciais', color: '#0D47A1' },
+      { key: 'ideb_af', label: 'Anos Finais', color: '#FF9800' },
+      { key: 'ideb_em', label: 'Médio', color: '#009639' }
+    ];
+    const years = [...new Set(series.flatMap(s => Object.keys(hist[s.key] || {})))].sort();
+    if (!years.length) {
+      ctx.parentElement.innerHTML = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0">Sem histórico IDEB para esta escola.</div>';
+      return;
+    }
+
+    window.boletimIdebChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: series.filter(s => hist[s.key]).map(s => ({
+          label: s.label,
+          data: years.map(y => hist[s.key][y] ?? null),
+          borderColor: s.color,
+          backgroundColor: s.color,
+          tension: 0.3,
+          pointRadius: 4,
+          borderWidth: 2
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 9 } } },
+          datalabels: { ...DL_LINE, formatter: v => v != null ? v.toFixed(1) : '' }
+        },
+        scales: {
+          y: { min: 0, max: 10, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  };
+
+  window.renderBoletimTdi = function(inep) {
+    const esc = escolas.find(x => x.inep === inep);
+    const ctx = document.getElementById('boletim-chart-tdi');
+    if (!ctx || !esc) return;
+    if (window.boletimTdiChart) { window.boletimTdiChart.destroy(); window.boletimTdiChart = null; }
+
+    const hist = esc.tdi_hist || {};
+    const years = Object.keys(hist).sort();
+    if (!years.length) {
+      ctx.parentElement.innerHTML = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0">Sem histórico TDI para esta escola.</div>';
+      return;
+    }
+
+    window.boletimTdiChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          { label: 'Fundamental', data: years.map(y => hist[y]?.tdi_fund ?? null), borderColor: '#0D47A1', tension: 0.3, pointRadius: 4 },
+          { label: 'Médio', data: years.map(y => hist[y]?.tdi_med ?? null), borderColor: '#FF9800', tension: 0.3, pointRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 9 } } },
+          datalabels: { ...DL_LINE, formatter: v => v != null ? v.toFixed(1) + '%' : '' }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => v + '%' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
   };
 
   window.renderBoletimMatriculas = function(inep) {
@@ -12785,6 +12906,8 @@ function renderEscolas() {
   function updateEscolas() {
     const indicator = document.getElementById('escola-indicator').value;
     const creFilter = document.getElementById('escola-cre-filter').value;
+    const munFilter = document.getElementById('escola-mun-filter')?.value || '';
+    S.escolaMunSel = munFilter;
     const searchRaw = (document.getElementById('escola-search').value || '').trim();
     const search = searchRaw.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
     const cfg = ESCOLA_INDICATORS.find(i => i.key === indicator);
@@ -12792,6 +12915,7 @@ function renderEscolas() {
     // Filter schools — seleção explícita por INEP (evita duplicatas de nome)
     let filtered = escolas;
     if (creFilter) filtered = filtered.filter(e => e.cre === creFilter);
+    if (munFilter) filtered = filtered.filter(e => String(e.cod_mun || e.cod_ibge || '') === munFilter);
     if (S.escolaInepSel) {
       filtered = filtered.filter(e => e.inep === S.escolaInepSel);
     } else if (search) {
@@ -12849,6 +12973,48 @@ function renderEscolas() {
       </span>`
     ).join('');
 
+    // Lista de escolas do município (quando seleção é gerenciável)
+    const listPanel = document.getElementById('escola-list-panel');
+    if (listPanel) {
+      if (munFilter && !S.escolaInepSel && !search && filtered.length > 0 && filtered.length <= ESCOLA_LIST_MAX) {
+        listPanel.style.display = 'block';
+        const munNome = munMap.get(munFilter) || 'Município';
+        listPanel.innerHTML = `
+          <div style="background:#fff;border:1px solid #e8edf4;border-radius:10px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
+            <div style="font-size:11px;font-weight:700;color:#0D47A1;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">
+              Escolas em ${munNome} (${filtered.length})
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow-y:auto">
+              ${filtered.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR')).map(e => `
+                <button type="button" class="escola-list-btn" data-inep="${e.inep}" style="font-size:10px;padding:5px 10px;border-radius:16px;border:1px solid #d6dee8;background:#f8fafc;color:#333;cursor:pointer;font-family:Inter;font-weight:600;transition:all .15s">
+                  ${e.nome}
+                </button>
+              `).join('')}
+            </div>
+          </div>`;
+        listPanel.querySelectorAll('.escola-list-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const esc = escolas.find(x => x.inep === btn.dataset.inep);
+            if (!esc) return;
+            S.escolaInepSel = esc.inep;
+            document.getElementById('escola-search').value = `${esc.nome} · ${esc.municipio}`;
+            abrirBoletim(esc.inep);
+            updateEscolas();
+          });
+          btn.addEventListener('mouseenter', () => { btn.style.background = '#e3f2fd'; btn.style.borderColor = '#90caf9'; });
+          btn.addEventListener('mouseleave', () => { btn.style.background = '#f8fafc'; btn.style.borderColor = '#d6dee8'; });
+        });
+      } else if (munFilter && filtered.length > ESCOLA_LIST_MAX) {
+        listPanel.style.display = 'block';
+        listPanel.innerHTML = `<div style="font-size:11px;color:#666;background:#fff;border:1px solid #eee;border-radius:8px;padding:10px 14px">
+          <strong>${munMap.get(munFilter) || 'Município'}:</strong> ${filtered.length} escolas — use a busca ou clique no mapa para selecionar.
+        </div>`;
+      } else {
+        listPanel.style.display = 'none';
+        listPanel.innerHTML = '';
+      }
+    }
+
     // Map markers
     S.escolasMarkers.clearLayers();
     const filteredWithCoords = filtered.filter(e => e.lat && e.lng);
@@ -12865,20 +13031,34 @@ function renderEscolas() {
       S.escolasMarkers.addLayer(marker);
     }
 
-    // Auto-focus: escola única ou seleção explícita por INEP
-    if (S.escolaInepSel && filtered.length === 1) {
-      abrirBoletim(filtered[0].inep);
+    // Auto-focus mapa
+    if (S.escolaInepSel && filtered.length === 1 && filteredWithCoords.length === 1) {
+      const esc = filteredWithCoords[0];
+      map.flyTo([esc.lat, esc.lng], 18, { duration: 1.2 });
+      abrirBoletim(esc.inep);
     } else if (search && !S.escolaInepSel && filtered.length === 1 && filteredWithCoords.length === 1) {
-      abrirBoletim(filteredWithCoords[0].inep);
-    } else if (creFilter && filteredWithCoords.length > 0 && !search && !S.escolaInepSel) {
+      const esc = filteredWithCoords[0];
+      map.flyTo([esc.lat, esc.lng], 18, { duration: 1.2 });
+      abrirBoletim(esc.inep);
+    } else if ((munFilter || creFilter) && filteredWithCoords.length > 0 && !search && !S.escolaInepSel) {
       const bounds = L.latLngBounds(filteredWithCoords.map(e => [e.lat, e.lng]));
-      map.fitBounds(bounds.pad(0.1));
+      map.fitBounds(bounds.pad(0.12));
     }
   }
 
   // Bind events
   document.getElementById('escola-indicator').addEventListener('change', updateEscolas);
-  document.getElementById('escola-cre-filter').addEventListener('change', updateEscolas);
+  document.getElementById('escola-cre-filter').addEventListener('change', () => {
+    S.escolaInepSel = null;
+    document.getElementById('escola-search').value = '';
+    updateEscolas();
+  });
+  document.getElementById('escola-mun-filter').addEventListener('change', () => {
+    S.escolaInepSel = null;
+    document.getElementById('escola-search').value = '';
+    document.getElementById('escola-boletim-container').style.display = 'none';
+    updateEscolas();
+  });
   let searchTimeout;
   document.getElementById('escola-search').addEventListener('input', (e) => {
     S.escolaInepSel = null;
@@ -12894,8 +13074,10 @@ function renderEscolas() {
       return;
     }
     const creFilter = document.getElementById('escola-cre-filter').value;
+    const munFilter = document.getElementById('escola-mun-filter')?.value || '';
     let filtered = S.escolasData.escolas || [];
     if (creFilter) filtered = filtered.filter(x => x.cre === creFilter);
+    if (munFilter) filtered = filtered.filter(x => String(x.cod_mun || x.cod_ibge || '') === munFilter);
     filtered = filtered.filter(x => {
       const nome = (x.nome || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       const mun = (x.municipio || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
