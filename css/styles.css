@@ -380,6 +380,7 @@ body.sidebar-hidden .sidebar {
   flex: 1;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0;
   display: flex;
   flex-direction: column;
