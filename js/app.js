@@ -382,6 +382,20 @@ function injectExportButtons() {
     if (source) {
       btn.classList.add('export-btn--footer');
       source.classList.add('chart-source--with-export');
+      // Garante que o texto da fonte fique em um nó flexível (evita CSV “subir” no card)
+      if (![...source.childNodes].some(n => n.nodeType === 1 && n.classList?.contains('chart-source-text'))) {
+        const textBits = [];
+        [...source.childNodes].forEach(n => {
+          if (n.nodeType === 3 && n.textContent.trim()) textBits.push(n.textContent.trim());
+          else if (n.nodeType === 1 && !n.classList.contains('chart-source-actions')) textBits.push(n.textContent.trim());
+        });
+        source.querySelectorAll(':scope > :not(.chart-source-actions)').forEach(el => el.remove());
+        [...source.childNodes].forEach(n => { if (n.nodeType === 3) n.remove(); });
+        const textEl = document.createElement('span');
+        textEl.className = 'chart-source-text';
+        textEl.textContent = textBits.join(' ') || source.textContent.trim();
+        source.insertBefore(textEl, source.firstChild);
+      }
       let wrap = source.querySelector('.chart-source-actions');
       if (!wrap) {
         wrap = document.createElement('span');
@@ -392,6 +406,7 @@ function injectExportButtons() {
       }
       wrap.appendChild(btn);
     } else {
+      btn.classList.add('export-btn--float');
       card.style.position = 'relative';
       card.appendChild(btn);
     }
@@ -782,7 +797,7 @@ function getInseScope(inse, ano) {
 /** Returns a suffix string for chart titles when a geo filter is active */
 function geoSuffix() {
   if (S.munSel) {
-    const name = S.data?.lookup_municipios?.[S.munSel] || S.munSel;
+    const name = S.data?.lookup_municipios?.[S.munSel] || S._universalMunLookup?.[S.munSel] || S.munSel;
     return ` — ${name}`;
   }
   if (S.creSel) {
@@ -5321,7 +5336,6 @@ function renderHome() {
   document.body.classList.add('sidebar-hidden');
   const sections = [
     { view: 'acesso', icon: 'img/icons/nav_acesso.png', title: 'Acesso e Matrículas', desc: 'Evolução, etapas e recortes demográficos' },
-    { view: 'redes', icon: 'img/icons/panorama.png', title: 'Redes', desc: 'Oferta por mantenedora: escolas, alunos, docentes e etapas' },
     { view: 'infra', icon: 'img/icons/nav_infra.png', title: 'Infraestrutura', desc: 'Recursos físicos e tecnológicos das escolas' },
     { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão', desc: 'Níveis de complexidade por escola' },
     { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico', desc: 'Indicador INSE por escola e município' },
@@ -5334,6 +5348,7 @@ function renderHome() {
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
     { view: 'escolas', icon: 'img/icons/escola.png', title: 'Visão por Escola', desc: 'Mapa georreferenciado com indicadores por escola' },
+    { view: 'redes', icon: 'img/icons/panorama.png', title: 'Visão por Redes', desc: 'Oferta por mantenedora: escolas, alunos, docentes e etapas' },
   ];
 
   main.innerHTML = `
@@ -11292,11 +11307,108 @@ function refreshActiveTab() {
 // ══════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════
-// REDES (mantenedora / dependência administrativa)
-// ══════════════════════════════════════════════════════════
+// REDES (mantenedora / dependencia administrativa) — Visao por Redes
+// ??????????????????????????????????????????????????????????
+
+const REDES_FILE_MAP = {
+  Federal: 'federal',
+  Estadual: 'estadual',
+  Municipal: 'municipal',
+  Privada: 'privada',
+};
+
+async function loadAcessoOnly(redeKey) {
+  if (S.redeCache[redeKey]?.acesso) return S.redeCache[redeKey].acesso;
+  try {
+    const resp = await fetch(`dados/4_1_acesso_${redeKey}.json?_cb=` + Date.now());
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!S.redeCache[redeKey]) S.redeCache[redeKey] = {};
+    S.redeCache[redeKey].acesso = data;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadDocentesOnly(redeKey) {
+  if (S.redeCache[redeKey]?.docentes) return S.redeCache[redeKey].docentes;
+  try {
+    const resp = await fetch(`dados/4_5_docentes_${redeKey}.json?_cb=` + Date.now());
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!S.redeCache[redeKey]) S.redeCache[redeKey] = {};
+    S.redeCache[redeKey].docentes = data;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function sumRedesMunRows(rows) {
+  const keys = [
+    'escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_medio', 'mat_eja',
+    'mat_noturno', 'mat_noturno_fund', 'mat_noturno_med', 'mat_noturno_eja',
+    'int_fund_total', 'int_medio', 'int_infantil',
+  ];
+  const out = {};
+  for (const row of rows) {
+    if (!row) continue;
+    for (const k of keys) {
+      if (row[k] != null) out[k] = (out[k] || 0) + Number(row[k] || 0);
+    }
+  }
+  if (out.mat_total != null && out.mat_noturno != null) {
+    out.mat_diurno = Math.max(0, out.mat_total - out.mat_noturno);
+  }
+  const integParts = [out.int_fund_total, out.int_medio, out.int_infantil].filter(v => v != null);
+  out.mat_integral = integParts.length ? integParts.reduce((a, b) => a + b, 0) : null;
+  return out;
+}
+
+function docentesMunAno(doc, ano, muns) {
+  if (!doc || !muns?.length) return null;
+  if (ano === '2025' && doc.por_municipio_2025) {
+    const n = muns.reduce((s, m) => s + (doc.por_municipio_2025[m]?.docentes || 0), 0);
+    return n || null;
+  }
+  const stm = doc.serie_temporal_municipio?.[ano];
+  if (stm) {
+    const n = muns.reduce((s, m) => s + (stm[m]?.docentes || 0), 0);
+    return n || null;
+  }
+  return null;
+}
+
+async function buildRedesPorGeo(redes, anos, munCod, creCod) {
+  if (!munCod && !creCod) return null;
+  const muns = munCod ? [String(munCod)] : (getCreMuns(creCod) || []).map(String);
+  if (!muns.length) return null;
+
+  const por_rede = {};
+  for (const ano of anos) {
+    por_rede[ano] = {};
+    for (const label of redes) {
+      const key = REDES_FILE_MAP[label];
+      const acesso = await loadAcessoOnly(key);
+      const doc = await loadDocentesOnly(key);
+      const rows = muns.map(m => acesso?.por_municipio?.[ano]?.[m]).filter(Boolean);
+      const row = sumRedesMunRows(rows);
+      row.docentes = docentesMunAno(doc, ano, muns);
+      if (row.docentes && row.mat_total) row.razao_ap = +(row.mat_total / row.docentes).toFixed(1);
+      else row.razao_ap = null;
+      // garantir zeros quando municipio nao tem a rede
+      for (const k of ['escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_medio', 'mat_eja']) {
+        if (row[k] == null) row[k] = 0;
+      }
+      por_rede[ano][label] = row;
+    }
+  }
+  return por_rede;
+}
 
 async function ensureRedes() {
-  if (S.redesData) { renderRedes(); return; }
+  if (S.redesData) { await renderRedes(); return; }
   if (S._redesLoading) return;
   S._redesLoading = true;
   const main = document.getElementById('main-content');
@@ -11304,14 +11416,14 @@ async function ensureRedes() {
     main.innerHTML = `
       <div class="loading">
         <div class="spinner"></div>
-        <span>Carregando visão por Redes...</span>
+        <span>Carregando Visão por Redes...</span>
       </div>`;
   }
   try {
     const resp = await fetch('dados/4_1_redes.json?_cb=' + Date.now());
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     S.redesData = await resp.json();
-    renderRedes();
+    await renderRedes();
   } catch (err) {
     if (main) {
       main.innerHTML = `
@@ -11325,7 +11437,7 @@ async function ensureRedes() {
   }
 }
 
-function renderRedes() {
+async function renderRedes() {
   const main = document.getElementById('main-content');
   destroyCharts();
   destroyMap();
@@ -11333,7 +11445,7 @@ function renderRedes() {
 
   const rd = S.redesData;
   if (!rd?.por_rede) {
-    main.innerHTML = `<div class="placeholder-view"><div style="font-size:15px;font-weight:600">Redes</div><div style="font-size:11px;opacity:.7">Dados não disponíveis</div></div>`;
+    main.innerHTML = `<div class="placeholder-view"><div style="font-size:15px;font-weight:600">Visão por Redes</div><div style="font-size:11px;opacity:.7">Dados não disponíveis</div></div>`;
     return;
   }
 
@@ -11341,62 +11453,99 @@ function renderRedes() {
   const redes = meta.redes || ['Federal', 'Estadual', 'Municipal', 'Privada'];
   const cores = meta.cores || { Federal: '#7B1FA2', Estadual: '#0D47A1', Municipal: '#00897B', Privada: '#F57C00' };
   const anos = (meta.anos || Object.keys(rd.por_rede)).slice().sort();
-  const anoSel = (S.anoSel && rd.por_rede[S.anoSel]) ? S.anoSel : anos[anos.length - 1];
+  const anoSel = (S.anoSel && (rd.por_rede[S.anoSel] || anos.includes(S.anoSel))) ? S.anoSel : anos[anos.length - 1];
   S.anoSel = anoSel;
-  const anoData = rd.por_rede[anoSel] || {};
+
+  const geoLabel = S.munSel
+    ? (S._universalMunLookup?.[S.munSel] || rd.lookup_municipios?.[S.munSel] || S.munSel)
+    : (S.creSel
+      ? (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre || `CRE ${S.creSel}`)
+      : 'Rio Grande do Sul');
+
+  // Geo filter: monta serie sob demanda a partir dos JSONs por rede
+  let porRedeAll = rd.por_rede;
+  if (S.munSel || S.creSel) {
+    main.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Aplicando filtro geográfico nas redes...</span>
+      </div>`;
+    const geoSeries = await buildRedesPorGeo(redes, anos, S.munSel, S.creSel);
+    if (geoSeries) porRedeAll = geoSeries;
+  }
+
+  const anoData = porRedeAll[anoSel] || {};
+  const anoPrev = anos[anos.indexOf(anoSel) - 1];
+  const prevData = anoPrev ? (porRedeAll[anoPrev] || {}) : {};
 
   const totEsc = redes.reduce((s, r) => s + (anoData[r]?.escolas || 0), 0);
   const totMat = redes.reduce((s, r) => s + (anoData[r]?.mat_total || 0), 0);
   const totDoc = redes.reduce((s, r) => s + (anoData[r]?.docentes || 0), 0);
+  const prevEsc = redes.reduce((s, r) => s + (prevData[r]?.escolas || 0), 0);
+  const prevMat = redes.reduce((s, r) => s + (prevData[r]?.mat_total || 0), 0);
+  const prevDoc = redes.reduce((s, r) => s + (prevData[r]?.docentes || 0), 0);
   const majRede = [...redes].sort((a, b) => (anoData[b]?.mat_total || 0) - (anoData[a]?.mat_total || 0))[0];
   const majPct = totMat ? ((anoData[majRede]?.mat_total || 0) / totMat * 100) : 0;
+  const prevMajPct = (() => {
+    const prevTot = redes.reduce((s, r) => s + (prevData[r]?.mat_total || 0), 0);
+    if (!prevTot) return null;
+    const prevMaj = [...redes].sort((a, b) => (prevData[b]?.mat_total || 0) - (prevData[a]?.mat_total || 0))[0];
+    return 100 * (prevData[prevMaj]?.mat_total || 0) / prevTot;
+  })();
+
+  const pctFn = (cur, old) => (cur != null && old != null && old !== 0) ? ((cur - old) / old * 100) : null;
+  const absFn = (cur, old) => (cur != null && old != null) ? (cur - old) : null;
+  const refLabel = anoPrev ? `vs ${anoPrev}` : '';
+
+  function sparkline(vals, color) {
+    if (!vals.length || vals.every(v => !v)) return '';
+    const max = Math.max(...vals, 1);
+    const min = Math.min(...vals);
+    const w = 64, h = 22, pad = 2;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / Math.max(vals.length - 1, 1)) * (w - pad * 2);
+      const y = h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2);
+      return `${x},${y}`;
+    }).join(' ');
+    const last = pts.split(' ').pop().split(',');
+    return `<svg class="kpi-sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/>
+    </svg>`;
+  }
+
+  const histEsc = anos.map(a => redes.reduce((s, r) => s + (porRedeAll[a]?.[r]?.escolas || 0), 0));
+  const histMat = anos.map(a => redes.reduce((s, r) => s + (porRedeAll[a]?.[r]?.mat_total || 0), 0));
+  const histDoc = anos.map(a => redes.reduce((s, r) => s + (porRedeAll[a]?.[r]?.docentes || 0), 0));
+
+  const kpis = [
+    { label: 'Escolas', val: totEsc, prev: prevEsc, icon: 'img/icons/escola.png', accent: 'green', spark: histEsc, color: '#1d71b9' },
+    { label: 'Matrículas', val: totMat, prev: prevMat, icon: 'img/icons/matriculas.png', accent: 'green', spark: histMat, color: '#00AB4E' },
+    { label: 'Docentes', val: totDoc, prev: prevDoc, icon: 'img/icons/sec_docentes.png', accent: 'blue', spark: histDoc, color: '#1565C0' },
+    { label: `Maior rede (${majRede})`, val: majPct, prev: prevMajPct, icon: 'img/icons/panorama.png', accent: 'yellow', spark: null, color: '#FFCB04', isPct: true },
+  ];
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/panorama.png', 'Redes de Ensino', 'Comparativo por mantenedora — RS', { redeToggle: false })}
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 16px 4px;background:#fff;border-bottom:1px solid #eef2f7">
-        <label style="font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.4px">Ano</label>
-        <select id="redes-ano" style="padding:5px 10px;border-radius:8px;border:1px solid #d6dee8;font-size:12px;font-family:Inter;background:#f8fafc;cursor:pointer">
-          ${anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('')}
-        </select>
-        <span style="font-size:10px;color:#64748b;font-weight:500">Federal · Estadual · Municipal · Privada (Censo Escolar)</span>
-      </div>
-      <div class="kpi-strip" id="redes-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px 16px 12px;background:#fff">
-        <div class="kpi-card accent-blue" style="text-align:center;padding:14px 12px">
-          <div class="kpi-label">Escolas — ${anoSel}</div>
-          <div class="kpi-value" style="font-size:22px">${formatNum(totEsc)}</div>
-        </div>
-        <div class="kpi-card accent-green" style="text-align:center;padding:14px 12px">
-          <div class="kpi-label">Matrículas</div>
-          <div class="kpi-value" style="font-size:22px">${formatNum(totMat)}</div>
-        </div>
-        <div class="kpi-card accent-yellow" style="text-align:center;padding:14px 12px">
-          <div class="kpi-label">Docentes</div>
-          <div class="kpi-value" style="font-size:22px">${formatNum(totDoc)}</div>
-        </div>
-        <div class="kpi-card accent-red" style="text-align:center;padding:14px 12px">
-          <div class="kpi-label">Maior rede (${majRede})</div>
-          <div class="kpi-value" style="font-size:22px">${majPct.toFixed(1)}%</div>
-          <div style="font-size:9px;color:#64748b;margin-top:2px">das matrículas</div>
-        </div>
-      </div>
+      ${sectionBanner('img/icons/panorama.png', 'Visão por Redes', geoLabel, { redeToggle: false })}
+      <div class="kpi-strip" id="redes-kpis"></div>
     </div>
 
     <div class="section-content" style="padding:10px 16px 50px">
       <div class="section-divider">
         <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-        <span class="section-divider-text">Histórico por Mantenedora</span>
+        <span class="section-divider-text">Histórico por Mantenedora${geoSuffix()}</span>
         <span class="section-divider-line"></span>
       </div>
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})</div>
+          <div class="chart-title">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-mat-hist"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Escolas por Rede (${anos[0]}–${anos[anos.length - 1]})</div>
+          <div class="chart-title">Escolas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-esc-hist"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11404,18 +11553,18 @@ function renderRedes() {
 
       <div class="section-divider">
         <span class="section-divider-icon"><img src="img/icons/matriculas.png" alt=""></span>
-        <span class="section-divider-text">Perfil da Oferta — ${anoSel}</span>
+        <span class="section-divider-text">Perfil da Oferta — ${anoSel}${geoSuffix()}</span>
         <span class="section-divider-line"></span>
       </div>
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Matrículas por Etapa e Rede — ${anoSel}</div>
+          <div class="chart-title">Matrículas por Etapa e Rede — ${anoSel}${geoSuffix()}</div>
           <div style="height:250px"><canvas id="chart-redes-etapas"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Participação nas Matrículas — ${anoSel}</div>
+          <div class="chart-title">Participação nas Matrículas — ${anoSel}${geoSuffix()}</div>
           <div style="height:250px"><canvas id="chart-redes-share"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11423,12 +11572,12 @@ function renderRedes() {
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Forma de Oferta — Diurno × Noturno — ${anoSel}</div>
+          <div class="chart-title">Forma de Oferta — Diurno × Noturno — ${anoSel}${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-turno"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Educação Integral por Rede — ${anoSel}</div>
+          <div class="chart-title">Educação Integral por Rede — ${anoSel}${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-integral"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11436,18 +11585,18 @@ function renderRedes() {
 
       <div class="section-divider">
         <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
-        <span class="section-divider-text">Docentes e Razão Aluno/Professor</span>
+        <span class="section-divider-text">Docentes e Razão Aluno/Professor${geoSuffix()}</span>
         <span class="section-divider-line"></span>
       </div>
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Docentes por Rede (histórico)</div>
+          <div class="chart-title">Docentes por Rede (histórico)${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-doc-hist"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Razão Aluno / Professor — ${anoSel}</div>
+          <div class="chart-title">Razão Aluno / Professor — ${anoSel}${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-razao"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11455,7 +11604,7 @@ function renderRedes() {
 
       <div class="section-divider">
         <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
-        <span class="section-divider-text">Tabela Comparativa — ${anoSel}</span>
+        <span class="section-divider-text">Tabela Comparativa — ${anoSel}${geoSuffix()}</span>
         <span class="section-divider-line"></span>
       </div>
 
@@ -11480,13 +11629,13 @@ function renderRedes() {
                 <td>${formatNum(v.mat_medio || 0)}</td>
                 <td>${formatNum(v.mat_eja || 0)}</td>
                 <td>${v.docentes != null ? formatNum(v.docentes) : '—'}</td>
-                <td>${v.razao_ap != null ? v.razao_ap.toFixed(1) : '—'}</td>
+                <td>${v.razao_ap != null ? Number(v.razao_ap).toFixed(1) : '—'}</td>
                 <td>${v.mat_noturno != null ? formatNum(v.mat_noturno) : '—'}</td>
                 <td>${v.mat_integral != null ? formatNum(v.mat_integral) : '—'}</td>
               </tr>`;
             }).join('')}
             <tr style="font-weight:800;background:#f8fafc">
-              <td>Total RS</td>
+              <td>Total</td>
               <td>${formatNum(totEsc)}</td>
               <td>${formatNum(totMat)}</td>
               <td>100%</td>
@@ -11494,10 +11643,10 @@ function renderRedes() {
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_fundamental || 0), 0))}</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_medio || 0), 0))}</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_eja || 0), 0))}</td>
-              <td>${formatNum(totDoc)}</td>
+              <td>${totDoc ? formatNum(totDoc) : '—'}</td>
               <td>${totDoc ? (totMat / totDoc).toFixed(1) : '—'}</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_noturno || 0), 0))}</td>
-              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_integral || 0), 0))}</td>
+              <td>${(() => { const n = redes.reduce((s, r) => s + (anoData[r]?.mat_integral || 0), 0); return n ? formatNum(n) : '—'; })()}</td>
             </tr>
           </tbody>
         </table>
@@ -11506,15 +11655,49 @@ function renderRedes() {
     </div>
   `;
 
-  // Bind year
-  document.getElementById('redes-ano')?.addEventListener('change', e => {
-    S.anoSel = e.target.value;
-    renderRedes();
-  });
+  // KPIs no formato premium das demais secoes
+  const strip = document.getElementById('redes-kpis');
+  if (strip) {
+    strip.innerHTML = kpis.map((k, i) => {
+      const delta = k.isPct
+        ? (k.prev != null ? (k.val - k.prev) : null)
+        : pctFn(k.val, k.prev);
+      const abs = k.isPct ? null : absFn(k.val, k.prev);
+      const sign = abs != null && abs > 0 ? '+' : '';
+      const displayVal = k.isPct ? k.val.toFixed(1) + '%' : formatNum(k.val);
+      return `
+      <div class="kpi-card accent-${k.accent}" style="animation-delay:${i * 80}ms">
+        <div class="kpi-top">
+          <span class="kpi-label">${k.label}</span>
+          <img class="kpi-icon" src="${k.icon}" alt="">
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">${displayVal}</span>
+          ${k.spark ? sparkline(k.spark, k.color) : ''}
+        </div>
+        <div class="kpi-footer">
+          ${delta != null ? `
+            <span class="kpi-delta ${deltaClass(delta)}">${deltaArrow(delta)} ${k.isPct ? (delta >= 0 ? '+' : '') + delta.toFixed(1) + ' pp' : formatPct(delta)}</span>
+            ${abs != null ? `<span class="kpi-abs">${sign}${formatNum(abs)} ${refLabel}</span>` : `<span class="kpi-abs">${refLabel}</span>`}
+          ` : '<span class="kpi-abs">—</span>'}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Banner filters
+  const selAno = document.getElementById('sel-ano');
+  if (selAno) {
+    selAno.innerHTML = anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('');
+  }
+  populateCreDropdown();
+  populateMunDropdown(S.creSel || null);
+  bindTopbarFilters();
+  updateActiveFilters();
 
   const seriesFor = (field) => redes.map(r => ({
     label: r,
-    data: anos.map(a => rd.por_rede[a]?.[r]?.[field] ?? null),
+    data: anos.map(a => porRedeAll[a]?.[r]?.[field] ?? null),
     borderColor: cores[r],
     backgroundColor: cores[r],
     tension: 0.25,
@@ -11529,7 +11712,6 @@ function renderRedes() {
     return vals.length ? Math.max(...vals) * 1.15 : undefined;
   };
 
-  // Hist matrículas
   const matHistMax = yMax(seriesFor('mat_total').flatMap(d => d.data));
   S.charts.push(new Chart(document.getElementById('chart-redes-mat-hist'), {
     type: 'line',
@@ -11548,7 +11730,6 @@ function renderRedes() {
     },
   }));
 
-  // Hist escolas
   const escHistMax = yMax(seriesFor('escolas').flatMap(d => d.data));
   S.charts.push(new Chart(document.getElementById('chart-redes-esc-hist'), {
     type: 'line',
@@ -11567,7 +11748,6 @@ function renderRedes() {
     },
   }));
 
-  // Etapas × rede (grouped bars)
   const etapas = [
     { key: 'mat_infantil', label: 'Infantil' },
     { key: 'mat_fundamental', label: 'Fundamental' },
@@ -11595,12 +11775,11 @@ function renderRedes() {
       },
       scales: {
         ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaVals) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaVals, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
       },
     },
   }));
 
-  // Share donut (4 categories OK for pizza rule? rule says never >3 - so use horizontal bar instead)
   const shareData = redes.map(r => anoData[r]?.mat_total || 0);
   S.charts.push(new Chart(document.getElementById('chart-redes-share'), {
     type: 'bar',
@@ -11626,13 +11805,12 @@ function renderRedes() {
         },
       },
       scales: {
-        x: { ...CHART_DEFAULTS.scales.x, suggestedMax: Math.max(...shareData.map(v => totMat ? 100 * v / totMat : 0)) * 1.2, ticks: { callback: v => v + '%' } },
+        x: { ...CHART_DEFAULTS.scales.x, suggestedMax: Math.max(...shareData.map(v => totMat ? 100 * v / totMat : 0), 1) * 1.2, ticks: { callback: v => v + '%' } },
         y: { ...CHART_DEFAULTS.scales.y, grid: { display: false } },
       },
     },
   }));
 
-  // Turno diurno × noturno
   const diurno = redes.map(r => anoData[r]?.mat_diurno || 0);
   const noturno = redes.map(r => anoData[r]?.mat_noturno || 0);
   S.charts.push(new Chart(document.getElementById('chart-redes-turno'), {
@@ -11653,12 +11831,11 @@ function renderRedes() {
       },
       scales: {
         ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...diurno, ...noturno) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...diurno, ...noturno, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
       },
     },
   }));
 
-  // Integral
   const integ = redes.map(r => anoData[r]?.mat_integral || 0);
   S.charts.push(new Chart(document.getElementById('chart-redes-integral'), {
     type: 'bar',
@@ -11680,7 +11857,6 @@ function renderRedes() {
     },
   }));
 
-  // Docentes hist
   const docHistMax = yMax(seriesFor('docentes').flatMap(d => d.data));
   S.charts.push(new Chart(document.getElementById('chart-redes-doc-hist'), {
     type: 'line',
@@ -11699,7 +11875,6 @@ function renderRedes() {
     },
   }));
 
-  // Razão A/P
   const razao = redes.map(r => anoData[r]?.razao_ap ?? null);
   S.charts.push(new Chart(document.getElementById('chart-redes-razao'), {
     type: 'bar',
@@ -11717,7 +11892,7 @@ function renderRedes() {
       plugins: {
         ...CHART_DEFAULTS.plugins,
         legend: { display: false },
-        datalabels: { ...DL_BAR, formatter: v => v != null ? v.toFixed(1) : '' },
+        datalabels: { ...DL_BAR, formatter: v => v != null ? Number(v).toFixed(1) : '' },
       },
       scales: {
         ...CHART_DEFAULTS.scales,
@@ -11729,7 +11904,6 @@ function renderRedes() {
   setTimeout(() => injectExportButtons(), 50);
 }
 
-// ══════════════════════════════════════════════════════════
 // DESIGUALDADES EDUCACIONAIS (SAERS)
 // ══════════════════════════════════════════════════════════
 
