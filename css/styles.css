@@ -1098,6 +1098,11 @@ body.sidebar-hidden .sidebar {
   gap: 8px;
 }
 
+.chart-source--with-export > .chart-source-text {
+  flex: 1;
+  text-align: left;
+}
+
 .chart-source--with-export > :first-child:not(.chart-source-actions) {
   flex: 1;
   text-align: left;
@@ -1108,7 +1113,9 @@ body.sidebar-hidden .sidebar {
 }
 
 .export-btn--footer {
-  position: static;
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
 }
 
 /* ── Fluxo Toggle Pills (series selector) ── */
@@ -1196,9 +1203,6 @@ body.sidebar-hidden .sidebar {
 .afs-clear-all:hover { background: #fff; }
 
 .export-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   width: auto;
   min-width: 26px;
   height: 26px;
@@ -1213,11 +1217,27 @@ body.sidebar-hidden .sidebar {
   cursor: pointer;
   opacity: 0.88;
   transition: opacity .2s, background .15s, transform .15s, box-shadow .15s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
   box-shadow: 0 1px 4px rgba(91,155,213,.18);
+}
+
+/* Fallback raro: só flutua no canto se o card não tiver rodapé de fonte */
+.export-btn--float {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+}
+
+.export-btn--footer {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  z-index: 1;
+  opacity: 1;
+  flex-shrink: 0;
 }
 
 .chart-card:hover .export-btn { opacity: 1; }
