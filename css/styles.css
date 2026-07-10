@@ -1091,6 +1091,26 @@ body.sidebar-hidden .sidebar {
   margin-top: 2px;
 }
 
+.chart-source--with-export {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-source--with-export > :first-child:not(.chart-source-actions) {
+  flex: 1;
+  text-align: left;
+}
+
+.chart-source-actions {
+  flex-shrink: 0;
+}
+
+.export-btn--footer {
+  position: static;
+}
+
 /* ── Fluxo Toggle Pills (series selector) ── */
 .flx-toggle-pills {
   display: flex;
