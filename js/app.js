@@ -11557,20 +11557,18 @@ async function renderRedes() {
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-            <div class="chart-title" id="redes-mat-hist-title" style="margin:0">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
-            <div class="flx-toggle-pills" id="redes-hist-etapa-pills">
-              ${[
-                { key: 'mat_total', label: 'Total' },
-                { key: 'mat_infantil', label: 'Infantil' },
-                { key: 'mat_fundamental', label: 'Fundamental' },
-                { key: 'mat_medio', label: 'Médio' },
-                { key: 'mat_eja', label: 'EJA' },
-              ].map(e => `
-                <button type="button" class="flx-pill redes-hist-etapa-pill${(S.redesHistEtapaSel || 'mat_total') === e.key ? ' active' : ''}"
-                  data-etapa="${e.key}" style="--pill-color:#0D47A1">${e.label}</button>
-              `).join('')}
-            </div>
+          <div class="chart-title" id="redes-mat-hist-title">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
+          <div class="flx-toggle-pills" id="redes-hist-etapa-pills" style="position:relative;z-index:6;margin:4px 0 8px">
+            ${[
+              { key: 'mat_total', label: 'Total' },
+              { key: 'mat_infantil', label: 'Infantil' },
+              { key: 'mat_fundamental', label: 'Fundamental' },
+              { key: 'mat_medio', label: 'Médio' },
+              { key: 'mat_eja', label: 'EJA' },
+            ].map(e => `
+              <button type="button" class="flx-pill redes-hist-etapa-pill${(S.redesHistEtapaSel || 'mat_total') === e.key ? ' active' : ''}"
+                data-etapa="${e.key}" style="--pill-color:#0D47A1">${e.label}</button>
+            `).join('')}
           </div>
           <div style="height:230px"><canvas id="chart-redes-mat-hist"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
@@ -11757,23 +11755,77 @@ async function renderRedes() {
     return vals.length ? Math.max(...vals) * 1.15 : undefined;
   };
 
-  const matHistMax = yMax(seriesFor('mat_total').flatMap(d => d.data));
-  S.charts.push(new Chart(document.getElementById('chart-redes-mat-hist'), {
-    type: 'line',
-    data: { labels: anos, datasets: seriesFor('mat_total') },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
-        datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+  const matHistLabels = {
+    mat_total: 'Total',
+    mat_infantil: 'Infantil',
+    mat_fundamental: 'Fundamental',
+    mat_medio: 'Médio',
+    mat_eja: 'EJA',
+  };
+
+  let matHistChart = null;
+
+  const buildRedesMatHist = (field) => {
+    const el = document.getElementById('chart-redes-mat-hist');
+    if (!el) return;
+    const f = field || 'mat_total';
+    const titleEl = document.getElementById('redes-mat-hist-title');
+    const etapaTxt = f === 'mat_total' ? '' : ` — ${matHistLabels[f] || f}`;
+    if (titleEl) titleEl.textContent = `Matrículas por Rede${etapaTxt} (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}`;
+
+    const datasets = seriesFor(f);
+    const matHistMax = yMax(datasets.flatMap(d => d.data));
+
+    // Reusa o chart se já existir (update in-place — mais confiável que destroy/recreate)
+    const existing = matHistChart || Chart.getChart(el);
+    if (existing) {
+      existing.data.labels = anos;
+      existing.data.datasets = datasets;
+      if (existing.options?.scales?.y) existing.options.scales.y.suggestedMax = matHistMax;
+      existing.update('active');
+      matHistChart = existing;
+      if (!S.charts.includes(existing)) S.charts.push(existing);
+      return;
+    }
+
+    matHistChart = new Chart(el, {
+      type: 'line',
+      data: { labels: anos, datasets },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+          datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, suggestedMax: matHistMax, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => formatNumChart(v) } },
+        },
       },
-      scales: {
-        ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: matHistMax, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => formatNumChart(v) } },
-      },
-    },
-  }));
+    });
+    S.charts.push(matHistChart);
+  };
+
+  buildRedesMatHist(S.redesHistEtapaSel || 'mat_total');
+
+  const histPillsWrap = document.getElementById('redes-hist-etapa-pills');
+  if (histPillsWrap) {
+    histPillsWrap.style.position = 'relative';
+    histPillsWrap.style.zIndex = '6';
+    histPillsWrap.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.redes-hist-etapa-pill');
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const etapa = btn.getAttribute('data-etapa') || 'mat_total';
+      S.redesHistEtapaSel = etapa;
+      histPillsWrap.querySelectorAll('.redes-hist-etapa-pill').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+      buildRedesMatHist(etapa);
+    });
+  }
 
   const escHistMax = yMax(seriesFor('escolas').flatMap(d => d.data));
   S.charts.push(new Chart(document.getElementById('chart-redes-esc-hist'), {
