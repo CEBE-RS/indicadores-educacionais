@@ -36,6 +36,7 @@ const S = {
   escolasData: null, // escolas_estaduais.json — Visão por Escola
   escolasMap: null,  // Leaflet map instance for escolas
   escolasMarkers: null, // Leaflet layer group for markers
+  escolasCreOverlay: null, // CRE boundaries on escolas map
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -261,7 +262,7 @@ function destroyMap() {
   }
   if (S.creOverlay) { S.creOverlay = null; }
   if (S.escolasMap) {
-    S.escolasMap.remove(); S.escolasMap = null; S.escolasMarkers = null;
+    S.escolasMap.remove(); S.escolasMap = null; S.escolasMarkers = null; S.escolasCreOverlay = null;
   }
 }
 
@@ -12153,6 +12154,77 @@ function renderDesigualdades() {
 
 // ══════════════════════════════════════════════════════════
 
+function getCreNomeEscola(cod) {
+  const c = String(cod).padStart(2, '0');
+  return S.creLookup?.cre_list?.find(x => x.cod_cre === c)?.nome_cre?.replace(/^\d+\s*CRE\s*-\s*/, '') || `${parseInt(c, 10)}ª CRE`;
+}
+
+function escolaTooltipHtml(e, indicator, cfg) {
+  const val = e[indicator];
+  const valStr = val != null && cfg ? cfg.fmt(val) : null;
+  return `<div class="escola-marker-tip">
+    <div class="escola-marker-tip__name">${e.nome || ''}</div>
+    <div class="escola-marker-tip__meta">${e.municipio || ''} · ${e.cre}ª CRE</div>
+    <div class="escola-marker-tip__inep">INEP ${e.inep}</div>
+    ${valStr ? `<div class="escola-marker-tip__val">${cfg.label}: <strong>${valStr}</strong></div>` : ''}
+  </div>`;
+}
+
+function escolaPremiumItemHtml(e, indicator, cfg) {
+  const val = e[indicator];
+  const valStr = val != null && cfg ? cfg.fmt(val) : null;
+  const color = getEscolaColor(val, indicator);
+  const safeNome = (e.nome || '').replace(/"/g, '&quot;');
+  return `<button type="button" class="escola-premium-item" data-inep="${e.inep}" data-label="${safeNome} · ${e.municipio || ''}">
+    <span class="escola-premium-item__accent" style="background:${color}"></span>
+    <div class="escola-premium-item__main">
+      <span class="escola-premium-item__name">${e.nome}</span>
+      <span class="escola-premium-item__meta">${e.municipio || ''} · ${e.cre}ª CRE · INEP ${e.inep}</span>
+    </div>
+    ${valStr ? `<span class="escola-premium-item__badge" style="--badge-color:${color}">${valStr}</span>` : '<span class="escola-premium-item__badge escola-premium-item__badge--empty">—</span>'}
+  </button>`;
+}
+
+function bindEscolaPremiumList(container, onSelect) {
+  container.querySelectorAll('.escola-premium-item').forEach(btn => {
+    btn.addEventListener('click', () => onSelect(btn.dataset.inep, btn.dataset.label));
+  });
+}
+
+function updateEscolasCreOverlay(map, creFilter) {
+  if (S.escolasCreOverlay) {
+    try { map.removeLayer(S.escolasCreOverlay); } catch (e) { /* noop */ }
+    S.escolasCreOverlay = null;
+  }
+  if (!S.creGeo || !map) return;
+
+  const creCod = creFilter ? String(creFilter).padStart(2, '0') : null;
+  S.escolasCreOverlay = L.geoJSON(S.creGeo, {
+    style: (feature) => {
+      const cod = feature.properties.cod_cre;
+      const isActive = creCod ? cod === creCod : false;
+      return {
+        fillColor: isActive ? '#0D47A1' : 'transparent',
+        fillOpacity: isActive ? 0.1 : 0,
+        weight: isActive ? 3 : 2,
+        color: isActive ? '#0D47A1' : 'rgba(255,255,255,0.9)',
+        dashArray: isActive ? null : '6,4',
+        opacity: isActive ? 0.95 : 0.65,
+      };
+    },
+    onEachFeature: (feature, layer) => {
+      if (!creCod) {
+        const shortName = (feature.properties.nome_cre || '').replace(/^\d+\s*CRE\s*-\s*/, '');
+        layer.bindTooltip(shortName, {
+          permanent: false,
+          direction: 'center',
+          className: 'cre-overlay-label',
+        });
+      }
+    },
+  }).addTo(map);
+}
+
 const ESCOLA_INDICATORS = [
   { key: 'ideb_ai', label: 'IDEB Anos Iniciais', higher: true, fmt: v => v.toFixed(1), unit: '' },
   { key: 'ideb_af', label: 'IDEB Anos Finais', higher: true, fmt: v => v.toFixed(1), unit: '' },
@@ -12973,47 +13045,66 @@ function renderEscolas() {
       </span>`
     ).join('');
 
-    // Lista de escolas do município (quando seleção é gerenciável)
+    // Lista premium de escolas (CRE ou município filtrado)
     const listPanel = document.getElementById('escola-list-panel');
     if (listPanel) {
-      if (munFilter && !S.escolaInepSel && !search && filtered.length > 0 && filtered.length <= ESCOLA_LIST_MAX) {
+      const showList = !S.escolaInepSel && !search && filtered.length > 0 && (creFilter || munFilter);
+      if (showList) {
+        const title = creFilter
+          ? getCreNomeEscola(creFilter)
+          : (munMap.get(munFilter) || 'Município');
+        const sorted = [...filtered].sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+        const showInnerSearch = sorted.length > ESCOLA_LIST_MAX;
+
         listPanel.style.display = 'block';
-        const munNome = munMap.get(munFilter) || 'Município';
         listPanel.innerHTML = `
-          <div style="background:#fff;border:1px solid #e8edf4;border-radius:10px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
-            <div style="font-size:11px;font-weight:700;color:#0D47A1;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">
-              Escolas em ${munNome} (${filtered.length})
+          <div class="escola-premium-list">
+            <div class="escola-premium-list__head">
+              <div>
+                <div class="escola-premium-list__title">Escolas — ${title}</div>
+                <div class="escola-premium-list__count">${filtered.length} unidade${filtered.length !== 1 ? 's' : ''}${creFilter ? ` · ${creFilter}ª CRE` : ''}</div>
+              </div>
+              ${showInnerSearch ? '<input type="text" id="escola-list-search" class="escola-premium-list__search" placeholder="Filtrar nesta lista..." autocomplete="off">' : ''}
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow-y:auto">
-              ${filtered.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR')).map(e => `
-                <button type="button" class="escola-list-btn" data-inep="${e.inep}" style="font-size:10px;padding:5px 10px;border-radius:16px;border:1px solid #d6dee8;background:#f8fafc;color:#333;cursor:pointer;font-family:Inter;font-weight:600;transition:all .15s">
-                  ${e.nome}
-                </button>
-              `).join('')}
+            <div class="escola-premium-list__body" id="escola-premium-list-body">
+              ${sorted.map(e => escolaPremiumItemHtml(e, indicator, cfg)).join('')}
             </div>
           </div>`;
-        listPanel.querySelectorAll('.escola-list-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const esc = escolas.find(x => x.inep === btn.dataset.inep);
-            if (!esc) return;
-            S.escolaInepSel = esc.inep;
-            document.getElementById('escola-search').value = `${esc.nome} · ${esc.municipio}`;
-            abrirBoletim(esc.inep);
-            updateEscolas();
+
+        const onSelect = (inep, label) => {
+          S.escolaInepSel = inep;
+          document.getElementById('escola-search').value = label || '';
+          abrirBoletim(inep);
+          updateEscolas();
+        };
+        bindEscolaPremiumList(listPanel, onSelect);
+
+        const innerSearch = document.getElementById('escola-list-search');
+        if (innerSearch) {
+          innerSearch.addEventListener('input', () => {
+            const q = innerSearch.value.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+            const body = document.getElementById('escola-premium-list-body');
+            if (!body) return;
+            const hits = q
+              ? sorted.filter(e => {
+                  const nome = (e.nome || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                  const mun = (e.municipio || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                  return nome.includes(q) || mun.includes(q) || (e.inep || '').includes(q);
+                })
+              : sorted;
+            body.innerHTML = hits.map(e => escolaPremiumItemHtml(e, indicator, cfg)).join('');
+            bindEscolaPremiumList(body, onSelect);
           });
-          btn.addEventListener('mouseenter', () => { btn.style.background = '#e3f2fd'; btn.style.borderColor = '#90caf9'; });
-          btn.addEventListener('mouseleave', () => { btn.style.background = '#f8fafc'; btn.style.borderColor = '#d6dee8'; });
-        });
-      } else if (munFilter && filtered.length > ESCOLA_LIST_MAX) {
-        listPanel.style.display = 'block';
-        listPanel.innerHTML = `<div style="font-size:11px;color:#666;background:#fff;border:1px solid #eee;border-radius:8px;padding:10px 14px">
-          <strong>${munMap.get(munFilter) || 'Município'}:</strong> ${filtered.length} escolas — use a busca ou clique no mapa para selecionar.
-        </div>`;
+        }
       } else {
         listPanel.style.display = 'none';
         listPanel.innerHTML = '';
       }
     }
+
+    // Contornos CRE no mapa
+    updateEscolasCreOverlay(map, creFilter);
+    if (S.escolasMarkers) S.escolasMarkers.bringToFront();
 
     // Map markers
     S.escolasMarkers.clearLayers();
@@ -13021,12 +13112,22 @@ function renderEscolas() {
     for (const e of filteredWithCoords) {
       const val = e[indicator];
       const color = getEscolaColor(val, indicator);
+      const isSelected = S.escolaInepSel === e.inep;
       const marker = L.circleMarker([e.lat, e.lng], {
-        radius: 5, fillColor: color, fillOpacity: 0.85, color: '#fff', weight: 1, opacity: 0.9,
+        radius: isSelected ? 8 : 5,
+        fillColor: color,
+        fillOpacity: 0.9,
+        color: isSelected ? '#0D47A1' : '#fff',
+        weight: isSelected ? 2.5 : 1,
+        opacity: 1,
       });
 
-      // Show Boletim instead of Popup on click
-      marker.bindTooltip(`<strong>${e.nome}</strong><br><span style="font-size:10px;color:#666">${e.municipio} · INEP ${e.inep}</span>`, {direction: 'top'});
+      marker.bindTooltip(escolaTooltipHtml(e, indicator, cfg), {
+        direction: 'top',
+        offset: [0, -6],
+        className: 'escola-marker-tip-wrap',
+        opacity: 1,
+      });
       marker.on('click', () => abrirBoletim(e.inep));
       S.escolasMarkers.addLayer(marker);
     }
@@ -13051,6 +13152,7 @@ function renderEscolas() {
   document.getElementById('escola-cre-filter').addEventListener('change', () => {
     S.escolaInepSel = null;
     document.getElementById('escola-search').value = '';
+    document.getElementById('escola-boletim-container').style.display = 'none';
     updateEscolas();
   });
   document.getElementById('escola-mun-filter').addEventListener('change', () => {
@@ -13086,15 +13188,24 @@ function renderEscolas() {
     }).slice(0, 50);
 
     if (filtered.length === 0) {
-      autocompleteBox.innerHTML = '<div style="padding:8px 12px;font-size:11px;color:#888">Nenhuma escola encontrada</div>';
+      autocompleteBox.innerHTML = '<div class="escola-ac-empty">Nenhuma escola encontrada</div>';
     } else {
-      autocompleteBox.innerHTML = filtered.map(x => `
-        <div class="escola-ac-item" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:11.5px;color:#333" data-inep="${x.inep}" data-label="${x.nome} · ${x.municipio}">
-          <div style="font-weight:700;font-size:12px;">${x.nome}</div>
-          <div style="font-size:10px;color:#666"><strong>${x.municipio}</strong> · ${x.cre}ª CRE · <span style="font-family:monospace">INEP ${x.inep}</span></div>
-        </div>
-      `).join('');
-      
+      const ind = document.getElementById('escola-indicator')?.value || 'ideb_af';
+      const indCfg = ESCOLA_INDICATORS.find(i => i.key === ind);
+      autocompleteBox.innerHTML = filtered.map(x => {
+        const val = x[ind];
+        const valStr = val != null && indCfg ? indCfg.fmt(val) : null;
+        const color = getEscolaColor(val, ind);
+        return `<button type="button" class="escola-ac-item" data-inep="${x.inep}" data-label="${(x.nome || '').replace(/"/g, '&quot;')} · ${x.municipio || ''}">
+          <span class="escola-ac-item__dot" style="background:${color}"></span>
+          <span class="escola-ac-item__body">
+            <span class="escola-ac-item__name">${x.nome}</span>
+            <span class="escola-ac-item__meta">${x.municipio} · ${x.cre}ª CRE · INEP ${x.inep}</span>
+          </span>
+          ${valStr ? `<span class="escola-ac-item__badge">${valStr}</span>` : ''}
+        </button>`;
+      }).join('');
+
       autocompleteBox.querySelectorAll('.escola-ac-item').forEach(el => {
         el.addEventListener('click', () => {
           S.escolaInepSel = el.dataset.inep;
@@ -13103,8 +13214,6 @@ function renderEscolas() {
           abrirBoletim(el.dataset.inep);
           updateEscolas();
         });
-        el.addEventListener('mouseenter', () => el.style.background = '#f0f4f8');
-        el.addEventListener('mouseleave', () => el.style.background = 'transparent');
       });
     }
     autocompleteBox.style.display = 'block';
