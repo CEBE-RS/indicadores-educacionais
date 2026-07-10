@@ -103,9 +103,13 @@ body {
 }
 
 body.sidebar-hidden .sidebar {
-  margin-left: calc(-1 * var(--sidebar-w));
+  width: 0;
+  min-width: 0;
+  margin-left: 0;
   opacity: 0;
   pointer-events: none;
+  overflow: hidden;
+  border: none;
 }
 
 .sidebar-header {
@@ -469,11 +473,20 @@ body.sidebar-hidden .sidebar {
 .main-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 8px 8px 8px; /* NO top padding — sticky header covers it */
   max-width: var(--content-max);
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+/* Home ocupa a área toda sem estourar a largura (sem margin negativo) */
+body.sidebar-hidden .main-scroll {
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  max-width: none;
 }
 
 /* ── Sticky Section Header (banner + kpi-strip) ── */
@@ -1665,14 +1678,16 @@ body.sidebar-hidden .sidebar {
    ═══════════════════════════════════════════════════════════ */
 
 .home-wrap {
-  min-height: calc(100vh - 24px);
+  min-height: 100vh;
   background: #fff;
   position: relative;
   overflow-x: hidden;
-  overflow-y: auto;
-  border-radius: var(--radius);
-  margin: -12px;
-  max-width: calc(100% + 24px);
+  overflow-y: visible;
+  border-radius: 0;
+  margin: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .home-bg {
