@@ -12206,11 +12206,11 @@ function updateEscolasCreOverlay(map, creFilter) {
       const isActive = creCod ? cod === creCod : false;
       return {
         fillColor: isActive ? '#0D47A1' : 'transparent',
-        fillOpacity: isActive ? 0.08 : 0,
-        weight: isActive ? 2.5 : 1.5,
-        color: isActive ? '#0D47A1' : 'rgba(13,71,161,0.55)',
-        dashArray: isActive ? null : '5,5',
-        opacity: isActive ? 0.9 : 0.5,
+        fillOpacity: isActive ? 0.14 : 0,
+        weight: isActive ? 4 : (creCod ? 1.2 : 3.5),
+        color: isActive ? '#D4A84B' : (creCod ? 'rgba(13,71,161,0.28)' : '#0D47A1'),
+        dashArray: creCod && !isActive ? '8,5' : null,
+        opacity: 1,
       };
     },
     onEachFeature: (feature, layer) => {
@@ -12344,8 +12344,6 @@ function renderEscolas() {
   });
   const munList = [...munMap.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
 
-  const ESCOLA_LIST_MAX = 40;
-
   const defaultIndicator = 'ideb_af';
 
   main.innerHTML = `
@@ -12387,8 +12385,8 @@ function renderEscolas() {
       <!-- KPIs -->
       <div id="escola-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
 
-      <!-- Lista compacta de escolas (município com poucas escolas) -->
-      <div id="escola-list-panel" style="display:none;margin-bottom:14px"></div>
+      <!-- Lista de escolas (CRE ou município filtrado) -->
+      <div id="escola-list-panel" class="escola-list-panel" style="display:none"></div>
 
       <!-- Map Container -->
       <div class="chart-card" style="padding:0;overflow:hidden;border-radius:10px;margin-bottom:16px;position:relative">
@@ -13050,24 +13048,35 @@ function renderEscolas() {
 
     // Lista premium de escolas (CRE ou município filtrado)
     const listPanel = document.getElementById('escola-list-panel');
+    const mapHeightEl = document.getElementById('escola-map');
+    const showList = !S.escolaInepSel && !search && filtered.length > 0 && (creFilter || munFilter);
     if (listPanel) {
-      const showList = !S.escolaInepSel && !search && filtered.length > 0 && (creFilter || munFilter);
       if (showList) {
         const title = creFilter
           ? getCreNomeEscola(creFilter)
           : (munMap.get(munFilter) || 'Município');
         const sorted = [...filtered].sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
-        const showInnerSearch = sorted.length > ESCOLA_LIST_MAX;
+        const indLabel = cfg ? cfg.label : '';
 
         listPanel.style.display = 'block';
         listPanel.innerHTML = `
           <div class="escola-premium-list">
             <div class="escola-premium-list__head">
-              <div>
-                <div class="escola-premium-list__title">Escolas — ${title}</div>
-                <div class="escola-premium-list__count">${filtered.length} unidade${filtered.length !== 1 ? 's' : ''}${creFilter ? ` · ${creFilter}ª CRE` : ''}</div>
+              <div class="escola-premium-list__head-top">
+                <div>
+                  <div class="escola-premium-list__title">Escolas — ${title}</div>
+                  <div class="escola-premium-list__count">${filtered.length} unidade${filtered.length !== 1 ? 's' : ''}${creFilter ? ` · ${creFilter}ª CRE` : ''}</div>
+                </div>
+                ${indLabel ? `<span class="escola-premium-list__indicator">${indLabel}</span>` : ''}
               </div>
-              ${showInnerSearch ? '<input type="text" id="escola-list-search" class="escola-premium-list__search" placeholder="Filtrar nesta lista..." autocomplete="off">' : ''}
+              <div class="escola-premium-list__search-wrap">
+                <label class="escola-premium-list__search-label" for="escola-list-search">Buscar escola nesta lista</label>
+                <div class="escola-premium-list__search-box">
+                  <span class="escola-premium-list__search-icon" aria-hidden="true">⌕</span>
+                  <input type="text" id="escola-list-search" class="escola-premium-list__search" placeholder="Nome, município ou código INEP..." autocomplete="off">
+                </div>
+                <div class="escola-premium-list__search-hint" id="escola-list-search-hint">${sorted.length} escolas listadas · clique para abrir o boletim</div>
+              </div>
             </div>
             <div class="escola-premium-list__body" id="escola-premium-list-body">
               ${sorted.map(e => escolaPremiumItemHtml(e, indicator, cfg)).join('')}
@@ -13083,11 +13092,26 @@ function renderEscolas() {
         bindEscolaPremiumList(listPanel, onSelect);
 
         const innerSearch = document.getElementById('escola-list-search');
+        const searchHint = document.getElementById('escola-list-search-hint');
+        const renderListHits = (hits, q) => {
+          const body = document.getElementById('escola-premium-list-body');
+          if (!body) return;
+          if (!hits.length) {
+            body.innerHTML = '<div class="escola-premium-list__empty">Nenhuma escola encontrada nesta lista.</div>';
+          } else {
+            body.innerHTML = hits.map(e => escolaPremiumItemHtml(e, indicator, cfg)).join('');
+            bindEscolaPremiumList(body, onSelect);
+          }
+          if (searchHint) {
+            searchHint.textContent = q
+              ? `${hits.length} de ${sorted.length} escolas · filtro ativo`
+              : `${sorted.length} escolas listadas · clique para abrir o boletim`;
+          }
+        };
+
         if (innerSearch) {
           innerSearch.addEventListener('input', () => {
             const q = innerSearch.value.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-            const body = document.getElementById('escola-premium-list-body');
-            if (!body) return;
             const hits = q
               ? sorted.filter(e => {
                   const nome = (e.nome || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -13095,14 +13119,18 @@ function renderEscolas() {
                   return nome.includes(q) || mun.includes(q) || (e.inep || '').includes(q);
                 })
               : sorted;
-            body.innerHTML = hits.map(e => escolaPremiumItemHtml(e, indicator, cfg)).join('');
-            bindEscolaPremiumList(body, onSelect);
+            renderListHits(hits, q);
           });
+          setTimeout(() => innerSearch.focus(), 80);
         }
       } else {
         listPanel.style.display = 'none';
         listPanel.innerHTML = '';
       }
+    }
+    if (mapHeightEl) {
+      mapHeightEl.style.height = showList ? '400px' : '550px';
+      if (map) setTimeout(() => map.invalidateSize(), 120);
     }
 
     // Map markers (sempre acima dos contornos CRE)
@@ -13113,12 +13141,12 @@ function renderEscolas() {
       const color = getEscolaColor(val, indicator);
       const isSelected = S.escolaInepSel === e.inep;
       const marker = L.circleMarker([e.lat, e.lng], {
-        radius: isSelected ? 9 : 6,
+        radius: isSelected ? 6 : 4,
         fillColor: color,
-        fillOpacity: 0.95,
-        color: isSelected ? '#0D47A1' : '#1e293b',
-        weight: isSelected ? 3 : 2,
-        opacity: 1,
+        fillOpacity: 0.78,
+        color: isSelected ? '#0D47A1' : 'rgba(30,41,59,0.65)',
+        weight: isSelected ? 2 : 1.2,
+        opacity: 0.92,
       });
 
       marker.bindTooltip(escolaTooltipHtml(e, indicator, cfg), {
