@@ -12206,8 +12206,8 @@ function updateEscolasCreOverlay(map, creFilter) {
       const isActive = creCod ? cod === creCod : false;
       return {
         fillColor: isActive ? '#0D47A1' : 'transparent',
-        fillOpacity: isActive ? 0.14 : 0,
-        weight: isActive ? 4 : (creCod ? 1.2 : 3.5),
+        fillOpacity: isActive ? 0.12 : 0,
+        weight: isActive ? 3 : (creCod ? 1 : 2.6),
         color: isActive ? '#D4A84B' : (creCod ? 'rgba(13,71,161,0.28)' : '#0D47A1'),
         dashArray: creCod && !isActive ? '8,5' : null,
         opacity: 1,
@@ -13141,11 +13141,11 @@ function renderEscolas() {
       const color = getEscolaColor(val, indicator);
       const isSelected = S.escolaInepSel === e.inep;
       const marker = L.circleMarker([e.lat, e.lng], {
-        radius: isSelected ? 6 : 4,
+        radius: isSelected ? 7 : 5,
         fillColor: color,
-        fillOpacity: 0.78,
+        fillOpacity: 0.82,
         color: isSelected ? '#0D47A1' : 'rgba(30,41,59,0.65)',
-        weight: isSelected ? 2 : 1.2,
+        weight: isSelected ? 2.2 : 1.4,
         opacity: 0.92,
       });
 
