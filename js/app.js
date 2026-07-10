@@ -11768,6 +11768,40 @@ async function renderRedes() {
     return vals.length ? Math.max(...vals) * 1.15 : undefined;
   };
 
+  // Tooltip: valor + % da fatia entre séries no mesmo ponto (ex.: redes no mesmo ano/etapa)
+  const tipPctEntreSeries = {
+    ...CHART_DEFAULTS.plugins.tooltip,
+    callbacks: {
+      label: (ctx) => {
+        const raw = ctx.parsed.y ?? ctx.parsed;
+        if (raw == null || Number.isNaN(Number(raw))) return ` ${ctx.dataset.label || ''}: —`;
+        const v = Number(raw);
+        const idx = ctx.dataIndex;
+        const tot = ctx.chart.data.datasets.reduce((s, ds) => {
+          const x = ds.data[idx];
+          return s + (x != null && !Number.isNaN(Number(x)) ? Number(x) : 0);
+        }, 0);
+        const pct = tot ? (100 * v / tot) : 0;
+        return ` ${ctx.dataset.label || ''}: ${formatNum(v)} (${pct.toFixed(1)}%)`;
+      },
+    },
+  };
+
+  // Tooltip: valor + % do total da própria série (ex.: barras de uma etapa filtrada)
+  const tipPctDaSerie = {
+    ...CHART_DEFAULTS.plugins.tooltip,
+    callbacks: {
+      label: (ctx) => {
+        const raw = ctx.parsed.y ?? ctx.parsed;
+        if (raw == null || Number.isNaN(Number(raw))) return ` ${ctx.dataset.label || ''}: —`;
+        const v = Number(raw);
+        const tot = (ctx.dataset.data || []).reduce((s, x) => s + (x != null && !Number.isNaN(Number(x)) ? Number(x) : 0), 0);
+        const pct = tot ? (100 * v / tot) : 0;
+        return ` ${ctx.dataset.label || ''}: ${formatNum(v)} (${pct.toFixed(1)}%)`;
+      },
+    },
+  };
+
   const matHistLabels = {
     mat_total: 'Total',
     mat_infantil: 'Infantil',
@@ -11812,6 +11846,7 @@ async function renderRedes() {
           ...CHART_DEFAULTS.plugins,
           legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
           datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+          tooltip: tipPctEntreSeries,
         },
         scales: {
           ...CHART_DEFAULTS.scales,
@@ -11852,6 +11887,7 @@ async function renderRedes() {
         ...CHART_DEFAULTS.plugins,
         legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
         datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+        tooltip: tipPctEntreSeries,
       },
       scales: {
         ...CHART_DEFAULTS.scales,
@@ -11917,6 +11953,7 @@ async function renderRedes() {
             ...CHART_DEFAULTS.plugins,
             legend: { display: false },
             datalabels: { ...DL_BAR, formatter: v => v ? formatNumChart(v) : '' },
+            tooltip: tipPctDaSerie,
           },
           scales: {
             ...CHART_DEFAULTS.scales,
@@ -11943,6 +11980,7 @@ async function renderRedes() {
             ...CHART_DEFAULTS.plugins,
             legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
             datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v >= 1000 ? formatNumChart(v) : (v || '') },
+            tooltip: tipPctEntreSeries,
           },
           scales: {
             ...CHART_DEFAULTS.scales,
@@ -12039,6 +12077,17 @@ async function renderRedes() {
               return formatNumChart(v) + ' (' + pct.toFixed(0) + '%)';
             },
           },
+          tooltip: {
+            ...CHART_DEFAULTS.plugins.tooltip,
+            callbacks: {
+              label: (ctx) => {
+                const v = ctx.parsed.y ?? 0;
+                const rowTot = (diurno[ctx.dataIndex] || 0) + (noturno[ctx.dataIndex] || 0);
+                const pct = rowTot ? (100 * v / rowTot) : 0;
+                return ` ${ctx.dataset.label}: ${formatNum(v)} (${pct.toFixed(1)}%)`;
+              },
+            },
+          },
         },
         scales: {
           ...CHART_DEFAULTS.scales,
@@ -12085,6 +12134,18 @@ async function renderRedes() {
               return formatNumChart(v) + ' (' + pct.toFixed(0) + '%)';
             },
           },
+          tooltip: {
+            ...CHART_DEFAULTS.plugins.tooltip,
+            callbacks: {
+              label: (ctx) => {
+                const v = ctx.parsed.y ?? 0;
+                if (!v && etapaKey === 'mat_eja') return ' Integral: —';
+                const base = matBase[ctx.dataIndex] || 0;
+                const pct = base ? (100 * v / base) : 0;
+                return ` Integral: ${formatNum(v)} (${pct.toFixed(1)}% das matrículas)`;
+              },
+            },
+          },
         },
         scales: {
           ...CHART_DEFAULTS.scales,
@@ -12115,6 +12176,7 @@ async function renderRedes() {
         ...CHART_DEFAULTS.plugins,
         legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
         datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+        tooltip: tipPctEntreSeries,
       },
       scales: {
         ...CHART_DEFAULTS.scales,
