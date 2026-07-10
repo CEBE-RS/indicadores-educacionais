@@ -11557,7 +11557,21 @@ async function renderRedes() {
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+            <div class="chart-title" id="redes-mat-hist-title" style="margin:0">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})${geoSuffix()}</div>
+            <div class="flx-toggle-pills" id="redes-hist-etapa-pills">
+              ${[
+                { key: 'mat_total', label: 'Total' },
+                { key: 'mat_infantil', label: 'Infantil' },
+                { key: 'mat_fundamental', label: 'Fundamental' },
+                { key: 'mat_medio', label: 'Médio' },
+                { key: 'mat_eja', label: 'EJA' },
+              ].map(e => `
+                <button type="button" class="flx-pill redes-hist-etapa-pill${(S.redesHistEtapaSel || 'mat_total') === e.key ? ' active' : ''}"
+                  data-etapa="${e.key}" style="--pill-color:#0D47A1">${e.label}</button>
+              `).join('')}
+            </div>
+          </div>
           <div style="height:230px"><canvas id="chart-redes-mat-hist"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
