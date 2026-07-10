@@ -5348,7 +5348,7 @@ function renderHome() {
     { view: 'ideb', icon: 'img/icons/nav_ideb.png', title: 'IDEB', desc: 'Índice de Desenvolvimento da Educação Básica' },
     { view: 'tdi', icon: 'img/icons/politicas.png', title: 'Distorção Idade-Série', desc: 'Taxa de defasagem escolar por etapa' },
     { view: 'escolas', icon: 'img/icons/escola.png', title: 'Visão por Escola', desc: 'Mapa georreferenciado com indicadores por escola' },
-    { view: 'redes', icon: 'img/icons/panorama.png', title: 'Visão por Redes', desc: 'Oferta por mantenedora: escolas, alunos, docentes e etapas' },
+    { view: 'redes', icon: 'img/icons/panorama.png', title: 'Visão por Redes', desc: 'Oferta por dependência: escolas, alunos, docentes e etapas' },
   ];
 
   main.innerHTML = `
@@ -5381,7 +5381,7 @@ function renderHome() {
 
         <div class="home-grid">
           ${sections.map((s, i) => `
-            <div class="home-card ${s.view === 'escolas' ? 'col-span-4' : ''}" data-nav="${s.view}" style="animation: fadeSlideUp .5s ease ${.2 + i * .06}s both">
+            <div class="home-card ${(s.view === 'escolas' || s.view === 'redes') ? 'col-span-2' : ''}" data-nav="${s.view}" style="animation: fadeSlideUp .5s ease ${.2 + i * .06}s both">
               <div class="home-card-icon"><img src="${s.icon}" alt=""></div>
               <div class="home-card-text">
                 <div class="home-card-title">${s.title}</div>
@@ -11527,7 +11527,7 @@ async function renderRedes() {
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/panorama.png', 'Visão por Redes', geoLabel, { redeToggle: false })}
+      ${sectionBanner('img/icons/panorama.png', 'Visão por Redes', `Comparativo por Dependência — ${geoLabel}`, { redeToggle: false })}
       <div class="kpi-strip" id="redes-kpis"></div>
     </div>
 
@@ -13067,8 +13067,7 @@ function renderEscolas() {
     window.fluxoBoletimCharts = [];
 
     const histFluxo = e.fluxo_hist || {};
-    const histTdi = e.tdi_hist || {};
-    const histYears = [...new Set([...Object.keys(histFluxo), ...Object.keys(histTdi)])].sort();
+    const histYears = Object.keys(histFluxo).sort();
 
     if (histYears.length === 0) {
       content.innerHTML = `<div style="font-size:13px;color:#888;text-align:center;padding:20px;width:100%">Sem dados históricos de Fluxo para esta escola.</div>`;
@@ -13082,7 +13081,6 @@ function renderEscolas() {
       { id: 'aprov', title: 'Aprovação', keys: { fund: 'aprov_fund', med: 'aprov_med' }, source: histFluxo },
       { id: 'reprov', title: 'Reprovação', keys: { fund: 'reprov_fund', med: 'reprov_med' }, source: histFluxo },
       { id: 'aband', title: 'Abandono', keys: { fund: 'aband_fund', med: 'aband_med' }, source: histFluxo },
-      { id: 'tdi', title: 'Distorção Idade-Série', keys: { fund: 'tdi_fund', med: 'tdi_med' }, source: histTdi }
     ];
 
     for (const m of metrics) {
@@ -13376,7 +13374,7 @@ function renderEscolas() {
     cHtml += `
       <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
         <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/nav_fluxo.png" style="width:16px;height:16px;filter:opacity(0.8)"> Atraso Escolar TDI (2024)
+          <img src="img/icons/politicas.png" style="width:16px;height:16px;filter:opacity(0.8)"> Distorção Idade-Série — TDI (2024)
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed #eee">
            <div><b>Fundamental:</b> <span style="color:#d32f2f">${e.tdi_fund ? e.tdi_fund.toFixed(1)+'%' : '-'}</span></div>

@@ -1667,9 +1667,11 @@ body.sidebar-hidden .sidebar {
   min-height: calc(100vh - 24px);
   background: #fff;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   border-radius: var(--radius);
   margin: -12px;
+  max-width: calc(100% + 24px);
 }
 
 .home-bg {
@@ -1792,6 +1794,12 @@ body.sidebar-hidden .sidebar {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px 20px;
   animation: fadeSlideUp .7s ease .25s both;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.col-span-2 {
+  grid-column: span 2;
 }
 .col-span-4 { grid-column: span 4; display: flex; align-items: center; justify-content: center; padding: 8px 12px; text-align: center; }
 .col-span-4 .home-card-text { align-items: center; }
@@ -2045,6 +2053,7 @@ body.sidebar-hidden .sidebar {
   .home-hero h1 { font-size: 24px; }
   .home-content { padding: 28px 16px 40px; }
   .home-grid { grid-template-columns: 1fr 1fr !important; }
+  .col-span-2 { grid-column: span 2 !important; }
   .col-span-4 { grid-column: span 2 !important; }
 }
 
@@ -2052,6 +2061,7 @@ body.sidebar-hidden .sidebar {
   .kpi-strip { grid-template-columns: 1fr 1fr !important; }
   .home-grid { grid-template-columns: 1fr !important; }
   .topbar-divider { display: none; }
+  .col-span-2 { grid-column: span 1 !important; }
   .col-span-4 { grid-column: span 1 !important; }
 }
 
