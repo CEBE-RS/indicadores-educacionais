@@ -11361,8 +11361,25 @@ function sumRedesMunRows(rows) {
   if (out.mat_total != null && out.mat_noturno != null) {
     out.mat_diurno = Math.max(0, out.mat_total - out.mat_noturno);
   }
+  if (out.mat_fundamental != null && out.mat_noturno_fund != null) {
+    out.mat_diurno_fund = Math.max(0, out.mat_fundamental - out.mat_noturno_fund);
+    out.mat_noturno_fund = out.mat_noturno_fund;
+  }
+  if (out.mat_medio != null && (out.mat_noturno_med != null || out.mat_noturno_medio != null)) {
+    const n = out.mat_noturno_med ?? out.mat_noturno_medio;
+    out.mat_noturno_medio = n;
+    out.mat_diurno_medio = Math.max(0, out.mat_medio - n);
+  }
+  if (out.mat_eja != null && out.mat_noturno_eja != null) {
+    out.mat_diurno_eja = Math.max(0, out.mat_eja - out.mat_noturno_eja);
+  }
+  if (out.mat_infantil != null) {
+    out.mat_diurno_infantil = out.mat_infantil;
+    out.mat_noturno_infantil = 0;
+  }
   const integParts = [out.int_fund_total, out.int_medio, out.int_infantil].filter(v => v != null);
   out.mat_integral = integParts.length ? integParts.reduce((a, b) => a + b, 0) : null;
+  out.int_fund = out.int_fund_total ?? null;
   return out;
 }
 
@@ -11557,14 +11574,28 @@ async function renderRedes() {
         <span class="section-divider-line"></span>
       </div>
 
+      <div id="redes-etapa-filters" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;padding:0 2px">
+        <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-right:4px">Etapa</span>
+        ${[
+          { key: '', label: 'Todas' },
+          { key: 'mat_infantil', label: 'Infantil' },
+          { key: 'mat_fundamental', label: 'Fundamental' },
+          { key: 'mat_medio', label: 'Médio' },
+          { key: 'mat_eja', label: 'EJA' },
+        ].map(e => `
+          <button type="button" class="flx-pill redes-etapa-pill${(S.redesEtapaSel || '') === e.key ? ' active' : ''}"
+            data-etapa="${e.key}" style="--pill-color:#0D47A1">${e.label}</button>
+        `).join('')}
+      </div>
+
       <div class="charts-grid" style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Matrículas por Etapa e Rede — ${anoSel}${geoSuffix()}</div>
+          <div class="chart-title" id="redes-etapas-title">Matrículas por Etapa e Rede — ${anoSel}${geoSuffix()}</div>
           <div style="height:250px"><canvas id="chart-redes-etapas"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Participação nas Matrículas — ${anoSel}${geoSuffix()}</div>
+          <div class="chart-title" id="redes-share-title">Participação nas Matrículas — ${anoSel}${geoSuffix()}</div>
           <div style="height:250px"><canvas id="chart-redes-share"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11572,12 +11603,12 @@ async function renderRedes() {
 
       <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="chart-card">
-          <div class="chart-title">Forma de Oferta — Diurno × Noturno — ${anoSel}${geoSuffix()}</div>
+          <div class="chart-title" id="redes-turno-title">Forma de Oferta — Diurno × Noturno — ${anoSel}${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-turno"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Educação Integral por Rede — ${anoSel}${geoSuffix()}</div>
+          <div class="chart-title" id="redes-integral-title">Educação Integral por Rede — ${anoSel}${geoSuffix()}</div>
           <div style="height:230px"><canvas id="chart-redes-integral"></canvas></div>
           <div class="chart-source">${FONTE_CENSO}</div>
         </div>
@@ -11754,108 +11785,239 @@ async function renderRedes() {
     { key: 'mat_medio', label: 'Médio' },
     { key: 'mat_eja', label: 'EJA' },
   ];
-  const etapaVals = etapas.flatMap(et => redes.map(r => anoData[r]?.[et.key] || 0));
-  S.charts.push(new Chart(document.getElementById('chart-redes-etapas'), {
-    type: 'bar',
-    data: {
-      labels: etapas.map(e => e.label),
-      datasets: redes.map(r => ({
-        label: r,
-        data: etapas.map(et => anoData[r]?.[et.key] || 0),
-        backgroundColor: cores[r],
-        borderRadius: 3,
-      })),
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
-        datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v >= 1000 ? formatNumChart(v) : (v || '') },
-      },
-      scales: {
-        ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaVals, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
-      },
-    },
-  }));
 
-  const shareData = redes.map(r => anoData[r]?.mat_total || 0);
-  S.charts.push(new Chart(document.getElementById('chart-redes-share'), {
-    type: 'bar',
-    data: {
-      labels: redes,
-      datasets: [{
-        data: shareData.map(v => totMat ? +(100 * v / totMat).toFixed(1) : 0),
-        backgroundColor: redes.map(r => cores[r]),
-        borderRadius: 4,
-      }],
-    },
-    options: {
-      indexAxis: 'y',
-      ...CHART_DEFAULTS,
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        legend: { display: false },
-        datalabels: { ...DL_BAR_PCT, anchor: 'end', align: 'end', formatter: v => v.toFixed(1) + '%' },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${formatNum(shareData[ctx.dataIndex])} matrículas (${ctx.parsed.x.toFixed(1)}%)`,
+  const destroyRedesPerfilCharts = () => {
+    ['chart-redes-etapas', 'chart-redes-share', 'chart-redes-turno', 'chart-redes-integral'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const existing = Chart.getChart(el);
+      if (existing) {
+        S.charts = S.charts.filter(c => c !== existing);
+        existing.destroy();
+      }
+    });
+  };
+
+  const buildRedesPerfilCharts = (etapaKey) => {
+    destroyRedesPerfilCharts();
+    const etSel = etapas.find(e => e.key === etapaKey) || null;
+    const etLabel = etSel ? etSel.label : 'Todas as etapas';
+    const matField = etSel ? etSel.key : 'mat_total';
+
+    const tEl = document.getElementById('redes-etapas-title');
+    const sEl = document.getElementById('redes-share-title');
+    const uEl = document.getElementById('redes-turno-title');
+    const iEl = document.getElementById('redes-integral-title');
+    if (tEl) tEl.textContent = etSel
+      ? `Matrículas — ${etSel.label} por Rede — ${anoSel}${geoSuffix()}`
+      : `Matrículas por Etapa e Rede — ${anoSel}${geoSuffix()}`;
+    if (sEl) sEl.textContent = `Participação nas Matrículas${etSel ? ` (${etSel.label})` : ''} — ${anoSel}${geoSuffix()}`;
+    if (uEl) uEl.textContent = `Forma de Oferta — Diurno × Noturno${etSel ? ` (${etSel.label})` : ''} — ${anoSel}${geoSuffix()}`;
+    if (iEl) iEl.textContent = `Educação Integral${etSel ? ` (${etSel.label})` : ''} por Rede — ${anoSel}${geoSuffix()}`;
+
+    // 1) Etapas × rede (ou só a etapa filtrada)
+    if (etSel) {
+      const vals = redes.map(r => anoData[r]?.[etSel.key] || 0);
+      S.charts.push(new Chart(document.getElementById('chart-redes-etapas'), {
+        type: 'bar',
+        data: {
+          labels: redes,
+          datasets: [{
+            label: etSel.label,
+            data: vals,
+            backgroundColor: redes.map(r => cores[r]),
+            borderRadius: 4,
+          }],
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: { display: false },
+            datalabels: { ...DL_BAR, formatter: v => v ? formatNumChart(v) : '' },
+          },
+          scales: {
+            ...CHART_DEFAULTS.scales,
+            y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...vals, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+          },
+        },
+      }));
+    } else {
+      const etapaVals = etapas.flatMap(et => redes.map(r => anoData[r]?.[et.key] || 0));
+      S.charts.push(new Chart(document.getElementById('chart-redes-etapas'), {
+        type: 'bar',
+        data: {
+          labels: etapas.map(e => e.label),
+          datasets: redes.map(r => ({
+            label: r,
+            data: etapas.map(et => anoData[r]?.[et.key] || 0),
+            backgroundColor: cores[r],
+            borderRadius: 3,
+          })),
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+            datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v >= 1000 ? formatNumChart(v) : (v || '') },
+          },
+          scales: {
+            ...CHART_DEFAULTS.scales,
+            y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaVals, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+          },
+        },
+      }));
+    }
+
+    // 2) Participação % — eixo Y com nomes das redes
+    const shareData = redes.map(r => anoData[r]?.[matField] || 0);
+    const shareTot = shareData.reduce((a, b) => a + b, 0);
+    const sharePct = shareData.map(v => shareTot ? +(100 * v / shareTot).toFixed(1) : 0);
+    S.charts.push(new Chart(document.getElementById('chart-redes-share'), {
+      type: 'bar',
+      data: {
+        labels: redes,
+        datasets: [{
+          label: 'Participação',
+          data: sharePct,
+          backgroundColor: redes.map(r => cores[r]),
+          borderRadius: 4,
+        }],
+      },
+      options: {
+        ...CHART_DEFAULTS,
+        indexAxis: 'y',
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: false },
+          datalabels: {
+            display: true,
+            anchor: 'end',
+            align: 'end',
+            font: { family: 'Inter', size: 11, weight: '700' },
+            color: '#333',
+            formatter: v => (v == null ? '' : Number(v).toFixed(1) + '%'),
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${formatNum(shareData[ctx.dataIndex])} matrículas (${Number(ctx.parsed.x).toFixed(1)}%)`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            suggestedMax: Math.max(...sharePct, 1) * 1.2,
+            grid: { color: COLORS.gridLine },
+            ticks: { font: { family: 'Inter', size: 9 }, callback: v => v + '%' },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter', size: 11, weight: '600' }, color: '#334155' },
           },
         },
       },
-      scales: {
-        x: { ...CHART_DEFAULTS.scales.x, suggestedMax: Math.max(...shareData.map(v => totMat ? 100 * v / totMat : 0), 1) * 1.2, ticks: { callback: v => v + '%' } },
-        y: { ...CHART_DEFAULTS.scales.y, grid: { display: false } },
-      },
-    },
-  }));
+    }));
 
-  const diurno = redes.map(r => anoData[r]?.mat_diurno || 0);
-  const noturno = redes.map(r => anoData[r]?.mat_noturno || 0);
-  S.charts.push(new Chart(document.getElementById('chart-redes-turno'), {
-    type: 'bar',
-    data: {
-      labels: redes,
-      datasets: [
-        { label: 'Diurno', data: diurno, backgroundColor: '#1565C0', borderRadius: 3 },
-        { label: 'Noturno', data: noturno, backgroundColor: '#FF8F00', borderRadius: 3 },
-      ],
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
-        datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v ? formatNumChart(v) : '' },
+    // 3) Turno diurno × noturno (com % no rótulo = % do total da rede na etapa)
+    const turnoMap = {
+      '': { d: 'mat_diurno', n: 'mat_noturno' },
+      mat_infantil: { d: 'mat_diurno_infantil', n: 'mat_noturno_infantil' },
+      mat_fundamental: { d: 'mat_diurno_fund', n: 'mat_noturno_fund' },
+      mat_medio: { d: 'mat_diurno_medio', n: 'mat_noturno_medio' },
+      mat_eja: { d: 'mat_diurno_eja', n: 'mat_noturno_eja' },
+    };
+    const tm = turnoMap[etapaKey || ''] || turnoMap[''];
+    const diurno = redes.map(r => anoData[r]?.[tm.d] || 0);
+    const noturno = redes.map(r => anoData[r]?.[tm.n] || 0);
+    S.charts.push(new Chart(document.getElementById('chart-redes-turno'), {
+      type: 'bar',
+      data: {
+        labels: redes,
+        datasets: [
+          { label: 'Diurno', data: diurno, backgroundColor: '#1565C0', borderRadius: 3 },
+          { label: 'Noturno', data: noturno, backgroundColor: '#FF8F00', borderRadius: 3 },
+        ],
       },
-      scales: {
-        ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...diurno, ...noturno, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+          datalabels: {
+            ...DL_BAR,
+            font: { family: 'Inter', size: 8, weight: '600' },
+            formatter: (v, ctx) => {
+              if (!v) return '';
+              const rowTot = (diurno[ctx.dataIndex] || 0) + (noturno[ctx.dataIndex] || 0);
+              const pct = rowTot ? (100 * v / rowTot) : 0;
+              return formatNumChart(v) + ' (' + pct.toFixed(0) + '%)';
+            },
+          },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...diurno, ...noturno, 1) * 1.22, ticks: { callback: v => formatNumChart(v) } },
+        },
       },
-    },
-  }));
+    }));
 
-  const integ = redes.map(r => anoData[r]?.mat_integral || 0);
-  S.charts.push(new Chart(document.getElementById('chart-redes-integral'), {
-    type: 'bar',
-    data: {
-      labels: redes,
-      datasets: [{ label: 'Integral', data: integ, backgroundColor: redes.map(r => cores[r]), borderRadius: 4 }],
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        legend: { display: false },
-        datalabels: DL_BAR,
+    // 4) Integral
+    const integMap = {
+      '': 'mat_integral',
+      mat_infantil: 'int_infantil',
+      mat_fundamental: 'int_fund',
+      mat_medio: 'int_medio',
+      mat_eja: null, // sem integral EJA tipico
+    };
+    const integKey = integMap[etapaKey || ''];
+    const integ = redes.map(r => (integKey ? (anoData[r]?.[integKey] || 0) : 0));
+    const matBase = redes.map(r => anoData[r]?.[matField] || 0);
+    S.charts.push(new Chart(document.getElementById('chart-redes-integral'), {
+      type: 'bar',
+      data: {
+        labels: redes,
+        datasets: [{
+          label: 'Integral',
+          data: integ,
+          backgroundColor: redes.map(r => cores[r]),
+          borderRadius: 4,
+        }],
       },
-      scales: {
-        ...CHART_DEFAULTS.scales,
-        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...integ, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+      options: {
+        ...CHART_DEFAULTS,
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: false },
+          datalabels: {
+            ...DL_BAR,
+            formatter: (v, ctx) => {
+              if (!v) return etapaKey === 'mat_eja' ? '—' : '';
+              const base = matBase[ctx.dataIndex] || 0;
+              const pct = base ? (100 * v / base) : 0;
+              return formatNumChart(v) + ' (' + pct.toFixed(0) + '%)';
+            },
+          },
+        },
+        scales: {
+          ...CHART_DEFAULTS.scales,
+          y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...integ, 1) * 1.22, ticks: { callback: v => formatNumChart(v) } },
+        },
       },
-    },
-  }));
+    }));
+  };
+
+  buildRedesPerfilCharts(S.redesEtapaSel || '');
+
+  document.querySelectorAll('.redes-etapa-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      S.redesEtapaSel = btn.dataset.etapa || '';
+      document.querySelectorAll('.redes-etapa-pill').forEach(b => b.classList.toggle('active', b === btn));
+      buildRedesPerfilCharts(S.redesEtapaSel);
+      setTimeout(() => injectExportButtons(), 40);
+    });
+  });
 
   const docHistMax = yMax(seriesFor('docentes').flatMap(d => d.data));
   S.charts.push(new Chart(document.getElementById('chart-redes-doc-hist'), {
