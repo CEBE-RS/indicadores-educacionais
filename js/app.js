@@ -37,6 +37,7 @@ const S = {
   escolasMap: null,  // Leaflet map instance for escolas
   escolasMarkers: null, // Leaflet layer group for markers
   escolasCreOverlay: null, // CRE boundaries on escolas map
+  redesData: null,   // 4_1_redes.json — visão cross-rede / mantenedora
   geo: null,
   creGeo: null,      // CRE polygons GeoJSON
   creLookup: null,   // { mun_to_cre, cre_list }
@@ -5320,6 +5321,7 @@ function renderHome() {
   document.body.classList.add('sidebar-hidden');
   const sections = [
     { view: 'acesso', icon: 'img/icons/nav_acesso.png', title: 'Acesso e Matrículas', desc: 'Evolução, etapas e recortes demográficos' },
+    { view: 'redes', icon: 'img/icons/panorama.png', title: 'Redes', desc: 'Oferta por mantenedora: escolas, alunos, docentes e etapas' },
     { view: 'infra', icon: 'img/icons/nav_infra.png', title: 'Infraestrutura', desc: 'Recursos físicos e tecnológicos das escolas' },
     { view: 'icg', icon: 'img/icons/escola.png', title: 'Complexidade de Gestão', desc: 'Níveis de complexidade por escola' },
     { view: 'inse', icon: 'img/icons/nav_desigualdades.png', title: 'Contexto Socioeconômico', desc: 'Indicador INSE por escola e município' },
@@ -10129,6 +10131,7 @@ function initNav() {
       document.body.classList.remove('sidebar-hidden');
 
       if (view === 'acesso' && S.data) { renderAcesso(); }
+      else if (view === 'redes') { ensureRedes(); }
       else if (view === 'fluxo') { renderFluxo(); }
       else if (view === 'infra' && S.infra) { renderInfra(); }
       else if (view === 'docencia' && S.doc) { renderDocencia(); }
@@ -11268,6 +11271,7 @@ function refreshActiveTab() {
   if (view === 'home') renderHome();
   else if (view === 'dados') renderDados();
   else if (view === 'acesso' && S.data) renderAcesso();
+  else if (view === 'redes') ensureRedes();
   else if (view === 'fluxo') renderFluxo();
   else if (view === 'infra' && S.infra) renderInfra();
   else if (view === 'docencia' && S.doc) renderDocencia();
@@ -11279,13 +11283,451 @@ function refreshActiveTab() {
   else if (view === 'afd') renderAfd();
   else if (view === 'tdi') renderTdi();
   else if (view === 'desigualdades') ensureDesig();
-  else if (view === 'escola') renderEscola();
+  else if (view === 'escolas') renderEscolas();
 }
 
 
 // ══════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════
+// REDES (mantenedora / dependência administrativa)
+// ══════════════════════════════════════════════════════════
+
+async function ensureRedes() {
+  if (S.redesData) { renderRedes(); return; }
+  if (S._redesLoading) return;
+  S._redesLoading = true;
+  const main = document.getElementById('main-content');
+  if (main) {
+    main.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Carregando visão por Redes...</span>
+      </div>`;
+  }
+  try {
+    const resp = await fetch('dados/4_1_redes.json?_cb=' + Date.now());
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    S.redesData = await resp.json();
+    renderRedes();
+  } catch (err) {
+    if (main) {
+      main.innerHTML = `
+        <div class="loading" style="color:#C62828;text-align:center;padding:40px">
+          <span>Não foi possível carregar os dados de Redes.<br>${err.message}</span>
+          <button onclick="ensureRedes()" style="margin-top:14px;padding:8px 18px;border-radius:6px;border:1px solid #C62828;background:#fff;color:#C62828;cursor:pointer;font-weight:600">Tentar novamente</button>
+        </div>`;
+    }
+  } finally {
+    S._redesLoading = false;
+  }
+}
+
+function renderRedes() {
+  const main = document.getElementById('main-content');
+  destroyCharts();
+  destroyMap();
+  document.body.classList.remove('sidebar-hidden');
+
+  const rd = S.redesData;
+  if (!rd?.por_rede) {
+    main.innerHTML = `<div class="placeholder-view"><div style="font-size:15px;font-weight:600">Redes</div><div style="font-size:11px;opacity:.7">Dados não disponíveis</div></div>`;
+    return;
+  }
+
+  const meta = rd.metadata || {};
+  const redes = meta.redes || ['Federal', 'Estadual', 'Municipal', 'Privada'];
+  const cores = meta.cores || { Federal: '#7B1FA2', Estadual: '#0D47A1', Municipal: '#00897B', Privada: '#F57C00' };
+  const anos = (meta.anos || Object.keys(rd.por_rede)).slice().sort();
+  const anoSel = (S.anoSel && rd.por_rede[S.anoSel]) ? S.anoSel : anos[anos.length - 1];
+  S.anoSel = anoSel;
+  const anoData = rd.por_rede[anoSel] || {};
+
+  const totEsc = redes.reduce((s, r) => s + (anoData[r]?.escolas || 0), 0);
+  const totMat = redes.reduce((s, r) => s + (anoData[r]?.mat_total || 0), 0);
+  const totDoc = redes.reduce((s, r) => s + (anoData[r]?.docentes || 0), 0);
+  const majRede = [...redes].sort((a, b) => (anoData[b]?.mat_total || 0) - (anoData[a]?.mat_total || 0))[0];
+  const majPct = totMat ? ((anoData[majRede]?.mat_total || 0) / totMat * 100) : 0;
+
+  main.innerHTML = `
+    <div class="section-sticky">
+      ${sectionBanner('img/icons/panorama.png', 'Redes de Ensino', 'Comparativo por mantenedora — RS', { redeToggle: false })}
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 16px 4px;background:#fff;border-bottom:1px solid #eef2f7">
+        <label style="font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.4px">Ano</label>
+        <select id="redes-ano" style="padding:5px 10px;border-radius:8px;border:1px solid #d6dee8;font-size:12px;font-family:Inter;background:#f8fafc;cursor:pointer">
+          ${anos.map(a => `<option value="${a}" ${a === anoSel ? 'selected' : ''}>${a}</option>`).join('')}
+        </select>
+        <span style="font-size:10px;color:#64748b;font-weight:500">Federal · Estadual · Municipal · Privada (Censo Escolar)</span>
+      </div>
+      <div class="kpi-strip" id="redes-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px 16px 12px;background:#fff">
+        <div class="kpi-card accent-blue" style="text-align:center;padding:14px 12px">
+          <div class="kpi-label">Escolas — ${anoSel}</div>
+          <div class="kpi-value" style="font-size:22px">${formatNum(totEsc)}</div>
+        </div>
+        <div class="kpi-card accent-green" style="text-align:center;padding:14px 12px">
+          <div class="kpi-label">Matrículas</div>
+          <div class="kpi-value" style="font-size:22px">${formatNum(totMat)}</div>
+        </div>
+        <div class="kpi-card accent-yellow" style="text-align:center;padding:14px 12px">
+          <div class="kpi-label">Docentes</div>
+          <div class="kpi-value" style="font-size:22px">${formatNum(totDoc)}</div>
+        </div>
+        <div class="kpi-card accent-red" style="text-align:center;padding:14px 12px">
+          <div class="kpi-label">Maior rede (${majRede})</div>
+          <div class="kpi-value" style="font-size:22px">${majPct.toFixed(1)}%</div>
+          <div style="font-size:9px;color:#64748b;margin-top:2px">das matrículas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-content" style="padding:10px 16px 50px">
+      <div class="section-divider">
+        <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
+        <span class="section-divider-text">Histórico por Mantenedora</span>
+        <span class="section-divider-line"></span>
+      </div>
+
+      <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="chart-card">
+          <div class="chart-title">Matrículas por Rede (${anos[0]}–${anos[anos.length - 1]})</div>
+          <div style="height:230px"><canvas id="chart-redes-mat-hist"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Escolas por Rede (${anos[0]}–${anos[anos.length - 1]})</div>
+          <div style="height:230px"><canvas id="chart-redes-esc-hist"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-divider-icon"><img src="img/icons/matriculas.png" alt=""></span>
+        <span class="section-divider-text">Perfil da Oferta — ${anoSel}</span>
+        <span class="section-divider-line"></span>
+      </div>
+
+      <div class="charts-grid" style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px">
+        <div class="chart-card">
+          <div class="chart-title">Matrículas por Etapa e Rede — ${anoSel}</div>
+          <div style="height:250px"><canvas id="chart-redes-etapas"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Participação nas Matrículas — ${anoSel}</div>
+          <div style="height:250px"><canvas id="chart-redes-share"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+      </div>
+
+      <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="chart-card">
+          <div class="chart-title">Forma de Oferta — Diurno × Noturno — ${anoSel}</div>
+          <div style="height:230px"><canvas id="chart-redes-turno"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Educação Integral por Rede — ${anoSel}</div>
+          <div style="height:230px"><canvas id="chart-redes-integral"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-divider-icon"><img src="img/icons/sec_docentes.png" alt=""></span>
+        <span class="section-divider-text">Docentes e Razão Aluno/Professor</span>
+        <span class="section-divider-line"></span>
+      </div>
+
+      <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="chart-card">
+          <div class="chart-title">Docentes por Rede (histórico)</div>
+          <div style="height:230px"><canvas id="chart-redes-doc-hist"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Razão Aluno / Professor — ${anoSel}</div>
+          <div style="height:230px"><canvas id="chart-redes-razao"></canvas></div>
+          <div class="chart-source">${FONTE_CENSO}</div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-divider-icon"><img src="img/icons/territorial.png" alt=""></span>
+        <span class="section-divider-text">Tabela Comparativa — ${anoSel}</span>
+        <span class="section-divider-line"></span>
+      </div>
+
+      <div class="chart-card" style="overflow-x:auto">
+        <table class="data-table" id="redes-table">
+          <thead><tr>
+            <th>Rede</th><th>Escolas</th><th>Matrículas</th><th>% Mat.</th>
+            <th>Infantil</th><th>Fundamental</th><th>Médio</th><th>EJA</th>
+            <th>Docentes</th><th>A/P</th><th>Noturno</th><th>Integral</th>
+          </tr></thead>
+          <tbody>
+            ${redes.map(r => {
+              const v = anoData[r] || {};
+              const pct = totMat ? (100 * (v.mat_total || 0) / totMat) : 0;
+              return `<tr>
+                <td style="font-weight:700;color:${cores[r] || '#333'}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cores[r]};margin-right:6px"></span>${r}</td>
+                <td>${formatNum(v.escolas || 0)}</td>
+                <td>${formatNum(v.mat_total || 0)}</td>
+                <td>${pct.toFixed(1)}%</td>
+                <td>${formatNum(v.mat_infantil || 0)}</td>
+                <td>${formatNum(v.mat_fundamental || 0)}</td>
+                <td>${formatNum(v.mat_medio || 0)}</td>
+                <td>${formatNum(v.mat_eja || 0)}</td>
+                <td>${v.docentes != null ? formatNum(v.docentes) : '—'}</td>
+                <td>${v.razao_ap != null ? v.razao_ap.toFixed(1) : '—'}</td>
+                <td>${v.mat_noturno != null ? formatNum(v.mat_noturno) : '—'}</td>
+                <td>${v.mat_integral != null ? formatNum(v.mat_integral) : '—'}</td>
+              </tr>`;
+            }).join('')}
+            <tr style="font-weight:800;background:#f8fafc">
+              <td>Total RS</td>
+              <td>${formatNum(totEsc)}</td>
+              <td>${formatNum(totMat)}</td>
+              <td>100%</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_infantil || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_fundamental || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_medio || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_eja || 0), 0))}</td>
+              <td>${formatNum(totDoc)}</td>
+              <td>${totDoc ? (totMat / totDoc).toFixed(1) : '—'}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_noturno || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_integral || 0), 0))}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="chart-source" style="margin-top:8px">${FONTE_CENSO} · Privada inclui escolas filantrópicas (TP_DEPENDENCIA=4).</div>
+      </div>
+    </div>
+  `;
+
+  // Bind year
+  document.getElementById('redes-ano')?.addEventListener('change', e => {
+    S.anoSel = e.target.value;
+    renderRedes();
+  });
+
+  const seriesFor = (field) => redes.map(r => ({
+    label: r,
+    data: anos.map(a => rd.por_rede[a]?.[r]?.[field] ?? null),
+    borderColor: cores[r],
+    backgroundColor: cores[r],
+    tension: 0.25,
+    pointRadius: 2.5,
+    pointHoverRadius: 4,
+    borderWidth: 2,
+    spanGaps: true,
+  }));
+
+  const yMax = (arr) => {
+    const vals = arr.filter(v => v != null && !isNaN(v));
+    return vals.length ? Math.max(...vals) * 1.15 : undefined;
+  };
+
+  // Hist matrículas
+  const matHistMax = yMax(seriesFor('mat_total').flatMap(d => d.data));
+  S.charts.push(new Chart(document.getElementById('chart-redes-mat-hist'), {
+    type: 'line',
+    data: { labels: anos, datasets: seriesFor('mat_total') },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+        datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: matHistMax, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => formatNumChart(v) } },
+      },
+    },
+  }));
+
+  // Hist escolas
+  const escHistMax = yMax(seriesFor('escolas').flatMap(d => d.data));
+  S.charts.push(new Chart(document.getElementById('chart-redes-esc-hist'), {
+    type: 'line',
+    data: { labels: anos, datasets: seriesFor('escolas') },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+        datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: escHistMax },
+      },
+    },
+  }));
+
+  // Etapas × rede (grouped bars)
+  const etapas = [
+    { key: 'mat_infantil', label: 'Infantil' },
+    { key: 'mat_fundamental', label: 'Fundamental' },
+    { key: 'mat_medio', label: 'Médio' },
+    { key: 'mat_eja', label: 'EJA' },
+  ];
+  const etapaVals = etapas.flatMap(et => redes.map(r => anoData[r]?.[et.key] || 0));
+  S.charts.push(new Chart(document.getElementById('chart-redes-etapas'), {
+    type: 'bar',
+    data: {
+      labels: etapas.map(e => e.label),
+      datasets: redes.map(r => ({
+        label: r,
+        data: etapas.map(et => anoData[r]?.[et.key] || 0),
+        backgroundColor: cores[r],
+        borderRadius: 3,
+      })),
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+        datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v >= 1000 ? formatNumChart(v) : (v || '') },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...etapaVals) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+      },
+    },
+  }));
+
+  // Share donut (4 categories OK for pizza rule? rule says never >3 - so use horizontal bar instead)
+  const shareData = redes.map(r => anoData[r]?.mat_total || 0);
+  S.charts.push(new Chart(document.getElementById('chart-redes-share'), {
+    type: 'bar',
+    data: {
+      labels: redes,
+      datasets: [{
+        data: shareData.map(v => totMat ? +(100 * v / totMat).toFixed(1) : 0),
+        backgroundColor: redes.map(r => cores[r]),
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: false },
+        datalabels: { ...DL_BAR_PCT, anchor: 'end', align: 'end', formatter: v => v.toFixed(1) + '%' },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${formatNum(shareData[ctx.dataIndex])} matrículas (${ctx.parsed.x.toFixed(1)}%)`,
+          },
+        },
+      },
+      scales: {
+        x: { ...CHART_DEFAULTS.scales.x, suggestedMax: Math.max(...shareData.map(v => totMat ? 100 * v / totMat : 0)) * 1.2, ticks: { callback: v => v + '%' } },
+        y: { ...CHART_DEFAULTS.scales.y, grid: { display: false } },
+      },
+    },
+  }));
+
+  // Turno diurno × noturno
+  const diurno = redes.map(r => anoData[r]?.mat_diurno || 0);
+  const noturno = redes.map(r => anoData[r]?.mat_noturno || 0);
+  S.charts.push(new Chart(document.getElementById('chart-redes-turno'), {
+    type: 'bar',
+    data: {
+      labels: redes,
+      datasets: [
+        { label: 'Diurno', data: diurno, backgroundColor: '#1565C0', borderRadius: 3 },
+        { label: 'Noturno', data: noturno, backgroundColor: '#FF8F00', borderRadius: 3 },
+      ],
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+        datalabels: { ...DL_BAR, font: { family: 'Inter', size: 8, weight: '600' }, formatter: v => v ? formatNumChart(v) : '' },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...diurno, ...noturno) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+      },
+    },
+  }));
+
+  // Integral
+  const integ = redes.map(r => anoData[r]?.mat_integral || 0);
+  S.charts.push(new Chart(document.getElementById('chart-redes-integral'), {
+    type: 'bar',
+    data: {
+      labels: redes,
+      datasets: [{ label: 'Integral', data: integ, backgroundColor: redes.map(r => cores[r]), borderRadius: 4 }],
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: false },
+        datalabels: DL_BAR,
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...integ, 1) * 1.18, ticks: { callback: v => formatNumChart(v) } },
+      },
+    },
+  }));
+
+  // Docentes hist
+  const docHistMax = yMax(seriesFor('docentes').flatMap(d => d.data));
+  S.charts.push(new Chart(document.getElementById('chart-redes-doc-hist'), {
+    type: 'line',
+    data: { labels: anos, datasets: seriesFor('docentes') },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+        datalabels: { ...DL_LINE, display: ctx => ctx.dataIndex === anos.length - 1 || ctx.dataIndex === 0 },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: docHistMax, ticks: { callback: v => formatNumChart(v) } },
+      },
+    },
+  }));
+
+  // Razão A/P
+  const razao = redes.map(r => anoData[r]?.razao_ap ?? null);
+  S.charts.push(new Chart(document.getElementById('chart-redes-razao'), {
+    type: 'bar',
+    data: {
+      labels: redes,
+      datasets: [{
+        label: 'Alunos por professor',
+        data: razao,
+        backgroundColor: redes.map(r => cores[r]),
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        legend: { display: false },
+        datalabels: { ...DL_BAR, formatter: v => v != null ? v.toFixed(1) : '' },
+      },
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, suggestedMax: Math.max(...razao.filter(v => v != null), 1) * 1.2 },
+      },
+    },
+  }));
+
+  setTimeout(() => injectExportButtons(), 50);
+}
 
 // ══════════════════════════════════════════════════════════
 // DESIGUALDADES EDUCACIONAIS (SAERS)
