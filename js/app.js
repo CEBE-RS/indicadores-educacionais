@@ -11347,9 +11347,9 @@ async function loadDocentesOnly(redeKey) {
 
 function sumRedesMunRows(rows) {
   const keys = [
-    'escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_medio', 'mat_eja',
+    'escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja',
     'mat_noturno', 'mat_noturno_fund', 'mat_noturno_med', 'mat_noturno_eja',
-    'int_fund_total', 'int_medio', 'int_infantil',
+    'int_fund_total', 'int_fund_ai', 'int_fund_af', 'int_medio', 'int_infantil',
   ];
   const out = {};
   for (const row of rows) {
@@ -11376,6 +11376,15 @@ function sumRedesMunRows(rows) {
   if (out.mat_infantil != null) {
     out.mat_diurno_infantil = out.mat_infantil;
     out.mat_noturno_infantil = 0;
+  }
+  // AI/AF: Censo nao publica noturno separado — trata como diurno
+  if (out.mat_fund_ai != null) {
+    out.mat_diurno_fund_ai = out.mat_fund_ai;
+    out.mat_noturno_fund_ai = 0;
+  }
+  if (out.mat_fund_af != null) {
+    out.mat_diurno_fund_af = out.mat_fund_af;
+    out.mat_noturno_fund_af = 0;
   }
   const integParts = [out.int_fund_total, out.int_medio, out.int_infantil].filter(v => v != null);
   out.mat_integral = integParts.length ? integParts.reduce((a, b) => a + b, 0) : null;
@@ -11415,7 +11424,7 @@ async function buildRedesPorGeo(redes, anos, munCod, creCod) {
       if (row.docentes && row.mat_total) row.razao_ap = +(row.mat_total / row.docentes).toFixed(1);
       else row.razao_ap = null;
       // garantir zeros quando municipio nao tem a rede
-      for (const k of ['escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_medio', 'mat_eja']) {
+      for (const k of ['escolas', 'mat_total', 'mat_infantil', 'mat_fundamental', 'mat_fund_ai', 'mat_fund_af', 'mat_medio', 'mat_eja']) {
         if (row[k] == null) row[k] = 0;
       }
       por_rede[ano][label] = row;
@@ -11562,7 +11571,8 @@ async function renderRedes() {
             ${[
               { key: 'mat_total', label: 'Total' },
               { key: 'mat_infantil', label: 'Infantil' },
-              { key: 'mat_fundamental', label: 'Fundamental' },
+              { key: 'mat_fund_ai', label: 'Anos Iniciais' },
+              { key: 'mat_fund_af', label: 'Anos Finais' },
               { key: 'mat_medio', label: 'Médio' },
               { key: 'mat_eja', label: 'EJA' },
             ].map(e => `
@@ -11591,7 +11601,8 @@ async function renderRedes() {
         ${[
           { key: '', label: 'Todas' },
           { key: 'mat_infantil', label: 'Infantil' },
-          { key: 'mat_fundamental', label: 'Fundamental' },
+          { key: 'mat_fund_ai', label: 'Anos Iniciais' },
+          { key: 'mat_fund_af', label: 'Anos Finais' },
           { key: 'mat_medio', label: 'Médio' },
           { key: 'mat_eja', label: 'EJA' },
         ].map(e => `
@@ -11655,7 +11666,7 @@ async function renderRedes() {
         <table class="data-table" id="redes-table">
           <thead><tr>
             <th>Rede</th><th>Escolas</th><th>Matrículas</th><th>% Mat.</th>
-            <th>Infantil</th><th>Fundamental</th><th>Médio</th><th>EJA</th>
+            <th>Infantil</th><th>Anos Iniciais</th><th>Anos Finais</th><th>Médio</th><th>EJA</th>
             <th>Docentes</th><th>A/P</th><th>Noturno</th><th>Integral</th>
           </tr></thead>
           <tbody>
@@ -11668,7 +11679,8 @@ async function renderRedes() {
                 <td>${formatNum(v.mat_total || 0)}</td>
                 <td>${pct.toFixed(1)}%</td>
                 <td>${formatNum(v.mat_infantil || 0)}</td>
-                <td>${formatNum(v.mat_fundamental || 0)}</td>
+                <td>${formatNum(v.mat_fund_ai || 0)}</td>
+                <td>${formatNum(v.mat_fund_af || 0)}</td>
                 <td>${formatNum(v.mat_medio || 0)}</td>
                 <td>${formatNum(v.mat_eja || 0)}</td>
                 <td>${v.docentes != null ? formatNum(v.docentes) : '—'}</td>
@@ -11683,7 +11695,8 @@ async function renderRedes() {
               <td>${formatNum(totMat)}</td>
               <td>100%</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_infantil || 0), 0))}</td>
-              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_fundamental || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_fund_ai || 0), 0))}</td>
+              <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_fund_af || 0), 0))}</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_medio || 0), 0))}</td>
               <td>${formatNum(redes.reduce((s, r) => s + (anoData[r]?.mat_eja || 0), 0))}</td>
               <td>${totDoc ? formatNum(totDoc) : '—'}</td>
@@ -11758,6 +11771,8 @@ async function renderRedes() {
   const matHistLabels = {
     mat_total: 'Total',
     mat_infantil: 'Infantil',
+    mat_fund_ai: 'Anos Iniciais',
+    mat_fund_af: 'Anos Finais',
     mat_fundamental: 'Fundamental',
     mat_medio: 'Médio',
     mat_eja: 'EJA',
@@ -11847,7 +11862,8 @@ async function renderRedes() {
 
   const etapas = [
     { key: 'mat_infantil', label: 'Infantil' },
-    { key: 'mat_fundamental', label: 'Fundamental' },
+    { key: 'mat_fund_ai', label: 'Anos Iniciais' },
+    { key: 'mat_fund_af', label: 'Anos Finais' },
     { key: 'mat_medio', label: 'Médio' },
     { key: 'mat_eja', label: 'EJA' },
   ];
@@ -11990,6 +12006,8 @@ async function renderRedes() {
     const turnoMap = {
       '': { d: 'mat_diurno', n: 'mat_noturno' },
       mat_infantil: { d: 'mat_diurno_infantil', n: 'mat_noturno_infantil' },
+      mat_fund_ai: { d: 'mat_diurno_fund_ai', n: 'mat_noturno_fund_ai' },
+      mat_fund_af: { d: 'mat_diurno_fund_af', n: 'mat_noturno_fund_af' },
       mat_fundamental: { d: 'mat_diurno_fund', n: 'mat_noturno_fund' },
       mat_medio: { d: 'mat_diurno_medio', n: 'mat_noturno_medio' },
       mat_eja: { d: 'mat_diurno_eja', n: 'mat_noturno_eja' },
@@ -12033,6 +12051,8 @@ async function renderRedes() {
     const integMap = {
       '': 'mat_integral',
       mat_infantil: 'int_infantil',
+      mat_fund_ai: 'int_fund_ai',
+      mat_fund_af: 'int_fund_af',
       mat_fundamental: 'int_fund',
       mat_medio: 'int_medio',
       mat_eja: null, // sem integral EJA tipico
