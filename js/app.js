@@ -13935,8 +13935,11 @@ function renderEscolas() {
       S.escolasMarkers.addLayer(marker);
     }
 
-    // Contornos CRE abaixo dos pontos
-    updateEscolasCreOverlay(map, creFilter);
+    // Sem contornos CRE no mapa de escolas
+    if (S.escolasCreOverlay) {
+      try { map.removeLayer(S.escolasCreOverlay); } catch (e) { /* noop */ }
+      S.escolasCreOverlay = null;
+    }
     if (S.escolasMarkers) S.escolasMarkers.bringToFront();
 
     // Auto-focus mapa
