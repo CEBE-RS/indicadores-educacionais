@@ -23,31 +23,41 @@ O painel é estruturado em duas camadas totalmente independentes:
 
 ## 2. Estrutura de Diretórios do Projeto
 
-A raiz do projeto deve manter a seguinte organização de pastas:
+O **repositório Git** (`CEBE-RS/indicadores-educacionais`) contém o frontend e os scripts ETL. As bases brutas ficam **fora do Git**, em pasta local:
 
 ```text
-├── 00. Bases de Dados/               # Bases originais brutas (não sobem para o Git público)
+<projeto>/
+├── 00. Bases de Dados/               # Bases originais brutas (NÃO versionar)
 │   ├── 01. Acesso e Matrículas (Censo Escolar_2010_2025)/
 │   │   └── 01. extrações_2010_2025/
-│   │       ├── microdados_ed_basica_[ANO].csv    # Microdados anuais do Censo Escolar
-│   │       ├── Tabela_Escola_2025.csv             # Tabelas do censo mais recentes desmembradas
-│   │       └── Tabela_Matricula_2025.csv          #
+│   │       ├── microdados_ed_basica_[ANO].csv
+│   │       ├── Tabela_Escola_2025.csv
+│   │       └── Tabela_Matricula_2025.csv
 │   ├── 02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)/
-│   │   └── 01. Rendimento e TDI/                  # Planilhas INEP de Rendimento Escolar e TDI
-│   ├── 10, SAERS/                                 # Microdados de proficiência do SAERS
-│   └── (Demais pastas de bases brutas: SAEB, INSE, ICG, AFD)
+│   │   └── 01. Rendimento e TDI/
+│   ├── 10, SAERS/
+│   └── (Demais pastas: SAEB, IDEB, INSE, ICG, AFD)
 │
-├── painel/                           # Frontend Estático (Esta pasta é enviada para o servidor/GitHub Pages)
-│   ├── css/                          # Folhas de estilo (styles.css)
-│   ├── dados/                        # Destino dos JSONs gerados pelo ETL (4_*.json)
-│   ├── img/                          # Ícones e logotipos oficiais
-│   ├── js/                           # Lógica JS do painel (app.js)
-│   └── index.html                    # Página de entrada única (SPA)
-│
-├── etl_*.py                          # Scripts Python que compõem o pipeline de dados
-├── run_etl_all.py                    # Script de conveniência para reprocessamento completo
-└── DOCUMENTACAO_MANUTENCAO.md        # Este arquivo
+└── indicadores-educacionais/         # Clone do repositório GitHub
+    ├── index.html
+    ├── css/  js/  img/
+    ├── dados/                        # JSONs gerados pelo ETL (versionados)
+    ├── etl/                          # Scripts Python de atualização
+    │   ├── paths.py                  # Caminhos portáteis (BASE / OUT_DIR)
+    │   ├── etl_*.py
+    │   ├── gerar_planilhas_download.py
+    │   ├── run_etl_all.py
+    │   └── README.md
+    ├── DOCUMENTACAO_MANUTENCAO.md
+    ├── REQUISITOS_HOSPEDAGEM.md
+    └── README.md
 ```
+
+Os scripts em `etl/` resolvem automaticamente:
+- **BASE** = pasta `<projeto>` (irmã do repositório), onde está `00. Bases de Dados`
+- **OUT_DIR / PAINEL_DIR** = `dados/` dentro do repositório
+
+Override opcional: variável de ambiente `UNESCO_ETL_ROOT` apontando para `<projeto>`.
 
 ---
 
@@ -57,18 +67,23 @@ A tabela abaixo descreve a responsabilidade de cada script ETL, os arquivos de e
 
 | Script ETL | Fontes de Dados de Entrada | Arquivo(s) JSON Gerado(s) | Seção do Painel Atendida |
 | :--- | :--- | :--- | :--- |
-| **`etl_censo_escolar.py`** | Microdados do Censo Escolar (2010 a 2024) e Tabelas de 2025. | `4_1_acesso_[rede].json` (para cada rede: estadual, municipal, etc.) e cópia de compatibilidade em `4_1_acesso_matriculas.json` | Acesso e Matrículas |
-| **`etl_infra_docentes.py`** | Microdados do Censo Escolar (filtrado por rede) contendo recursos físicos da escola e perfil de formação. | `4_5_infra_[rede].json`<br>`4_5_docentes_[rede].json` | Infraestrutura e Docência |
-| **`etl_fluxo_rendimento.py`** | Planilhas de Taxas de Rendimento (Aprovação, Reprovação, Abandono) do INEP de 2010-2024 por Município, Escola e UF, e planilhas de Taxa de Distorção Idade-Série (TDI). | `4_3_fluxo_[rede].json`<br>`4_10_tdi_[rede].json` | Fluxo e Rendimento, Distorção Idade-Série |
-| **`etl_saeb.py`** | Planilhas oficiais do SAEB por escola, município e UF. | `4_6_saeb_[rede].json` | SAEB (Proficiência histórica) |
-| **`etl_saers.py`** | Microdados do SAERS (2022-2025) fornecidos pelo CAEd. | `4_saers_[rede].json`<br>`4_saers_escolas.json` | SAERS (Avaliação Estadual) |
-| **`etl_desigualdades.py`** | Microdados do SAERS contendo perfis sociodemográficos de alunos (raça, sexo, localização, turno). | `4_11_desigualdades.json` | Desigualdades (Gráficos e cruzamentos) |
-| **`etl_escolas.py`** | Cadastro de coordenadas e dados consolidados do Censo de Escolas Estaduais do RS. | `escolas_estaduais.json` | Visão por Escola (Mapa Georreferenciado) |
-| **`etl_funil_turma_locdif.py`** | Tabelas do Censo Escolar compilando matrículas por turma e áreas de localização diferenciada (Quilombolas, Indígenas, etc.). | `4_1_funil_turma_locdif.json` | Acesso e Matrículas (Gráfico de Funil / Diferenciadas) |
-| **`etl_inse.py`** | Planilhas do Indicador de Nível Socioeconômico (INSE) do INEP. | `4_7_inse_[rede].json` | Contexto Socioeconômico (INSE) |
-| **`etl_icg.py`** | Planilhas do Indicador de Complexidade de Gestão Escolar (ICG) do INEP. | `4_8_icg_[rede].json` | Complexidade de Gestão (ICG) |
-| **`etl_afd.py`** | Planilhas do Indicador de Adequação da Formação Docente (AFD) do INEP. | `4_9_afd_[rede].json` | Formação Docente (AFD) |
-
+| **`etl/etl_censo_escolar.py`** | Microdados do Censo Escolar (2010 a 2024) e Tabelas de 2025. | `4_1_acesso_[rede].json` (para cada rede: estadual, municipal, etc.) e cópia de compatibilidade em `4_1_acesso_matriculas.json` | Acesso e Matrículas |
+| **`etl/etl_suplementar.py`** | Complementos do Censo (campos adicionais nas séries). | Atualiza `4_1_acesso_[rede].json` | Acesso e Matrículas |
+| **`etl/etl_infra_docentes.py`** | Microdados do Censo Escolar (filtrado por rede) contendo recursos físicos da escola e perfil de formação. | `4_5_infra_[rede].json`<br>`4_5_docentes_[rede].json` | Infraestrutura e Docência |
+| **`etl/etl_fluxo_rendimento.py`** | Planilhas de Taxas de Rendimento (Aprovação, Reprovação, Abandono) do INEP. | `4_3_fluxo_[rede].json` | Fluxo e Rendimento |
+| **`etl/etl_tdi.py`** | Planilhas de Taxa de Distorção Idade-Série (TDI) do INEP. | `4_10_tdi_[rede].json` | Distorção Idade-Série |
+| **`etl/etl_funil_turma_locdif.py`** | Tabelas do Censo Escolar (funil, turma, localização diferenciada). | `4_1_funil_turma_locdif.json` | Acesso e Matrículas |
+| **`etl/etl_saeb.py`** | Planilhas/microdados oficiais do SAEB. | `4_6_saeb_[rede].json` | SAEB |
+| **`etl/etl_saers.py`** | Microdados do SAERS (2022-2025) fornecidos pelo CAEd. | `4_saers_[rede].json`<br>`4_saers_escolas.json` | SAERS |
+| **`etl/etl_desigualdades.py`** | Microdados do SAERS (recortes sociodemográficos). | `4_11_desigualdades.json` | Desigualdades |
+| **`etl/etl_ideb.py`** | Planilhas oficiais do IDEB (INEP). | `4_7_ideb_[rede].json` | IDEB |
+| **`etl/etl_escolas.py`** | Cadastro/coordenadas + indicadores por escola. | `escolas_estaduais.json` | Visão por Escola |
+| **`etl/etl_inse.py`** | Planilhas do INSE (INEP). | `4_7_inse_[rede].json` | INSE |
+| **`etl/etl_icg.py`** | Planilhas do ICG (INEP). | `4_8_icg_[rede].json` | Complexidade de Gestão |
+| **`etl/etl_afd.py`** | Planilhas do AFD (INEP). | `4_9_afd_[rede].json` | Formação Docente (AFD) |
+| **`etl/etl_redes.py`** | Consolida JSONs já gerados (cross-rede). | `4_1_redes.json` | Visão por Redes |
+| **`etl/gerar_planilhas_download.py`** | Lê os JSONs do painel. | `dados/downloads/*.xlsx` + `manifest.json` | Central de Dados |
+| **`etl/run_etl_all.py`** | Orquestra a sequência completa acima. | — | Manutenção |
 ---
 
 ## 4. Configuração do Ambiente e Requisitos do Pipeline
@@ -81,30 +96,50 @@ A tabela abaixo descreve a responsabilidade de cada script ETL, os arquivos de e
   ```
 
 ### Ajuste de Caminho Base (`BASE`)
-Todos os scripts de ETL contêm uma constante no topo chamada `BASE` que determina onde os arquivos do projeto estão localizados. 
-Ao rodar os scripts em uma nova máquina ou servidor, edite esta linha no script (ou garanta que ele seja executado no diretório correto usando caminhos relativos). Exemplo:
+Os scripts importam `etl/paths.py`, que define automaticamente:
 
-```python
-# No script Python:
-BASE = os.path.dirname(os.path.abspath(__file__))
-# ou caminho absoluto:
-BASE = r"C:\Caminho\Ate\O\Repositorio\Produto 4_Indicadores Educacionais"
+- `BASE` / `BASES_DIR` → pasta do projeto com `00. Bases de Dados` (irmã do repositório)
+- `OUT_DIR` / `PAINEL_DIR` → `dados/` dentro do repositório Git
+
+Em geral **não é necessário editar** os scripts. Se o layout local for diferente:
+
+```bash
+# PowerShell
+$env:UNESCO_ETL_ROOT="C:\Caminho\Ate\O\Projeto"
 ```
 
 ---
 
 ## 5. Ordem Sugerida para Execução de Atualização Completa
 
-Caso decida atualizar as bases de dados históricas ou processar um novo lote anual completo, execute os scripts na seguinte ordem lógica para garantir integridade e coerência entre os arquivos gerados:
+Caso decida atualizar as bases de dados históricas ou processar um novo lote anual completo, execute os scripts **a partir da pasta `etl/`** na seguinte ordem:
 
-1. **`python etl_censo_escolar.py`** (Base principal de matrículas de todas as seções)
-2. **`python etl_infra_docentes.py`** (Gera a infraestrutura física e os dados de corpo docente)
-3. **`python etl_fluxo_rendimento.py`** (Calcula as taxas oficiais UF/INEP de aprovação e distorção)
-4. **`python etl_funil_turma_locdif.py`** (Agrega dados de localização de escolas diferenciadas)
-5. **`python etl_saers.py`** e **`python etl_saeb.py`** (Atualiza as proficiências das avaliações oficiais)
-6. **`python etl_desigualdades.py`** ou **`python run_etl_all.py`** (Processa os recortes socioeconômicos de raça/cor/sexo no SAERS)
-7. **`python etl_escolas.py`** (Compila as coordenadas das escolas para o mapa final)
-8. **`python etl_inse.py`**, **`etl_icg.py`**, **`etl_afd.py`** (Atualiza os indicadores complementares do INEP)
+```bash
+cd etl
+python etl_censo_escolar.py
+python etl_suplementar.py
+python etl_infra_docentes.py
+python etl_fluxo_rendimento.py
+python etl_tdi.py
+python etl_funil_turma_locdif.py
+python etl_saeb.py
+python etl_saers.py
+python etl_desigualdades.py
+python etl_ideb.py
+python etl_escolas.py
+python etl_inse.py
+python etl_icg.py
+python etl_afd.py
+python etl_redes.py
+python gerar_planilhas_download.py
+```
+
+Atalho para a sequência completa:
+
+```bash
+cd etl
+python run_etl_all.py
+```
 
 ---
 
@@ -131,16 +166,17 @@ for ano in range(2010, 2027): # O range em Python é exclusivo no final, então 
 ```
 
 ### Passo 3: Executar o script
-Abra o prompt de comando ou terminal, navegue até a pasta raiz do projeto e execute:
+Abra o terminal, navegue até a pasta `etl/` do repositório e execute:
 ```bash
+cd etl
 python etl_censo_escolar.py
 ```
-O console exibirá o progresso de leitura do arquivo bruto, o filtro para as escolas ativas do Rio Grande do Sul e a geração dos novos JSONs em `painel/dados/4_1_acesso_[rede].json`.
+O console exibirá o progresso de leitura do arquivo bruto, o filtro para as escolas ativas do Rio Grande do Sul e a geração dos novos JSONs em `dados/4_1_acesso_[rede].json`.
 
 ### Passo 4: Publicar as alterações no Git
-Uma vez que o script rodar com sucesso e gerar os arquivos em `painel/dados/`, basta versionar e subir as atualizações para o GitHub que hospeda a página:
+Uma vez que o script rodar com sucesso e gerar os arquivos em `dados/`, basta versionar e subir as atualizações para o GitHub que hospeda a página:
 ```bash
-git add painel/dados/
+git add dados/
 git commit -m "data: adiciona dados do Censo Escolar 2026"
 git push
 ```
