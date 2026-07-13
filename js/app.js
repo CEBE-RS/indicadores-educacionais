@@ -2214,8 +2214,8 @@ function renderInfra() {
       <span class="section-divider-line"></span>
     </div>
 
-    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="chart-card" style="padding:0;overflow:hidden">
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+      <div class="chart-card" style="padding:0;overflow:hidden;min-width:0">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,90,50,.04);border-bottom:1px solid rgba(0,90,50,.08);flex-wrap:wrap;gap:6px">
           <span style="font-weight:600;font-size:12px;color:#333">Mapa — ${anoAtual}</span>
           <div class="map-layer-toggle">
@@ -2243,7 +2243,7 @@ function renderInfra() {
         </div>
         <div id="infra-map" style="height:480px;width:100%"></div>
       </div>
-      <div class="chart-card">
+      <div class="chart-card" style="min-width:0">
         <div class="table-header">
           <h3>Indicadores de Infraestrutura por Município — 2024</h3>
           <input type="text" class="table-search" id="infra-mun-search" placeholder="Buscar município...">
