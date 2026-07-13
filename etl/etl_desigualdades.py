@@ -1,297 +1,392 @@
-import csv
-import json
-import os
-import sys
-from collections import defaultdict
-from pathlib import Path
+import pandas as pd
+import json, os, time, unicodedata, re
 
-BASE = Path(r'C:\Users\mathe\OneDrive\Desktop\Trabalhos\06. UNESCO\04. Produto 4_Indicadores Educacionais')
-SAERS_DIR = BASE / '00. Bases de Dados' / '10, SAERS'
-OUTPUT = BASE / 'painel' / 'dados' / '4_11_desigualdades.json'
 
-ANOS = [2022, 2023, 2024, 2025]
+# --- caminhos portateis (repo Git + bases locais) ---
+from paths import BASE, OUT_DIR, PAINEL_DIR, BASES_DIR, BASES_BASICAS  # noqa: E402
 
-# Mapeamento de raça para labels padronizados (handles 2023 UPPER, 2024 Title, 2025 com sufixo)
-RACA_MAP = {
-    # 2025 format: Branco(a)
-    'Branco(a)': 'Branca',
-    'Pardo(a)': 'Parda',
-    'Preto(a)': 'Preta',
-    'Amarelo(a)': 'Amarela',
-    'Ind\xedgena(a)': 'Ind\u00edgena',
-    # 2024 format: Title case
-    'Branca': 'Branca',
-    'Parda': 'Parda',
-    'Preta': 'Preta',
-    'Amarela': 'Amarela',
-    'Ind\xedgena': 'Ind\u00edgena',
-    'Indigena': 'Ind\u00edgena',
-    # 2023 format: UPPERCASE
-    'BRANCA': 'Branca',
-    'PARDA': 'Parda',
-    'PRETA': 'Preta',
-    'AMARELA': 'Amarela',
-    'INDIGENA': 'Ind\u00edgena',
+
+SAERS_DIR = os.path.join(BASE, '00. Bases de Dados', '10, SAERS')
+
+YEARS = [2022, 2023, 2024, 2025]
+
+# Columns needed
+COLS = [
+    'CD_ESCOLA', 'NM_ESCOLA', 'CD_MUNICIPIO', 'NM_MUNICIPIO',
+    'CD_REGIONAL', 'NM_REGIONAL', 'CD_REDE', 'DC_REDE',
+    'CD_ETAPA_AVALIADA', 'DC_ETAPA_AVALIADA',
+    'NM_DISCIPLINA', 'VL_PROFICIENCIA', 'DC_PADRAO_DESEMPENHO',
+    'FL_AVALIADO', 'FL_PREVISTO',
+    'DC_COR_RACA', 'DC_RACA', 'DC_SEXO', 'DC_ALUNO_NEC_ESPECIAL', 'TIPO_DEFICIENCIA', 'DC_LOCALIZACAO', 'DC_TURNO'
+]
+
+# Normalizers (same as etl_saers.py)
+def norm_etapa(s):
+    if pd.isna(s): return ''
+    s = str(s).strip()
+    s = unicodedata.normalize('NFKD', s)
+    s = re.sub(r'[^\x00-\x7F]', '', s).upper().strip()
+    if '2' in s and 'ANO' in s: return '2_EF'
+    if '5' in s and 'ANO' in s: return '5_EF'
+    if '9' in s and 'ANO' in s: return '9_EF'
+    if '3' in s and ('SERIE' in s or 'SRI' in s): return '3_EM'
+    return s
+
+def norm_disc(s):
+    if pd.isna(s): return ''
+    s = unicodedata.normalize('NFKD', str(s))
+    s = re.sub(r'[^\x00-\x7F]', '', s).strip().upper()
+    if 'PORT' in s or 'LINGU' in s: return 'LP'
+    if 'MAT' in s: return 'MT'
+    return s
+
+PADRAO_MAP = {
+    'AVANÇADO': 'avancado', 'AVANCADO': 'avancado',
+    'ADEQUADO': 'adequado',
+    'BÁSICO': 'basico', 'BASICO': 'basico',
+    'ABAIXO DO BÁSICO': 'abaixo', 'ABAIXO DO BASICO': 'abaixo',
 }
 
-SEXO_MAP = {
-    'Feminino': 'Feminino',
-    'Masculino': 'Masculino',
-    'FEMININO': 'Feminino',
-    'MASCULINO': 'Masculino',
-}
+def norm_padrao(s):
+    if pd.isna(s): return None
+    s = unicodedata.normalize('NFKD', str(s))
+    s = re.sub(r'[^\x00-\x7F]', '', s).strip().upper()
+    return PADRAO_MAP.get(s, None)
 
-ETAPA_MAP = {
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 2\xba ANO': '2_EF',
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 5\xba ANO': '5_EF',
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 9\xba ANO': '9_EF',
-    'ENSINO MEDIO - 3\xaa SERIE': '3_EM',
-    'ENSINO MEDIO - 3\xba SERIE': '3_EM',
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 2\u00ba ANO': '2_EF',
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 5\u00ba ANO': '5_EF',
-    'ENSINO FUNDAMENTAL DE 9 ANOS - 9\u00ba ANO': '9_EF',
-    'ENSINO MEDIO - 3\u00aa SERIE': '3_EM',
-    'ENSINO MEDIO - 3\u00ba SERIE': '3_EM',
-}
+def norm_deficiencia(s):
+    if pd.isna(s): return 'Sem Deficiência'
+    s = str(s).strip()
+    if s in ['', '*']: return 'Sem Deficiência'
+    return 'Com Deficiência'
 
-DISC_MAP = {
-    'L\xedngua Portuguesa': 'LP',
-    'Matem\xe1tica': 'MT',
-    'L\u00edngua Portuguesa': 'LP',
-    'Matem\u00e1tica': 'MT',
-    'Lingua Portuguesa': 'LP',
-    'Matematica': 'MT',
-}
+def norm_raca(s):
+    if pd.isna(s): return None
+    s = str(s).strip().strip('"')
+    su = s.upper()
+    if 'IND' in su: return 'Indígena'
+    if 'BRANC' in su: return 'Branca'
+    if 'PARD' in su: return 'Parda'
+    if 'PRET' in su: return 'Preta'
+    if 'AMAREL' in su: return 'Amarela'
+    return None
 
-PADRAO_ADEQ = {'Adequado', 'Avan\xe7ado', 'Avan\u00e7ado', 'Avancado', 'Avançado'}
+def norm_sexo(s):
+    if pd.isna(s): return None
+    s = str(s).strip().strip('"')
+    su = s.upper()
+    if su == 'FEMININO': return 'Feminino'
+    if su == 'MASCULINO': return 'Masculino'
+    return None
 
-TURNO_MAP = {
-    'MANHA': 'Manhã',
-    'TARDE': 'Tarde',
-    'NOITE': 'Noite',
-    'INTEGRAL': 'Integral',
-}
+def norm_loc(s):
+    if pd.isna(s): return None
+    s = str(s).strip().strip('"')
+    su = s.upper()
+    if su == 'URBANA': return 'Urbana'
+    if su == 'RURAL': return 'Rural'
+    return None
 
+def norm_turno(s):
+    if pd.isna(s): return None
+    s = str(s).strip().strip('"')
+    su = s.upper()
+    if 'MANH' in su: return 'Manhã'
+    if su == 'TARDE': return 'Tarde'
+    if su == 'NOITE': return 'Noite'
+    if su == 'INTEGRAL': return 'Integral'
+    return None
 
-class Aggregator:
-    def __init__(self):
-        self.sum_prof = 0.0
-        self.count = 0
-        self.adeq_avancado = 0
-        self.total_padrao = 0
+def aggregate_subset(df_sub):
+    total = len(df_sub)
+    if total == 0: return None
     
-    def add(self, prof, padrao):
-        if prof is not None:
-            self.sum_prof += prof
-            self.count += 1
-        if padrao:
-            self.total_padrao += 1
-            if padrao in PADRAO_ADEQ:
-                self.adeq_avancado += 1
+    with_prof = df_sub.dropna(subset=['VL_PROFICIENCIA'])
+    n = len(with_prof)
+    prof_media = round(float(with_prof['VL_PROFICIENCIA'].mean()), 1) if n > 0 else None
     
-    def to_dict(self):
-        # Minimum N constraint: N >= 10 for averages to be statistically valid
-        if self.count < 10:
-            return None
-        return {
-            'media': round(self.sum_prof / self.count, 1),
-            'n': self.count,
-            'pct_adeq_av': round(self.adeq_avancado / self.total_padrao * 100, 1) if self.total_padrao > 0 else None,
-            'n_padrao': self.total_padrao,
-        }
-
-def extract_cre_code(nm_regional):
-    if not nm_regional: return None
-    parts = nm_regional.split('\xaa')
-    if len(parts) < 2: parts = nm_regional.split('\u00aa')
-    if len(parts) < 2: parts = nm_regional.split('\xba')
-    if len(parts) < 2: parts = nm_regional.split('\u00ba')
-    if len(parts) >= 2: return parts[0].strip()
-    num = ''
-    for c in nm_regional:
-        if c.isdigit(): num += c
-        else: break
-    return num if num else None
-
-def extract_cre_name(nm_regional):
-    if not nm_regional: return None
-    idx = nm_regional.find(' - ')
-    if idx >= 0: return nm_regional[idx+3:].strip().title()
-    return nm_regional.strip()
-
-def get_empty_block():
+    with_padrao = df_sub.dropna(subset=['padrao_norm'])
+    np_total = len(with_padrao)
+    padrao = {}
+    if np_total > 0:
+        for p in ['avancado', 'adequado', 'basico', 'abaixo']:
+            padrao[p] = int((with_padrao['padrao_norm'] == p).sum())
+        padrao['pct_adequado_avancado'] = round((padrao['avancado'] + padrao['adequado']) / np_total * 100, 1)
+        padrao['pct_basico'] = round(padrao['basico'] / np_total * 100, 1)
+        padrao['pct_abaixo'] = round(padrao['abaixo'] / np_total * 100, 1)
+        
+    if prof_media is None and np_total == 0:
+        return None
+        
     return {
-        'geral': defaultdict(Aggregator),
-        'dimensoes': defaultdict(lambda: defaultdict(lambda: defaultdict(Aggregator)))
+        'n': total,
+        'n_padrao': np_total,
+        'media': prof_media,
+        'pct_adeq_av': padrao.get('pct_adequado_avancado', None),
+        'padrao': padrao
     }
 
-def block_to_dict(block):
-    result = {'geral': {}, 'dimensoes': {}}
-    for key, agg in block['geral'].items():
-        d = agg.to_dict()
-        if d: result['geral'][key] = d
-    for dim_name, groups in block['dimensoes'].items():
-        dim_res = {}
-        for group_name, etapa_discs in groups.items():
-            grp_res = {}
-            for key, agg in etapa_discs.items():
-                d = agg.to_dict()
-                if d: grp_res[key] = d
-            if grp_res: dim_res[group_name] = grp_res
-        if dim_res: result['dimensoes'][dim_name] = dim_res
+def aggregate_dimensoes(g):
+    dims = {}
     
-    if not result['geral'] and not result['dimensoes']:
-        return None
-    return result
+    # 1. Sexo
+    if 'sexo' in g.columns and g['sexo'].notna().any():
+        dims['sexo'] = {}
+        for k, sub in g.groupby('sexo'):
+            res = aggregate_subset(sub)
+            if res: dims['sexo'][k] = res
+            
+    # 2. Raca
+    if 'raca' in g.columns and g['raca'].notna().any():
+        dims['raca'] = {}
+        for k, sub in g.groupby('raca'):
+            res = aggregate_subset(sub)
+            if res: dims['raca'][k] = res
+            
+    # 3. Deficiencia
+    if 'deficiencia' in g.columns and g['deficiencia'].notna().any():
+        dims['deficiencia'] = {}
+        for k, sub in g.groupby('deficiencia'):
+            res = aggregate_subset(sub)
+            if res: dims['deficiencia'][k] = res
+            
+    # 4. Localizacao
+    if 'loc' in g.columns and g['loc'].notna().any():
+        dims['localizacao'] = {}
+        for k, sub in g.groupby('loc'):
+            res = aggregate_subset(sub)
+            if res: dims['localizacao'][k] = res
+            
+    # 5. Turno
+    if 'turno' in g.columns and g['turno'].notna().any():
+        dims['turno'] = {}
+        for k, sub in g.groupby('turno'):
+            res = aggregate_subset(sub)
+            if res: dims['turno'][k] = res
 
-def process_year(ano):
-    filepath = SAERS_DIR / f'SAERS_{ano}.csv'
-    if not filepath.exists():
-        print(f'  SKIP: {filepath} not found')
-        return None
-    
-    print(f'  Processando {filepath.name} ({filepath.stat().st_size / 1024 / 1024:.0f} MB)...')
-    
-    estado = get_empty_block()
-    por_cre = defaultdict(get_empty_block)
-    por_municipio = defaultdict(get_empty_block)
-    
-    cre_lookup = {}
-    n_total = 0
-    n_avaliados = 0
-    
-    for enc in ['utf-8', 'latin-1']:
-        try:
-            with open(filepath, 'r', encoding=enc) as f:
-                reader = csv.DictReader(f, delimiter=';')
-                for row in reader:
-                    n_total += 1
-                    if row.get('FL_AVALIADO', '') != '1': continue
-                    prof_str = row.get('VL_PROFICIENCIA', '').strip()
-                    if not prof_str: continue
-                    try: prof = float(prof_str.replace(',', '.'))
-                    except: continue
-                    
-                    etapa_raw = row.get('DC_ETAPA_AVALIADA', '')
-                    disc_raw = row.get('NM_DISCIPLINA', '')
-                    etapa = ETAPA_MAP.get(etapa_raw)
-                    disc = DISC_MAP.get(disc_raw)
-                    if not etapa or not disc: continue
-                    
-                    n_avaliados += 1
-                    key = f'{etapa}_{disc}'
-                    padrao = row.get('DC_PADRAO_DESEMPENHO', '').strip()
-                    
-                    blocks = [estado]
-                    
-                    nm_reg = row.get('NM_REGIONAL', '').strip()
-                    cre_code = extract_cre_code(nm_reg)
-                    if cre_code:
-                        blocks.append(por_cre[cre_code])
-                        if cre_code not in cre_lookup: cre_lookup[cre_code] = extract_cre_name(nm_reg)
-                    
-                    mun_name = row.get('NM_MUNICIPIO', '').strip()
-                    if mun_name:
-                        blocks.append(por_municipio[mun_name.title()])
-                    
-                    raca_raw = (row.get('DC_RACA') or row.get('DC_COR_RACA') or '').strip()
-                    raca = RACA_MAP.get(raca_raw)
-                    sexo = SEXO_MAP.get(row.get('DC_SEXO', '').strip())
-                    loc_raw = row.get('DC_LOCALIZACAO', '').strip()
-                    loc = 'Urbana' if loc_raw.upper() == 'URBANA' else ('Rural' if loc_raw.upper() == 'RURAL' else None)
-                    defic = row.get('TIPO_DEFICIENCIA', '').strip()
-                    grupo_def = 'Com deficiência' if defic else 'Sem deficiência'
-                    turno = TURNO_MAP.get(row.get('DC_TURNO', '').strip())
-                    
-                    for block in blocks:
-                        block['geral'][key].add(prof, padrao)
-                        if raca: block['dimensoes']['raca'][raca][key].add(prof, padrao)
-                        if sexo: block['dimensoes']['sexo'][sexo][key].add(prof, padrao)
-                        if loc: block['dimensoes']['localizacao'][loc][key].add(prof, padrao)
-                        if ano == 2025:  # Somente 2025 tem dados consistentes de deficiência
-                            block['dimensoes']['deficiencia'][grupo_def][key].add(prof, padrao)
-                        if turno: block['dimensoes']['turno'][turno][key].add(prof, padrao)
-                        
-                    if cre_code:
-                        estado['dimensoes']['cre'][cre_code][key].add(prof, padrao)
-                    
-                    if raca and loc in ('Urbana', 'Rural'):
-                        inter_key = f'{raca} - {loc}'
-                        for block in blocks:
-                            block['dimensoes']['raca_loc'][inter_key][key].add(prof, padrao)
+    # 6. Intersecao Raca x Loc
+    if 'raca' in g.columns and 'loc' in g.columns:
+        valid = g.dropna(subset=['raca', 'loc'])
+        if len(valid) > 0:
+            dims['raca_loc'] = {}
+            for (r, l), sub in valid.groupby(['raca', 'loc']):
+                res = aggregate_subset(sub)
+                if res: dims['raca_loc'][f"{r} - {l}"] = res
 
-                    if n_total % 2_000_000 == 0:
-                        print(f'    ... {n_total:,} linhas processadas, {n_avaliados:,} avaliados')
+    # 7. Intersecao Raca x Sexo
+    if 'raca' in g.columns and 'sexo' in g.columns:
+        valid = g.dropna(subset=['raca', 'sexo'])
+        if len(valid) > 0:
+            dims['raca_sexo'] = {}
+            for (r, s), sub in valid.groupby(['raca', 'sexo']):
+                res = aggregate_subset(sub)
+                if res: dims['raca_sexo'][f"{r} - {s}"] = res
+
+    return dims if dims else None
+
+def aggregate_dimensoes_simple(g):
+    """Simplified version for escola-level: no cross-dimensional groupings (raça×sexo, raça×loc)
+    to avoid exponential explosion with ~2500 schools × 8 etapa/disc combos."""
+    dims = {}
+    for col_name, dim_name in [('sexo','sexo'), ('raca','raca'), ('deficiencia','deficiencia'), ('loc','localizacao'), ('turno','turno')]:
+        if col_name in g.columns and g[col_name].notna().any():
+            dims[dim_name] = {}
+            for k, sub in g.groupby(col_name):
+                res = aggregate_subset(sub)
+                if res: dims[dim_name][k] = res
+    return dims if dims else None
+
+def rearrange_dimensoes(dim_list):
+    """
+    dim_list is a list of dicts: [{'etapa':'...', 'disc':'...', 'dims': {...}}, ...]
+    We want to transpose it to:
+    {
+      'sexo': { 'Feminino': {'5_EF_LP': {...}, ...}, ...},
+      'raca': { 'Branca': {'5_EF_LP': {...}, ...}, ...},
+      ...
+    }
+    """
+    res = {}
+    for item in dim_list:
+        key = f"{item['etapa']}_{item['disc']}"
+        dims = item['dims']
+        if not dims: continue
+        for dim_name, dim_groups in dims.items():
+            if dim_name not in res: res[dim_name] = {}
+            for group_name, stats in dim_groups.items():
+                if group_name not in res[dim_name]: res[dim_name][group_name] = {}
+                res[dim_name][group_name][key] = stats
+    return res
+
+def process_year(year):
+    # Try multiple filename patterns
+    candidates = [
+        os.path.join(SAERS_DIR, f'Microdados_SAERS_{year}_V3.csv'),
+        os.path.join(SAERS_DIR, f'SAERS_{year}.csv'),
+    ]
+    fname = None
+    for c in candidates:
+        if os.path.exists(c):
+            fname = c
             break
-        except UnicodeDecodeError:
-            continue
+    if not fname: return None
+    print(f"Loading {year} from {os.path.basename(fname)}...", flush=True)
     
-    print(f'    Total: {n_total:,} linhas, {n_avaliados:,} avaliados')
+    enc = 'latin-1'
+    def usecol_filter(c):
+        return c.strip().strip('\ufeff').strip('\xef\xbb\xbf') in COLS
+        
+    df = pd.read_csv(fname, sep=';', encoding=enc, low_memory=False, usecols=usecol_filter)
+    df.columns = [c.strip().strip('\ufeff').strip('\xef\xbb\xbf') for c in df.columns]
     
-    result = {
-        'ano': ano,
-        'total_registros': n_total,
-        'total_avaliados': n_avaliados,
-        'cre_lookup': cre_lookup,
-        'geral': {},
-        'dimensoes': {},
-        'por_cre': {},
-        'por_municipio': {}
-    }
+    # Filter state network only (assuming Desigualdades is mainly Estadual, wait, Produto 4 is usually State network)
+    # Actually, we should filter for ESTADUAL network
+    if 'DC_REDE' in df.columns:
+        df['rede_norm'] = df['DC_REDE'].astype(str).str.strip().str.upper()
+        df = df[df['rede_norm'] == 'ESTADUAL']
     
-    res_estado = block_to_dict(estado)
-    if res_estado:
-        result['geral'] = res_estado['geral']
-        result['dimensoes'] = res_estado['dimensoes']
+    df['etapa'] = df.get('DC_ETAPA_AVALIADA', pd.Series(dtype=str)).apply(norm_etapa)
+    df['disc'] = df.get('NM_DISCIPLINA', pd.Series(dtype=str)).apply(norm_disc)
+    df['padrao_norm'] = df.get('DC_PADRAO_DESEMPENHO', pd.Series(dtype=str)).apply(norm_padrao)
+    
+    if 'VL_PROFICIENCIA' in df.columns:
+        df['VL_PROFICIENCIA'] = df['VL_PROFICIENCIA'].astype(str).str.replace(',', '.', regex=False)
+        df['VL_PROFICIENCIA'] = pd.to_numeric(df['VL_PROFICIENCIA'], errors='coerce')
+    else:
+        df['VL_PROFICIENCIA'] = np.nan
         
-    for c, blk in por_cre.items():
-        res = block_to_dict(blk)
-        if res: result['por_cre'][c] = res
-        
-    for m, blk in por_municipio.items():
-        res = block_to_dict(blk)
-        if res: result['por_municipio'][m] = res
-        
+    if 'DC_SEXO' in df.columns: df['sexo'] = df['DC_SEXO'].apply(norm_sexo)
+    if 'DC_COR_RACA' in df.columns: df['raca'] = df['DC_COR_RACA'].apply(norm_raca)
+    elif 'DC_RACA' in df.columns: df['raca'] = df['DC_RACA'].apply(norm_raca)
+    
+    if 'DC_ALUNO_NEC_ESPECIAL' in df.columns: df['deficiencia'] = df['DC_ALUNO_NEC_ESPECIAL'].apply(norm_deficiencia)
+    elif 'TIPO_DEFICIENCIA' in df.columns: df['deficiencia'] = df['TIPO_DEFICIENCIA'].apply(norm_deficiencia)
+    
+    if 'DC_LOCALIZACAO' in df.columns: df['loc'] = df['DC_LOCALIZACAO'].apply(norm_loc)
+    if 'DC_TURNO' in df.columns: df['turno'] = df['DC_TURNO'].apply(norm_turno)
+    
+    # Drop rows without etapa or disc
+    df = df[(df['etapa'] != '') & (df['disc'] != '')]
+    
+    result = {'ano': year, 'total_registros': len(df)}
+    
+    # GERAL (Estado)
+    print("  Aggregating State...", flush=True)
+    geral = {}
+    dim_list = []
+    for (etapa, disc), g in df.groupby(['etapa', 'disc']):
+        key = f"{etapa}_{disc}"
+        res = aggregate_subset(g)
+        if res:
+            res['etapa'] = etapa
+            res['disc'] = disc
+            geral[key] = res
+        dims = aggregate_dimensoes(g)
+        if dims:
+            dim_list.append({'etapa': etapa, 'disc': disc, 'dims': dims})
+    result['geral'] = geral
+    result['dimensoes'] = rearrange_dimensoes(dim_list)
+    
+    # CRE
+    print("  Aggregating CRE...", flush=True)
+    por_cre = {}
+    cre_lookup = {}
+    if 'CD_REGIONAL' in df.columns:
+        for (cod, etapa, disc), g in df.groupby(['CD_REGIONAL', 'etapa', 'disc']):
+            cod = str(cod).strip()
+            if cod not in por_cre:
+                por_cre[cod] = {'geral': {}, 'dimensoes': {}}
+                nome = g['NM_REGIONAL'].iloc[0] if 'NM_REGIONAL' in g.columns and len(g) > 0 else ''
+                cre_lookup[cod] = nome
+            res = aggregate_subset(g)
+            if res:
+                por_cre[cod]['geral'][f"{etapa}_{disc}"] = res
+            
+            # Dimensions for CRE
+            dims = aggregate_dimensoes(g)
+            if dims:
+                if not por_cre[cod]['dimensoes']: por_cre[cod]['dimensoes'] = []
+                por_cre[cod]['dimensoes'].append({'etapa': etapa, 'disc': disc, 'dims': dims})
+                
+        for cod in por_cre:
+            if por_cre[cod]['dimensoes']:
+                por_cre[cod]['dimensoes'] = rearrange_dimensoes(por_cre[cod]['dimensoes'])
+            else:
+                por_cre[cod]['dimensoes'] = {}
+                
+    result['por_cre'] = por_cre
+    result['cre_lookup'] = cre_lookup
+    
+    # Municipio
+    print("  Aggregating Municipio...", flush=True)
+    por_mun = {}
+    if 'CD_MUNICIPIO' in df.columns:
+        for (cod, etapa, disc), g in df.groupby(['CD_MUNICIPIO', 'etapa', 'disc']):
+            cod = str(cod).strip()
+            if cod not in por_mun:
+                por_mun[cod] = {'geral': {}, 'dimensoes': {}}
+            res = aggregate_subset(g)
+            if res:
+                por_mun[cod]['geral'][f"{etapa}_{disc}"] = res
+                
+            dims = aggregate_dimensoes(g)
+            if dims:
+                if not por_mun[cod]['dimensoes']: por_mun[cod]['dimensoes'] = []
+                por_mun[cod]['dimensoes'].append({'etapa': etapa, 'disc': disc, 'dims': dims})
+                
+        for cod in por_mun:
+            if por_mun[cod]['dimensoes']:
+                por_mun[cod]['dimensoes'] = rearrange_dimensoes(por_mun[cod]['dimensoes'])
+            else:
+                por_mun[cod]['dimensoes'] = {}
+    result['por_municipio'] = por_mun
+    
+    # Escola
+    print("  Aggregating Escola...", flush=True)
+    por_esc = {}
+    escola_lookup = {}
+    if 'CD_ESCOLA' in df.columns:
+        for (cod, etapa, disc), g in df.groupby(['CD_ESCOLA', 'etapa', 'disc']):
+            cod = str(cod).strip()
+            if cod not in por_esc:
+                por_esc[cod] = {'geral': {}, 'dimensoes': {}}
+                nome = g['NM_ESCOLA'].iloc[0] if 'NM_ESCOLA' in g.columns and len(g) > 0 else ''
+                cod_mun = str(g['CD_MUNICIPIO'].iloc[0]).strip() if 'CD_MUNICIPIO' in g.columns and len(g) > 0 else ''
+                cod_cre = str(g['CD_REGIONAL'].iloc[0]).strip() if 'CD_REGIONAL' in g.columns and len(g) > 0 else ''
+                escola_lookup[cod] = {'nome': str(nome).strip(), 'cod_mun': cod_mun, 'cre': cod_cre}
+            res = aggregate_subset(g)
+            if res:
+                por_esc[cod]['geral'][f"{etapa}_{disc}"] = res
+                
+            dims = aggregate_dimensoes_simple(g)
+            if dims:
+                if not por_esc[cod]['dimensoes']: por_esc[cod]['dimensoes'] = []
+                por_esc[cod]['dimensoes'].append({'etapa': etapa, 'disc': disc, 'dims': dims})
+                
+        for cod in por_esc:
+            if por_esc[cod]['dimensoes']:
+                por_esc[cod]['dimensoes'] = rearrange_dimensoes(por_esc[cod]['dimensoes'])
+            else:
+                por_esc[cod]['dimensoes'] = {}
+    result['por_escola'] = por_esc
+    result['escola_lookup'] = escola_lookup
+    
     return result
 
 def main():
-    print('=== ETL Desigualdades SAERS ===')
-    output = {
-        'metadata': {
-            'titulo': 'Desigualdades Educacionais — SAERS',
-            'fonte': 'SAERS/CAED — Microdados da Avaliação do Estado do Rio Grande do Sul',
-            'dimensoes': {
-                'raca': 'Raça/Cor',
-                'sexo': 'Sexo',
-                'localizacao': 'Localização (Urbana/Rural)',
-                'deficiencia': 'Deficiência',
-                'turno': 'Turno',
-                'cre': 'Coordenadoria Regional de Educação',
-                'raca_loc': 'Raça/Cor × Localização',
-            },
-            'etapa_labels': {
-                '2_EF': '2º ano EF',
-                '5_EF': '5º ano EF',
-                '9_EF': '9º ano EF',
-                '3_EM': '3ª série EM',
-            },
-            'disc_labels': {
-                'LP': 'Língua Portuguesa',
-                'MT': 'Matemática',
-            },
-        },
-        'anos': [],
-    }
-    for ano in ANOS:
-        print(f'\n[{ano}]')
-        year_data = process_year(ano)
-        if year_data:
-            output['anos'].append(year_data)
-    print(f'\nGravando {OUTPUT}...')
-    with open(OUTPUT, 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=None, separators=(',', ':'))
-    size_mb = OUTPUT.stat().st_size / 1024 / 1024
-    print(f'OK: {OUTPUT.name} ({size_mb:.1f} MB)')
+    t0 = time.time()
+    anos_data = []
+    for y in YEARS:
+        res = process_year(y)
+        if res: anos_data.append(res)
+        
+    out_path = os.path.join(OUT_DIR, '4_11_desigualdades.json')
+    os.makedirs(OUT_DIR, exist_ok=True)
+    
+    meta = {'fonte': 'SAERS/CAED - Microdados da Avaliação do Estado do Rio Grande do Sul', 'etapa_labels': {'2_EF': '2º ano EF', '5_EF': '5º ano EF', '9_EF': '9º ano EF', '3_EM': '3ª série EM'}}
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump({'metadata': meta, 'anos': anos_data}, f, ensure_ascii=False, separators=(',', ':'))
+        
+    print(f"Done in {time.time()-t0:.1f}s. Saved to {out_path}")
 
 if __name__ == '__main__':
     main()

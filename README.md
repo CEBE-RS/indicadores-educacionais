@@ -42,29 +42,25 @@ O projeto adota os princípios da arquitetura **JAMstack estática** para garant
 
 ## 📂 Estrutura de Diretórios de Produção
 
-A pasta `painel/` versionada neste repositório contém apenas os arquivos necessários para o servidor web público:
+A raiz deste repositório contém o frontend público e o pipeline ETL:
 
 ```text
-painel/
+./
 ├── index.html                  # Shell único do painel (SPA)
 ├── README.md                   # Este arquivo
 ├── DOCUMENTACAO_MANUTENCAO.md  # Manual de manutenção dos scripts ETL (Python)
 ├── REQUISITOS_HOSPEDAGEM.md    # Manual de infraestrutura/hospedagem para a TI da SEDUC
 ├── css/
-│   └── styles.css              # Design system, animações e layout
+│   └── styles.css
 ├── js/
-│   └── app.js                  # Lógica central (bindings, rotas, renderizadores de gráficos)
+│   └── app.js
 ├── img/
-│   ├── logo_rs.avif            # Logotipos oficiais
-│   ├── UNESCO_logo_white.png   #
-│   └── icons/                  # Biblioteca de ícones compactados
-└── dados/                      # Bases de dados agregadas em JSON
-    ├── 4_1_acesso_[rede].json
-    ├── 4_3_fluxo_[rede].json
-    ├── 4_11_desigualdades.json # Cruzamentos socioeconômicos (SAERS)
-    ├── escolas_estaduais.json  # Coordenadas geográficas das escolas
-    ├── rs_municipios.geojson   # Malha geográfica dos municípios
-    └── (demais arquivos JSON compactados)
+├── dados/                      # Bases agregadas em JSON (+ downloads/*.xlsx)
+└── etl/                        # Scripts Python para atualizar os JSONs
+    ├── paths.py
+    ├── etl_*.py
+    ├── gerar_planilhas_download.py
+    └── README.md
 ```
 
 ---
