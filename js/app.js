@@ -2549,13 +2549,23 @@ function buildInfraKPIs(infra, ano, anos) {
       const m = pm[cod]; if (!m) continue;
       munSu.escolas += m.escolas || 0;
       for (const [k, v] of Object.entries(m.indicadores || {})) {
+        if (k === 'PCT_SALAS_CLIMATIZADAS') {
+          if (!munSu.indicadores[k]) munSu.indicadores[k] = { total_salas: 0, total_clim: 0, pct: 0 };
+          munSu.indicadores[k].total_salas += v.total_salas || 0;
+          munSu.indicadores[k].total_clim += v.total_clim || 0;
+          continue;
+        }
         if (!munSu.indicadores[k]) munSu.indicadores[k] = { count: 0 };
         munSu.indicadores[k].count += v.count || 0;
       }
     }
     // Recalculate percentages
     for (const [k, v] of Object.entries(munSu.indicadores)) {
-      v.pct = munSu.escolas > 0 ? (v.count / munSu.escolas * 100) : 0;
+      if (k === 'PCT_SALAS_CLIMATIZADAS') {
+        v.pct = v.total_salas > 0 ? +((100 * v.total_clim / v.total_salas).toFixed(1)) : 0;
+      } else {
+        v.pct = munSu.escolas > 0 ? (v.count / munSu.escolas * 100) : 0;
+      }
     }
   }
 
@@ -2648,12 +2658,22 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
       const m = pm[cod]; if (!m) continue;
       munSu.escolas += m.escolas || 0;
       for (const [k, v] of Object.entries(m.indicadores || {})) {
+        if (k === 'PCT_SALAS_CLIMATIZADAS') {
+          if (!munSu.indicadores[k]) munSu.indicadores[k] = { total_salas: 0, total_clim: 0, pct: 0 };
+          munSu.indicadores[k].total_salas += v.total_salas || 0;
+          munSu.indicadores[k].total_clim += v.total_clim || 0;
+          continue;
+        }
         if (!munSu.indicadores[k]) munSu.indicadores[k] = { count: 0 };
         munSu.indicadores[k].count += v.count || 0;
       }
     }
     for (const [k, v] of Object.entries(munSu.indicadores)) {
-      v.pct = munSu.escolas > 0 ? (v.count / munSu.escolas * 100) : 0;
+      if (k === 'PCT_SALAS_CLIMATIZADAS') {
+        v.pct = v.total_salas > 0 ? +((100 * v.total_clim / v.total_salas).toFixed(1)) : 0;
+      } else {
+        v.pct = munSu.escolas > 0 ? (v.count / munSu.escolas * 100) : 0;
+      }
     }
   }
 

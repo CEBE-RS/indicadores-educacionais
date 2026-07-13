@@ -6,7 +6,6 @@ Gera JSONs separados para o painel.
 """
 import sys, io
 
-
 # --- caminhos portateis (repo Git + bases locais) ---
 from paths import BASE, OUT_DIR, PAINEL_DIR, BASES_DIR, BASES_BASICAS  # noqa: E402
 
@@ -17,7 +16,6 @@ import numpy as np
 import json, os, glob, time
 
 MICRO_DIR = None  # resolved dynamically
-
 CO_UF_RS = 43
 
 # Configuracao multi-rede (mesma do etl_censo_escolar.py)
@@ -174,11 +172,13 @@ DOC_LABELS = {
     "QT_DOC_MED": "Medio", "QT_DOC_EJA": "EJA", "QT_DOC_ESP": "Especial",
 }
 
+
 def safe_int(v):
     return 0 if pd.isna(v) else int(v)
 
 def safe_pct(num, den):
     return round(num / den * 100, 1) if den > 0 else 0
+
 
 # ══════════════════════════════════════════════════════════
 # ETL INFRAESTRUTURA
@@ -297,6 +297,10 @@ def etl_infraestrutura():
                     dep_stats[col] = {"count": c, "pct": safe_pct(c, nd)}
                 if "QT_SALAS_UTILIZA_CLIMATIZADAS" in dd.columns:
                     dep_stats["IN_CLIMATIZACAO"] = {"count": int((dd["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), "pct": safe_pct(int((dd["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), nd)}
+                    if "QT_SALAS_UTILIZADAS" in dd.columns:
+                        ts = int(dd["QT_SALAS_UTILIZADAS"].fillna(0).sum())
+                        tc = int(dd["QT_SALAS_UTILIZA_CLIMATIZADAS"].fillna(0).sum())
+                        dep_stats["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
                 resultado["por_dependencia"][ano][dep_nome] = {"escolas": nd, "indicadores": dep_stats}
 
             # Por localizacao
@@ -310,6 +314,10 @@ def etl_infraestrutura():
                     loc_stats[col] = {"count": c, "pct": safe_pct(c, nl)}
                 if "QT_SALAS_UTILIZA_CLIMATIZADAS" in dl.columns:
                     loc_stats["IN_CLIMATIZACAO"] = {"count": int((dl["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), "pct": safe_pct(int((dl["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), nl)}
+                    if "QT_SALAS_UTILIZADAS" in dl.columns:
+                        ts = int(dl["QT_SALAS_UTILIZADAS"].fillna(0).sum())
+                        tc = int(dl["QT_SALAS_UTILIZA_CLIMATIZADAS"].fillna(0).sum())
+                        loc_stats["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
                 resultado["por_localizacao"][ano][nome] = {"escolas": nl, "indicadores": loc_stats}
 
             # Por municipio (ultimo ano apenas)
@@ -323,6 +331,10 @@ def etl_infraestrutura():
                         ms[col] = {"count": c, "pct": safe_pct(c, nm)}
                     if "QT_SALAS_UTILIZA_CLIMATIZADAS" in grp.columns:
                         ms["IN_CLIMATIZACAO"] = {"count": int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), "pct": safe_pct(int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), nm)}
+                        if "QT_SALAS_UTILIZADAS" in grp.columns:
+                            ts = int(grp["QT_SALAS_UTILIZADAS"].fillna(0).sum())
+                            tc = int(grp["QT_SALAS_UTILIZA_CLIMATIZADAS"].fillna(0).sum())
+                            ms["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
                     mun_agg[str(int(cod))] = {"escolas": nm, "indicadores": ms}
                 resultado["por_municipio"][ano] = mun_agg
 
@@ -343,6 +355,7 @@ def etl_infraestrutura():
         print(f"\n    [COMPAT] Copiado {os.path.basename(src)} -> {os.path.basename(dst)}")
 
     return None  # no single result anymore
+
 
 # ══════════════════════════════════════════════════════════
 # ETL PERFIL DOCENTE
@@ -485,6 +498,7 @@ def etl_docentes():
         shutil.copy2(src, dst)
 
     return {"serie_temporal_total": resultado["serie_temporal_total"], "razao_aluno_professor": resultado["razao_aluno_professor"]}
+
 
 # ══════════════════════════════════════════════════════════
 # MAIN
