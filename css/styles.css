@@ -1465,6 +1465,84 @@ body.sidebar-hidden .main-scroll {
 /* Municipality name wider */
 .data-table td:nth-child(2) { min-width: 150px; }
 
+/* Scroll horizontal em tabelas largas (grid precisa permitir shrink) */
+.charts-grid > .chart-card {
+  min-width: 0;
+}
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll > .data-table,
+.data-table--wide {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Searchable mun filter — tema claro (Visão por Escola) */
+.escola-mun-searchable {
+  position: relative;
+  min-width: 200px;
+  max-width: 260px;
+}
+.escola-mun-search-input {
+  padding: 6px 12px 6px 28px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 12px;
+  font-family: Inter, sans-serif;
+  background: #f9fafb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E") no-repeat 10px center;
+  color: #333;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color .15s, box-shadow .15s;
+}
+.escola-mun-search-input:focus {
+  border-color: #0D47A1;
+  box-shadow: 0 0 0 3px rgba(13,71,161,.12);
+  background-color: #fff;
+}
+.escola-mun-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 240px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  z-index: 1600;
+  box-shadow: 0 8px 24px rgba(15,23,42,.12);
+}
+.escola-mun-dd-item {
+  padding: 7px 12px;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+}
+.escola-mun-dd-item:hover {
+  background: #f1f5f9;
+  color: #0D47A1;
+}
+.escola-mun-dd-item.active {
+  background: #e8eef8;
+  color: #0D47A1;
+  font-weight: 600;
+}
+.escola-mun-dd-info {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
 .data-table tr:hover {
   background: rgba(255,235,59,.1);
 }
