@@ -2249,10 +2249,10 @@ function renderInfra() {
           <input type="text" class="table-search" id="infra-mun-search" placeholder="Buscar município...">
         </div>
         <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:0 0 6px 6px;border-top:1px dashed rgba(255,203,4,.3)">
-          📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
+          Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção (KPIs, gráficos e recortes). Clique novamente para desfiltrar.
         </div>
-        <div style="max-height:400px;overflow-y:auto;overflow-x:auto">
-          <table class="data-table" id="infra-mun-table">
+        <div class="table-scroll" id="infra-table-scroll" style="max-height:400px">
+          <table class="data-table data-table--wide" id="infra-mun-table">
             <thead><tr>
               <th style="position:sticky;left:0;z-index:3;background:#f8f9fa;width:30px">#</th>
               <th style="position:sticky;left:30px;z-index:3;background:#f8f9fa;min-width:140px;border-right:2px solid #e0e0e0">Município</th>
@@ -13316,10 +13316,13 @@ function renderEscolas() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="font-size:11px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:0.5px">Município:</label>
-          <select id="escola-mun-filter" style="padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;font-size:12px;font-family:Inter;background:#f9fafb;cursor:pointer;color:#333;outline:none;transition:all 0.2s;max-width:220px">
-            <option value="">Todos os municípios</option>
-            ${munList.map(([cod, nome]) => `<option value="${cod}" ${cod === S.escolaMunSel ? 'selected' : ''}>${nome}</option>`).join('')}
-          </select>
+          <div class="escola-mun-searchable" id="escola-mun-search-wrap">
+            <input type="hidden" id="escola-mun-filter" value="${S.escolaMunSel || ''}">
+            <input type="text" id="escola-mun-search-input" class="escola-mun-search-input"
+              placeholder="Pesquisar município..." autocomplete="off"
+              value="${S.escolaMunSel ? (munMap.get(S.escolaMunSel) || '') : ''}">
+            <div id="escola-mun-dropdown" class="escola-mun-dropdown"></div>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:350px;margin-left:auto;position:relative">
           <label style="font-size:11px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:0.5px">Buscar escola:</label>
@@ -14131,14 +14134,107 @@ function renderEscolas() {
     S.escolaInepSel = null;
     document.getElementById('escola-search').value = '';
     document.getElementById('escola-boletim-container').style.display = 'none';
+    // Se município selecionado não pertence à CRE, limpa
+    const creVal = document.getElementById('escola-cre-filter').value;
+    const munHidden = document.getElementById('escola-mun-filter');
+    const munInput = document.getElementById('escola-mun-search-input');
+    if (creVal && munHidden?.value) {
+      const stillOk = (S.escolasData.escolas || []).some(e =>
+        String(e.cod_mun || e.cod_ibge || '') === munHidden.value && e.cre === creVal
+      );
+      if (!stillOk) {
+        munHidden.value = '';
+        if (munInput) munInput.value = '';
+        S.escolaMunSel = '';
+      }
+    }
     updateEscolas();
   });
-  document.getElementById('escola-mun-filter').addEventListener('change', () => {
+
+  // Município com busca (mesmo padrão das outras seções)
+  const escolaMunInput = document.getElementById('escola-mun-search-input');
+  const escolaMunHidden = document.getElementById('escola-mun-filter');
+  const escolaMunDd = document.getElementById('escola-mun-dropdown');
+
+  const getEscolaMunEntries = () => {
+    const creVal = document.getElementById('escola-cre-filter')?.value || '';
+    let list = munList;
+    if (creVal) {
+      const allowed = new Set(
+        (S.escolasData.escolas || [])
+          .filter(e => e.cre === creVal)
+          .map(e => String(e.cod_mun || e.cod_ibge || ''))
+      );
+      list = munList.filter(([cod]) => allowed.has(cod));
+    }
+    return list;
+  };
+
+  const renderEscolaMunDropdown = (filter = '') => {
+    if (!escolaMunDd) return;
+    const q = filter.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    let entries = getEscolaMunEntries();
+    if (q) {
+      entries = entries.filter(([, nome]) =>
+        nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q)
+      );
+    }
+    const cur = escolaMunHidden?.value || '';
+    if (!entries.length) {
+      escolaMunDd.innerHTML = '<div class="escola-mun-dd-info">Nenhum município encontrado</div>';
+    } else {
+      escolaMunDd.innerHTML =
+        `<div class="escola-mun-dd-item${!cur ? ' active' : ''}" data-value="">Todos os municípios</div>` +
+        entries.map(([cod, nome]) =>
+          `<div class="escola-mun-dd-item${cur === cod ? ' active' : ''}" data-value="${cod}">${nome}</div>`
+        ).join('');
+    }
+    escolaMunDd.style.display = 'block';
+  };
+
+  const applyEscolaMunSel = (cod, label) => {
+    if (escolaMunHidden) escolaMunHidden.value = cod || '';
+    if (escolaMunInput) escolaMunInput.value = cod ? (label || '') : '';
+    S.escolaMunSel = cod || '';
+    if (escolaMunDd) escolaMunDd.style.display = 'none';
     S.escolaInepSel = null;
-    document.getElementById('escola-search').value = '';
-    document.getElementById('escola-boletim-container').style.display = 'none';
+    const escSearch = document.getElementById('escola-search');
+    if (escSearch) escSearch.value = '';
+    const boletim = document.getElementById('escola-boletim-container');
+    if (boletim) boletim.style.display = 'none';
     updateEscolas();
-  });
+  };
+
+  if (escolaMunInput && escolaMunDd) {
+    escolaMunInput.addEventListener('focus', () => {
+      // Ao focar com município já selecionado, mostra lista completa (não filtra pelo nome)
+      renderEscolaMunDropdown('');
+    });
+    escolaMunInput.addEventListener('input', () => {
+      // Digitando = busca; se apagar tudo, limpa filtro
+      if (!escolaMunInput.value.trim() && escolaMunHidden?.value) {
+        applyEscolaMunSel('', '');
+        renderEscolaMunDropdown('');
+        return;
+      }
+      renderEscolaMunDropdown(escolaMunInput.value);
+    });
+    escolaMunDd.addEventListener('click', (e) => {
+      const item = e.target.closest('.escola-mun-dd-item');
+      if (!item) return;
+      applyEscolaMunSel(item.dataset.value || '', item.textContent || '');
+    });
+    if (!renderEscolas._munCloseRegistered) {
+      renderEscolas._munCloseRegistered = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#escola-mun-search-wrap')) {
+          const dd = document.getElementById('escola-mun-dropdown');
+          if (dd) dd.style.display = 'none';
+        }
+      });
+    }
+  }
+
   let searchTimeout;
   document.getElementById('escola-search').addEventListener('input', (e) => {
     S.escolaInepSel = null;
