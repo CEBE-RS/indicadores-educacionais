@@ -5373,27 +5373,18 @@ function renderHome() {
 
   main.innerHTML = `
     <div class="home-wrap">
-      <div class="home-bg"></div>
-      <p class="home-photo-credit">Foto: Filipe Karam/PMPA</p>
-      <div class="home-particles" aria-hidden="true" style="display:none">
-        <div class="home-particle"></div>
-        <div class="home-particle"></div>
-        <div class="home-particle"></div>
-        <div class="home-particle"></div>
-        <div class="home-particle"></div>
-        <div class="home-particle"></div>
-      </div>
+      <header class="home-banner" role="banner">
+        <div class="home-banner-inner">
+          <img class="home-banner-flag" src="img/bandeira_rs.png" alt="Bandeira do Rio Grande do Sul">
+          <h1 class="home-banner-title">
+            <span class="home-banner-title-main">Painel de Indicadores</span>
+            <span class="home-banner-title-sub">da Educação Gaúcha</span>
+          </h1>
+        </div>
+      </header>
       <div class="home-content">
 
-        <div class="home-hero" style="margin-bottom:28px">
-          <div class="home-hero-badge">Secretaria de Estado da Educação do Rio Grande do Sul</div>
-          <h1>Painel de <span>Indicadores Educacionais</span></h1>
-          <p class="home-hero-sub">
-            Plataforma analítica com dados abertos do Censo Escolar, SAEB e indicadores educacionais da rede estadual do Rio Grande do Sul
-          </p>
-        </div>
-
-        <div class="home-divider" style="margin:20px 0 16px">
+        <div class="home-divider" style="margin:8px 0 16px">
           <span class="home-divider-line"></span>
           <span class="home-divider-text">Explorar Seções</span>
           <span class="home-divider-line"></span>
