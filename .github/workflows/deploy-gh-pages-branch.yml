@@ -28,3 +28,4 @@ jobs:
           publish_dir: .
           publish_branch: gh-pages
           force_orphan: false
+          cname: indicadores.educacao.rs.gov.br
