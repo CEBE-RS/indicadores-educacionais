@@ -1768,95 +1768,70 @@ body.sidebar-hidden .main-scroll {
   box-sizing: border-box;
 }
 
-.home-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 280px;
-  background-image: url('../img/bg_poa.jpg');
+/* ── Banner institucional (Início) ── */
+.home-banner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  box-sizing: border-box;
+  background-color: #009639;
+  background-image: url('../img/transparente_alunos.png');
   background-size: cover;
-  background-position: center 35%;
-  opacity: 1;
-  filter: grayscale(100%) contrast(1.05);
-  z-index: 0;
+  background-position: center top;
+  background-repeat: no-repeat;
 }
 
-.home-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.92) 72%, #fff 100%);
+.home-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  max-width: 920px;
+  width: 100%;
+  animation: fadeSlideUp .6s ease both;
 }
 
-.home-photo-credit {
-  position: absolute;
-  top: 252px;
-  right: 28px;
-  z-index: 2;
+.home-banner-flag {
+  height: 92px;
+  width: auto;
+  flex-shrink: 0;
+  border-radius: 3px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .22);
+}
+
+.home-banner-title {
   margin: 0;
-  font-size: 9px;
-  font-weight: 500;
-  color: rgba(55,65,81,.7);
-  letter-spacing: 0.2px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.12;
+  letter-spacing: -.3px;
+  text-align: left;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .18);
+}
+
+.home-banner-title-main {
+  display: block;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.home-banner-title-sub {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .home-content {
   position: relative;
   z-index: 1;
-  padding: 36px 48px 40px;
+  padding: 28px 48px 40px;
   max-width: 1100px;
   margin: 0 auto;
-}
-
-/* ── Hero ── */
-.home-hero {
-  text-align: center;
-  margin-bottom: 28px;
-  padding-top: 8px;
-  animation: fadeSlideUp .7s ease both;
-}
-
-.home-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 18px;
-  background: rgba(255,255,255,.85);
-  border: 1px solid rgba(0,150,57,.35);
-  border-radius: 20px;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--pri);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 22px;
-}
-
-.home-hero h1 {
-  font-family: 'Inter', sans-serif;
-  font-size: 38px;
-  font-weight: 800;
-  color: #1A1A1A;
-  line-height: 1.12;
-  margin: 0 0 14px;
-  letter-spacing: -.5px;
-}
-
-.home-hero h1 span {
-  color: var(--pri);
-  background: none;
-  -webkit-text-fill-color: var(--pri);
-  animation: none;
-}
-
-.home-hero-sub {
-  font-size: 15px;
-  color: #4A5568;
-  line-height: 1.7;
-  max-width: 620px;
-  margin: 0 auto;
-  font-weight: 400;
 }
 
 /* ── Divider ── */
@@ -2144,8 +2119,12 @@ body.sidebar-hidden .main-scroll {
   .map-table-row { grid-template-columns: 1fr; }
   #map-leaflet { height: 300px; }
 
-  .home-hero h1 { font-size: 24px; }
-  .home-content { padding: 28px 16px 40px; }
+  .home-banner { min-height: 170px; padding: 28px 16px; }
+  .home-banner-inner { gap: 14px; }
+  .home-banner-flag { height: 64px; }
+  .home-banner-title-main { font-size: 22px; }
+  .home-banner-title-sub { font-size: 18px; }
+  .home-content { padding: 20px 16px 40px; }
   .home-grid { grid-template-columns: 1fr 1fr !important; }
   .col-span-2 { grid-column: span 2 !important; }
   .col-span-4 { grid-column: span 2 !important; }
@@ -2153,6 +2132,11 @@ body.sidebar-hidden .main-scroll {
 
 @media (max-width: 480px) {
   .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+  .home-banner { min-height: 150px; padding: 24px 12px; }
+  .home-banner-inner { gap: 12px; }
+  .home-banner-flag { height: 52px; }
+  .home-banner-title-main { font-size: 18px; }
+  .home-banner-title-sub { font-size: 15px; }
   .home-grid { grid-template-columns: 1fr !important; }
   .topbar-divider { display: none; }
   .col-span-2 { grid-column: span 1 !important; }
