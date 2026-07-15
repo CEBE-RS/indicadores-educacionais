@@ -5409,7 +5409,7 @@ function renderHome() {
           <span class="home-divider-line"></span>
         </div>
 
-        <div class="home-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="home-grid home-grid-docs">
           <div class="home-card" data-nav="dados" style="cursor:pointer">
             <div class="home-card-icon"><img src="img/icons/territorial.png" alt=""></div>
             <div class="home-card-text">

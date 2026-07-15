@@ -1867,6 +1867,9 @@ body.sidebar-hidden .main-scroll {
   max-width: 100%;
   box-sizing: border-box;
 }
+.home-grid-docs {
+  grid-template-columns: repeat(3, 1fr);
+}
 .col-span-2 {
   grid-column: span 2;
 }
@@ -2068,6 +2071,15 @@ body.sidebar-hidden .main-scroll {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Tablet: evita 4ª coluna cortada na home (INSE/SAERS/TDI) ── */
+@media (max-width: 1100px) {
+  .home-content { padding: 24px 24px 36px; }
+  .home-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .home-grid-docs { grid-template-columns: repeat(2, 1fr) !important; }
+  .col-span-2 { grid-column: span 2 !important; }
+  .col-span-4 { grid-column: span 2 !important; }
+}
+
 /* ── Mobile Overrides (Moved to bottom for correct specificity) ── */
 @media (max-width: 768px) {
   body { overflow: auto; flex-direction: column; height: auto; }
@@ -2126,6 +2138,7 @@ body.sidebar-hidden .main-scroll {
   .home-banner-title-sub { font-size: 18px; }
   .home-content { padding: 20px 16px 40px; }
   .home-grid { grid-template-columns: 1fr 1fr !important; }
+  .home-grid-docs { grid-template-columns: 1fr 1fr !important; }
   .col-span-2 { grid-column: span 2 !important; }
   .col-span-4 { grid-column: span 2 !important; }
 }
@@ -2138,6 +2151,7 @@ body.sidebar-hidden .main-scroll {
   .home-banner-title-main { font-size: 18px; }
   .home-banner-title-sub { font-size: 15px; }
   .home-grid { grid-template-columns: 1fr !important; }
+  .home-grid-docs { grid-template-columns: 1fr !important; }
   .topbar-divider { display: none; }
   .col-span-2 { grid-column: span 1 !important; }
   .col-span-4 { grid-column: span 1 !important; }
