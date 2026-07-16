@@ -10121,6 +10121,44 @@ function renderTdi() {
   updateActiveFilters();
 }
 
+/** Views válidas para deep link (?view= / #aba) */
+const PANEL_VIEWS = new Set([
+  'home', 'acesso', 'infra', 'icg', 'inse', 'docencia', 'afd', 'fluxo', 'tdi',
+  'saers', 'desigualdades', 'saeb', 'ideb', 'escolas', 'redes', 'dados', 'desempenho',
+]);
+
+function getViewFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    let view = (params.get('view') || params.get('aba') || '').toLowerCase().trim();
+    if (!view && window.location.hash) {
+      view = window.location.hash.replace(/^#\/?/, '').toLowerCase().trim();
+    }
+    if (view === 'desempenho') view = 'saeb';
+    return PANEL_VIEWS.has(view) ? view : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function syncViewToUrl(view) {
+  try {
+    const url = new URL(window.location.href);
+    if (!view || view === 'home') {
+      url.searchParams.delete('view');
+      url.searchParams.delete('aba');
+    } else {
+      url.searchParams.set('view', view);
+    }
+    const hashView = url.hash.replace(/^#\/?/, '').toLowerCase();
+    if (PANEL_VIEWS.has(hashView)) url.hash = '';
+    const next = url.pathname + url.search + url.hash;
+    if (next !== window.location.pathname + window.location.search + window.location.hash) {
+      history.replaceState({ view: view || 'home' }, '', next);
+    }
+  } catch (_) { /* ignore */ }
+}
+
 function initNav() {
   document.querySelectorAll('.sidebar-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -10138,6 +10176,8 @@ function initNav() {
         S.saersMapMode = null;
       }
       S._currentView = view;
+      if (!S._skipUrlSync) syncViewToUrl(view);
+      S._skipUrlSync = false;
 
       if (view === 'home') {
         S.pendingView = null;
@@ -15594,7 +15634,26 @@ function initInfoTooltips() {
 async function init() {
   initNav();
   initInfoTooltips();
-  renderHome();
+
+  const deepView = getViewFromUrl();
+  if (deepView && deepView !== 'home') {
+    const tab = document.querySelector(`.sidebar-tab[data-view="${deepView}"]`);
+    if (tab) tab.click();
+    else renderHome();
+  } else {
+    renderHome();
+    syncViewToUrl('home');
+  }
+
+  window.addEventListener('popstate', () => {
+    const v = getViewFromUrl() || 'home';
+    if (S._currentView === v) return;
+    const tab = document.querySelector(`.sidebar-tab[data-view="${v}"]`);
+    if (tab) {
+      S._skipUrlSync = true;
+      tab.click();
+    }
+  });
 
   try {
     // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
