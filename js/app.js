@@ -2444,6 +2444,46 @@ function infraLatestMunYear(infra) {
   return keys.length ? keys.sort().pop() : null;
 }
 
+/** Aggregate infra indicators for current CRE/município filter in a given year.
+ *  Returns null when there is no geo filter or no municipal data for that year. */
+function aggregateInfraGeo(infra, year) {
+  if (!year || (!S.munSel && !S.creSel)) return null;
+  const pm = infra?.por_municipio?.[year];
+  if (!pm) return null;
+
+  if (S.munSel) {
+    const m = pm[S.munSel];
+    if (!m) return null;
+    return { escolas: m.escolas || 0, indicadores: m.indicadores || {} };
+  }
+
+  const creMuns = getCreMuns(S.creSel);
+  const agg = { escolas: 0, indicadores: {} };
+  for (const cod of creMuns) {
+    const m = pm[cod];
+    if (!m) continue;
+    agg.escolas += m.escolas || 0;
+    for (const [k, v] of Object.entries(m.indicadores || {})) {
+      if (k === 'PCT_SALAS_CLIMATIZADAS') {
+        if (!agg.indicadores[k]) agg.indicadores[k] = { total_salas: 0, total_clim: 0, pct: 0 };
+        agg.indicadores[k].total_salas += v.total_salas || 0;
+        agg.indicadores[k].total_clim += v.total_clim || 0;
+        continue;
+      }
+      if (!agg.indicadores[k]) agg.indicadores[k] = { count: 0 };
+      agg.indicadores[k].count += v.count || 0;
+    }
+  }
+  for (const [k, v] of Object.entries(agg.indicadores)) {
+    if (k === 'PCT_SALAS_CLIMATIZADAS') {
+      v.pct = v.total_salas > 0 ? +((100 * v.total_clim / v.total_salas).toFixed(1)) : 0;
+    } else {
+      v.pct = agg.escolas > 0 ? (v.count / agg.escolas * 100) : 0;
+    }
+  }
+  return agg.escolas > 0 ? agg : null;
+}
+
 /* ── Infra Municipality Table ── */
 function buildInfraMunTable(infra) {
   const tbody = document.getElementById('infra-mun-tbody');
@@ -2638,44 +2678,18 @@ function buildInfraKPIs(infra, ano, anos) {
 
 /** Build single infra chart for a given category key */
 function buildInfraChart(infra, anoComp, catKey, anoBase) {
-  const su = infra.serie_temporal[anoComp];
   const labels = infra.labels;
   const cats = infra.categorias;
   const anos = Object.keys(infra.serie_temporal).sort();
   const baseYear = anoBase || anos[0];
+  const su = infra.serie_temporal[anoComp];
   const suBase = infra.serie_temporal[baseYear];
 
-  // Municipality/CRE override
-  const pmYear = infraLatestMunYear(infra);
-  let munSu = null;
-  if (S.munSel && infra.por_municipio?.[pmYear]?.[S.munSel]) {
-    munSu = infra.por_municipio[pmYear][S.munSel];
-  } else if (S.creSel) {
-    const creMuns = getCreMuns(S.creSel);
-    const pm = infra.por_municipio?.[pmYear] || {};
-    munSu = { escolas: 0, indicadores: {} };
-    for (const cod of creMuns) {
-      const m = pm[cod]; if (!m) continue;
-      munSu.escolas += m.escolas || 0;
-      for (const [k, v] of Object.entries(m.indicadores || {})) {
-        if (k === 'PCT_SALAS_CLIMATIZADAS') {
-          if (!munSu.indicadores[k]) munSu.indicadores[k] = { total_salas: 0, total_clim: 0, pct: 0 };
-          munSu.indicadores[k].total_salas += v.total_salas || 0;
-          munSu.indicadores[k].total_clim += v.total_clim || 0;
-          continue;
-        }
-        if (!munSu.indicadores[k]) munSu.indicadores[k] = { count: 0 };
-        munSu.indicadores[k].count += v.count || 0;
-      }
-    }
-    for (const [k, v] of Object.entries(munSu.indicadores)) {
-      if (k === 'PCT_SALAS_CLIMATIZADAS') {
-        v.pct = v.total_salas > 0 ? +((100 * v.total_clim / v.total_salas).toFixed(1)) : 0;
-      } else {
-        v.pct = munSu.escolas > 0 ? (v.count / munSu.escolas * 100) : 0;
-      }
-    }
-  }
+  // Geo filter applied to BOTH years (base + comparação)
+  const geoBase = aggregateInfraGeo(infra, baseYear);
+  const geoComp = aggregateInfraGeo(infra, anoComp);
+  const sliceBase = geoBase || suBase;
+  const sliceComp = geoComp || su;
 
   // Destroy existing infra chart only
   const el = document.getElementById('chart-infra-main');
@@ -2690,7 +2704,7 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
   const catLabel = comboNames[catKey] || (catKeys.length > 1 ? catKeys.map(c => catNames[c] || c).join(' & ') : (catNames[catKeys[0]] || catKeys[0]));
   const titleEl = document.getElementById('infra-chart-title');
   if (titleEl) {
-    const titleTxt = `${catLabel} — ${munSu ? pmYear : baseYear + ' vs ' + anoComp}${geoSuffix()}`;
+    const titleTxt = `${catLabel} — ${baseYear} vs ${anoComp}${geoSuffix()}`;
     if (catKeys.includes('Climatizacao')) {
       titleEl.innerHTML = `${titleTxt} <span class="info-tooltip" title="Climatização: percentual de escolas com ao menos uma sala climatizada (ar-condicionado, aquecedor ou climatizadores), conforme definição do Censo Escolar (QT_SALAS_UTILIZA_CLIMATIZADAS).&#10;&#10;% Salas Climatizadas: razão entre salas climatizadas e o total de salas utilizadas.">ⓘ</span>`;
     } else {
@@ -2702,9 +2716,8 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
   catKeys.forEach(cat => { if (cats[cat]) allCols.push(...cats[cat]); });
 
   const barLabels = allCols.map(c => labels[c] || c);
-  // Current data: use municipality if available, else state-level
-  const dataAtual = allCols.map(c => munSu ? (munSu.indicadores?.[c]?.pct || 0) : (su.indicadores[c]?.pct || 0));
-  const dataBase = allCols.map(c => suBase?.indicadores?.[c]?.pct || 0);
+  const dataBase = allCols.map(c => sliceBase?.indicadores?.[c]?.pct || 0);
+  const dataAtual = allCols.map(c => sliceComp?.indicadores?.[c]?.pct || 0);
 
   S.charts.push(new Chart(el, {
     type: 'bar',
@@ -2741,8 +2754,7 @@ function buildInfraChart(infra, anoComp, catKey, anoBase) {
         tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: {
           label: ctx => {
             const col = allCols[ctx.dataIndex];
-            const yr = ctx.datasetIndex === 0 ? baseYear : anoComp;
-            const yrData = ctx.datasetIndex === 0 ? suBase : (munSu || su);
+            const yrData = ctx.datasetIndex === 0 ? sliceBase : sliceComp;
             const ind = yrData?.indicadores?.[col];
             if (col === 'PCT_SALAS_CLIMATIZADAS') {
               const clim = ind?.total_clim || 0;
@@ -4676,7 +4688,8 @@ function renderIdeb() {
   };
   const idebEtapas = ['AI', 'AF', 'EM'];
   const idebLabels = ['Anos Iniciais', 'Anos Finais', 'Ens. Médio'];
-  const idebCores = [COLORS.pri, '#1565C0', COLORS.red];
+  // AI verde institucional · AF laranja · EM vermelho (cores bem distintas na série)
+  const idebCores = [COLORS.pri, COLORS.fundAF, COLORS.red];
 
   const kpis = [];
   for (const [ek, cfg] of Object.entries(etapaMap)) {

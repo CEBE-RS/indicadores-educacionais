@@ -320,23 +320,22 @@ def etl_infraestrutura():
                         loc_stats["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
                 resultado["por_localizacao"][ano][nome] = {"escolas": nl, "indicadores": loc_stats}
 
-            # Por municipio (ultimo ano apenas)
-            if ano == anos_sorted[-1]:
-                mun_agg = {}
-                for cod, grp in df.groupby("CO_MUNICIPIO"):
-                    nm = len(grp)
-                    ms = {}
-                    for col in avail:
-                        c = int(grp[col].sum())
-                        ms[col] = {"count": c, "pct": safe_pct(c, nm)}
-                    if "QT_SALAS_UTILIZA_CLIMATIZADAS" in grp.columns:
-                        ms["IN_CLIMATIZACAO"] = {"count": int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), "pct": safe_pct(int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), nm)}
-                        if "QT_SALAS_UTILIZADAS" in grp.columns:
-                            ts = int(grp["QT_SALAS_UTILIZADAS"].fillna(0).sum())
-                            tc = int(grp["QT_SALAS_UTILIZA_CLIMATIZADAS"].fillna(0).sum())
-                            ms["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
-                    mun_agg[str(int(cod))] = {"escolas": nm, "indicadores": ms}
-                resultado["por_municipio"][ano] = mun_agg
+            # Por municipio (todos os anos — necessário para comparativo anual com filtro CRE/mun)
+            mun_agg = {}
+            for cod, grp in df.groupby("CO_MUNICIPIO"):
+                nm = len(grp)
+                ms = {}
+                for col in avail:
+                    c = int(grp[col].sum())
+                    ms[col] = {"count": c, "pct": safe_pct(c, nm)}
+                if "QT_SALAS_UTILIZA_CLIMATIZADAS" in grp.columns:
+                    ms["IN_CLIMATIZACAO"] = {"count": int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), "pct": safe_pct(int((grp["QT_SALAS_UTILIZA_CLIMATIZADAS"] > 0).sum()), nm)}
+                    if "QT_SALAS_UTILIZADAS" in grp.columns:
+                        ts = int(grp["QT_SALAS_UTILIZADAS"].fillna(0).sum())
+                        tc = int(grp["QT_SALAS_UTILIZA_CLIMATIZADAS"].fillna(0).sum())
+                        ms["PCT_SALAS_CLIMATIZADAS"] = {"total_salas": ts, "total_clim": tc, "pct": safe_pct(tc, ts)}
+                mun_agg[str(int(cod))] = {"escolas": nm, "indicadores": ms}
+            resultado["por_municipio"][ano] = mun_agg
 
         # Save
         out = os.path.join(OUT_DIR, f"4_5_infra_{rede_key}.json")
