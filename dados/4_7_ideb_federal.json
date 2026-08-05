@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "fonte": "IDEB/INEP — Divulgação 2023",
+    "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Federal RS",
-    "gerado_em": "2026-06-23T06:51:59.588247",
+    "gerado_em": "2026-08-05T20:12:06.757846",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
     "serie_temporal_fonte": "Sem agregado oficial por UF para esta rede; serie_temporal = media dos IDEBs das escolas (aproximacao)."
   },
@@ -135,6 +135,26 @@
         "n_escolas": 13
       }
     },
+    "2025": {
+      "AI": {
+        "ideb": 6.8,
+        "nota_saeb": 6.77,
+        "rendimento": 1.0,
+        "n_escolas": 1
+      },
+      "AF": {
+        "ideb": 7.03,
+        "nota_saeb": 7.29,
+        "rendimento": 0.9637,
+        "n_escolas": 3
+      },
+      "EM": {
+        "ideb": 6.06,
+        "nota_saeb": 6.43,
+        "rendimento": 0.943,
+        "n_escolas": 15
+      }
+    },
     "2005": {
       "AF": {
         "ideb": 5.65,
@@ -177,7 +197,7 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 5.95,
+          "ideb": 6.2,
           "n_escolas": 2
         }
       },
@@ -195,7 +215,7 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 5.45,
+          "ideb": 5.8,
           "n_escolas": 2
         }
       },
@@ -213,7 +233,7 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 5.45,
+          "ideb": 5.7,
           "n_escolas": 2
         }
       },
@@ -231,7 +251,7 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 6.65,
+          "ideb": 6.9,
           "n_escolas": 2
         }
       },
@@ -249,11 +269,11 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 6.45,
+          "ideb": 6.9,
           "n_escolas": 2
         },
         "EM": {
-          "ideb": 5.0,
+          "ideb": 5.3,
           "n_escolas": 1
         }
       },
@@ -261,9 +281,17 @@
         "AF": {
           "ideb": 7.5,
           "n_escolas": 1
-        },
+        }
+      },
+      "4300406": {
         "EM": {
-          "ideb": 7.2,
+          "ideb": 3.5,
+          "n_escolas": 1
+        }
+      },
+      "4301602": {
+        "EM": {
+          "ideb": 5.2,
           "n_escolas": 1
         }
       },
@@ -273,9 +301,27 @@
           "n_escolas": 1
         }
       },
+      "4304606": {
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4305108": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
       "4307906": {
         "EM": {
           "ideb": 7.0,
+          "n_escolas": 1
+        }
+      },
+      "4308102": {
+        "EM": {
+          "ideb": 6.6,
           "n_escolas": 1
         }
       },
@@ -297,9 +343,21 @@
           "n_escolas": 1
         }
       },
+      "4313904": {
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
       "4314779": {
         "EM": {
           "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4317103": {
+        "EM": {
+          "ideb": 5.6,
           "n_escolas": 1
         }
       },
@@ -318,6 +376,12 @@
       "4318002": {
         "EM": {
           "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4319901": {
+        "EM": {
+          "ideb": 5.3,
           "n_escolas": 1
         }
       },
@@ -341,13 +405,23 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 6.65,
+          "ideb": 6.9,
           "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
         }
       },
       "4316907": {
         "AF": {
           "ideb": 7.4,
+          "n_escolas": 1
+        }
+      },
+      "4302105": {
+        "EM": {
+          "ideb": 6.3,
           "n_escolas": 1
         }
       },
@@ -407,11 +481,7 @@
           "n_escolas": 1
         },
         "AF": {
-          "ideb": 6.8,
-          "n_escolas": 2
-        },
-        "EM": {
-          "ideb": 5.6,
+          "ideb": 7.1,
           "n_escolas": 2
         }
       },
@@ -421,7 +491,7 @@
           "n_escolas": 1
         },
         "EM": {
-          "ideb": 6.3,
+          "ideb": 3.2,
           "n_escolas": 2
         }
       },
@@ -480,30 +550,94 @@
         }
       }
     },
-    "2005": {
+    "2025": {
       "4314902": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
         "AF": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4316907": {
+        "AF": {
+          "ideb": 8.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.8,
+          "n_escolas": 3
+        }
+      },
+      "4307005": {
+        "EM": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        }
+      },
+      "4308508": {
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4310009": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4313904": {
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4314100": {
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4317202": {
+        "EM": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        }
+      },
+      "4317509": {
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4317806": {
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4318002": {
+        "EM": {
           "ideb": 5.3,
           "n_escolas": 1
         }
       },
-      "4316907": {
-        "AF": {
-          "ideb": 6.0,
+      "4320503": {
+        "EM": {
+          "ideb": 5.0,
           "n_escolas": 1
         }
-      }
-    },
-    "2011": {
-      "4314902": {
-        "AF": {
-          "ideb": 6.1,
-          "n_escolas": 2
-        }
       },
-      "4316907": {
-        "AF": {
-          "ideb": 6.8,
+      "4322806": {
+        "EM": {
+          "ideb": 6.4,
           "n_escolas": 1
         }
       }
@@ -532,25 +666,32 @@
   "lookup_municipios": {
     "4314902": "Porto Alegre",
     "4316907": "Santa Maria",
+    "4300406": "Alegrete",
+    "4301602": "Bagé",
     "4302105": "Bento Gonçalves",
+    "4304606": "Canoas",
+    "4305108": "Caxias do Sul",
     "4307906": "Farroupilha",
+    "4308102": "Feliz",
     "4308508": "Frederico Westphalen",
     "4310009": "Ibirubá",
     "4311007": "Jaguarão",
+    "4313904": "Panambi",
     "4314779": "Pontão",
+    "4317103": "Sant'Ana do Livramento",
     "4317202": "Santa Rosa",
     "4317509": "Santo Ângelo",
     "4318002": "São Borja",
+    "4319901": "Sapiranga",
     "4320503": "Sertão",
     "4322608": "Venâncio Aires",
-    "4313904": "Panambi",
-    "4319901": "Sapiranga",
     "4311403": "Lajeado",
     "4307005": "Erechim",
     "4311106": "Jaguari",
     "4311205": "Júlio de Castilhos",
     "4313409": "Novo Hamburgo",
     "4314100": "Passo Fundo",
-    "4322806": "Veranópolis"
+    "4322806": "Veranópolis",
+    "4317806": "Santo Augusto"
   }
 }

@@ -2,7 +2,7 @@
 """
 ETL IDEB — Produto 4 UNESCO RS
 Extrai IDEB observado, metas, notas SAEB e indicador de rendimento
-das planilhas oficiais INEP (divulgação 2023) por escola.
+das planilhas oficiais INEP (divulgação 2025) por escola.
 Gera JSONs multi-rede para o painel.
 """
 import sys, io
@@ -22,21 +22,24 @@ IDEB_DIR = os.path.join(BASE, "00. Bases de Dados", "02. Fluxo e Rendimento (Ine
 # Files and etapa config
 ETAPAS = {
     "AI": {
-        "file": "divulgacao_anos_iniciais_escolas_2023.xlsx",
+        "file": "divulgacao_anos_iniciais_escolas_2025.xlsx",
+        "file_mun": "divulgacao_anos_iniciais_municipios_2025.xlsx",
         "label": "Anos Iniciais (5º ano)",
-        "anos_ideb": [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023],
+        "anos_ideb": [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025],
         "anos_proj": [2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021],
     },
     "AF": {
-        "file": "divulgacao_anos_finais_escolas_2023.xlsx",
+        "file": "divulgacao_anos_finais_escolas_2025.xlsx",
+        "file_mun": "divulgacao_anos_finais_municipios_2025.xlsx",
         "label": "Anos Finais (9º ano)",
-        "anos_ideb": [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023],
+        "anos_ideb": [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025],
         "anos_proj": [2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021],
     },
     "EM": {
-        "file": "divulgacao_ensino_medio_escolas_2023.xlsx",
+        "file": "divulgacao_ensino_medio_escolas_2025.xlsx",
+        "file_mun": "divulgacao_ensino_medio_municipios_2025.xlsx",
         "label": "Ensino Médio",
-        "anos_ideb": [2017, 2019, 2021, 2023],
+        "anos_ideb": [2017, 2019, 2021, 2023, 2025],
         "anos_proj": [2019, 2021],
     },
 }
@@ -57,11 +60,20 @@ REDES = {
 # planilha oficial "Regioes e UFs" como fonte autoritativa do serie_temporal.
 # Para o RS, o arquivo traz apenas Total/Publica/Privada/Estadual (AI/AF) e
 # Total/Privada/Estadual (EM) — Municipal e Federal nao constam.
-UF_OFICIAL_FILE = os.path.join(IDEB_DIR, "divulgacao_regioes_ufs_ideb_2023.xlsx")
+UF_OFICIAL_FILE = os.path.join(IDEB_DIR, "divulgacao_regioes_ufs_ideb_2025.xlsx")
 UF_NOME = "R. G. do Sul"
 UF_SHEETS = {"AI": "UF e Regi\u00f5es (AI)", "AF": "UF e Regi\u00f5es (AF)", "EM": "UF e Regi\u00f5es (EM)"}
 # rede_key do painel -> rotulo (primeira palavra) da planilha oficial
 REDE_OFICIAL_MAP = {"estadual": "Estadual", "privada": "Privada", "todas": "Total"}
+
+# ──────────────────────────────────────────────────────────────────────────
+# VALORES OFICIAIS POR MUNICIPIO (INEP)
+# O IDEB de um municipio tambem NAO e a media dos IDEBs das escolas. As
+# planilhas oficiais "por municipio" trazem o valor agregado calculado pelo
+# INEP (N x P no nivel do aluno). Usamos essa fonte para Estadual/Municipal/
+# Federal (redes presentes no recorte municipal oficial). Privada e Todas nao
+# constam nesse recorte -> mantem fallback de media das escolas.
+REDE_OFICIAL_MUN_MAP = {"estadual": "Estadual", "municipal": "Municipal", "federal": "Federal"}
 
 def carregar_oficial_uf():
     """Le a planilha oficial agregada (Regioes/UFs) e retorna:
@@ -121,6 +133,19 @@ def load_ideb_file(etapa_key):
     # Filter RS
     df = df[df['SG_UF'] == 'RS'].copy()
     print(f"{len(df)} escolas RS")
+    return df
+
+def load_ideb_mun_file(etapa_key):
+    """Load official per-municipality IDEB Excel file (header at row 9)."""
+    cfg = ETAPAS[etapa_key]
+    fpath = os.path.join(IDEB_DIR, cfg["file_mun"])
+    if not os.path.exists(fpath):
+        print(f"  [AVISO] Planilha oficial de municipios nao encontrada: {cfg['file_mun']}")
+        return None
+    print(f"  Lendo {cfg['file_mun']}...", end=" ", flush=True)
+    df = pd.read_excel(fpath, header=9)
+    df = df[df['SG_UF'] == 'RS'].copy()
+    print(f"{len(df)} linhas RS")
     return df
 
 def extract_etapa_data(df, etapa_key, rede_filter=None):
@@ -238,6 +263,50 @@ def extract_mun_all_years(df, etapa_key, rede_filter=None):
     
     return por_ano, lookup
 
+def extract_mun_all_years_oficial(mun_df, esc_df, etapa_key, rede_rotulo):
+    """IDEB OFICIAL por municipio (planilha oficial de municipios), todos os anos.
+
+    O valor do municipio vem direto da planilha oficial (nao e media das escolas).
+    n_escolas e contado a partir do arquivo de escolas (mesma etapa/rede) apenas
+    para ponderar a agregacao por CRE no app — nao altera o valor exibido."""
+    cfg = ETAPAS[etapa_key]
+    m = mun_df[mun_df['REDE'].astype(str).str.strip() == rede_rotulo].copy()
+    esc = esc_df[esc_df['REDE'].astype(str).str.strip() == rede_rotulo].copy()
+
+    por_ano = {}
+    lookup = {}
+    for ano in cfg["anos_ideb"]:
+        obs_col = f"VL_OBSERVADO_{ano}"
+        if obs_col not in m.columns:
+            continue
+
+        m['_ideb'] = m[obs_col].apply(safe_numeric)
+        mv = m[m['_ideb'].notna()].copy()
+        if len(mv) == 0:
+            continue
+
+        # Contagem de escolas por municipio nesse ano (apenas para ponderacao CRE)
+        esc_counts = {}
+        if obs_col in esc.columns:
+            esc['_e'] = esc[obs_col].apply(safe_numeric)
+            ev = esc[esc['_e'].notna()]
+            for cod, grp in ev.groupby('CO_MUNICIPIO'):
+                esc_counts[str(int(cod))[:7]] = len(grp)
+
+        mun_data = {}
+        for _, row in mv.iterrows():
+            cod_str = str(int(row['CO_MUNICIPIO']))[:7]
+            lookup[cod_str] = row['NO_MUNICIPIO']
+            mun_data[cod_str] = {
+                "ideb": round(float(row['_ideb']), 2),
+                "n_escolas": esc_counts.get(cod_str, 1),
+            }
+
+        if mun_data:
+            por_ano[str(ano)] = mun_data
+
+    return por_ano, lookup
+
 def main():
     t0 = time.time()
     print("=" * 60)
@@ -246,8 +315,10 @@ def main():
     
     # Load all files once
     raw_dfs = {}
+    mun_dfs = {}
     for etapa_key in ETAPAS:
         raw_dfs[etapa_key] = load_ideb_file(etapa_key)
+        mun_dfs[etapa_key] = load_ideb_mun_file(etapa_key)
 
     # Valores oficiais agregados por UF/rede (fonte autoritativa do serie_temporal)
     print("\n  Carregando valores oficiais agregados (Regioes/UFs)...")
@@ -263,7 +334,7 @@ def main():
         
         resultado = {
             "metadata": {
-                "fonte": "IDEB/INEP — Divulgação 2023",
+                "fonte": "IDEB/INEP — Divulgação 2025",
                 "recorte": f"Rede {rede_key.title()} RS",
                 "gerado_em": pd.Timestamp.now().isoformat(),
                 "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
@@ -285,7 +356,14 @@ def main():
                 resultado["serie_temporal"][ano][etapa_key] = data
             
             # Per-municipality (all years)
-            por_ano, lookup = extract_mun_all_years(df, etapa_key, rede_filter)
+            # Estadual/Municipal/Federal -> valor OFICIAL por municipio (INEP).
+            # Privada/Todas nao constam no recorte municipal oficial -> media das escolas.
+            rotulo_mun = REDE_OFICIAL_MUN_MAP.get(rede_key)
+            mun_df = mun_dfs.get(etapa_key)
+            if rotulo_mun and mun_df is not None:
+                por_ano, lookup = extract_mun_all_years_oficial(mun_df, df, etapa_key, rotulo_mun)
+            else:
+                por_ano, lookup = extract_mun_all_years(df, etapa_key, rede_filter)
             all_lookup.update(lookup)
             
             for ano, mun_data in por_ano.items():
@@ -318,11 +396,11 @@ def main():
                     entry["fonte"] = "oficial_inep_uf"
                     n_over += 1
             resultado["metadata"]["serie_temporal_fonte"] = (
-                "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2023). "
+                "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2025). "
                 "IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
             )
-            ult_em = resultado["serie_temporal"].get("2023", {}).get("EM", {}).get("ideb")
-            print(f"  [OVERRIDE OFICIAL] {n_over} valores substituidos (rotulo '{rotulo}'). EM 2023 = {ult_em}")
+            ult_em = resultado["serie_temporal"].get("2025", {}).get("EM", {}).get("ideb")
+            print(f"  [OVERRIDE OFICIAL] {n_over} valores substituidos (rotulo '{rotulo}'). EM 2025 = {ult_em}")
         else:
             resultado["metadata"]["serie_temporal_fonte"] = (
                 "Sem agregado oficial por UF para esta rede; serie_temporal = media dos IDEBs das escolas (aproximacao)."

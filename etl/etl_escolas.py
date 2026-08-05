@@ -204,7 +204,7 @@ def load_saeb_by_school():
     return {}
 
 def load_ideb_by_school():
-    """Load IDEB per school from divulgacao files (2023)."""
+    """Load IDEB per school from divulgacao files (2025)."""
     ideb_dir = None
     for d in os.listdir(BASES_DADOS):
         if 'Fluxo' in d and 'Rendimento' in d:
@@ -218,10 +218,11 @@ def load_ideb_by_school():
 
     result = {}
     etapas = {
-        'AI': 'divulgacao_anos_iniciais_escolas_2023.xlsx',
-        'AF': 'divulgacao_anos_finais_escolas_2023.xlsx',
-        'EM': 'divulgacao_ensino_medio_escolas_2023.xlsx',
+        'AI': 'divulgacao_anos_iniciais_escolas_2025.xlsx',
+        'AF': 'divulgacao_anos_finais_escolas_2025.xlsx',
+        'EM': 'divulgacao_ensino_medio_escolas_2025.xlsx',
     }
+    hist_anos = ['2017', '2019', '2021', '2023', '2025']
     for etapa, fname in etapas.items():
         fpath = os.path.join(ideb_dir, fname)
         if not os.path.exists(fpath):
@@ -233,28 +234,24 @@ def load_ideb_by_school():
 
         for _, row in df.iterrows():
             eid = str(int(row['ID_ESCOLA']))
-            obs_2017 = safe_float(row.get('VL_OBSERVADO_2017'))
-            obs_2019 = safe_float(row.get('VL_OBSERVADO_2019'))
-            obs_2021 = safe_float(row.get('VL_OBSERVADO_2021'))
-            obs_2023 = safe_float(row.get('VL_OBSERVADO_2023'))
-            
-            if obs_2023 is not None:
+            obs = {a: safe_float(row.get(f'VL_OBSERVADO_{a}')) for a in hist_anos}
+
+            if obs['2025'] is not None:
                 if eid not in result:
                     result[eid] = {'ideb_hist': {}}
-                
-                # Keep latest as top-level for backwards compatibility
-                result[eid][f'ideb_{etapa.lower()}'] = obs_2023
-                
+
+                # Keep latest (2025) as top-level for backwards compatibility
+                result[eid][f'ideb_{etapa.lower()}'] = obs['2025']
+
                 # Add to history
                 if f'ideb_{etapa.lower()}' not in result[eid]['ideb_hist']:
                     result[eid]['ideb_hist'][f'ideb_{etapa.lower()}'] = {}
-                
-                if obs_2017 is not None: result[eid]['ideb_hist'][f'ideb_{etapa.lower()}']['2017'] = obs_2017
-                if obs_2019 is not None: result[eid]['ideb_hist'][f'ideb_{etapa.lower()}']['2019'] = obs_2019
-                if obs_2021 is not None: result[eid]['ideb_hist'][f'ideb_{etapa.lower()}']['2021'] = obs_2021
-                if obs_2023 is not None: result[eid]['ideb_hist'][f'ideb_{etapa.lower()}']['2023'] = obs_2023
 
-    print(f"    → {len(result)} escolas com dados IDEB 2017-2023")
+                for a in hist_anos:
+                    if obs[a] is not None:
+                        result[eid]['ideb_hist'][f'ideb_{etapa.lower()}'][a] = obs[a]
+
+    print(f"    → {len(result)} escolas com dados IDEB 2017-2025")
     return result
 
 def load_inse_by_school():
@@ -876,7 +873,7 @@ def main():
     print(f"     Com coordenadas: {with_coords} ({100*with_coords/total:.1f}%)")
     print(f"     SAEB 2023:      {with_saeb} ({100*with_saeb/total:.1f}%)")
     print(f"     SAERS Recente:  {with_saers} ({100*with_saers/total:.1f}%)")
-    print(f"     IDEB 2023:      {with_ideb} ({100*with_ideb/total:.1f}%)")
+    print(f"     IDEB 2025:      {with_ideb} ({100*with_ideb/total:.1f}%)")
     print(f"     INSE:           {with_inse} ({100*with_inse/total:.1f}%)")
     print(f"     ICG:            {with_icg} ({100*with_icg/total:.1f}%)")
     print(f"     TDI:            {with_tdi} ({100*with_tdi/total:.1f}%)")
