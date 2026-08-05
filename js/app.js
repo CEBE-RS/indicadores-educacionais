@@ -3727,7 +3727,7 @@ function buildFunilTurma(ano) {
 // ══════════════════════════════════════════════════════════
 
 const FONTE_SAEB = 'Fonte: ' + fonteLink(URL_SAEB, 'Microdados SAEB — INEP', 'Acessar o SAEB no portal INEP');
-const FONTE_IDEB = 'Fonte: ' + fonteLink(URL_IDEB, 'IDEB/INEP — Divulgação 2023', 'Acessar o IDEB no portal INEP') + ' · ' + fonteLink(URL_IDEB_NOTA, '📘 Nota Técnica do IDEB', 'Nota Técnica nº 1 — Concepção do IDEB (INEP)');
+const FONTE_IDEB = 'Fonte: ' + fonteLink(URL_IDEB, 'IDEB/INEP — Divulgação 2025', 'Acessar o IDEB no portal INEP') + ' · ' + fonteLink(URL_IDEB_NOTA, '📘 Nota Técnica do IDEB', 'Nota Técnica nº 1 — Concepção do IDEB (INEP)');
 
 function renderSaeb() {
   const saeb = S.saeb;
@@ -4812,14 +4812,14 @@ function renderIdeb() {
               <thead>
                 <tr>
                   <th style="padding:4px 6px;text-align:left;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333"></th>
-                  <th style="padding:4px 6px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333">2025</th>
                   <th style="padding:4px 6px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333">2027</th>
+                  <th style="padding:4px 6px;text-align:center;background:#f0f4f8;border-bottom:1px solid #ddd;font-weight:700;color:#333">2029</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[0]}">Anos Iniciais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2027]?.toFixed(2)}</td></tr>
-                <tr style="background:#fafbfc"><td style="padding:3px 6px;font-weight:600;color:${idebCores[1]}">Anos Finais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2027]?.toFixed(2)}</td></tr>
-                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[2]}">Ensino Médio</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2025]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2027]?.toFixed(2)}</td></tr>
+                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[0]}">Anos Iniciais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2027]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AI[2029]?.toFixed(2)}</td></tr>
+                <tr style="background:#fafbfc"><td style="padding:3px 6px;font-weight:600;color:${idebCores[1]}">Anos Finais</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2027]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.AF[2029]?.toFixed(2)}</td></tr>
+                <tr><td style="padding:3px 6px;font-weight:600;color:${idebCores[2]}">Ensino Médio</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2027]?.toFixed(2)}</td><td style="padding:3px 6px;text-align:center;font-weight:700">${METAS_SEDUC.EM[2029]?.toFixed(2)}</td></tr>
               </tbody>
             </table>
             <details style="margin-top:6px">
@@ -4869,7 +4869,7 @@ function renderIdeb() {
     <!-- ═══ EIXO: Evolução ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_evolucao.png" alt=""></span>
-      <span class="section-divider-text">IDEB — Evolução por Etapa (${anos[0]}–2027)</span>
+      <span class="section-divider-text">IDEB — Evolução por Etapa (${anos[0]}–2029)</span>
       <span class="section-divider-line"></span>
     </div>
 
@@ -4987,8 +4987,8 @@ function renderIdeb() {
   // ════════════════════════════════════════════════════════════════
   const elEvo = document.getElementById('chart-ideb-evolucao');
   if (elEvo) {
-    // Extended labels: observed years + future SEDUC meta years (up to 2027)
-    const metaYears = isStateLevel ? ['2025', '2027'].filter(y => !anos.includes(y)) : [];
+    // Extended labels: observed years + future SEDUC meta years (próximas edições)
+    const metaYears = isStateLevel ? ['2027', '2029'].filter(y => !anos.includes(y)) : [];
     const chartLabels = [...anos, ...metaYears];
 
     const datasets = [];
@@ -13734,7 +13734,7 @@ function renderEscolas() {
     cHtml += `
       <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
         <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <img src="img/icons/nav_ideb.png" style="width:16px;height:16px;filter:opacity(0.8)"> Desempenho IDEB (2023)
+          <img src="img/icons/nav_ideb.png" style="width:16px;height:16px;filter:opacity(0.8)"> Desempenho IDEB (2025)
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed #eee">
            <div><b>Anos Iniciais:</b> <span style="color:${getIdebColor(e.ideb_ai)}">${e.ideb_ai ? e.ideb_ai.toFixed(1) : '-'}</span></div>

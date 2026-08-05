@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "fonte": "IDEB/INEP — Divulgação 2023",
+    "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Todas RS",
-    "gerado_em": "2026-06-23T06:51:59.652663",
+    "gerado_em": "2026-08-05T20:12:06.880304",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
-    "serie_temporal_fonte": "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2023). IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
+    "serie_temporal_fonte": "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2025). IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
   },
   "serie_temporal": {
     "2005": {
@@ -230,7 +230,7 @@
       "AI": {
         "ideb": 6.0,
         "nota_saeb": 6.31,
-        "rendimento": 0.9571,
+        "rendimento": 0.969,
         "n_escolas": 2815,
         "fonte": "oficial_inep_uf"
       },
@@ -246,6 +246,29 @@
         "nota_saeb": 4.92,
         "rendimento": 0.8442,
         "n_escolas": 542,
+        "fonte": "oficial_inep_uf"
+      }
+    },
+    "2025": {
+      "AI": {
+        "ideb": 6.3,
+        "nota_saeb": 6.49,
+        "rendimento": 0.9695,
+        "n_escolas": 3216,
+        "fonte": "oficial_inep_uf"
+      },
+      "AF": {
+        "ideb": 5.4,
+        "nota_saeb": 5.75,
+        "rendimento": 0.9397,
+        "n_escolas": 2694,
+        "fonte": "oficial_inep_uf"
+      },
+      "EM": {
+        "ideb": 4.9,
+        "nota_saeb": 5.23,
+        "rendimento": 0.9315,
+        "n_escolas": 938,
         "fonte": "oficial_inep_uf"
       }
     }
@@ -47875,6 +47898,6692 @@
       "4306353": {
         "EM": {
           "ideb": 3.9,
+          "n_escolas": 1
+        }
+      }
+    },
+    "2025": {
+      "4300034": {
+        "AI": {
+          "ideb": 6.53,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4300059": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4300109": {
+        "AI": {
+          "ideb": 6.51,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4300208": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4300307": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.25,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4300406": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 18
+        },
+        "EM": {
+          "ideb": 4.06,
+          "n_escolas": 7
+        }
+      },
+      "4300455": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4300471": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4300505": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4300570": {
+        "AI": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4300604": {
+        "AI": {
+          "ideb": 5.64,
+          "n_escolas": 40
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 31
+        },
+        "EM": {
+          "ideb": 4.14,
+          "n_escolas": 10
+        }
+      },
+      "4300638": {
+        "AI": {
+          "ideb": 5.27,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4300646": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4300661": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4300703": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4300802": {
+        "AI": {
+          "ideb": 6.94,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.36,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.85,
+          "n_escolas": 2
+        }
+      },
+      "4300851": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4300877": {
+        "AI": {
+          "ideb": 6.28,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4300901": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4301008": {
+        "AI": {
+          "ideb": 6.49,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.78,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4301057": {
+        "AI": {
+          "ideb": 6.34,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.18,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4301073": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4301107": {
+        "AI": {
+          "ideb": 5.72,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 4.78,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4301206": {
+        "AI": {
+          "ideb": 7.18,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.77,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4301305": {
+        "AI": {
+          "ideb": 5.8,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.13,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4301404": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4301503": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4301552": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4301602": {
+        "AI": {
+          "ideb": 5.71,
+          "n_escolas": 36
+        },
+        "AF": {
+          "ideb": 4.86,
+          "n_escolas": 28
+        },
+        "EM": {
+          "ideb": 4.42,
+          "n_escolas": 6
+        }
+      },
+      "4301636": {
+        "AI": {
+          "ideb": 5.42,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 5
+        }
+      },
+      "4301651": {
+        "AI": {
+          "ideb": 7.03,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4301701": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4301750": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4301800": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4301859": {
+        "AI": {
+          "ideb": 6.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.0,
+          "n_escolas": 1
+        }
+      },
+      "4301875": {
+        "AI": {
+          "ideb": 6.03,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4301909": {
+        "AI": {
+          "ideb": 5.7,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.83,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        }
+      },
+      "4301925": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4301958": {
+        "AI": {
+          "ideb": 7.65,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4302006": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.53,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4302105": {
+        "AI": {
+          "ideb": 6.61,
+          "n_escolas": 32
+        },
+        "AF": {
+          "ideb": 5.58,
+          "n_escolas": 26
+        },
+        "EM": {
+          "ideb": 4.98,
+          "n_escolas": 5
+        }
+      },
+      "4302154": {
+        "AI": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4302204": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4302220": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4302238": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4302253": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4302303": {
+        "AI": {
+          "ideb": 6.42,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.37,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4302352": {
+        "AI": {
+          "ideb": 6.72,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4302378": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        }
+      },
+      "4302402": {
+        "AI": {
+          "ideb": 6.52,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4302451": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 2
+        }
+      },
+      "4302501": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4302584": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4302600": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4302659": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.15,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4302709": {
+        "AI": {
+          "ideb": 5.7,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 4.77,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        }
+      },
+      "4302808": {
+        "AI": {
+          "ideb": 5.82,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.57,
+          "n_escolas": 3
+        }
+      },
+      "4302907": {
+        "AI": {
+          "ideb": 5.78,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.35,
+          "n_escolas": 2
+        }
+      },
+      "4303004": {
+        "AI": {
+          "ideb": 6.23,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 22
+        },
+        "EM": {
+          "ideb": 4.51,
+          "n_escolas": 7
+        }
+      },
+      "4303103": {
+        "AI": {
+          "ideb": 5.97,
+          "n_escolas": 23
+        },
+        "AF": {
+          "ideb": 5.13,
+          "n_escolas": 14
+        },
+        "EM": {
+          "ideb": 4.72,
+          "n_escolas": 10
+        }
+      },
+      "4303202": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4303301": {
+        "AI": {
+          "ideb": 6.85,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4303400": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4303509": {
+        "AI": {
+          "ideb": 6.31,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 23
+        },
+        "EM": {
+          "ideb": 4.66,
+          "n_escolas": 5
+        }
+      },
+      "4303558": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4303608": {
+        "AI": {
+          "ideb": 6.12,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4303673": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4303707": {
+        "AI": {
+          "ideb": 7.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4303806": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.0,
+          "n_escolas": 1
+        }
+      },
+      "4303905": {
+        "AI": {
+          "ideb": 6.94,
+          "n_escolas": 20
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 5.03,
+          "n_escolas": 4
+        }
+      },
+      "4304002": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4304101": {
+        "AI": {
+          "ideb": 6.35,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4304200": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 5.02,
+          "n_escolas": 12
+        },
+        "EM": {
+          "ideb": 4.83,
+          "n_escolas": 3
+        }
+      },
+      "4304309": {
+        "AI": {
+          "ideb": 7.37,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.15,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4304358": {
+        "AI": {
+          "ideb": 6.22,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.37,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 2
+        }
+      },
+      "4304408": {
+        "AI": {
+          "ideb": 6.15,
+          "n_escolas": 15
+        },
+        "AF": {
+          "ideb": 5.44,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.67,
+          "n_escolas": 4
+        }
+      },
+      "4304507": {
+        "AI": {
+          "ideb": 6.43,
+          "n_escolas": 22
+        },
+        "AF": {
+          "ideb": 5.44,
+          "n_escolas": 14
+        },
+        "EM": {
+          "ideb": 5.05,
+          "n_escolas": 6
+        }
+      },
+      "4304606": {
+        "AI": {
+          "ideb": 5.72,
+          "n_escolas": 66
+        },
+        "AF": {
+          "ideb": 4.96,
+          "n_escolas": 65
+        },
+        "EM": {
+          "ideb": 4.45,
+          "n_escolas": 13
+        }
+      },
+      "4304614": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4304622": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4304630": {
+        "AI": {
+          "ideb": 5.96,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        }
+      },
+      "4304655": {
+        "AI": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4304663": {
+        "AI": {
+          "ideb": 5.28,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 4.55,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 3.3,
+          "n_escolas": 1
+        }
+      },
+      "4304671": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4304689": {
+        "AI": {
+          "ideb": 6.14,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4304697": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4304705": {
+        "AI": {
+          "ideb": 6.32,
+          "n_escolas": 23
+        },
+        "AF": {
+          "ideb": 5.14,
+          "n_escolas": 20
+        },
+        "EM": {
+          "ideb": 4.92,
+          "n_escolas": 5
+        }
+      },
+      "4304713": {
+        "AI": {
+          "ideb": 6.62,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4304804": {
+        "AI": {
+          "ideb": 7.41,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 6.31,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4304853": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4304903": {
+        "AI": {
+          "ideb": 7.03,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4304952": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305009": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4305108": {
+        "AI": {
+          "ideb": 6.22,
+          "n_escolas": 99
+        },
+        "AF": {
+          "ideb": 5.28,
+          "n_escolas": 72
+        },
+        "EM": {
+          "ideb": 4.82,
+          "n_escolas": 22
+        }
+      },
+      "4305116": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4305124": {
+        "AI": {
+          "ideb": 5.35,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 2
+        }
+      },
+      "4305132": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.15,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4305157": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305173": {
+        "AI": {
+          "ideb": 6.22,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.96,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4305207": {
+        "AI": {
+          "ideb": 6.93,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4305306": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305355": {
+        "AI": {
+          "ideb": 6.08,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 5.58,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 2
+        }
+      },
+      "4305371": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        }
+      },
+      "4305405": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305439": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4305447": {
+        "AI": {
+          "ideb": 6.13,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4305454": {
+        "AI": {
+          "ideb": 5.53,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 4.42,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4305504": {
+        "AI": {
+          "ideb": 6.45,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4305587": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4305603": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4305702": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4305801": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305850": {
+        "AI": {
+          "ideb": 3.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4305871": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4305900": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4305934": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4305959": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4305975": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4306007": {
+        "AI": {
+          "ideb": 7.17,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4306056": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4306072": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4306106": {
+        "AI": {
+          "ideb": 6.16,
+          "n_escolas": 24
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 17
+        },
+        "EM": {
+          "ideb": 4.63,
+          "n_escolas": 7
+        }
+      },
+      "4306130": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4306205": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 6.07,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        }
+      },
+      "4306304": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4306320": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4306379": {
+        "AI": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4306403": {
+        "AI": {
+          "ideb": 7.07,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 6.12,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4306452": {
+        "AI": {
+          "ideb": 8.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        }
+      },
+      "4306502": {
+        "AI": {
+          "ideb": 6.34,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4306551": {
+        "AI": {
+          "ideb": 7.45,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4306601": {
+        "AI": {
+          "ideb": 5.82,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 4.74,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 3.93,
+          "n_escolas": 3
+        }
+      },
+      "4306700": {
+        "AI": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4306734": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4306759": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4306767": {
+        "AI": {
+          "ideb": 5.64,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 4.45,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.37,
+          "n_escolas": 3
+        }
+      },
+      "4306809": {
+        "AI": {
+          "ideb": 6.81,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.73,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4306908": {
+        "AI": {
+          "ideb": 6.39,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 4.68,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 3
+        }
+      },
+      "4306924": {
+        "AI": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4306932": {
+        "AI": {
+          "ideb": 6.23,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4306957": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4306973": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4307005": {
+        "AI": {
+          "ideb": 6.56,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.62,
+          "n_escolas": 24
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 11
+        }
+      },
+      "4307054": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4307104": {
+        "AI": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 3.5,
+          "n_escolas": 1
+        }
+      },
+      "4307203": {
+        "AI": {
+          "ideb": 7.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4307302": {
+        "AI": {
+          "ideb": 6.12,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4307401": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4307450": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4307500": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.38,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 3
+        }
+      },
+      "4307559": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4307609": {
+        "AI": {
+          "ideb": 6.52,
+          "n_escolas": 12
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 2
+        }
+      },
+      "4307708": {
+        "AI": {
+          "ideb": 6.27,
+          "n_escolas": 16
+        },
+        "AF": {
+          "ideb": 5.31,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.27,
+          "n_escolas": 6
+        }
+      },
+      "4307807": {
+        "AI": {
+          "ideb": 6.58,
+          "n_escolas": 12
+        },
+        "AF": {
+          "ideb": 5.81,
+          "n_escolas": 10
+        },
+        "EM": {
+          "ideb": 4.83,
+          "n_escolas": 3
+        }
+      },
+      "4307815": {
+        "AI": {
+          "ideb": 8.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4307831": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4307864": {
+        "AI": {
+          "ideb": 8.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4307906": {
+        "AI": {
+          "ideb": 7.31,
+          "n_escolas": 26
+        },
+        "AF": {
+          "ideb": 6.23,
+          "n_escolas": 22
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 5
+        }
+      },
+      "4308003": {
+        "AI": {
+          "ideb": 6.73,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4308052": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4308078": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4308102": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 6.14,
+          "n_escolas": 5
+        }
+      },
+      "4308201": {
+        "AI": {
+          "ideb": 7.15,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.64,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        }
+      },
+      "4308300": {
+        "AI": {
+          "ideb": 6.37,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 2
+        }
+      },
+      "4308409": {
+        "AI": {
+          "ideb": 6.35,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4308433": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4308458": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4308508": {
+        "AI": {
+          "ideb": 6.64,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.56,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 4
+        }
+      },
+      "4308607": {
+        "AI": {
+          "ideb": 6.85,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 5.83,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        }
+      },
+      "4308656": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4308706": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4308805": {
+        "AI": {
+          "ideb": 5.63,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4308854": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4308904": {
+        "AI": {
+          "ideb": 6.79,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.74,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4309001": {
+        "AI": {
+          "ideb": 6.63,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4309050": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4309100": {
+        "AI": {
+          "ideb": 6.65,
+          "n_escolas": 15
+        },
+        "AF": {
+          "ideb": 5.58,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.73,
+          "n_escolas": 3
+        }
+      },
+      "4309126": {
+        "AI": {
+          "ideb": 6.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4309159": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4309209": {
+        "AI": {
+          "ideb": 5.89,
+          "n_escolas": 67
+        },
+        "AF": {
+          "ideb": 4.99,
+          "n_escolas": 48
+        },
+        "EM": {
+          "ideb": 4.48,
+          "n_escolas": 17
+        }
+      },
+      "4309258": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        }
+      },
+      "4309308": {
+        "AI": {
+          "ideb": 6.03,
+          "n_escolas": 24
+        },
+        "AF": {
+          "ideb": 5.23,
+          "n_escolas": 21
+        },
+        "EM": {
+          "ideb": 4.42,
+          "n_escolas": 9
+        }
+      },
+      "4309407": {
+        "AI": {
+          "ideb": 6.43,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.29,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.43,
+          "n_escolas": 3
+        }
+      },
+      "4309506": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 2
+        }
+      },
+      "4309555": {
+        "AI": {
+          "ideb": 7.67,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.25,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4309571": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4309605": {
+        "AI": {
+          "ideb": 7.15,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 6.22,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4309654": {
+        "AI": {
+          "ideb": 5.5,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4309704": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.25,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4309753": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4309803": {
+        "AI": {
+          "ideb": 7.15,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4309902": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4309951": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4310009": {
+        "AI": {
+          "ideb": 6.76,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.54,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 2
+        }
+      },
+      "4310108": {
+        "AI": {
+          "ideb": 6.92,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 5.63,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        }
+      },
+      "4310207": {
+        "AI": {
+          "ideb": 6.57,
+          "n_escolas": 27
+        },
+        "AF": {
+          "ideb": 5.62,
+          "n_escolas": 22
+        },
+        "EM": {
+          "ideb": 5.21,
+          "n_escolas": 8
+        }
+      },
+      "4310306": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4310330": {
+        "AI": {
+          "ideb": 6.15,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.24,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.75,
+          "n_escolas": 2
+        }
+      },
+      "4310363": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4310405": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.47,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4310413": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4310439": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4310462": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4310504": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4310538": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4310553": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4310579": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4310603": {
+        "AI": {
+          "ideb": 5.94,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.53,
+          "n_escolas": 3
+        }
+      },
+      "4310652": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.33,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4310702": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4310801": {
+        "AI": {
+          "ideb": 6.96,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 6.07,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4310850": {
+        "AI": {
+          "ideb": 6.73,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4310876": {
+        "AI": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 3.5,
+          "n_escolas": 1
+        }
+      },
+      "4310900": {
+        "AI": {
+          "ideb": 7.35,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4311007": {
+        "AI": {
+          "ideb": 5.94,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.12,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 3
+        }
+      },
+      "4311106": {
+        "AI": {
+          "ideb": 6.48,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4311122": {
+        "AI": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4311130": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4311155": {
+        "AI": {
+          "ideb": 6.17,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.93,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4311205": {
+        "AI": {
+          "ideb": 5.91,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 4.87,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.55,
+          "n_escolas": 2
+        }
+      },
+      "4311239": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4311254": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.03,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4311270": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4311304": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.44,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.75,
+          "n_escolas": 4
+        }
+      },
+      "4311403": {
+        "AI": {
+          "ideb": 6.62,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 18
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 3
+        }
+      },
+      "4311429": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 3.7,
+          "n_escolas": 1
+        }
+      },
+      "4311502": {
+        "AI": {
+          "ideb": 6.45,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.68,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4311601": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4311627": {
+        "AI": {
+          "ideb": 6.58,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4311643": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4311700": {
+        "AI": {
+          "ideb": 7.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4311718": {
+        "AI": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 2
+        }
+      },
+      "4311734": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4311759": {
+        "AI": {
+          "ideb": 6.47,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4311775": {
+        "AI": {
+          "ideb": 5.75,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4311809": {
+        "AI": {
+          "ideb": 6.39,
+          "n_escolas": 12
+        },
+        "AF": {
+          "ideb": 5.37,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        }
+      },
+      "4311908": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4311981": {
+        "AI": {
+          "ideb": 6.65,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4312005": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4312054": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4312104": {
+        "AI": {
+          "ideb": 6.25,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4312153": {
+        "AI": {
+          "ideb": 7.23,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4312179": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4312203": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4312252": {
+        "AI": {
+          "ideb": 5.92,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4312302": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4312351": {
+        "AI": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4312377": {
+        "AI": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4312385": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4312401": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 22
+        },
+        "AF": {
+          "ideb": 5.22,
+          "n_escolas": 16
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 2
+        }
+      },
+      "4312427": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4312443": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4312450": {
+        "AI": {
+          "ideb": 6.45,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.47,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4312476": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.77,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4312500": {
+        "AI": {
+          "ideb": 6.05,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.12,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 2
+        }
+      },
+      "4312609": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4312617": {
+        "AI": {
+          "ideb": 6.65,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4312658": {
+        "AI": {
+          "ideb": 6.26,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4312674": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4312708": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4312757": {
+        "AI": {
+          "ideb": 6.85,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4312807": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4312906": {
+        "AI": {
+          "ideb": 6.93,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.25,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4312955": {
+        "AI": {
+          "ideb": 7.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4313003": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4313011": {
+        "AI": {
+          "ideb": 7.4,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4313037": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4313060": {
+        "AI": {
+          "ideb": 6.63,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.54,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        }
+      },
+      "4313086": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4313102": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4313201": {
+        "AI": {
+          "ideb": 6.92,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 6.28,
+          "n_escolas": 10
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        }
+      },
+      "4313300": {
+        "AI": {
+          "ideb": 6.49,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.66,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4313334": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4313359": {
+        "AI": {
+          "ideb": 8.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4313375": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 12
+        },
+        "AF": {
+          "ideb": 5.16,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4313391": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4313409": {
+        "AI": {
+          "ideb": 6.26,
+          "n_escolas": 55
+        },
+        "AF": {
+          "ideb": 5.18,
+          "n_escolas": 32
+        },
+        "EM": {
+          "ideb": 4.48,
+          "n_escolas": 9
+        }
+      },
+      "4313425": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4313441": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4313466": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4313490": {
+        "AI": {
+          "ideb": 7.03,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4313508": {
+        "AI": {
+          "ideb": 6.12,
+          "n_escolas": 12
+        },
+        "AF": {
+          "ideb": 5.21,
+          "n_escolas": 10
+        },
+        "EM": {
+          "ideb": 4.53,
+          "n_escolas": 4
+        }
+      },
+      "4313607": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4313656": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.98,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4313706": {
+        "AI": {
+          "ideb": 6.41,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.84,
+          "n_escolas": 5
+        }
+      },
+      "4313805": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.33,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4313904": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 15
+        },
+        "AF": {
+          "ideb": 5.57,
+          "n_escolas": 14
+        },
+        "EM": {
+          "ideb": 4.92,
+          "n_escolas": 5
+        }
+      },
+      "4313953": {
+        "AI": {
+          "ideb": 6.06,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.26,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4314001": {
+        "AI": {
+          "ideb": 7.37,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4314027": {
+        "AI": {
+          "ideb": 6.25,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.33,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4314035": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4314050": {
+        "AI": {
+          "ideb": 6.06,
+          "n_escolas": 20
+        },
+        "AF": {
+          "ideb": 5.17,
+          "n_escolas": 19
+        },
+        "EM": {
+          "ideb": 4.65,
+          "n_escolas": 4
+        }
+      },
+      "4314068": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4314076": {
+        "AI": {
+          "ideb": 6.82,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.63,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4314100": {
+        "AI": {
+          "ideb": 5.77,
+          "n_escolas": 56
+        },
+        "AF": {
+          "ideb": 4.84,
+          "n_escolas": 46
+        },
+        "EM": {
+          "ideb": 4.51,
+          "n_escolas": 15
+        }
+      },
+      "4314134": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4314159": {
+        "AI": {
+          "ideb": 6.42,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.03,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4314209": {
+        "AI": {
+          "ideb": 5.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4314308": {
+        "AI": {
+          "ideb": 6.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4314407": {
+        "AI": {
+          "ideb": 5.6,
+          "n_escolas": 62
+        },
+        "AF": {
+          "ideb": 4.89,
+          "n_escolas": 51
+        },
+        "EM": {
+          "ideb": 4.47,
+          "n_escolas": 14
+        }
+      },
+      "4314423": {
+        "AI": {
+          "ideb": 7.63,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4314456": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4314464": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4314472": {
+        "AI": {
+          "ideb": 8.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4314498": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.73,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4314506": {
+        "AI": {
+          "ideb": 5.66,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.35,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4314548": {
+        "AI": {
+          "ideb": 6.15,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4314555": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4314605": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 4.74,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.43,
+          "n_escolas": 3
+        }
+      },
+      "4314704": {
+        "AI": {
+          "ideb": 7.53,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4314753": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4314779": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4314787": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4314803": {
+        "AI": {
+          "ideb": 6.22,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4314902": {
+        "AI": {
+          "ideb": 5.54,
+          "n_escolas": 209
+        },
+        "AF": {
+          "ideb": 4.83,
+          "n_escolas": 194
+        },
+        "EM": {
+          "ideb": 4.34,
+          "n_escolas": 64
+        }
+      },
+      "4315008": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4315057": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4315107": {
+        "AI": {
+          "ideb": 6.83,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.64,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 2
+        }
+      },
+      "4315131": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4315149": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4315156": {
+        "AI": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.27,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4315172": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        }
+      },
+      "4315206": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4315305": {
+        "AI": {
+          "ideb": 6.18,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.28,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.65,
+          "n_escolas": 2
+        }
+      },
+      "4315313": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4315321": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4315354": {
+        "AI": {
+          "ideb": 7.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4315404": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.6,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4315453": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4315503": {
+        "AI": {
+          "ideb": 5.96,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.17,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4315552": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4315602": {
+        "AI": {
+          "ideb": 5.55,
+          "n_escolas": 45
+        },
+        "AF": {
+          "ideb": 4.74,
+          "n_escolas": 39
+        },
+        "EM": {
+          "ideb": 4.35,
+          "n_escolas": 11
+        }
+      },
+      "4315701": {
+        "AI": {
+          "ideb": 6.57,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.34,
+          "n_escolas": 11
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 4
+        }
+      },
+      "4315750": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4315800": {
+        "AI": {
+          "ideb": 6.03,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4315909": {
+        "AI": {
+          "ideb": 6.33,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4316006": {
+        "AI": {
+          "ideb": 6.65,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.46,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4316105": {
+        "AI": {
+          "ideb": 7.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.63,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4316204": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4316303": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4316402": {
+        "AI": {
+          "ideb": 5.86,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 2
+        }
+      },
+      "4316428": {
+        "AI": {
+          "ideb": 7.45,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4316436": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4316451": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        }
+      },
+      "4316477": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4316501": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4316600": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.62,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4316709": {
+        "AI": {
+          "ideb": 6.92,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.23,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4316733": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4316758": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4316808": {
+        "AI": {
+          "ideb": 6.66,
+          "n_escolas": 37
+        },
+        "AF": {
+          "ideb": 5.73,
+          "n_escolas": 34
+        },
+        "EM": {
+          "ideb": 5.13,
+          "n_escolas": 10
+        }
+      },
+      "4316907": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 67
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 58
+        },
+        "EM": {
+          "ideb": 4.85,
+          "n_escolas": 21
+        }
+      },
+      "4316956": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4316972": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4317004": {
+        "AI": {
+          "ideb": 5.78,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.47,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4317103": {
+        "AI": {
+          "ideb": 5.62,
+          "n_escolas": 30
+        },
+        "AF": {
+          "ideb": 4.82,
+          "n_escolas": 26
+        },
+        "EM": {
+          "ideb": 4.39,
+          "n_escolas": 9
+        }
+      },
+      "4317202": {
+        "AI": {
+          "ideb": 6.96,
+          "n_escolas": 23
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 19
+        },
+        "EM": {
+          "ideb": 5.14,
+          "n_escolas": 7
+        }
+      },
+      "4317251": {
+        "AI": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        }
+      },
+      "4317301": {
+        "AI": {
+          "ideb": 5.84,
+          "n_escolas": 16
+        },
+        "AF": {
+          "ideb": 5.28,
+          "n_escolas": 5
+        }
+      },
+      "4317400": {
+        "AI": {
+          "ideb": 6.73,
+          "n_escolas": 15
+        },
+        "AF": {
+          "ideb": 5.37,
+          "n_escolas": 16
+        },
+        "EM": {
+          "ideb": 4.72,
+          "n_escolas": 5
+        }
+      },
+      "4317509": {
+        "AI": {
+          "ideb": 5.92,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.21,
+          "n_escolas": 16
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 7
+        }
+      },
+      "4317558": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4317608": {
+        "AI": {
+          "ideb": 6.74,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 5.61,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.48,
+          "n_escolas": 4
+        }
+      },
+      "4317707": {
+        "AI": {
+          "ideb": 6.15,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 1
+        }
+      },
+      "4317756": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4317806": {
+        "AI": {
+          "ideb": 6.49,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.54,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        }
+      },
+      "4317905": {
+        "AI": {
+          "ideb": 6.82,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 6.0,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4317954": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4318002": {
+        "AI": {
+          "ideb": 6.13,
+          "n_escolas": 20
+        },
+        "AF": {
+          "ideb": 5.09,
+          "n_escolas": 13
+        },
+        "EM": {
+          "ideb": 4.75,
+          "n_escolas": 8
+        }
+      },
+      "4318051": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4318101": {
+        "AI": {
+          "ideb": 6.04,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.45,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 2
+        }
+      },
+      "4318200": {
+        "AI": {
+          "ideb": 6.11,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.11,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4318309": {
+        "AI": {
+          "ideb": 5.6,
+          "n_escolas": 20
+        },
+        "AF": {
+          "ideb": 4.97,
+          "n_escolas": 14
+        },
+        "EM": {
+          "ideb": 4.3,
+          "n_escolas": 5
+        }
+      },
+      "4318408": {
+        "AI": {
+          "ideb": 6.07,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.04,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.45,
+          "n_escolas": 2
+        }
+      },
+      "4318424": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4318432": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4318440": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        }
+      },
+      "4318457": {
+        "AI": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4318465": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4318481": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4318499": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.0,
+          "n_escolas": 1
+        }
+      },
+      "4318507": {
+        "AI": {
+          "ideb": 6.04,
+          "n_escolas": 11
+        },
+        "AF": {
+          "ideb": 5.23,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4318606": {
+        "AI": {
+          "ideb": 7.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4318614": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 2
+        }
+      },
+      "4318622": {
+        "AI": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4318705": {
+        "AI": {
+          "ideb": 5.69,
+          "n_escolas": 46
+        },
+        "AF": {
+          "ideb": 4.68,
+          "n_escolas": 34
+        },
+        "EM": {
+          "ideb": 4.52,
+          "n_escolas": 13
+        }
+      },
+      "4318804": {
+        "AI": {
+          "ideb": 5.91,
+          "n_escolas": 17
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 12
+        },
+        "EM": {
+          "ideb": 4.67,
+          "n_escolas": 4
+        }
+      },
+      "4318903": {
+        "AI": {
+          "ideb": 6.19,
+          "n_escolas": 15
+        },
+        "AF": {
+          "ideb": 5.28,
+          "n_escolas": 14
+        },
+        "EM": {
+          "ideb": 4.88,
+          "n_escolas": 5
+        }
+      },
+      "4319000": {
+        "AI": {
+          "ideb": 6.38,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        }
+      },
+      "4319109": {
+        "AI": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4319125": {
+        "AI": {
+          "ideb": 6.27,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 2.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4319158": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4319208": {
+        "AI": {
+          "ideb": 6.17,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.45,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4319307": {
+        "AI": {
+          "ideb": 7.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        }
+      },
+      "4319356": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        }
+      },
+      "4319372": {
+        "AI": {
+          "ideb": 7.25,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4319406": {
+        "AI": {
+          "ideb": 6.6,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 5.28,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4319505": {
+        "AI": {
+          "ideb": 6.52,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 4.98,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 2
+        }
+      },
+      "4319604": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.02,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4319703": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4319711": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4319752": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.05,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4319802": {
+        "AI": {
+          "ideb": 6.54,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 4.73,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4319901": {
+        "AI": {
+          "ideb": 6.61,
+          "n_escolas": 18
+        },
+        "AF": {
+          "ideb": 5.78,
+          "n_escolas": 17
+        },
+        "EM": {
+          "ideb": 4.88,
+          "n_escolas": 4
+        }
+      },
+      "4320008": {
+        "AI": {
+          "ideb": 6.17,
+          "n_escolas": 36
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 34
+        },
+        "EM": {
+          "ideb": 4.45,
+          "n_escolas": 2
+        }
+      },
+      "4320107": {
+        "AI": {
+          "ideb": 6.73,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 5.46,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4320206": {
+        "AI": {
+          "ideb": 7.17,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4320230": {
+        "AI": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        }
+      },
+      "4320263": {
+        "AI": {
+          "ideb": 7.15,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.37,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4320305": {
+        "AI": {
+          "ideb": 7.15,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4320321": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4320354": {
+        "AI": {
+          "ideb": 5.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.1,
+          "n_escolas": 1
+        }
+      },
+      "4320404": {
+        "AI": {
+          "ideb": 6.77,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.54,
+          "n_escolas": 7
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4320453": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4320503": {
+        "AI": {
+          "ideb": 6.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 2
+        }
+      },
+      "4320552": {
+        "AI": {
+          "ideb": 6.0,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 4.53,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4320578": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4320602": {
+        "AI": {
+          "ideb": 7.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4320651": {
+        "AI": {
+          "ideb": 6.8,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4320677": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.05,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4320701": {
+        "AI": {
+          "ideb": 6.36,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4320800": {
+        "AI": {
+          "ideb": 6.37,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.29,
+          "n_escolas": 10
+        },
+        "EM": {
+          "ideb": 4.35,
+          "n_escolas": 4
+        }
+      },
+      "4320859": {
+        "AI": {
+          "ideb": 5.67,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4320909": {
+        "AI": {
+          "ideb": 6.71,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4321006": {
+        "AI": {
+          "ideb": 7.17,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.97,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        }
+      },
+      "4321105": {
+        "AI": {
+          "ideb": 6.04,
+          "n_escolas": 7
+        },
+        "AF": {
+          "ideb": 4.96,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        }
+      },
+      "4321204": {
+        "AI": {
+          "ideb": 6.37,
+          "n_escolas": 20
+        },
+        "AF": {
+          "ideb": 5.26,
+          "n_escolas": 16
+        },
+        "EM": {
+          "ideb": 4.52,
+          "n_escolas": 6
+        }
+      },
+      "4321303": {
+        "AI": {
+          "ideb": 5.93,
+          "n_escolas": 10
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 4.57,
+          "n_escolas": 3
+        }
+      },
+      "4321329": {
+        "AI": {
+          "ideb": 7.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 2
+        }
+      },
+      "4321352": {
+        "AI": {
+          "ideb": 6.25,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 3.9,
+          "n_escolas": 1
+        }
+      },
+      "4321402": {
+        "AI": {
+          "ideb": 6.63,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 4.45,
+          "n_escolas": 2
+        }
+      },
+      "4321436": {
+        "AI": {
+          "ideb": 5.93,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.23,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4321451": {
+        "AI": {
+          "ideb": 6.61,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.74,
+          "n_escolas": 9
+        },
+        "EM": {
+          "ideb": 4.95,
+          "n_escolas": 2
+        }
+      },
+      "4321469": {
+        "AI": {
+          "ideb": 6.83,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4321477": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4321493": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4321501": {
+        "AI": {
+          "ideb": 6.66,
+          "n_escolas": 13
+        },
+        "AF": {
+          "ideb": 5.4,
+          "n_escolas": 10
+        },
+        "EM": {
+          "ideb": 4.85,
+          "n_escolas": 4
+        }
+      },
+      "4321600": {
+        "AI": {
+          "ideb": 6.34,
+          "n_escolas": 14
+        },
+        "AF": {
+          "ideb": 5.08,
+          "n_escolas": 16
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 2
+        }
+      },
+      "4321626": {
+        "AI": {
+          "ideb": 7.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        }
+      },
+      "4321634": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4321667": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 5
+        },
+        "AF": {
+          "ideb": 6.1,
+          "n_escolas": 4
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4321709": {
+        "AI": {
+          "ideb": 6.21,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4321808": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.65,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 2
+        }
+      },
+      "4321832": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4321857": {
+        "AI": {
+          "ideb": 6.38,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.35,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4321907": {
+        "AI": {
+          "ideb": 6.71,
+          "n_escolas": 8
+        },
+        "AF": {
+          "ideb": 5.73,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        }
+      },
+      "4321956": {
+        "AI": {
+          "ideb": 6.37,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.63,
+          "n_escolas": 3
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4322004": {
+        "AI": {
+          "ideb": 6.24,
+          "n_escolas": 17
+        },
+        "AF": {
+          "ideb": 5.43,
+          "n_escolas": 15
+        },
+        "EM": {
+          "ideb": 4.47,
+          "n_escolas": 3
+        }
+      },
+      "4322103": {
+        "AI": {
+          "ideb": 6.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4322152": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4322186": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.5,
+          "n_escolas": 1
+        }
+      },
+      "4322202": {
+        "AI": {
+          "ideb": 6.29,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.44,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 2
+        }
+      },
+      "4322251": {
+        "AI": {
+          "ideb": 7.4,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        }
+      },
+      "4322301": {
+        "AI": {
+          "ideb": 6.35,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4322327": {
+        "AI": {
+          "ideb": 5.8,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.1,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4322343": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4322376": {
+        "AI": {
+          "ideb": 7.05,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4322400": {
+        "AI": {
+          "ideb": 5.74,
+          "n_escolas": 34
+        },
+        "AF": {
+          "ideb": 4.73,
+          "n_escolas": 22
+        },
+        "EM": {
+          "ideb": 4.09,
+          "n_escolas": 8
+        }
+      },
+      "4322509": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 21
+        },
+        "AF": {
+          "ideb": 5.09,
+          "n_escolas": 20
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 4
+        }
+      },
+      "4322525": {
+        "AI": {
+          "ideb": 6.9,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.2,
+          "n_escolas": 1
+        }
+      },
+      "4322533": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.52,
+          "n_escolas": 5
+        },
+        "EM": {
+          "ideb": 5.4,
+          "n_escolas": 1
+        }
+      },
+      "4322541": {
+        "AI": {
+          "ideb": 6.7,
+          "n_escolas": 3
+        },
+        "AF": {
+          "ideb": 5.55,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4322558": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4322608": {
+        "AI": {
+          "ideb": 6.86,
+          "n_escolas": 25
+        },
+        "AF": {
+          "ideb": 5.64,
+          "n_escolas": 22
+        },
+        "EM": {
+          "ideb": 4.95,
+          "n_escolas": 6
+        }
+      },
+      "4322707": {
+        "AI": {
+          "ideb": 6.29,
+          "n_escolas": 9
+        },
+        "AF": {
+          "ideb": 5.26,
+          "n_escolas": 8
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4322806": {
+        "AI": {
+          "ideb": 6.35,
+          "n_escolas": 6
+        },
+        "AF": {
+          "ideb": 5.43,
+          "n_escolas": 6
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 2
+        }
+      },
+      "4322855": {
+        "AI": {
+          "ideb": 7.6,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        }
+      },
+      "4322905": {
+        "AI": {
+          "ideb": 6.95,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.75,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4323002": {
+        "AI": {
+          "ideb": 5.76,
+          "n_escolas": 70
+        },
+        "AF": {
+          "ideb": 4.85,
+          "n_escolas": 54
+        },
+        "EM": {
+          "ideb": 4.24,
+          "n_escolas": 10
+        }
+      },
+      "4323101": {
+        "AI": {
+          "ideb": 6.2,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.6,
+          "n_escolas": 1
+        }
+      },
+      "4323200": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.25,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4323309": {
+        "AI": {
+          "ideb": 7.3,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        }
+      },
+      "4323358": {
+        "AI": {
+          "ideb": 7.2,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4323408": {
+        "AI": {
+          "ideb": 6.75,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.2,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4323457": {
+        "AI": {
+          "ideb": 6.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 4.85,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4323507": {
+        "AI": {
+          "ideb": 6.55,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 4.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.4,
+          "n_escolas": 1
+        }
+      },
+      "4323606": {
+        "AI": {
+          "ideb": 7.5,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.6,
+          "n_escolas": 1
+        }
+      },
+      "4323705": {
+        "AI": {
+          "ideb": 7.0,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 6.3,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.9,
+          "n_escolas": 1
+        }
+      },
+      "4323754": {
+        "AI": {
+          "ideb": 6.3,
+          "n_escolas": 2
+        },
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.0,
+          "n_escolas": 1
+        }
+      },
+      "4323770": {
+        "AI": {
+          "ideb": 7.1,
+          "n_escolas": 1
+        },
+        "AF": {
+          "ideb": 6.2,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4323804": {
+        "AI": {
+          "ideb": 5.47,
+          "n_escolas": 4
+        },
+        "AF": {
+          "ideb": 5.15,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4300554": {
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4302055": {
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4306429": {
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 3.9,
+          "n_escolas": 1
+        }
+      },
+      "4308250": {
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        }
+      },
+      "4311791": {
+        "AF": {
+          "ideb": 5.9,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        }
+      },
+      "4312138": {
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 2
+        },
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4312625": {
+        "AF": {
+          "ideb": 5.5,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4315073": {
+        "AF": {
+          "ideb": 5.7,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.3,
+          "n_escolas": 1
+        }
+      },
+      "4315958": {
+        "AF": {
+          "ideb": 5.8,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4319737": {
+        "AF": {
+          "ideb": 5.6,
+          "n_escolas": 1
+        },
+        "EM": {
+          "ideb": 4.5,
+          "n_escolas": 1
+        }
+      },
+      "4305835": {
+        "EM": {
+          "ideb": 5.2,
+          "n_escolas": 1
+        }
+      },
+      "4306353": {
+        "EM": {
+          "ideb": 4.7,
+          "n_escolas": 1
+        }
+      },
+      "4310751": {
+        "EM": {
+          "ideb": 5.1,
+          "n_escolas": 1
+        }
+      },
+      "4314175": {
+        "EM": {
+          "ideb": 3.5,
+          "n_escolas": 1
+        }
+      },
+      "4319364": {
+        "EM": {
+          "ideb": 4.1,
           "n_escolas": 1
         }
       }

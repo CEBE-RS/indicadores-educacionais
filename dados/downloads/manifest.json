@@ -15,7 +15,7 @@
     "descricao": "Indicadores de infraestrutura escolar (tecnologia, espacos, acessibilidade, saneamento).",
     "fonte": "INEP - Censo Escolar (Microdados de Escolas)",
     "abas": 10,
-    "tamanho_kb": 423
+    "tamanho_kb": 6184
   },
   {
     "id": "icg",
@@ -105,6 +105,6 @@
     "descricao": "IDEB observado e metas por rede, etapa de ensino e por municipio.",
     "fonte": "INEP - IDEB",
     "abas": 10,
-    "tamanho_kb": 625
+    "tamanho_kb": 666
   }
 ]
