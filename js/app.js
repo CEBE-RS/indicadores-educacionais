@@ -5043,6 +5043,10 @@ function renderIdeb() {
             color: ctx => idebCores[ctx.dataset._etIdx] || '#999',
             formatter: v => v?.toFixed(1) ?? '',
           },
+          tooltip: {
+            ...CHART_DEFAULTS.plugins.tooltip,
+            callbacks: { label: ctx => ` ${ctx.dataset.label || ''}: ${(ctx.parsed.y ?? 0).toFixed(1).replace('.', ',')}` },
+          },
         },
         scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 2, suggestedMax: 8 } },
       },
@@ -5093,6 +5097,15 @@ function renderIdeb() {
               font: { family: 'Inter', size: 9, weight: '700' },
               color: idebCores[etIdx],
               formatter: v => v?.toFixed(1) ?? '',
+            },
+            tooltip: {
+              ...CHART_DEFAULTS.plugins.tooltip,
+              callbacks: {
+                label: ctx => {
+                  const v = (ctx.parsed.y ?? 0).toFixed(1).replace('.', ',');
+                  return ctx.dataset.yAxisID === 'yP' ? ` ${ctx.dataset.label}: ${v}%` : ` ${ctx.dataset.label}: ${v}`;
+                },
+              },
             },
           },
           scales: {
