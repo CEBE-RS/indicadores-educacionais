@@ -4644,6 +4644,10 @@ function renderIdeb() {
       return ideb.por_municipio[ano][S.munSel];
     }
     if (S.creSel) {
+      // Preferencial: valor pre-calculado por CRE = media PONDERADA das escolas
+      // pela matricula na serie avaliada (5o/9o/3oEM), alinhado ao metodo SEDUC-RS.
+      if (ideb.por_cre?.[ano]?.[S.creSel]) return ideb.por_cre[ano][S.creSel];
+      // Fallback (JSON antigo sem por_cre): agrega municipios ponderando por nº de escolas.
       const creMuns = getCreMuns(S.creSel);
       const munYear = ideb.por_municipio?.[ano] || {};
       const agg = {};
@@ -5043,6 +5047,10 @@ function renderIdeb() {
             color: ctx => idebCores[ctx.dataset._etIdx] || '#999',
             formatter: v => v?.toFixed(1) ?? '',
           },
+          tooltip: {
+            ...CHART_DEFAULTS.plugins.tooltip,
+            callbacks: { label: ctx => ` ${ctx.dataset.label || ''}: ${(ctx.parsed.y ?? 0).toFixed(1).replace('.', ',')}` },
+          },
         },
         scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 2, suggestedMax: 8 } },
       },
@@ -5093,6 +5101,15 @@ function renderIdeb() {
               font: { family: 'Inter', size: 9, weight: '700' },
               color: idebCores[etIdx],
               formatter: v => v?.toFixed(1) ?? '',
+            },
+            tooltip: {
+              ...CHART_DEFAULTS.plugins.tooltip,
+              callbacks: {
+                label: ctx => {
+                  const v = (ctx.parsed.y ?? 0).toFixed(1).replace('.', ',');
+                  return ctx.dataset.yAxisID === 'yP' ? ` ${ctx.dataset.label}: ${v}%` : ` ${ctx.dataset.label}: ${v}`;
+                },
+              },
             },
           },
           scales: {
