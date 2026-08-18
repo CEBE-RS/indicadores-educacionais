@@ -18,6 +18,16 @@ import numpy as np
 import json, os, time
 
 IDEB_DIR = os.path.join(BASE, "00. Bases de Dados", "02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)", "02. IDEB")
+MICRO_DIR = os.path.join(BASE, "00. Bases de Dados", "01. Acesso e Matrículas (Censo Escolar_2010_2025)", "01. extrações_2010_2025")
+
+# Colunas de matricula por SERIE AVALIADA no SAEB (Censo 2025), usadas como
+# peso da media ponderada por escola no nivel da CRE (regional).
+#   AI -> 5o ano do Fundamental | AF -> 9o ano | EM -> 3a serie do Medio
+SERIE_COLS = {
+    "AI": ["QT_MAT_FUND_AI_5"],
+    "AF": ["QT_MAT_FUND_AF_9"],
+    "EM": ["QT_MAT_MED_NM_3", "QT_MAT_MED_PROP_3", "QT_MAT_MED_IFTP_CT_3"],
+}
 
 # Files and etapa config
 ETAPAS = {
@@ -307,6 +317,92 @@ def extract_mun_all_years_oficial(mun_df, esc_df, etapa_key, rede_rotulo):
 
     return por_ano, lookup
 
+def load_serie_weights():
+    """Peso por escola = matricula na SERIE AVALIADA (5o/9o/3oEM) no Censo 2025.
+    Retorna {id_escola: {'AI': n, 'AF': n, 'EM': n}}."""
+    f = os.path.join(MICRO_DIR, "Tabela_Matricula_2025.csv")
+    if not os.path.exists(f):
+        print(f"  [AVISO] {os.path.basename(f)} nao encontrada — por_cre usara peso 1 por escola")
+        return {}
+    todas_cols = [c for cols in SERIE_COLS.values() for c in cols]
+    h = pd.read_csv(f, sep=";", encoding="latin-1", nrows=0)
+    use = ["CO_ENTIDADE"] + [c for c in todas_cols if c in h.columns]
+    df = pd.read_csv(f, sep=";", encoding="latin-1", usecols=use)
+
+    def soma(row, cols):
+        tot = 0
+        for c in cols:
+            if c in df.columns:
+                v = row[c]
+                if not pd.isna(v):
+                    tot += int(v)
+        return tot
+
+    weights = {}
+    for _, row in df.iterrows():
+        eid = str(int(row["CO_ENTIDADE"]))
+        weights[eid] = {et: soma(row, cols) for et, cols in SERIE_COLS.items()}
+    print(f"  Pesos (matricula por serie) carregados p/ {len(weights)} escolas (Censo 2025)")
+    return weights
+
+
+def load_mun_to_cre():
+    """Mapa CO_MUNICIPIO (7 digitos) -> cod_cre, a partir do lookup do painel."""
+    f = os.path.join(PAINEL_DIR, "rs_cre_lookup.json")
+    if not os.path.exists(f):
+        print("  [AVISO] rs_cre_lookup.json nao encontrado — por_cre nao sera gerado")
+        return {}
+    with open(f, encoding="utf-8") as fh:
+        d = json.load(fh)
+    return {k: v.get("cod_cre") for k, v in d.get("mun_to_cre", {}).items()}
+
+
+def extract_cre_all_years(df, etapa_key, rede_filter, weights, mun_to_cre):
+    """IDEB por CRE, todos os anos: media PONDERADA das escolas pela matricula
+    na serie avaliada (peso). Fiel ao metodo da SEDUC-RS (media ponderada,
+    escola a escola), em vez de media simples de municipios."""
+    cfg = ETAPAS[etapa_key]
+    if rede_filter:
+        df = df[df["REDE"].isin(rede_filter)].copy()
+
+    por_ano = {}
+    for ano in cfg["anos_ideb"]:
+        obs_col = f"VL_OBSERVADO_{ano}"
+        if obs_col not in df.columns:
+            continue
+        df["_ideb"] = df[obs_col].apply(safe_numeric)
+        dv = df[df["_ideb"].notna()]
+        if len(dv) == 0:
+            continue
+
+        acc = {}  # cre -> [sum(ideb*peso), sum(peso), n_escolas]
+        for _, row in dv.iterrows():
+            mun = str(int(row["CO_MUNICIPIO"]))[:7]
+            cre = mun_to_cre.get(mun)
+            if not cre:
+                continue
+            eid = str(int(row["ID_ESCOLA"]))
+            w = (weights.get(eid, {}) or {}).get(etapa_key, 0) or 0
+            if w <= 0:
+                w = 1  # fallback: escola sem matricula 2025 na serie (ex.: fechada)
+            a = acc.setdefault(cre, [0.0, 0.0, 0])
+            a[0] += row["_ideb"] * w
+            a[1] += w
+            a[2] += 1
+
+        cre_data = {}
+        for cre, (soma_iw, soma_w, n_esc) in acc.items():
+            if soma_w > 0:
+                cre_data[cre] = {
+                    "ideb": round(soma_iw / soma_w, 2),
+                    "n_escolas": n_esc,
+                    "n_alunos": int(soma_w),
+                }
+        if cre_data:
+            por_ano[str(ano)] = cre_data
+    return por_ano
+
+
 def main():
     t0 = time.time()
     print("=" * 60)
@@ -325,6 +421,11 @@ def main():
     OFICIAL = carregar_oficial_uf()
     if OFICIAL:
         print(f"  Redes oficiais disponiveis p/ RS: {sorted(OFICIAL.keys())}")
+
+    # Pesos (matricula por serie avaliada) + mapa municipio->CRE para o por_cre
+    print("\n  Carregando pesos e mapa de CREs (para media ponderada por regional)...")
+    SERIE_WEIGHTS = load_serie_weights()
+    MUN_TO_CRE = load_mun_to_cre()
     
     # Generate per-rede JSONs
     for rede_key, rede_filter in REDES.items():
@@ -341,6 +442,7 @@ def main():
             },
             "serie_temporal": {},
             "por_municipio": {},
+            "por_cre": {},
             "lookup_municipios": {},
         }
         
@@ -373,7 +475,20 @@ def main():
                     if cod not in resultado["por_municipio"][ano]:
                         resultado["por_municipio"][ano][cod] = {}
                     resultado["por_municipio"][ano][cod][etapa_key] = md
-            
+
+            # Per-CRE (todos os anos): MEDIA PONDERADA das escolas pela matricula
+            # na serie avaliada (5o/9o/3oEM). Substitui a media por municipio no
+            # nivel da regional, alinhando com o metodo da SEDUC-RS.
+            if MUN_TO_CRE:
+                cre_por_ano = extract_cre_all_years(df, etapa_key, rede_filter, SERIE_WEIGHTS, MUN_TO_CRE)
+                for ano, cre_data in cre_por_ano.items():
+                    if ano not in resultado["por_cre"]:
+                        resultado["por_cre"][ano] = {}
+                    for cre, md in cre_data.items():
+                        if cre not in resultado["por_cre"][ano]:
+                            resultado["por_cre"][ano][cre] = {}
+                        resultado["por_cre"][ano][cre][etapa_key] = md
+
             # Summary
             anos_disp = sorted(serie.keys())
             if anos_disp:

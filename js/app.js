@@ -4644,6 +4644,10 @@ function renderIdeb() {
       return ideb.por_municipio[ano][S.munSel];
     }
     if (S.creSel) {
+      // Preferencial: valor pre-calculado por CRE = media PONDERADA das escolas
+      // pela matricula na serie avaliada (5o/9o/3oEM), alinhado ao metodo SEDUC-RS.
+      if (ideb.por_cre?.[ano]?.[S.creSel]) return ideb.por_cre[ano][S.creSel];
+      // Fallback (JSON antigo sem por_cre): agrega municipios ponderando por nº de escolas.
       const creMuns = getCreMuns(S.creSel);
       const munYear = ideb.por_municipio?.[ano] || {};
       const agg = {};
