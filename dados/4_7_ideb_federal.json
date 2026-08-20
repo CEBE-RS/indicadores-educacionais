@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Federal RS",
-    "gerado_em": "2026-08-20T08:52:03.535097",
+    "gerado_em": "2026-08-20T10:20:29.721370",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
     "serie_temporal_fonte": "Sem agregado oficial por UF para esta rede; serie_temporal = media dos IDEBs das escolas (aproximacao)."
   },
@@ -669,19 +669,19 @@
         "AI": {
           "ideb": 5.9,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 97
         },
         "AF": {
-          "ideb": 6.12,
+          "ideb": 6.17,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 831
         }
       },
       "08": {
         "AF": {
           "ideb": 6.5,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 444
         }
       }
     },
@@ -690,19 +690,19 @@
         "AI": {
           "ideb": 6.2,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 97
         },
         "AF": {
-          "ideb": 5.74,
+          "ideb": 5.82,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 831
         }
       },
       "08": {
         "AF": {
           "ideb": 7.3,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 444
         }
       }
     },
@@ -711,19 +711,19 @@
         "AI": {
           "ideb": 6.0,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 131
         },
         "AF": {
-          "ideb": 5.66,
+          "ideb": 5.71,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 785
         }
       },
       "08": {
         "AF": {
           "ideb": 7.3,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 395
         }
       }
     },
@@ -732,19 +732,19 @@
         "AI": {
           "ideb": 7.3,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 132
         },
         "AF": {
-          "ideb": 6.94,
+          "ideb": 6.95,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 702
         }
       },
       "08": {
         "AF": {
           "ideb": 7.3,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 369
         }
       }
     },
@@ -753,92 +753,99 @@
         "AI": {
           "ideb": 5.9,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 103
         },
         "AF": {
-          "ideb": 6.93,
+          "ideb": 6.99,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 719
         },
         "EM": {
           "ideb": 5.0,
           "n_escolas": 1,
-          "n_alunos": 204
+          "n_alunos": 209
         }
       },
       "08": {
         "AF": {
           "ideb": 7.5,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 429
         },
         "EM": {
           "ideb": 7.2,
           "n_escolas": 1,
-          "n_alunos": 104
+          "n_alunos": 108
         }
       },
       "16": {
         "EM": {
           "ideb": 5.8,
           "n_escolas": 1,
-          "n_alunos": 539
+          "n_alunos": 389
         }
       },
       "04": {
         "EM": {
           "ideb": 7.0,
           "n_escolas": 1,
-          "n_alunos": 338
+          "n_alunos": 109
         }
       },
       "20": {
         "EM": {
           "ideb": 5.1,
           "n_escolas": 1,
-          "n_alunos": 478
+          "n_alunos": 356
         }
       },
       "09": {
         "EM": {
           "ideb": 5.4,
           "n_escolas": 1,
-          "n_alunos": 276
+          "n_alunos": 231
+        }
+      },
+      "05": {
+        "EM": {
+          "ideb": 3.0,
+          "n_escolas": 1,
+          "n_alunos": 127
+        }
+      },
+      "07": {
+        "EM": {
+          "ideb": 2.03,
+          "n_escolas": 2,
+          "n_alunos": 442
         }
       },
       "17": {
         "EM": {
           "ideb": 6.7,
           "n_escolas": 1,
-          "n_alunos": 316
+          "n_alunos": 176
         }
       },
       "14": {
         "EM": {
           "ideb": 5.5,
           "n_escolas": 1,
-          "n_alunos": 380
+          "n_alunos": 219
         }
       },
       "35": {
         "EM": {
           "ideb": 5.1,
           "n_escolas": 1,
-          "n_alunos": 390
-        }
-      },
-      "07": {
-        "EM": {
-          "ideb": 1.9,
-          "n_escolas": 1,
-          "n_alunos": 462
+          "n_alunos": 320
         }
       },
       "06": {
         "EM": {
           "ideb": 6.4,
           "n_escolas": 1,
-          "n_alunos": 368
+          "n_alunos": 313
         }
       }
     },
@@ -847,68 +854,75 @@
         "AI": {
           "ideb": 7.8,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 100
         },
         "AF": {
-          "ideb": 6.94,
+          "ideb": 6.95,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 681
         }
       },
       "08": {
         "AF": {
           "ideb": 7.4,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 450
         }
       },
       "04": {
         "EM": {
           "ideb": 6.8,
           "n_escolas": 1,
-          "n_alunos": 338
+          "n_alunos": 140
         }
       },
       "09": {
         "EM": {
           "ideb": 6.0,
           "n_escolas": 1,
-          "n_alunos": 276
+          "n_alunos": 246
         }
       },
       "36": {
         "EM": {
           "ideb": 5.7,
           "n_escolas": 1,
-          "n_alunos": 449
+          "n_alunos": 280
         }
       },
       "17": {
         "EM": {
           "ideb": 6.7,
           "n_escolas": 1,
-          "n_alunos": 316
+          "n_alunos": 175
         }
       },
       "35": {
         "EM": {
           "ideb": 4.9,
           "n_escolas": 1,
-          "n_alunos": 390
+          "n_alunos": 323
+        }
+      },
+      "02": {
+        "EM": {
+          "ideb": 5.5,
+          "n_escolas": 1,
+          "n_alunos": 286
         }
       },
       "07": {
         "EM": {
           "ideb": 4.9,
           "n_escolas": 1,
-          "n_alunos": 462
+          "n_alunos": 367
         }
       },
       "06": {
         "EM": {
           "ideb": 6.0,
           "n_escolas": 1,
-          "n_alunos": 368
+          "n_alunos": 348
         }
       }
     },
@@ -917,78 +931,78 @@
         "AI": {
           "ideb": 6.8,
           "n_escolas": 1,
-          "n_alunos": 99
+          "n_alunos": 98
         },
         "AF": {
-          "ideb": 7.07,
+          "ideb": 7.1,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 704
         },
         "EM": {
-          "ideb": 5.78,
+          "ideb": 5.81,
           "n_escolas": 2,
-          "n_alunos": 589
+          "n_alunos": 607
         }
       },
       "08": {
         "AF": {
           "ideb": 7.4,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 486
         },
         "EM": {
-          "ideb": 5.5,
-          "n_escolas": 3,
-          "n_alunos": 818
+          "ideb": 5.38,
+          "n_escolas": 4,
+          "n_alunos": 1053
         }
       },
       "15": {
         "EM": {
           "ideb": 6.4,
           "n_escolas": 1,
-          "n_alunos": 318
+          "n_alunos": 171
         }
       },
       "20": {
         "EM": {
           "ideb": 5.2,
           "n_escolas": 1,
-          "n_alunos": 478
+          "n_alunos": 452
         }
       },
       "02": {
         "EM": {
           "ideb": 6.5,
           "n_escolas": 1,
-          "n_alunos": 282
+          "n_alunos": 190
         }
       },
       "07": {
         "EM": {
           "ideb": 5.0,
           "n_escolas": 1,
-          "n_alunos": 188
+          "n_alunos": 128
         }
       },
       "17": {
         "EM": {
           "ideb": 5.7,
           "n_escolas": 1,
-          "n_alunos": 316
+          "n_alunos": 251
         }
       },
       "14": {
         "EM": {
           "ideb": 5.2,
           "n_escolas": 1,
-          "n_alunos": 380
+          "n_alunos": 351
         }
       },
       "16": {
         "EM": {
           "ideb": 5.6,
           "n_escolas": 1,
-          "n_alunos": 192
+          "n_alunos": 118
         }
       }
     },
@@ -1098,30 +1112,30 @@
         "AF": {
           "ideb": 5.3,
           "n_escolas": 1,
-          "n_alunos": 213
+          "n_alunos": 209
         }
       },
       "08": {
         "AF": {
           "ideb": 6.0,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 444
         }
       }
     },
     "2011": {
       "01": {
         "AF": {
-          "ideb": 6.29,
+          "ideb": 6.36,
           "n_escolas": 2,
-          "n_alunos": 693
+          "n_alunos": 855
         }
       },
       "08": {
         "AF": {
           "ideb": 6.8,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 442
         }
       }
     },
@@ -1130,21 +1144,21 @@
         "AF": {
           "ideb": 7.0,
           "n_escolas": 1,
-          "n_alunos": 432
+          "n_alunos": 437
         }
       },
       "16": {
         "EM": {
           "ideb": 5.5,
           "n_escolas": 1,
-          "n_alunos": 539
+          "n_alunos": 370
         }
       },
       "03": {
         "EM": {
           "ideb": 6.3,
           "n_escolas": 1,
-          "n_alunos": 468
+          "n_alunos": 282
         }
       }
     }

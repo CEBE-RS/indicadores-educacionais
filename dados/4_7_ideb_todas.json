@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Todas RS",
-    "gerado_em": "2026-08-20T08:52:03.709940",
+    "gerado_em": "2026-08-20T10:20:29.842314",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
     "serie_temporal_fonte": "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2025). IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
   },
@@ -54593,2684 +54593,2684 @@
     "2005": {
       "07": {
         "AI": {
-          "ideb": 4.19,
-          "n_escolas": 81,
-          "n_alunos": 16245
+          "ideb": 4.22,
+          "n_escolas": 87,
+          "n_alunos": 17634
         },
         "AF": {
-          "ideb": 3.73,
-          "n_escolas": 61,
-          "n_alunos": 9646
+          "ideb": 3.74,
+          "n_escolas": 64,
+          "n_alunos": 14523
         }
       },
       "24": {
         "AI": {
-          "ideb": 4.18,
-          "n_escolas": 26,
-          "n_alunos": 3827
+          "ideb": 4.14,
+          "n_escolas": 28,
+          "n_alunos": 5366
         },
         "AF": {
-          "ideb": 3.62,
+          "ideb": 3.66,
           "n_escolas": 18,
-          "n_alunos": 2436
+          "n_alunos": 4370
         }
       },
       "17": {
         "AI": {
-          "ideb": 4.56,
-          "n_escolas": 38,
-          "n_alunos": 6547
+          "ideb": 4.57,
+          "n_escolas": 43,
+          "n_alunos": 7222
         },
         "AF": {
-          "ideb": 4.16,
-          "n_escolas": 32,
-          "n_alunos": 5006
+          "ideb": 4.15,
+          "n_escolas": 39,
+          "n_alunos": 7749
         }
       },
       "10": {
         "AI": {
-          "ideb": 3.99,
-          "n_escolas": 63,
-          "n_alunos": 10891
+          "ideb": 3.94,
+          "n_escolas": 64,
+          "n_alunos": 16564
         },
         "AF": {
-          "ideb": 3.42,
+          "ideb": 3.34,
           "n_escolas": 44,
-          "n_alunos": 6840
+          "n_alunos": 12651
+        }
+      },
+      "20": {
+        "AI": {
+          "ideb": 4.26,
+          "n_escolas": 38,
+          "n_alunos": 5931
+        },
+        "AF": {
+          "ideb": 3.69,
+          "n_escolas": 36,
+          "n_alunos": 6520
         }
       },
       "28": {
         "AI": {
           "ideb": 3.97,
-          "n_escolas": 162,
-          "n_alunos": 43430
+          "n_escolas": 175,
+          "n_alunos": 58006
         },
         "AF": {
-          "ideb": 3.14,
-          "n_escolas": 102,
-          "n_alunos": 25935
+          "ideb": 3.1,
+          "n_escolas": 108,
+          "n_alunos": 43176
         }
       },
       "05": {
         "AI": {
-          "ideb": 3.73,
-          "n_escolas": 110,
-          "n_alunos": 18773
+          "ideb": 3.72,
+          "n_escolas": 115,
+          "n_alunos": 25693
         },
         "AF": {
-          "ideb": 3.12,
-          "n_escolas": 76,
-          "n_alunos": 12161
-        }
-      },
-      "20": {
-        "AI": {
-          "ideb": 4.41,
-          "n_escolas": 34,
-          "n_alunos": 5198
-        },
-        "AF": {
-          "ideb": 3.8,
-          "n_escolas": 33,
-          "n_alunos": 4437
+          "ideb": 3.07,
+          "n_escolas": 77,
+          "n_alunos": 21927
         }
       },
       "03": {
         "AI": {
-          "ideb": 4.68,
-          "n_escolas": 44,
-          "n_alunos": 7474
+          "ideb": 4.67,
+          "n_escolas": 50,
+          "n_alunos": 7934
         },
         "AF": {
-          "ideb": 4.29,
-          "n_escolas": 43,
-          "n_alunos": 6461
+          "ideb": 4.09,
+          "n_escolas": 46,
+          "n_alunos": 9214
         }
       },
       "04": {
         "AI": {
-          "ideb": 4.56,
-          "n_escolas": 131,
-          "n_alunos": 27962
+          "ideb": 4.53,
+          "n_escolas": 138,
+          "n_alunos": 31224
         },
         "AF": {
-          "ideb": 4.19,
-          "n_escolas": 117,
-          "n_alunos": 21214
-        }
-      },
-      "02": {
-        "AI": {
-          "ideb": 4.46,
-          "n_escolas": 227,
-          "n_alunos": 50086
-        },
-        "AF": {
-          "ideb": 3.74,
-          "n_escolas": 144,
-          "n_alunos": 27452
-        }
-      },
-      "15": {
-        "AI": {
-          "ideb": 4.44,
-          "n_escolas": 41,
-          "n_alunos": 7528
-        },
-        "AF": {
-          "ideb": 4.06,
-          "n_escolas": 44,
-          "n_alunos": 6112
-        }
-      },
-      "11": {
-        "AI": {
-          "ideb": 4.1,
-          "n_escolas": 76,
-          "n_alunos": 20043
-        },
-        "AF": {
-          "ideb": 3.57,
-          "n_escolas": 66,
-          "n_alunos": 12717
+          "ideb": 4.17,
+          "n_escolas": 124,
+          "n_alunos": 29694
         }
       },
       "12": {
         "AI": {
-          "ideb": 3.97,
-          "n_escolas": 77,
-          "n_alunos": 14595
+          "ideb": 3.92,
+          "n_escolas": 83,
+          "n_alunos": 19347
         },
         "AF": {
-          "ideb": 3.53,
-          "n_escolas": 64,
-          "n_alunos": 9934
+          "ideb": 3.47,
+          "n_escolas": 70,
+          "n_alunos": 16517
+        }
+      },
+      "02": {
+        "AI": {
+          "ideb": 4.43,
+          "n_escolas": 240,
+          "n_alunos": 61060
+        },
+        "AF": {
+          "ideb": 3.64,
+          "n_escolas": 153,
+          "n_alunos": 44043
+        }
+      },
+      "15": {
+        "AI": {
+          "ideb": 4.37,
+          "n_escolas": 47,
+          "n_alunos": 8671
+        },
+        "AF": {
+          "ideb": 3.92,
+          "n_escolas": 51,
+          "n_alunos": 10138
+        }
+      },
+      "11": {
+        "AI": {
+          "ideb": 4.14,
+          "n_escolas": 79,
+          "n_alunos": 19309
+        },
+        "AF": {
+          "ideb": 3.57,
+          "n_escolas": 66,
+          "n_alunos": 16799
         }
       },
       "25": {
         "AI": {
-          "ideb": 4.16,
-          "n_escolas": 27,
-          "n_alunos": 3264
+          "ideb": 4.12,
+          "n_escolas": 28,
+          "n_alunos": 3854
         },
         "AF": {
-          "ideb": 3.91,
-          "n_escolas": 26,
-          "n_alunos": 2779
+          "ideb": 3.89,
+          "n_escolas": 27,
+          "n_alunos": 4470
         }
       },
       "36": {
         "AI": {
-          "ideb": 4.34,
-          "n_escolas": 37,
-          "n_alunos": 6509
+          "ideb": 4.28,
+          "n_escolas": 38,
+          "n_alunos": 6358
         },
         "AF": {
-          "ideb": 4.19,
-          "n_escolas": 30,
-          "n_alunos": 4767
+          "ideb": 4.12,
+          "n_escolas": 31,
+          "n_alunos": 6186
         }
       },
       "13": {
         "AI": {
-          "ideb": 3.77,
-          "n_escolas": 48,
-          "n_alunos": 7105
+          "ideb": 3.74,
+          "n_escolas": 50,
+          "n_alunos": 9317
         },
         "AF": {
-          "ideb": 3.31,
+          "ideb": 3.22,
           "n_escolas": 31,
-          "n_alunos": 4471
+          "n_alunos": 7721
         }
       },
       "21": {
         "AI": {
-          "ideb": 4.39,
-          "n_escolas": 20,
-          "n_alunos": 3032
+          "ideb": 4.41,
+          "n_escolas": 25,
+          "n_alunos": 3448
         },
         "AF": {
-          "ideb": 3.85,
-          "n_escolas": 21,
-          "n_alunos": 2592
+          "ideb": 3.82,
+          "n_escolas": 22,
+          "n_alunos": 3543
         }
       },
       "16": {
         "AI": {
-          "ideb": 4.63,
-          "n_escolas": 42,
-          "n_alunos": 8016
+          "ideb": 4.64,
+          "n_escolas": 44,
+          "n_alunos": 7426
         },
         "AF": {
-          "ideb": 4.07,
-          "n_escolas": 43,
-          "n_alunos": 6620
+          "ideb": 4.04,
+          "n_escolas": 48,
+          "n_alunos": 9302
         }
       },
       "09": {
         "AI": {
-          "ideb": 4.02,
-          "n_escolas": 27,
-          "n_alunos": 3918
+          "ideb": 3.96,
+          "n_escolas": 28,
+          "n_alunos": 4845
         },
         "AF": {
-          "ideb": 3.59,
-          "n_escolas": 22,
-          "n_alunos": 3295
+          "ideb": 3.51,
+          "n_escolas": 24,
+          "n_alunos": 5561
         }
       },
       "23": {
         "AI": {
-          "ideb": 4.15,
+          "ideb": 4.16,
           "n_escolas": 24,
-          "n_alunos": 4786
+          "n_alunos": 5368
         },
         "AF": {
-          "ideb": 3.61,
-          "n_escolas": 19,
-          "n_alunos": 3036
+          "ideb": 3.56,
+          "n_escolas": 20,
+          "n_alunos": 4262
         }
       },
       "06": {
         "AI": {
           "ideb": 4.22,
-          "n_escolas": 60,
-          "n_alunos": 10092
+          "n_escolas": 61,
+          "n_alunos": 12519
         },
         "AF": {
-          "ideb": 3.74,
-          "n_escolas": 49,
-          "n_alunos": 6803
+          "ideb": 3.65,
+          "n_escolas": 50,
+          "n_alunos": 10912
         }
       },
       "32": {
         "AI": {
-          "ideb": 4.47,
+          "ideb": 4.38,
           "n_escolas": 16,
-          "n_alunos": 1726
+          "n_alunos": 2375
         },
         "AF": {
           "ideb": 3.85,
           "n_escolas": 13,
-          "n_alunos": 1363
+          "n_alunos": 2123
         }
       },
       "08": {
         "AI": {
-          "ideb": 4.17,
-          "n_escolas": 74,
-          "n_alunos": 11453
+          "ideb": 4.16,
+          "n_escolas": 81,
+          "n_alunos": 15758
         },
         "AF": {
-          "ideb": 3.71,
-          "n_escolas": 61,
-          "n_alunos": 9061
+          "ideb": 3.6,
+          "n_escolas": 62,
+          "n_alunos": 14777
         }
       },
       "27": {
         "AI": {
-          "ideb": 3.83,
-          "n_escolas": 118,
-          "n_alunos": 28028
+          "ideb": 3.77,
+          "n_escolas": 125,
+          "n_alunos": 37554
         },
         "AF": {
-          "ideb": 3.51,
-          "n_escolas": 74,
-          "n_alunos": 15015
+          "ideb": 3.43,
+          "n_escolas": 89,
+          "n_alunos": 24865
         }
       },
       "39": {
         "AI": {
-          "ideb": 4.21,
-          "n_escolas": 31,
-          "n_alunos": 4842
+          "ideb": 4.18,
+          "n_escolas": 36,
+          "n_alunos": 5870
         },
         "AF": {
-          "ideb": 4.01,
-          "n_escolas": 30,
-          "n_alunos": 3832
+          "ideb": 4.02,
+          "n_escolas": 34,
+          "n_alunos": 5926
         }
       },
       "14": {
         "AI": {
-          "ideb": 4.37,
-          "n_escolas": 24,
-          "n_alunos": 3410
+          "ideb": 4.29,
+          "n_escolas": 26,
+          "n_alunos": 4394
         },
         "AF": {
-          "ideb": 3.97,
-          "n_escolas": 22,
-          "n_alunos": 2941
+          "ideb": 3.84,
+          "n_escolas": 23,
+          "n_alunos": 4442
         }
       },
       "18": {
         "AI": {
-          "ideb": 3.37,
-          "n_escolas": 54,
-          "n_alunos": 10020
+          "ideb": 3.36,
+          "n_escolas": 58,
+          "n_alunos": 13182
         },
         "AF": {
-          "ideb": 3.14,
-          "n_escolas": 35,
-          "n_alunos": 6255
+          "ideb": 3.05,
+          "n_escolas": 37,
+          "n_alunos": 10253
         }
       },
       "35": {
         "AI": {
-          "ideb": 4.25,
-          "n_escolas": 30,
-          "n_alunos": 3959
+          "ideb": 4.22,
+          "n_escolas": 32,
+          "n_alunos": 6007
         },
         "AF": {
-          "ideb": 3.48,
+          "ideb": 3.29,
           "n_escolas": 23,
-          "n_alunos": 2962
+          "n_alunos": 5750
         }
       },
       "01": {
         "AI": {
-          "ideb": 3.78,
-          "n_escolas": 219,
-          "n_alunos": 47493
+          "ideb": 3.74,
+          "n_escolas": 232,
+          "n_alunos": 73239
         },
         "AF": {
-          "ideb": 3.18,
-          "n_escolas": 148,
-          "n_alunos": 30295
+          "ideb": 3.15,
+          "n_escolas": 159,
+          "n_alunos": 50789
         }
       },
       "19": {
         "AI": {
-          "ideb": 3.73,
-          "n_escolas": 55,
-          "n_alunos": 8754
+          "ideb": 3.72,
+          "n_escolas": 58,
+          "n_alunos": 12399
         },
         "AF": {
-          "ideb": 3.11,
-          "n_escolas": 29,
-          "n_alunos": 4263
+          "ideb": 3.0,
+          "n_escolas": 30,
+          "n_alunos": 7968
         }
       }
     },
     "2007": {
-      "07": {
+      "13": {
         "AI": {
-          "ideb": 4.63,
-          "n_escolas": 108,
-          "n_alunos": 19987
+          "ideb": 4.07,
+          "n_escolas": 77,
+          "n_alunos": 12457
         },
         "AF": {
-          "ideb": 3.89,
-          "n_escolas": 94,
-          "n_alunos": 13788
+          "ideb": 3.39,
+          "n_escolas": 57,
+          "n_alunos": 11314
+        }
+      },
+      "07": {
+        "AI": {
+          "ideb": 4.62,
+          "n_escolas": 119,
+          "n_alunos": 20927
+        },
+        "AF": {
+          "ideb": 3.88,
+          "n_escolas": 101,
+          "n_alunos": 19271
         }
       },
       "24": {
         "AI": {
-          "ideb": 4.33,
-          "n_escolas": 37,
-          "n_alunos": 4801
+          "ideb": 4.26,
+          "n_escolas": 39,
+          "n_alunos": 6549
         },
         "AF": {
-          "ideb": 3.8,
-          "n_escolas": 34,
-          "n_alunos": 3637
+          "ideb": 3.7,
+          "n_escolas": 35,
+          "n_alunos": 6214
         }
       },
       "36": {
         "AI": {
-          "ideb": 4.97,
-          "n_escolas": 49,
-          "n_alunos": 7687
+          "ideb": 4.87,
+          "n_escolas": 50,
+          "n_alunos": 7482
         },
         "AF": {
-          "ideb": 4.35,
-          "n_escolas": 40,
-          "n_alunos": 5787
+          "ideb": 4.23,
+          "n_escolas": 41,
+          "n_alunos": 7253
         }
       },
       "17": {
         "AI": {
-          "ideb": 4.99,
-          "n_escolas": 55,
-          "n_alunos": 8736
+          "ideb": 4.98,
+          "n_escolas": 69,
+          "n_alunos": 9591
         },
         "AF": {
-          "ideb": 4.18,
-          "n_escolas": 55,
-          "n_alunos": 7179
+          "ideb": 4.17,
+          "n_escolas": 66,
+          "n_alunos": 10464
         }
       },
       "10": {
         "AI": {
-          "ideb": 4.25,
-          "n_escolas": 74,
-          "n_alunos": 12198
+          "ideb": 4.16,
+          "n_escolas": 77,
+          "n_alunos": 18088
         },
         "AF": {
-          "ideb": 3.67,
+          "ideb": 3.53,
           "n_escolas": 59,
-          "n_alunos": 8858
-        }
-      },
-      "28": {
-        "AI": {
-          "ideb": 4.15,
-          "n_escolas": 179,
-          "n_alunos": 45596
-        },
-        "AF": {
-          "ideb": 3.3,
-          "n_escolas": 121,
-          "n_alunos": 30189
-        }
-      },
-      "05": {
-        "AI": {
-          "ideb": 3.94,
-          "n_escolas": 144,
-          "n_alunos": 22676
-        },
-        "AF": {
-          "ideb": 2.99,
-          "n_escolas": 105,
-          "n_alunos": 15235
+          "n_alunos": 15567
         }
       },
       "20": {
         "AI": {
-          "ideb": 4.64,
-          "n_escolas": 51,
-          "n_alunos": 6434
+          "ideb": 4.45,
+          "n_escolas": 60,
+          "n_alunos": 7810
         },
         "AF": {
-          "ideb": 3.87,
-          "n_escolas": 43,
-          "n_alunos": 5300
+          "ideb": 3.78,
+          "n_escolas": 48,
+          "n_alunos": 7963
+        }
+      },
+      "02": {
+        "AI": {
+          "ideb": 4.75,
+          "n_escolas": 303,
+          "n_alunos": 67639
+        },
+        "AF": {
+          "ideb": 3.75,
+          "n_escolas": 198,
+          "n_alunos": 52941
+        }
+      },
+      "28": {
+        "AI": {
+          "ideb": 4.16,
+          "n_escolas": 195,
+          "n_alunos": 60701
+        },
+        "AF": {
+          "ideb": 3.26,
+          "n_escolas": 128,
+          "n_alunos": 48201
+        }
+      },
+      "05": {
+        "AI": {
+          "ideb": 3.93,
+          "n_escolas": 151,
+          "n_alunos": 29882
+        },
+        "AF": {
+          "ideb": 2.93,
+          "n_escolas": 107,
+          "n_alunos": 26168
         }
       },
       "16": {
         "AI": {
           "ideb": 5.16,
-          "n_escolas": 72,
-          "n_alunos": 12728
+          "n_escolas": 79,
+          "n_alunos": 11469
         },
         "AF": {
-          "ideb": 4.33,
-          "n_escolas": 62,
-          "n_alunos": 8800
+          "ideb": 4.28,
+          "n_escolas": 70,
+          "n_alunos": 12163
         }
       },
       "03": {
         "AI": {
-          "ideb": 5.07,
-          "n_escolas": 81,
-          "n_alunos": 12428
+          "ideb": 5.03,
+          "n_escolas": 93,
+          "n_alunos": 11906
         },
         "AF": {
-          "ideb": 4.29,
-          "n_escolas": 75,
-          "n_alunos": 10040
+          "ideb": 4.19,
+          "n_escolas": 85,
+          "n_alunos": 13292
         }
       },
       "04": {
         "AI": {
-          "ideb": 5.08,
-          "n_escolas": 175,
-          "n_alunos": 34055
+          "ideb": 5.04,
+          "n_escolas": 185,
+          "n_alunos": 36900
         },
         "AF": {
-          "ideb": 4.28,
-          "n_escolas": 156,
-          "n_alunos": 26373
-        }
-      },
-      "02": {
-        "AI": {
-          "ideb": 4.78,
-          "n_escolas": 278,
-          "n_alunos": 56492
-        },
-        "AF": {
-          "ideb": 3.88,
-          "n_escolas": 187,
-          "n_alunos": 33345
-        }
-      },
-      "15": {
-        "AI": {
-          "ideb": 4.79,
-          "n_escolas": 66,
-          "n_alunos": 10088
-        },
-        "AF": {
-          "ideb": 4.21,
-          "n_escolas": 62,
-          "n_alunos": 7542
-        }
-      },
-      "11": {
-        "AI": {
-          "ideb": 4.43,
-          "n_escolas": 98,
-          "n_alunos": 23000
-        },
-        "AF": {
-          "ideb": 3.74,
-          "n_escolas": 88,
-          "n_alunos": 15738
+          "ideb": 4.25,
+          "n_escolas": 165,
+          "n_alunos": 35264
         }
       },
       "12": {
         "AI": {
-          "ideb": 4.25,
-          "n_escolas": 101,
-          "n_alunos": 17285
+          "ideb": 4.2,
+          "n_escolas": 113,
+          "n_alunos": 23210
         },
         "AF": {
-          "ideb": 3.57,
-          "n_escolas": 82,
-          "n_alunos": 11678
+          "ideb": 3.52,
+          "n_escolas": 89,
+          "n_alunos": 19043
+        }
+      },
+      "15": {
+        "AI": {
+          "ideb": 4.74,
+          "n_escolas": 81,
+          "n_alunos": 11191
+        },
+        "AF": {
+          "ideb": 4.16,
+          "n_escolas": 70,
+          "n_alunos": 12025
+        }
+      },
+      "11": {
+        "AI": {
+          "ideb": 4.47,
+          "n_escolas": 101,
+          "n_alunos": 21961
+        },
+        "AF": {
+          "ideb": 3.7,
+          "n_escolas": 90,
+          "n_alunos": 20090
         }
       },
       "25": {
         "AI": {
-          "ideb": 4.9,
-          "n_escolas": 41,
-          "n_alunos": 4748
+          "ideb": 4.77,
+          "n_escolas": 43,
+          "n_alunos": 5398
         },
         "AF": {
-          "ideb": 4.07,
-          "n_escolas": 34,
-          "n_alunos": 3337
-        }
-      },
-      "13": {
-        "AI": {
-          "ideb": 4.11,
-          "n_escolas": 72,
-          "n_alunos": 9245
-        },
-        "AF": {
-          "ideb": 3.42,
-          "n_escolas": 56,
-          "n_alunos": 6591
+          "ideb": 3.97,
+          "n_escolas": 35,
+          "n_alunos": 5114
         }
       },
       "21": {
         "AI": {
-          "ideb": 4.54,
-          "n_escolas": 36,
-          "n_alunos": 5342
+          "ideb": 4.59,
+          "n_escolas": 47,
+          "n_alunos": 5509
         },
         "AF": {
-          "ideb": 3.92,
-          "n_escolas": 38,
-          "n_alunos": 3873
+          "ideb": 3.91,
+          "n_escolas": 42,
+          "n_alunos": 5631
         }
       },
       "39": {
         "AI": {
-          "ideb": 4.74,
-          "n_escolas": 54,
-          "n_alunos": 6787
+          "ideb": 4.7,
+          "n_escolas": 60,
+          "n_alunos": 7966
         },
         "AF": {
-          "ideb": 4.27,
-          "n_escolas": 43,
-          "n_alunos": 4935
+          "ideb": 4.14,
+          "n_escolas": 50,
+          "n_alunos": 7594
         }
       },
       "09": {
         "AI": {
-          "ideb": 4.44,
-          "n_escolas": 47,
-          "n_alunos": 6193
+          "ideb": 4.32,
+          "n_escolas": 52,
+          "n_alunos": 7651
         },
         "AF": {
-          "ideb": 3.69,
-          "n_escolas": 38,
-          "n_alunos": 4829
+          "ideb": 3.65,
+          "n_escolas": 41,
+          "n_alunos": 7565
         }
       },
       "23": {
         "AI": {
-          "ideb": 4.41,
+          "ideb": 4.4,
           "n_escolas": 29,
-          "n_alunos": 5365
+          "n_alunos": 5901
         },
         "AF": {
-          "ideb": 3.77,
-          "n_escolas": 29,
-          "n_alunos": 4093
+          "ideb": 3.68,
+          "n_escolas": 30,
+          "n_alunos": 5758
         }
       },
       "06": {
         "AI": {
-          "ideb": 4.74,
-          "n_escolas": 87,
-          "n_alunos": 13733
+          "ideb": 4.7,
+          "n_escolas": 93,
+          "n_alunos": 16328
         },
         "AF": {
-          "ideb": 3.92,
-          "n_escolas": 75,
-          "n_alunos": 9653
+          "ideb": 3.86,
+          "n_escolas": 77,
+          "n_alunos": 14583
         }
       },
       "32": {
         "AI": {
-          "ideb": 4.43,
+          "ideb": 4.42,
           "n_escolas": 33,
-          "n_alunos": 3180
+          "n_alunos": 3866
         },
         "AF": {
-          "ideb": 3.93,
+          "ideb": 4.0,
           "n_escolas": 26,
-          "n_alunos": 2304
+          "n_alunos": 3696
         }
       },
       "08": {
         "AI": {
-          "ideb": 4.36,
-          "n_escolas": 113,
-          "n_alunos": 15675
+          "ideb": 4.4,
+          "n_escolas": 128,
+          "n_alunos": 20486
         },
         "AF": {
-          "ideb": 3.8,
-          "n_escolas": 98,
-          "n_alunos": 12495
+          "ideb": 3.72,
+          "n_escolas": 102,
+          "n_alunos": 20122
         }
       },
       "27": {
         "AI": {
-          "ideb": 4.24,
-          "n_escolas": 139,
-          "n_alunos": 30885
+          "ideb": 4.2,
+          "n_escolas": 153,
+          "n_alunos": 41112
         },
         "AF": {
-          "ideb": 3.52,
-          "n_escolas": 100,
-          "n_alunos": 18909
+          "ideb": 3.45,
+          "n_escolas": 120,
+          "n_alunos": 32453
         }
       },
       "35": {
         "AI": {
-          "ideb": 4.43,
-          "n_escolas": 40,
-          "n_alunos": 5476
+          "ideb": 4.46,
+          "n_escolas": 43,
+          "n_alunos": 7283
         },
         "AF": {
-          "ideb": 3.59,
+          "ideb": 3.52,
           "n_escolas": 32,
-          "n_alunos": 3690
+          "n_alunos": 7000
         }
       },
       "14": {
         "AI": {
-          "ideb": 4.68,
-          "n_escolas": 34,
-          "n_alunos": 4424
+          "ideb": 4.57,
+          "n_escolas": 39,
+          "n_alunos": 5645
         },
         "AF": {
-          "ideb": 3.94,
-          "n_escolas": 30,
-          "n_alunos": 3729
+          "ideb": 3.83,
+          "n_escolas": 31,
+          "n_alunos": 5504
         }
       },
       "18": {
         "AI": {
-          "ideb": 4.07,
-          "n_escolas": 63,
-          "n_alunos": 10628
+          "ideb": 4.01,
+          "n_escolas": 69,
+          "n_alunos": 14468
         },
         "AF": {
-          "ideb": 3.23,
-          "n_escolas": 44,
-          "n_alunos": 7392
+          "ideb": 3.18,
+          "n_escolas": 46,
+          "n_alunos": 11912
         }
       },
       "01": {
         "AI": {
-          "ideb": 4.06,
-          "n_escolas": 236,
-          "n_alunos": 49577
+          "ideb": 4.04,
+          "n_escolas": 259,
+          "n_alunos": 76694
         },
         "AF": {
-          "ideb": 3.41,
-          "n_escolas": 200,
-          "n_alunos": 37619
+          "ideb": 3.39,
+          "n_escolas": 219,
+          "n_alunos": 63418
         }
       },
       "19": {
         "AI": {
-          "ideb": 4.14,
-          "n_escolas": 66,
-          "n_alunos": 10130
+          "ideb": 4.07,
+          "n_escolas": 70,
+          "n_alunos": 13746
         },
         "AF": {
-          "ideb": 3.32,
-          "n_escolas": 51,
-          "n_alunos": 6525
+          "ideb": 3.27,
+          "n_escolas": 52,
+          "n_alunos": 12064
         }
       }
     },
     "2009": {
       "13": {
         "AI": {
-          "ideb": 4.31,
-          "n_escolas": 60,
-          "n_alunos": 8184
+          "ideb": 4.22,
+          "n_escolas": 63,
+          "n_alunos": 11107
         },
         "AF": {
-          "ideb": 3.38,
+          "ideb": 3.34,
           "n_escolas": 59,
-          "n_alunos": 6885
+          "n_alunos": 11746
         }
       },
       "07": {
         "AI": {
-          "ideb": 4.85,
-          "n_escolas": 107,
-          "n_alunos": 19822
+          "ideb": 4.82,
+          "n_escolas": 118,
+          "n_alunos": 20821
         },
         "AF": {
-          "ideb": 4.02,
-          "n_escolas": 89,
-          "n_alunos": 13192
+          "ideb": 4.0,
+          "n_escolas": 95,
+          "n_alunos": 19044
         }
       },
       "24": {
         "AI": {
-          "ideb": 4.38,
-          "n_escolas": 45,
-          "n_alunos": 5286
+          "ideb": 4.35,
+          "n_escolas": 47,
+          "n_alunos": 7329
         },
         "AF": {
-          "ideb": 3.82,
-          "n_escolas": 41,
-          "n_alunos": 3982
+          "ideb": 3.72,
+          "n_escolas": 42,
+          "n_alunos": 7097
         }
       },
       "36": {
         "AI": {
-          "ideb": 5.5,
-          "n_escolas": 51,
-          "n_alunos": 7912
+          "ideb": 5.38,
+          "n_escolas": 52,
+          "n_alunos": 7759
         },
         "AF": {
-          "ideb": 4.53,
-          "n_escolas": 45,
-          "n_alunos": 6082
+          "ideb": 4.46,
+          "n_escolas": 47,
+          "n_alunos": 7807
         }
       },
       "17": {
         "AI": {
-          "ideb": 5.42,
-          "n_escolas": 51,
-          "n_alunos": 8148
+          "ideb": 5.49,
+          "n_escolas": 63,
+          "n_alunos": 8882
         },
         "AF": {
-          "ideb": 4.39,
-          "n_escolas": 57,
-          "n_alunos": 7094
+          "ideb": 4.36,
+          "n_escolas": 69,
+          "n_alunos": 10750
         }
       },
       "10": {
         "AI": {
-          "ideb": 4.61,
-          "n_escolas": 79,
-          "n_alunos": 12490
+          "ideb": 4.47,
+          "n_escolas": 81,
+          "n_alunos": 18616
         },
         "AF": {
-          "ideb": 3.77,
+          "ideb": 3.61,
           "n_escolas": 62,
-          "n_alunos": 9085
+          "n_alunos": 16113
         }
       },
       "20": {
         "AI": {
-          "ideb": 5.11,
-          "n_escolas": 51,
-          "n_alunos": 6295
+          "ideb": 4.97,
+          "n_escolas": 58,
+          "n_alunos": 7673
         },
         "AF": {
-          "ideb": 4.2,
-          "n_escolas": 50,
-          "n_alunos": 5422
-        }
-      },
-      "28": {
-        "AI": {
-          "ideb": 4.27,
-          "n_escolas": 196,
-          "n_alunos": 48052
-        },
-        "AF": {
-          "ideb": 3.42,
-          "n_escolas": 146,
-          "n_alunos": 34045
-        }
-      },
-      "16": {
-        "AI": {
-          "ideb": 5.46,
-          "n_escolas": 72,
-          "n_alunos": 12366
-        },
-        "AF": {
-          "ideb": 4.6,
-          "n_escolas": 68,
-          "n_alunos": 9583
-        }
-      },
-      "03": {
-        "AI": {
-          "ideb": 5.34,
-          "n_escolas": 72,
-          "n_alunos": 11518
-        },
-        "AF": {
-          "ideb": 4.55,
-          "n_escolas": 76,
-          "n_alunos": 9910
-        }
-      },
-      "04": {
-        "AI": {
-          "ideb": 5.35,
-          "n_escolas": 181,
-          "n_alunos": 35185
-        },
-        "AF": {
-          "ideb": 4.62,
-          "n_escolas": 165,
-          "n_alunos": 27099
-        }
-      },
-      "12": {
-        "AI": {
-          "ideb": 4.57,
-          "n_escolas": 117,
-          "n_alunos": 19063
-        },
-        "AF": {
-          "ideb": 3.75,
-          "n_escolas": 101,
-          "n_alunos": 13405
+          "ideb": 4.07,
+          "n_escolas": 56,
+          "n_alunos": 8644
         }
       },
       "02": {
         "AI": {
-          "ideb": 5.13,
-          "n_escolas": 286,
-          "n_alunos": 58363
+          "ideb": 5.08,
+          "n_escolas": 310,
+          "n_alunos": 69861
         },
         "AF": {
-          "ideb": 4.2,
-          "n_escolas": 213,
-          "n_alunos": 38745
+          "ideb": 4.05,
+          "n_escolas": 225,
+          "n_alunos": 60144
+        }
+      },
+      "28": {
+        "AI": {
+          "ideb": 4.3,
+          "n_escolas": 212,
+          "n_alunos": 63838
+        },
+        "AF": {
+          "ideb": 3.4,
+          "n_escolas": 153,
+          "n_alunos": 53877
+        }
+      },
+      "16": {
+        "AI": {
+          "ideb": 5.47,
+          "n_escolas": 79,
+          "n_alunos": 11241
+        },
+        "AF": {
+          "ideb": 4.53,
+          "n_escolas": 75,
+          "n_alunos": 12841
+        }
+      },
+      "03": {
+        "AI": {
+          "ideb": 5.33,
+          "n_escolas": 83,
+          "n_alunos": 11295
+        },
+        "AF": {
+          "ideb": 4.41,
+          "n_escolas": 84,
+          "n_alunos": 13467
+        }
+      },
+      "04": {
+        "AI": {
+          "ideb": 5.33,
+          "n_escolas": 192,
+          "n_alunos": 37689
+        },
+        "AF": {
+          "ideb": 4.58,
+          "n_escolas": 176,
+          "n_alunos": 36867
+        }
+      },
+      "12": {
+        "AI": {
+          "ideb": 4.49,
+          "n_escolas": 133,
+          "n_alunos": 25927
+        },
+        "AF": {
+          "ideb": 3.7,
+          "n_escolas": 108,
+          "n_alunos": 21730
         }
       },
       "15": {
         "AI": {
-          "ideb": 5.3,
-          "n_escolas": 66,
-          "n_alunos": 9918
+          "ideb": 5.27,
+          "n_escolas": 77,
+          "n_alunos": 11273
         },
         "AF": {
-          "ideb": 4.45,
-          "n_escolas": 64,
-          "n_alunos": 7714
+          "ideb": 4.39,
+          "n_escolas": 75,
+          "n_alunos": 12581
         }
       },
       "11": {
         "AI": {
-          "ideb": 4.67,
-          "n_escolas": 108,
-          "n_alunos": 23945
+          "ideb": 4.69,
+          "n_escolas": 113,
+          "n_alunos": 23501
         },
         "AF": {
           "ideb": 3.92,
-          "n_escolas": 101,
-          "n_alunos": 16907
+          "n_escolas": 103,
+          "n_alunos": 21749
         }
       },
       "05": {
         "AI": {
-          "ideb": 4.19,
-          "n_escolas": 149,
-          "n_alunos": 22825
+          "ideb": 4.17,
+          "n_escolas": 155,
+          "n_alunos": 30740
         },
         "AF": {
-          "ideb": 3.35,
-          "n_escolas": 129,
-          "n_alunos": 17049
+          "ideb": 3.27,
+          "n_escolas": 131,
+          "n_alunos": 29471
         }
       },
       "25": {
         "AI": {
-          "ideb": 4.94,
-          "n_escolas": 42,
-          "n_alunos": 4753
+          "ideb": 4.81,
+          "n_escolas": 43,
+          "n_alunos": 5544
         },
         "AF": {
-          "ideb": 4.1,
-          "n_escolas": 44,
-          "n_alunos": 3901
+          "ideb": 3.97,
+          "n_escolas": 45,
+          "n_alunos": 6823
         }
       },
       "21": {
         "AI": {
-          "ideb": 4.72,
-          "n_escolas": 34,
-          "n_alunos": 4887
+          "ideb": 4.8,
+          "n_escolas": 42,
+          "n_alunos": 5041
         },
         "AF": {
-          "ideb": 4.12,
-          "n_escolas": 31,
-          "n_alunos": 3188
+          "ideb": 4.07,
+          "n_escolas": 34,
+          "n_alunos": 4826
         }
       },
       "39": {
         "AI": {
-          "ideb": 5.05,
-          "n_escolas": 53,
-          "n_alunos": 6807
+          "ideb": 5.01,
+          "n_escolas": 59,
+          "n_alunos": 8033
         },
         "AF": {
-          "ideb": 4.29,
-          "n_escolas": 47,
-          "n_alunos": 5423
+          "ideb": 4.26,
+          "n_escolas": 54,
+          "n_alunos": 7856
         }
       },
       "09": {
         "AI": {
-          "ideb": 4.77,
-          "n_escolas": 43,
-          "n_alunos": 5885
+          "ideb": 4.69,
+          "n_escolas": 44,
+          "n_alunos": 6931
         },
         "AF": {
-          "ideb": 3.96,
-          "n_escolas": 32,
-          "n_alunos": 4170
+          "ideb": 3.85,
+          "n_escolas": 34,
+          "n_alunos": 6735
         }
       },
       "23": {
         "AI": {
-          "ideb": 4.73,
+          "ideb": 4.7,
           "n_escolas": 34,
-          "n_alunos": 5861
+          "n_alunos": 6478
         },
         "AF": {
-          "ideb": 3.96,
-          "n_escolas": 26,
-          "n_alunos": 3742
+          "ideb": 3.98,
+          "n_escolas": 27,
+          "n_alunos": 5315
         }
       },
       "06": {
         "AI": {
-          "ideb": 5.03,
-          "n_escolas": 101,
-          "n_alunos": 14430
+          "ideb": 5.0,
+          "n_escolas": 106,
+          "n_alunos": 17600
         },
         "AF": {
-          "ideb": 4.01,
-          "n_escolas": 108,
-          "n_alunos": 12276
+          "ideb": 3.92,
+          "n_escolas": 112,
+          "n_alunos": 19346
         }
       },
       "32": {
         "AI": {
-          "ideb": 4.79,
+          "ideb": 4.86,
           "n_escolas": 35,
-          "n_alunos": 3264
+          "n_alunos": 3928
         },
         "AF": {
-          "ideb": 4.14,
-          "n_escolas": 28,
-          "n_alunos": 2243
+          "ideb": 4.12,
+          "n_escolas": 29,
+          "n_alunos": 3991
         }
       },
       "08": {
         "AI": {
-          "ideb": 4.59,
-          "n_escolas": 112,
-          "n_alunos": 15316
+          "ideb": 4.55,
+          "n_escolas": 124,
+          "n_alunos": 20224
         },
         "AF": {
-          "ideb": 3.9,
-          "n_escolas": 97,
-          "n_alunos": 12330
+          "ideb": 3.77,
+          "n_escolas": 102,
+          "n_alunos": 20200
         }
       },
       "27": {
         "AI": {
-          "ideb": 4.53,
-          "n_escolas": 141,
-          "n_alunos": 30963
+          "ideb": 4.51,
+          "n_escolas": 152,
+          "n_alunos": 41225
         },
         "AF": {
-          "ideb": 3.67,
-          "n_escolas": 99,
-          "n_alunos": 19151
+          "ideb": 3.62,
+          "n_escolas": 119,
+          "n_alunos": 32569
         }
       },
       "35": {
         "AI": {
-          "ideb": 4.68,
-          "n_escolas": 44,
-          "n_alunos": 5527
+          "ideb": 4.71,
+          "n_escolas": 47,
+          "n_alunos": 7548
         },
         "AF": {
-          "ideb": 3.66,
-          "n_escolas": 34,
-          "n_alunos": 3654
+          "ideb": 3.64,
+          "n_escolas": 35,
+          "n_alunos": 7203
         }
       },
       "14": {
         "AI": {
-          "ideb": 4.99,
-          "n_escolas": 43,
-          "n_alunos": 5226
+          "ideb": 4.92,
+          "n_escolas": 48,
+          "n_alunos": 6299
         },
         "AF": {
-          "ideb": 4.26,
-          "n_escolas": 36,
-          "n_alunos": 3996
+          "ideb": 4.12,
+          "n_escolas": 39,
+          "n_alunos": 6305
         }
       },
       "18": {
         "AI": {
-          "ideb": 4.37,
-          "n_escolas": 67,
-          "n_alunos": 11256
+          "ideb": 4.32,
+          "n_escolas": 72,
+          "n_alunos": 15204
         },
         "AF": {
-          "ideb": 3.53,
-          "n_escolas": 41,
-          "n_alunos": 6993
+          "ideb": 3.48,
+          "n_escolas": 42,
+          "n_alunos": 11379
         }
       },
       "01": {
         "AI": {
-          "ideb": 4.3,
-          "n_escolas": 235,
-          "n_alunos": 50032
+          "ideb": 4.25,
+          "n_escolas": 256,
+          "n_alunos": 77194
         },
         "AF": {
-          "ideb": 3.54,
-          "n_escolas": 194,
-          "n_alunos": 37503
+          "ideb": 3.48,
+          "n_escolas": 208,
+          "n_alunos": 62424
         }
       },
       "19": {
         "AI": {
-          "ideb": 4.28,
-          "n_escolas": 60,
-          "n_alunos": 9620
+          "ideb": 4.2,
+          "n_escolas": 64,
+          "n_alunos": 12995
         },
         "AF": {
-          "ideb": 3.44,
-          "n_escolas": 51,
-          "n_alunos": 6309
+          "ideb": 3.37,
+          "n_escolas": 52,
+          "n_alunos": 12257
         }
       }
     },
     "2011": {
       "13": {
         "AI": {
-          "ideb": 4.93,
-          "n_escolas": 61,
-          "n_alunos": 7907
+          "ideb": 4.81,
+          "n_escolas": 63,
+          "n_alunos": 10912
         },
         "AF": {
-          "ideb": 3.48,
+          "ideb": 3.39,
           "n_escolas": 58,
-          "n_alunos": 6711
+          "n_alunos": 11278
         }
       },
       "07": {
         "AI": {
-          "ideb": 4.99,
-          "n_escolas": 79,
-          "n_alunos": 16367
+          "ideb": 5.0,
+          "n_escolas": 86,
+          "n_alunos": 17200
         },
         "AF": {
-          "ideb": 4.28,
-          "n_escolas": 92,
-          "n_alunos": 13692
+          "ideb": 4.22,
+          "n_escolas": 97,
+          "n_alunos": 18707
         }
       },
       "24": {
         "AI": {
-          "ideb": 4.81,
-          "n_escolas": 41,
-          "n_alunos": 5094
+          "ideb": 4.8,
+          "n_escolas": 43,
+          "n_alunos": 7297
         },
         "AF": {
-          "ideb": 4.02,
+          "ideb": 3.91,
           "n_escolas": 36,
-          "n_alunos": 3743
+          "n_alunos": 6137
         }
       },
       "17": {
         "AI": {
-          "ideb": 5.63,
-          "n_escolas": 35,
-          "n_alunos": 6082
+          "ideb": 5.66,
+          "n_escolas": 36,
+          "n_alunos": 6257
         },
         "AF": {
-          "ideb": 4.39,
-          "n_escolas": 50,
-          "n_alunos": 6925
+          "ideb": 4.38,
+          "n_escolas": 59,
+          "n_alunos": 9956
         }
       },
       "10": {
         "AI": {
-          "ideb": 4.79,
-          "n_escolas": 64,
-          "n_alunos": 11251
+          "ideb": 4.7,
+          "n_escolas": 66,
+          "n_alunos": 16231
         },
         "AF": {
-          "ideb": 3.81,
+          "ideb": 3.71,
           "n_escolas": 62,
-          "n_alunos": 9395
+          "n_alunos": 15732
         }
       },
       "28": {
         "AI": {
-          "ideb": 4.69,
-          "n_escolas": 185,
-          "n_alunos": 46697
+          "ideb": 4.72,
+          "n_escolas": 198,
+          "n_alunos": 61264
         },
         "AF": {
-          "ideb": 3.47,
-          "n_escolas": 144,
-          "n_alunos": 33109
+          "ideb": 3.42,
+          "n_escolas": 151,
+          "n_alunos": 50202
         }
       },
       "20": {
         "AI": {
-          "ideb": 5.08,
-          "n_escolas": 23,
-          "n_alunos": 3427
+          "ideb": 5.0,
+          "n_escolas": 25,
+          "n_alunos": 4142
         },
         "AF": {
-          "ideb": 4.42,
-          "n_escolas": 43,
-          "n_alunos": 5183
+          "ideb": 4.29,
+          "n_escolas": 45,
+          "n_alunos": 7634
         }
       },
       "04": {
         "AI": {
-          "ideb": 5.77,
-          "n_escolas": 163,
-          "n_alunos": 33219
+          "ideb": 5.71,
+          "n_escolas": 168,
+          "n_alunos": 35412
         },
         "AF": {
-          "ideb": 4.61,
-          "n_escolas": 159,
-          "n_alunos": 26682
+          "ideb": 4.52,
+          "n_escolas": 168,
+          "n_alunos": 34247
         }
       },
       "02": {
         "AI": {
-          "ideb": 5.53,
-          "n_escolas": 260,
-          "n_alunos": 55994
+          "ideb": 5.48,
+          "n_escolas": 272,
+          "n_alunos": 66854
         },
         "AF": {
-          "ideb": 4.24,
-          "n_escolas": 214,
-          "n_alunos": 40032
+          "ideb": 4.1,
+          "n_escolas": 223,
+          "n_alunos": 59130
         }
       },
       "15": {
         "AI": {
-          "ideb": 5.81,
-          "n_escolas": 41,
-          "n_alunos": 7852
+          "ideb": 5.76,
+          "n_escolas": 43,
+          "n_alunos": 8026
         },
         "AF": {
-          "ideb": 4.71,
-          "n_escolas": 56,
-          "n_alunos": 7201
+          "ideb": 4.66,
+          "n_escolas": 64,
+          "n_alunos": 11162
         }
       },
       "03": {
         "AI": {
-          "ideb": 5.67,
-          "n_escolas": 44,
-          "n_alunos": 7257
+          "ideb": 5.71,
+          "n_escolas": 49,
+          "n_alunos": 7751
         },
         "AF": {
-          "ideb": 4.53,
-          "n_escolas": 69,
-          "n_alunos": 9405
+          "ideb": 4.4,
+          "n_escolas": 76,
+          "n_alunos": 12194
         }
       },
       "11": {
         "AI": {
-          "ideb": 5.06,
-          "n_escolas": 95,
-          "n_alunos": 23211
+          "ideb": 5.04,
+          "n_escolas": 97,
+          "n_alunos": 21754
         },
         "AF": {
-          "ideb": 3.97,
-          "n_escolas": 95,
-          "n_alunos": 16262
+          "ideb": 3.95,
+          "n_escolas": 97,
+          "n_alunos": 20651
         }
       },
       "05": {
         "AI": {
-          "ideb": 4.68,
-          "n_escolas": 132,
-          "n_alunos": 21392
+          "ideb": 4.62,
+          "n_escolas": 134,
+          "n_alunos": 27143
         },
         "AF": {
-          "ideb": 3.49,
-          "n_escolas": 120,
-          "n_alunos": 16685
+          "ideb": 3.42,
+          "n_escolas": 121,
+          "n_alunos": 27211
         }
       },
       "12": {
         "AI": {
-          "ideb": 4.95,
-          "n_escolas": 94,
-          "n_alunos": 16723
+          "ideb": 4.91,
+          "n_escolas": 101,
+          "n_alunos": 22290
         },
         "AF": {
-          "ideb": 3.98,
-          "n_escolas": 97,
-          "n_alunos": 13319
+          "ideb": 3.85,
+          "n_escolas": 103,
+          "n_alunos": 20441
         }
       },
       "25": {
         "AI": {
-          "ideb": 5.34,
-          "n_escolas": 19,
-          "n_alunos": 2606
+          "ideb": 5.16,
+          "n_escolas": 20,
+          "n_alunos": 3178
         },
         "AF": {
-          "ideb": 4.01,
+          "ideb": 3.87,
           "n_escolas": 36,
-          "n_alunos": 3451
+          "n_alunos": 5699
         }
       },
       "16": {
         "AI": {
-          "ideb": 5.98,
-          "n_escolas": 57,
-          "n_alunos": 10390
+          "ideb": 5.93,
+          "n_escolas": 58,
+          "n_alunos": 9989
         },
         "AF": {
-          "ideb": 4.85,
-          "n_escolas": 61,
-          "n_alunos": 8685
+          "ideb": 4.78,
+          "n_escolas": 66,
+          "n_alunos": 10960
         }
       },
       "09": {
         "AI": {
-          "ideb": 5.18,
+          "ideb": 5.05,
           "n_escolas": 37,
-          "n_alunos": 5015
+          "n_alunos": 6226
         },
         "AF": {
-          "ideb": 3.97,
-          "n_escolas": 31,
-          "n_alunos": 4167
+          "ideb": 3.93,
+          "n_escolas": 32,
+          "n_alunos": 6083
         }
       },
       "23": {
         "AI": {
-          "ideb": 5.12,
+          "ideb": 5.04,
           "n_escolas": 30,
-          "n_alunos": 5592
+          "n_alunos": 6439
         },
         "AF": {
-          "ideb": 3.83,
-          "n_escolas": 31,
-          "n_alunos": 4381
+          "ideb": 3.75,
+          "n_escolas": 33,
+          "n_alunos": 5534
         }
       },
       "36": {
         "AI": {
-          "ideb": 5.88,
+          "ideb": 5.78,
           "n_escolas": 40,
-          "n_alunos": 6916
+          "n_alunos": 7037
         },
         "AF": {
-          "ideb": 4.45,
-          "n_escolas": 38,
-          "n_alunos": 5467
+          "ideb": 4.33,
+          "n_escolas": 39,
+          "n_alunos": 6593
         }
       },
       "08": {
         "AI": {
-          "ideb": 4.99,
-          "n_escolas": 83,
-          "n_alunos": 12663
+          "ideb": 4.98,
+          "n_escolas": 87,
+          "n_alunos": 16265
         },
         "AF": {
-          "ideb": 4.06,
-          "n_escolas": 89,
-          "n_alunos": 11533
+          "ideb": 3.94,
+          "n_escolas": 93,
+          "n_alunos": 18222
         }
       },
       "32": {
         "AI": {
-          "ideb": 5.27,
+          "ideb": 5.21,
           "n_escolas": 14,
-          "n_alunos": 1493
+          "n_alunos": 1895
         },
         "AF": {
-          "ideb": 4.38,
-          "n_escolas": 19,
-          "n_alunos": 1675
+          "ideb": 4.32,
+          "n_escolas": 20,
+          "n_alunos": 2900
         }
       },
       "21": {
         "AI": {
-          "ideb": 5.38,
-          "n_escolas": 22,
-          "n_alunos": 3686
+          "ideb": 5.45,
+          "n_escolas": 26,
+          "n_alunos": 3523
         },
         "AF": {
-          "ideb": 4.38,
-          "n_escolas": 31,
-          "n_alunos": 3529
+          "ideb": 4.25,
+          "n_escolas": 34,
+          "n_alunos": 4768
         }
       },
       "06": {
         "AI": {
-          "ideb": 5.39,
-          "n_escolas": 81,
-          "n_alunos": 13068
+          "ideb": 5.32,
+          "n_escolas": 85,
+          "n_alunos": 15494
         },
         "AF": {
-          "ideb": 4.13,
-          "n_escolas": 98,
-          "n_alunos": 11935
+          "ideb": 4.06,
+          "n_escolas": 100,
+          "n_alunos": 17784
         }
       },
       "27": {
         "AI": {
-          "ideb": 4.96,
-          "n_escolas": 126,
-          "n_alunos": 29908
+          "ideb": 4.91,
+          "n_escolas": 133,
+          "n_alunos": 39133
         },
         "AF": {
-          "ideb": 3.84,
-          "n_escolas": 99,
-          "n_alunos": 19732
+          "ideb": 3.76,
+          "n_escolas": 114,
+          "n_alunos": 31294
         }
       },
       "35": {
         "AI": {
-          "ideb": 4.87,
-          "n_escolas": 24,
-          "n_alunos": 3511
+          "ideb": 4.86,
+          "n_escolas": 25,
+          "n_alunos": 5062
         },
         "AF": {
-          "ideb": 3.82,
+          "ideb": 3.76,
           "n_escolas": 34,
-          "n_alunos": 3906
+          "n_alunos": 7066
         }
       },
       "39": {
         "AI": {
-          "ideb": 5.4,
-          "n_escolas": 36,
-          "n_alunos": 5059
+          "ideb": 5.38,
+          "n_escolas": 38,
+          "n_alunos": 5968
         },
         "AF": {
-          "ideb": 4.18,
-          "n_escolas": 46,
-          "n_alunos": 5338
+          "ideb": 4.2,
+          "n_escolas": 50,
+          "n_alunos": 7665
         }
       },
       "14": {
         "AI": {
-          "ideb": 5.25,
-          "n_escolas": 23,
-          "n_alunos": 3365
+          "ideb": 5.21,
+          "n_escolas": 26,
+          "n_alunos": 4148
         },
         "AF": {
-          "ideb": 4.43,
-          "n_escolas": 31,
-          "n_alunos": 3769
+          "ideb": 4.31,
+          "n_escolas": 32,
+          "n_alunos": 5442
         }
       },
       "18": {
         "AI": {
-          "ideb": 4.84,
-          "n_escolas": 61,
-          "n_alunos": 10542
+          "ideb": 4.74,
+          "n_escolas": 65,
+          "n_alunos": 13887
         },
         "AF": {
-          "ideb": 3.52,
-          "n_escolas": 45,
-          "n_alunos": 7440
+          "ideb": 3.48,
+          "n_escolas": 47,
+          "n_alunos": 11571
         }
       },
       "01": {
         "AI": {
-          "ideb": 4.56,
-          "n_escolas": 205,
-          "n_alunos": 46344
+          "ideb": 4.51,
+          "n_escolas": 216,
+          "n_alunos": 69171
         },
         "AF": {
-          "ideb": 3.54,
-          "n_escolas": 190,
-          "n_alunos": 37396
+          "ideb": 3.47,
+          "n_escolas": 202,
+          "n_alunos": 59570
         }
       },
       "19": {
         "AI": {
-          "ideb": 4.88,
-          "n_escolas": 34,
-          "n_alunos": 5190
+          "ideb": 4.8,
+          "n_escolas": 36,
+          "n_alunos": 7995
         },
         "AF": {
-          "ideb": 3.68,
-          "n_escolas": 49,
-          "n_alunos": 6227
+          "ideb": 3.55,
+          "n_escolas": 50,
+          "n_alunos": 11093
         }
       }
     },
     "2013": {
       "13": {
         "AI": {
-          "ideb": 5.03,
-          "n_escolas": 67,
-          "n_alunos": 8804
+          "ideb": 5.01,
+          "n_escolas": 68,
+          "n_alunos": 11638
         },
         "AF": {
-          "ideb": 3.3,
+          "ideb": 3.21,
           "n_escolas": 44,
-          "n_alunos": 5338
+          "n_alunos": 7947
         }
       },
       "07": {
         "AI": {
-          "ideb": 5.53,
-          "n_escolas": 94,
-          "n_alunos": 18627
+          "ideb": 5.54,
+          "n_escolas": 101,
+          "n_alunos": 19175
         },
         "AF": {
-          "ideb": 4.23,
-          "n_escolas": 93,
-          "n_alunos": 14181
+          "ideb": 4.2,
+          "n_escolas": 98,
+          "n_alunos": 16386
         }
       },
       "24": {
         "AI": {
-          "ideb": 5.39,
-          "n_escolas": 41,
-          "n_alunos": 4913
+          "ideb": 5.37,
+          "n_escolas": 42,
+          "n_alunos": 6549
         },
         "AF": {
-          "ideb": 3.85,
-          "n_escolas": 29,
-          "n_alunos": 2951
+          "ideb": 3.74,
+          "n_escolas": 30,
+          "n_alunos": 4355
         }
       },
       "36": {
         "AI": {
-          "ideb": 6.12,
-          "n_escolas": 43,
-          "n_alunos": 7327
+          "ideb": 6.04,
+          "n_escolas": 44,
+          "n_alunos": 7521
         },
         "AF": {
-          "ideb": 4.52,
-          "n_escolas": 44,
-          "n_alunos": 5942
+          "ideb": 4.39,
+          "n_escolas": 45,
+          "n_alunos": 6589
         }
       },
       "17": {
         "AI": {
-          "ideb": 6.08,
-          "n_escolas": 48,
-          "n_alunos": 8038
+          "ideb": 6.11,
+          "n_escolas": 53,
+          "n_alunos": 8335
         },
         "AF": {
-          "ideb": 4.57,
-          "n_escolas": 52,
-          "n_alunos": 7047
+          "ideb": 4.54,
+          "n_escolas": 59,
+          "n_alunos": 8400
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.27,
-          "n_escolas": 74,
-          "n_alunos": 12472
+          "ideb": 5.22,
+          "n_escolas": 75,
+          "n_alunos": 16830
         },
         "AF": {
-          "ideb": 3.76,
+          "ideb": 3.68,
           "n_escolas": 65,
-          "n_alunos": 9020
-        }
-      },
-      "02": {
-        "AI": {
-          "ideb": 5.74,
-          "n_escolas": 284,
-          "n_alunos": 58147
-        },
-        "AF": {
-          "ideb": 4.29,
-          "n_escolas": 208,
-          "n_alunos": 39207
-        }
-      },
-      "28": {
-        "AI": {
-          "ideb": 4.85,
-          "n_escolas": 184,
-          "n_alunos": 45700
-        },
-        "AF": {
-          "ideb": 3.47,
-          "n_escolas": 142,
-          "n_alunos": 33159
-        }
-      },
-      "05": {
-        "AI": {
-          "ideb": 4.7,
-          "n_escolas": 123,
-          "n_alunos": 19641
-        },
-        "AF": {
-          "ideb": 3.57,
-          "n_escolas": 103,
-          "n_alunos": 15337
+          "n_alunos": 13091
         }
       },
       "20": {
         "AI": {
-          "ideb": 5.8,
-          "n_escolas": 40,
-          "n_alunos": 5808
+          "ideb": 5.62,
+          "n_escolas": 44,
+          "n_alunos": 7024
         },
         "AF": {
-          "ideb": 4.46,
-          "n_escolas": 44,
-          "n_alunos": 5329
+          "ideb": 4.36,
+          "n_escolas": 46,
+          "n_alunos": 6544
+        }
+      },
+      "02": {
+        "AI": {
+          "ideb": 5.71,
+          "n_escolas": 297,
+          "n_alunos": 67592
+        },
+        "AF": {
+          "ideb": 4.18,
+          "n_escolas": 216,
+          "n_alunos": 49653
+        }
+      },
+      "28": {
+        "AI": {
+          "ideb": 4.87,
+          "n_escolas": 196,
+          "n_alunos": 58572
+        },
+        "AF": {
+          "ideb": 3.43,
+          "n_escolas": 150,
+          "n_alunos": 44810
+        }
+      },
+      "05": {
+        "AI": {
+          "ideb": 4.74,
+          "n_escolas": 126,
+          "n_alunos": 24637
+        },
+        "AF": {
+          "ideb": 3.51,
+          "n_escolas": 103,
+          "n_alunos": 21337
         }
       },
       "03": {
         "AI": {
-          "ideb": 6.05,
-          "n_escolas": 58,
-          "n_alunos": 9641
+          "ideb": 6.06,
+          "n_escolas": 65,
+          "n_alunos": 9785
         },
         "AF": {
-          "ideb": 4.69,
-          "n_escolas": 61,
-          "n_alunos": 8728
+          "ideb": 4.56,
+          "n_escolas": 66,
+          "n_alunos": 9783
         }
       },
       "04": {
         "AI": {
-          "ideb": 5.87,
-          "n_escolas": 176,
-          "n_alunos": 34729
+          "ideb": 5.84,
+          "n_escolas": 184,
+          "n_alunos": 37880
         },
         "AF": {
-          "ideb": 4.56,
-          "n_escolas": 163,
-          "n_alunos": 27691
+          "ideb": 4.51,
+          "n_escolas": 171,
+          "n_alunos": 31929
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.19,
-          "n_escolas": 109,
-          "n_alunos": 18788
+          "ideb": 5.15,
+          "n_escolas": 120,
+          "n_alunos": 24691
         },
         "AF": {
-          "ideb": 3.89,
-          "n_escolas": 98,
-          "n_alunos": 13154
+          "ideb": 3.84,
+          "n_escolas": 104,
+          "n_alunos": 17835
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.3,
-          "n_escolas": 52,
-          "n_alunos": 8689
+          "ideb": 6.28,
+          "n_escolas": 59,
+          "n_alunos": 9854
         },
         "AF": {
-          "ideb": 4.8,
-          "n_escolas": 56,
-          "n_alunos": 7073
+          "ideb": 4.71,
+          "n_escolas": 63,
+          "n_alunos": 9382
         }
       },
       "11": {
         "AI": {
-          "ideb": 5.27,
-          "n_escolas": 109,
-          "n_alunos": 25011
+          "ideb": 5.3,
+          "n_escolas": 113,
+          "n_alunos": 23696
         },
         "AF": {
           "ideb": 3.9,
-          "n_escolas": 101,
-          "n_alunos": 17374
+          "n_escolas": 102,
+          "n_alunos": 19643
         }
       },
       "25": {
         "AI": {
-          "ideb": 5.68,
-          "n_escolas": 31,
-          "n_alunos": 3859
+          "ideb": 5.66,
+          "n_escolas": 32,
+          "n_alunos": 4784
         },
         "AF": {
-          "ideb": 4.22,
+          "ideb": 4.1,
           "n_escolas": 35,
-          "n_alunos": 3490
+          "n_alunos": 4768
         }
       },
       "21": {
         "AI": {
-          "ideb": 5.68,
-          "n_escolas": 28,
-          "n_alunos": 4168
+          "ideb": 5.73,
+          "n_escolas": 33,
+          "n_alunos": 4305
         },
         "AF": {
-          "ideb": 4.59,
-          "n_escolas": 29,
-          "n_alunos": 3209
+          "ideb": 4.53,
+          "n_escolas": 32,
+          "n_alunos": 4004
         }
       },
       "16": {
         "AI": {
-          "ideb": 6.17,
-          "n_escolas": 61,
-          "n_alunos": 11130
+          "ideb": 6.15,
+          "n_escolas": 64,
+          "n_alunos": 10226
         },
         "AF": {
-          "ideb": 4.68,
-          "n_escolas": 64,
-          "n_alunos": 9189
+          "ideb": 4.64,
+          "n_escolas": 71,
+          "n_alunos": 10342
         }
       },
       "09": {
         "AI": {
-          "ideb": 5.63,
+          "ideb": 5.57,
           "n_escolas": 40,
-          "n_alunos": 5463
+          "n_alunos": 6306
         },
         "AF": {
-          "ideb": 3.98,
-          "n_escolas": 29,
-          "n_alunos": 3920
+          "ideb": 3.92,
+          "n_escolas": 30,
+          "n_alunos": 4904
         }
       },
       "23": {
         "AI": {
-          "ideb": 5.5,
-          "n_escolas": 31,
-          "n_alunos": 5728
+          "ideb": 5.47,
+          "n_escolas": 32,
+          "n_alunos": 6573
         },
         "AF": {
-          "ideb": 4.06,
-          "n_escolas": 27,
-          "n_alunos": 3918
+          "ideb": 4.03,
+          "n_escolas": 28,
+          "n_alunos": 4365
         }
       },
       "06": {
         "AI": {
-          "ideb": 5.56,
-          "n_escolas": 97,
-          "n_alunos": 14468
+          "ideb": 5.55,
+          "n_escolas": 102,
+          "n_alunos": 16836
         },
         "AF": {
-          "ideb": 4.15,
-          "n_escolas": 95,
-          "n_alunos": 11541
+          "ideb": 4.07,
+          "n_escolas": 96,
+          "n_alunos": 15315
         }
       },
       "32": {
         "AI": {
-          "ideb": 5.87,
+          "ideb": 5.84,
           "n_escolas": 23,
-          "n_alunos": 2102
+          "n_alunos": 2761
         },
         "AF": {
-          "ideb": 4.56,
-          "n_escolas": 22,
-          "n_alunos": 2025
+          "ideb": 4.46,
+          "n_escolas": 23,
+          "n_alunos": 2872
         }
       },
       "08": {
         "AI": {
-          "ideb": 5.5,
-          "n_escolas": 90,
-          "n_alunos": 13242
+          "ideb": 5.45,
+          "n_escolas": 95,
+          "n_alunos": 16510
         },
         "AF": {
-          "ideb": 4.13,
-          "n_escolas": 78,
-          "n_alunos": 10767
+          "ideb": 4.07,
+          "n_escolas": 80,
+          "n_alunos": 14141
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.09,
-          "n_escolas": 133,
-          "n_alunos": 29788
+          "ideb": 5.07,
+          "n_escolas": 139,
+          "n_alunos": 38274
         },
         "AF": {
-          "ideb": 3.81,
-          "n_escolas": 103,
-          "n_alunos": 19222
+          "ideb": 3.74,
+          "n_escolas": 118,
+          "n_alunos": 27234
         }
       },
       "35": {
         "AI": {
-          "ideb": 5.57,
-          "n_escolas": 36,
-          "n_alunos": 4986
+          "ideb": 5.62,
+          "n_escolas": 37,
+          "n_alunos": 6194
         },
         "AF": {
-          "ideb": 3.92,
+          "ideb": 3.79,
           "n_escolas": 26,
-          "n_alunos": 3412
+          "n_alunos": 4785
         }
       },
       "39": {
         "AI": {
-          "ideb": 5.77,
-          "n_escolas": 39,
-          "n_alunos": 5678
+          "ideb": 5.74,
+          "n_escolas": 42,
+          "n_alunos": 6466
         },
         "AF": {
-          "ideb": 4.29,
-          "n_escolas": 41,
-          "n_alunos": 5170
+          "ideb": 4.27,
+          "n_escolas": 45,
+          "n_alunos": 6455
         }
       },
       "14": {
         "AI": {
-          "ideb": 5.76,
-          "n_escolas": 31,
-          "n_alunos": 4447
+          "ideb": 5.7,
+          "n_escolas": 32,
+          "n_alunos": 5051
         },
         "AF": {
-          "ideb": 4.44,
-          "n_escolas": 31,
-          "n_alunos": 3826
+          "ideb": 4.3,
+          "n_escolas": 32,
+          "n_alunos": 4806
         }
       },
       "18": {
         "AI": {
-          "ideb": 4.82,
-          "n_escolas": 60,
-          "n_alunos": 10438
+          "ideb": 4.81,
+          "n_escolas": 65,
+          "n_alunos": 13827
         },
         "AF": {
           "ideb": 3.46,
-          "n_escolas": 41,
-          "n_alunos": 6908
+          "n_escolas": 43,
+          "n_alunos": 9803
         }
       },
       "01": {
         "AI": {
           "ideb": 4.81,
-          "n_escolas": 225,
-          "n_alunos": 48661
+          "n_escolas": 234,
+          "n_alunos": 68943
         },
         "AF": {
-          "ideb": 3.53,
-          "n_escolas": 188,
-          "n_alunos": 36310
+          "ideb": 3.47,
+          "n_escolas": 196,
+          "n_alunos": 50500
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.17,
-          "n_escolas": 55,
-          "n_alunos": 8867
+          "ideb": 5.1,
+          "n_escolas": 57,
+          "n_alunos": 11648
         },
         "AF": {
-          "ideb": 3.62,
-          "n_escolas": 52,
-          "n_alunos": 6437
+          "ideb": 3.47,
+          "n_escolas": 53,
+          "n_alunos": 9973
         }
       }
     },
     "2015": {
       "13": {
         "AI": {
-          "ideb": 5.18,
-          "n_escolas": 63,
-          "n_alunos": 8538
+          "ideb": 5.14,
+          "n_escolas": 66,
+          "n_alunos": 10495
         },
         "AF": {
-          "ideb": 3.81,
+          "ideb": 3.73,
           "n_escolas": 38,
-          "n_alunos": 5098
+          "n_alunos": 7070
         }
       },
       "07": {
         "AI": {
-          "ideb": 5.66,
-          "n_escolas": 95,
-          "n_alunos": 18780
+          "ideb": 5.69,
+          "n_escolas": 103,
+          "n_alunos": 18135
         },
         "AF": {
-          "ideb": 4.2,
-          "n_escolas": 64,
-          "n_alunos": 10305
+          "ideb": 4.19,
+          "n_escolas": 68,
+          "n_alunos": 12214
         }
       },
       "24": {
         "AI": {
-          "ideb": 5.3,
-          "n_escolas": 43,
-          "n_alunos": 5407
+          "ideb": 5.33,
+          "n_escolas": 45,
+          "n_alunos": 6449
         },
         "AF": {
-          "ideb": 4.35,
+          "ideb": 4.29,
           "n_escolas": 23,
-          "n_alunos": 2795
+          "n_alunos": 3781
         }
       },
       "36": {
         "AI": {
-          "ideb": 6.39,
-          "n_escolas": 45,
-          "n_alunos": 7535
+          "ideb": 6.3,
+          "n_escolas": 46,
+          "n_alunos": 7133
         },
         "AF": {
-          "ideb": 4.96,
-          "n_escolas": 32,
-          "n_alunos": 5036
+          "ideb": 4.79,
+          "n_escolas": 33,
+          "n_alunos": 5434
         }
       },
       "17": {
         "AI": {
-          "ideb": 6.22,
-          "n_escolas": 45,
-          "n_alunos": 7653
+          "ideb": 6.23,
+          "n_escolas": 49,
+          "n_alunos": 7308
         },
         "AF": {
-          "ideb": 4.58,
+          "ideb": 4.57,
           "n_escolas": 30,
-          "n_alunos": 4891
+          "n_alunos": 4934
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.36,
+          "ideb": 5.3,
           "n_escolas": 68,
-          "n_alunos": 11863
+          "n_alunos": 14651
         },
         "AF": {
-          "ideb": 4.03,
+          "ideb": 3.96,
           "n_escolas": 50,
-          "n_alunos": 8237
-        }
-      },
-      "02": {
-        "AI": {
-          "ideb": 5.82,
-          "n_escolas": 295,
-          "n_alunos": 59941
-        },
-        "AF": {
-          "ideb": 4.53,
-          "n_escolas": 193,
-          "n_alunos": 39237
-        }
-      },
-      "28": {
-        "AI": {
-          "ideb": 5.08,
-          "n_escolas": 197,
-          "n_alunos": 48247
-        },
-        "AF": {
-          "ideb": 3.76,
-          "n_escolas": 144,
-          "n_alunos": 34540
-        }
-      },
-      "05": {
-        "AI": {
-          "ideb": 5.0,
-          "n_escolas": 143,
-          "n_alunos": 22475
-        },
-        "AF": {
-          "ideb": 3.71,
-          "n_escolas": 87,
-          "n_alunos": 13501
+          "n_alunos": 10585
         }
       },
       "20": {
         "AI": {
-          "ideb": 5.95,
-          "n_escolas": 39,
-          "n_alunos": 5845
+          "ideb": 5.86,
+          "n_escolas": 44,
+          "n_alunos": 6555
         },
         "AF": {
-          "ideb": 4.24,
+          "ideb": 4.17,
           "n_escolas": 23,
-          "n_alunos": 3354
+          "n_alunos": 3709
+        }
+      },
+      "02": {
+        "AI": {
+          "ideb": 5.77,
+          "n_escolas": 303,
+          "n_alunos": 64562
+        },
+        "AF": {
+          "ideb": 4.43,
+          "n_escolas": 198,
+          "n_alunos": 46665
+        }
+      },
+      "28": {
+        "AI": {
+          "ideb": 5.09,
+          "n_escolas": 207,
+          "n_alunos": 56077
+        },
+        "AF": {
+          "ideb": 3.74,
+          "n_escolas": 150,
+          "n_alunos": 42876
+        }
+      },
+      "05": {
+        "AI": {
+          "ideb": 4.98,
+          "n_escolas": 146,
+          "n_alunos": 26287
+        },
+        "AF": {
+          "ideb": 3.66,
+          "n_escolas": 87,
+          "n_alunos": 17352
         }
       },
       "03": {
         "AI": {
-          "ideb": 6.15,
-          "n_escolas": 74,
-          "n_alunos": 11675
+          "ideb": 6.17,
+          "n_escolas": 78,
+          "n_alunos": 11044
         },
         "AF": {
-          "ideb": 4.82,
-          "n_escolas": 42,
-          "n_alunos": 6620
+          "ideb": 4.7,
+          "n_escolas": 45,
+          "n_alunos": 7270
         }
       },
       "04": {
         "AI": {
-          "ideb": 6.03,
-          "n_escolas": 183,
-          "n_alunos": 35519
+          "ideb": 5.99,
+          "n_escolas": 191,
+          "n_alunos": 37549
         },
         "AF": {
-          "ideb": 4.76,
-          "n_escolas": 146,
-          "n_alunos": 26038
+          "ideb": 4.67,
+          "n_escolas": 151,
+          "n_alunos": 27626
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.43,
-          "n_escolas": 50,
-          "n_alunos": 8657
+          "ideb": 6.39,
+          "n_escolas": 54,
+          "n_alunos": 8644
         },
         "AF": {
-          "ideb": 4.64,
-          "n_escolas": 44,
-          "n_alunos": 6321
+          "ideb": 4.56,
+          "n_escolas": 47,
+          "n_alunos": 7563
         }
       },
       "11": {
         "AI": {
-          "ideb": 5.36,
-          "n_escolas": 114,
-          "n_alunos": 25605
+          "ideb": 5.38,
+          "n_escolas": 118,
+          "n_alunos": 23752
         },
         "AF": {
-          "ideb": 4.12,
-          "n_escolas": 84,
-          "n_alunos": 15580
+          "ideb": 4.07,
+          "n_escolas": 85,
+          "n_alunos": 16396
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.21,
-          "n_escolas": 113,
-          "n_alunos": 19111
+          "ideb": 5.12,
+          "n_escolas": 122,
+          "n_alunos": 22878
         },
         "AF": {
-          "ideb": 4.29,
-          "n_escolas": 75,
-          "n_alunos": 11349
+          "ideb": 4.17,
+          "n_escolas": 79,
+          "n_alunos": 14284
         }
       },
       "25": {
         "AI": {
-          "ideb": 6.03,
-          "n_escolas": 32,
-          "n_alunos": 3768
+          "ideb": 5.96,
+          "n_escolas": 34,
+          "n_alunos": 4408
         },
         "AF": {
-          "ideb": 4.55,
+          "ideb": 4.47,
           "n_escolas": 18,
-          "n_alunos": 2081
+          "n_alunos": 2684
         }
       },
       "21": {
         "AI": {
           "ideb": 5.71,
-          "n_escolas": 27,
-          "n_alunos": 4171
+          "n_escolas": 31,
+          "n_alunos": 4029
         },
         "AF": {
-          "ideb": 4.65,
-          "n_escolas": 17,
-          "n_alunos": 2264
+          "ideb": 4.64,
+          "n_escolas": 19,
+          "n_alunos": 2675
         }
       },
       "16": {
         "AI": {
-          "ideb": 6.44,
-          "n_escolas": 64,
-          "n_alunos": 11630
+          "ideb": 6.4,
+          "n_escolas": 66,
+          "n_alunos": 9870
         },
         "AF": {
-          "ideb": 4.99,
-          "n_escolas": 51,
-          "n_alunos": 7875
+          "ideb": 4.91,
+          "n_escolas": 53,
+          "n_alunos": 8560
         }
       },
       "09": {
         "AI": {
-          "ideb": 5.65,
+          "ideb": 5.59,
           "n_escolas": 35,
-          "n_alunos": 5130
+          "n_alunos": 5433
         },
         "AF": {
-          "ideb": 4.28,
-          "n_escolas": 20,
-          "n_alunos": 3079
+          "ideb": 4.24,
+          "n_escolas": 21,
+          "n_alunos": 3791
         }
       },
       "23": {
         "AI": {
-          "ideb": 5.52,
+          "ideb": 5.48,
           "n_escolas": 31,
-          "n_alunos": 5714
+          "n_alunos": 6033
         },
         "AF": {
-          "ideb": 4.13,
+          "ideb": 4.06,
           "n_escolas": 24,
-          "n_alunos": 3680
+          "n_alunos": 4132
         }
       },
       "06": {
         "AI": {
-          "ideb": 5.78,
-          "n_escolas": 96,
-          "n_alunos": 14451
+          "ideb": 5.76,
+          "n_escolas": 103,
+          "n_alunos": 15650
         },
         "AF": {
-          "ideb": 4.39,
-          "n_escolas": 79,
-          "n_alunos": 9926
+          "ideb": 4.29,
+          "n_escolas": 81,
+          "n_alunos": 12866
         }
       },
       "32": {
         "AI": {
-          "ideb": 5.79,
+          "ideb": 5.8,
           "n_escolas": 22,
-          "n_alunos": 2382
+          "n_alunos": 2565
         },
         "AF": {
-          "ideb": 4.1,
+          "ideb": 4.0,
           "n_escolas": 11,
-          "n_alunos": 1022
+          "n_alunos": 1468
         }
       },
       "08": {
         "AI": {
           "ideb": 5.59,
-          "n_escolas": 100,
-          "n_alunos": 14985
+          "n_escolas": 105,
+          "n_alunos": 17157
         },
         "AF": {
-          "ideb": 4.28,
-          "n_escolas": 71,
-          "n_alunos": 10234
+          "ideb": 4.18,
+          "n_escolas": 72,
+          "n_alunos": 12826
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.22,
-          "n_escolas": 134,
-          "n_alunos": 30817
+          "ideb": 5.18,
+          "n_escolas": 139,
+          "n_alunos": 36765
         },
         "AF": {
-          "ideb": 4.15,
-          "n_escolas": 109,
-          "n_alunos": 22541
+          "ideb": 4.09,
+          "n_escolas": 117,
+          "n_alunos": 26581
         }
       },
       "35": {
         "AI": {
-          "ideb": 5.51,
-          "n_escolas": 36,
-          "n_alunos": 5008
+          "ideb": 5.52,
+          "n_escolas": 37,
+          "n_alunos": 5631
         },
         "AF": {
-          "ideb": 4.02,
+          "ideb": 3.85,
           "n_escolas": 17,
-          "n_alunos": 2695
+          "n_alunos": 3689
         }
       },
       "39": {
         "AI": {
-          "ideb": 5.98,
-          "n_escolas": 41,
-          "n_alunos": 5973
+          "ideb": 6.0,
+          "n_escolas": 45,
+          "n_alunos": 6431
         },
         "AF": {
-          "ideb": 4.49,
-          "n_escolas": 27,
-          "n_alunos": 3828
+          "ideb": 4.47,
+          "n_escolas": 30,
+          "n_alunos": 4478
         }
       },
       "14": {
         "AI": {
-          "ideb": 5.73,
-          "n_escolas": 27,
-          "n_alunos": 4302
+          "ideb": 5.66,
+          "n_escolas": 30,
+          "n_alunos": 4493
         },
         "AF": {
-          "ideb": 4.34,
+          "ideb": 4.24,
           "n_escolas": 16,
-          "n_alunos": 2108
+          "n_alunos": 2681
         }
       },
       "18": {
         "AI": {
-          "ideb": 5.01,
-          "n_escolas": 60,
-          "n_alunos": 10417
+          "ideb": 4.97,
+          "n_escolas": 64,
+          "n_alunos": 12320
         },
         "AF": {
-          "ideb": 3.87,
-          "n_escolas": 35,
-          "n_alunos": 6374
+          "ideb": 3.84,
+          "n_escolas": 36,
+          "n_alunos": 8208
         }
       },
       "01": {
         "AI": {
-          "ideb": 4.85,
-          "n_escolas": 212,
-          "n_alunos": 47092
+          "ideb": 4.83,
+          "n_escolas": 219,
+          "n_alunos": 61028
         },
         "AF": {
-          "ideb": 3.7,
-          "n_escolas": 163,
-          "n_alunos": 34062
+          "ideb": 3.63,
+          "n_escolas": 166,
+          "n_alunos": 42669
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.17,
-          "n_escolas": 51,
-          "n_alunos": 8226
+          "ideb": 5.15,
+          "n_escolas": 53,
+          "n_alunos": 9380
         },
         "AF": {
-          "ideb": 3.68,
-          "n_escolas": 25,
-          "n_alunos": 3291
+          "ideb": 3.59,
+          "n_escolas": 26,
+          "n_alunos": 5084
         }
       }
     },
     "2017": {
       "13": {
         "AI": {
-          "ideb": 5.48,
-          "n_escolas": 66,
-          "n_alunos": 8227
+          "ideb": 5.47,
+          "n_escolas": 67,
+          "n_alunos": 8839
         },
         "AF": {
-          "ideb": 3.89,
+          "ideb": 3.84,
           "n_escolas": 43,
-          "n_alunos": 4383
+          "n_alunos": 5708
         },
         "EM": {
-          "ideb": 3.17,
+          "ideb": 3.18,
           "n_escolas": 2,
-          "n_alunos": 207
+          "n_alunos": 261
         }
       },
       "07": {
         "AI": {
-          "ideb": 6.02,
-          "n_escolas": 100,
-          "n_alunos": 17519
+          "ideb": 6.0,
+          "n_escolas": 109,
+          "n_alunos": 16241
         },
         "AF": {
-          "ideb": 4.78,
-          "n_escolas": 58,
-          "n_alunos": 7012
+          "ideb": 4.86,
+          "n_escolas": 62,
+          "n_alunos": 7752
         },
         "EM": {
-          "ideb": 3.83,
-          "n_escolas": 23,
-          "n_alunos": 2925
+          "ideb": 3.89,
+          "n_escolas": 24,
+          "n_alunos": 3059
         }
       },
       "24": {
         "AI": {
-          "ideb": 5.65,
-          "n_escolas": 47,
-          "n_alunos": 4351
+          "ideb": 5.66,
+          "n_escolas": 48,
+          "n_alunos": 4879
         },
         "AF": {
-          "ideb": 4.62,
+          "ideb": 4.56,
           "n_escolas": 35,
-          "n_alunos": 2980
+          "n_alunos": 3636
         },
         "EM": {
-          "ideb": 4.18,
+          "ideb": 3.96,
           "n_escolas": 8,
-          "n_alunos": 1392
+          "n_alunos": 1489
         }
       },
       "36": {
         "AI": {
-          "ideb": 6.5,
-          "n_escolas": 55,
-          "n_alunos": 8387
+          "ideb": 6.48,
+          "n_escolas": 57,
+          "n_alunos": 7550
         },
         "AF": {
-          "ideb": 5.2,
-          "n_escolas": 39,
-          "n_alunos": 5071
+          "ideb": 5.11,
+          "n_escolas": 41,
+          "n_alunos": 5389
         },
         "EM": {
-          "ideb": 3.95,
+          "ideb": 3.78,
           "n_escolas": 9,
-          "n_alunos": 1148
+          "n_alunos": 1172
         }
       },
       "17": {
         "AI": {
-          "ideb": 6.35,
-          "n_escolas": 59,
-          "n_alunos": 9518
+          "ideb": 6.34,
+          "n_escolas": 66,
+          "n_alunos": 8530
         },
         "AF": {
-          "ideb": 4.79,
-          "n_escolas": 52,
-          "n_alunos": 6007
+          "ideb": 4.75,
+          "n_escolas": 59,
+          "n_alunos": 6589
         },
         "EM": {
-          "ideb": 4.32,
+          "ideb": 4.23,
           "n_escolas": 21,
-          "n_alunos": 2968
+          "n_alunos": 3332
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.44,
-          "n_escolas": 67,
-          "n_alunos": 10196
+          "ideb": 5.39,
+          "n_escolas": 68,
+          "n_alunos": 11522
         },
         "AF": {
-          "ideb": 4.47,
+          "ideb": 4.37,
           "n_escolas": 43,
-          "n_alunos": 5735
+          "n_alunos": 7747
         },
         "EM": {
           "ideb": 3.01,
           "n_escolas": 4,
-          "n_alunos": 199
+          "n_alunos": 274
         }
       },
       "20": {
         "AI": {
-          "ideb": 6.06,
-          "n_escolas": 66,
-          "n_alunos": 7411
+          "ideb": 5.98,
+          "n_escolas": 73,
+          "n_alunos": 7750
         },
         "AF": {
-          "ideb": 4.9,
-          "n_escolas": 40,
-          "n_alunos": 4369
+          "ideb": 4.76,
+          "n_escolas": 42,
+          "n_alunos": 4960
         },
         "EM": {
-          "ideb": 4.11,
+          "ideb": 4.0,
           "n_escolas": 20,
-          "n_alunos": 3208
+          "n_alunos": 3648
         }
       },
       "02": {
         "AI": {
-          "ideb": 6.07,
-          "n_escolas": 312,
-          "n_alunos": 58249
+          "ideb": 6.05,
+          "n_escolas": 318,
+          "n_alunos": 57673
         },
         "AF": {
-          "ideb": 5.02,
-          "n_escolas": 188,
-          "n_alunos": 31735
+          "ideb": 4.99,
+          "n_escolas": 190,
+          "n_alunos": 35573
         },
         "EM": {
-          "ideb": 4.0,
-          "n_escolas": 27,
-          "n_alunos": 5548
+          "ideb": 4.15,
+          "n_escolas": 28,
+          "n_alunos": 6308
         }
       },
       "28": {
         "AI": {
-          "ideb": 5.24,
-          "n_escolas": 149,
-          "n_alunos": 36860
+          "ideb": 5.26,
+          "n_escolas": 160,
+          "n_alunos": 39092
         },
         "AF": {
-          "ideb": 3.94,
-          "n_escolas": 66,
-          "n_alunos": 14268
+          "ideb": 3.96,
+          "n_escolas": 68,
+          "n_alunos": 16054
         },
         "EM": {
-          "ideb": 3.54,
+          "ideb": 3.8,
           "n_escolas": 3,
-          "n_alunos": 776
+          "n_alunos": 922
         }
       },
       "05": {
         "AI": {
-          "ideb": 5.32,
+          "ideb": 5.3,
           "n_escolas": 128,
-          "n_alunos": 16561
+          "n_alunos": 17921
         },
         "AF": {
-          "ideb": 4.01,
+          "ideb": 4.02,
           "n_escolas": 71,
-          "n_alunos": 7195
+          "n_alunos": 8398
         },
         "EM": {
-          "ideb": 3.64,
-          "n_escolas": 10,
-          "n_alunos": 1655
+          "ideb": 3.44,
+          "n_escolas": 11,
+          "n_alunos": 2360
         }
       },
       "16": {
         "AI": {
-          "ideb": 6.49,
-          "n_escolas": 84,
-          "n_alunos": 13775
+          "ideb": 6.46,
+          "n_escolas": 88,
+          "n_alunos": 11521
         },
         "AF": {
-          "ideb": 5.17,
-          "n_escolas": 64,
-          "n_alunos": 8003
+          "ideb": 5.09,
+          "n_escolas": 69,
+          "n_alunos": 8569
         },
         "EM": {
-          "ideb": 4.35,
+          "ideb": 4.25,
           "n_escolas": 30,
-          "n_alunos": 4420
+          "n_alunos": 4612
         }
       },
       "03": {
         "AI": {
-          "ideb": 6.25,
-          "n_escolas": 104,
-          "n_alunos": 14553
+          "ideb": 6.22,
+          "n_escolas": 114,
+          "n_alunos": 13080
         },
         "AF": {
-          "ideb": 5.04,
-          "n_escolas": 78,
-          "n_alunos": 9484
+          "ideb": 4.9,
+          "n_escolas": 82,
+          "n_alunos": 10092
         },
         "EM": {
-          "ideb": 4.26,
+          "ideb": 4.12,
           "n_escolas": 27,
-          "n_alunos": 3877
+          "n_alunos": 3565
         }
       },
       "04": {
         "AI": {
-          "ideb": 6.18,
-          "n_escolas": 188,
-          "n_alunos": 34441
+          "ideb": 6.17,
+          "n_escolas": 195,
+          "n_alunos": 34074
         },
         "AF": {
-          "ideb": 5.13,
-          "n_escolas": 144,
-          "n_alunos": 21447
+          "ideb": 5.06,
+          "n_escolas": 148,
+          "n_alunos": 22593
         },
         "EM": {
-          "ideb": 4.37,
+          "ideb": 4.15,
           "n_escolas": 18,
-          "n_alunos": 3757
+          "n_alunos": 3563
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.53,
-          "n_escolas": 116,
-          "n_alunos": 16288
+          "ideb": 5.46,
+          "n_escolas": 129,
+          "n_alunos": 17916
         },
         "AF": {
-          "ideb": 4.37,
-          "n_escolas": 73,
-          "n_alunos": 9425
+          "ideb": 4.32,
+          "n_escolas": 77,
+          "n_alunos": 11763
         },
         "EM": {
-          "ideb": 3.48,
+          "ideb": 3.44,
           "n_escolas": 8,
-          "n_alunos": 1777
+          "n_alunos": 1904
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.42,
-          "n_escolas": 68,
-          "n_alunos": 10086
+          "ideb": 6.47,
+          "n_escolas": 80,
+          "n_alunos": 9164
         },
         "AF": {
-          "ideb": 5.18,
-          "n_escolas": 55,
-          "n_alunos": 6649
+          "ideb": 5.17,
+          "n_escolas": 60,
+          "n_alunos": 7888
         },
         "EM": {
-          "ideb": 4.03,
-          "n_escolas": 28,
-          "n_alunos": 2520
+          "ideb": 4.07,
+          "n_escolas": 29,
+          "n_alunos": 3200
         }
       },
       "11": {
         "AI": {
-          "ideb": 5.7,
-          "n_escolas": 113,
-          "n_alunos": 20269
+          "ideb": 5.68,
+          "n_escolas": 115,
+          "n_alunos": 19224
         },
         "AF": {
-          "ideb": 4.5,
+          "ideb": 4.52,
           "n_escolas": 83,
-          "n_alunos": 12337
+          "n_alunos": 12469
         },
         "EM": {
-          "ideb": 3.49,
+          "ideb": 3.33,
           "n_escolas": 10,
-          "n_alunos": 1438
+          "n_alunos": 1772
         }
       },
       "25": {
         "AI": {
-          "ideb": 6.05,
-          "n_escolas": 50,
-          "n_alunos": 5098
+          "ideb": 5.99,
+          "n_escolas": 51,
+          "n_alunos": 5207
         },
         "AF": {
-          "ideb": 4.72,
+          "ideb": 4.63,
           "n_escolas": 36,
-          "n_alunos": 2814
+          "n_alunos": 3820
         },
         "EM": {
-          "ideb": 3.88,
+          "ideb": 3.87,
           "n_escolas": 13,
-          "n_alunos": 1468
+          "n_alunos": 1855
         }
       },
       "21": {
         "AI": {
-          "ideb": 6.02,
-          "n_escolas": 40,
-          "n_alunos": 5194
+          "ideb": 6.08,
+          "n_escolas": 45,
+          "n_alunos": 4635
         },
         "AF": {
-          "ideb": 4.86,
-          "n_escolas": 30,
-          "n_alunos": 2845
+          "ideb": 4.81,
+          "n_escolas": 33,
+          "n_alunos": 3427
         },
         "EM": {
-          "ideb": 3.41,
+          "ideb": 3.27,
           "n_escolas": 11,
-          "n_alunos": 1251
+          "n_alunos": 1654
         }
       },
       "39": {
         "AI": {
-          "ideb": 6.18,
-          "n_escolas": 57,
-          "n_alunos": 7298
+          "ideb": 6.21,
+          "n_escolas": 61,
+          "n_alunos": 7198
         },
         "AF": {
-          "ideb": 4.89,
-          "n_escolas": 41,
-          "n_alunos": 4411
+          "ideb": 4.87,
+          "n_escolas": 47,
+          "n_alunos": 5305
         },
         "EM": {
-          "ideb": 4.31,
+          "ideb": 4.23,
           "n_escolas": 17,
-          "n_alunos": 1872
+          "n_alunos": 1910
         }
       },
       "09": {
         "AI": {
-          "ideb": 5.88,
+          "ideb": 5.84,
           "n_escolas": 41,
-          "n_alunos": 5112
+          "n_alunos": 5266
         },
         "AF": {
-          "ideb": 4.59,
-          "n_escolas": 25,
-          "n_alunos": 3210
+          "ideb": 4.58,
+          "n_escolas": 27,
+          "n_alunos": 3634
         },
         "EM": {
-          "ideb": 4.59,
+          "ideb": 4.57,
           "n_escolas": 7,
-          "n_alunos": 1090
+          "n_alunos": 1045
         }
       },
       "23": {
         "AI": {
-          "ideb": 5.65,
+          "ideb": 5.59,
           "n_escolas": 32,
-          "n_alunos": 5766
+          "n_alunos": 5837
         },
         "AF": {
-          "ideb": 4.57,
-          "n_escolas": 27,
-          "n_alunos": 3132
+          "ideb": 4.54,
+          "n_escolas": 28,
+          "n_alunos": 3486
         },
         "EM": {
-          "ideb": 3.94,
+          "ideb": 3.9,
           "n_escolas": 5,
-          "n_alunos": 950
+          "n_alunos": 1019
         }
       },
       "06": {
         "AI": {
-          "ideb": 5.99,
-          "n_escolas": 121,
-          "n_alunos": 14814
+          "ideb": 5.98,
+          "n_escolas": 129,
+          "n_alunos": 14715
         },
         "AF": {
-          "ideb": 4.57,
-          "n_escolas": 93,
-          "n_alunos": 9336
+          "ideb": 4.48,
+          "n_escolas": 97,
+          "n_alunos": 11932
         },
         "EM": {
-          "ideb": 4.14,
-          "n_escolas": 22,
-          "n_alunos": 3621
+          "ideb": 4.02,
+          "n_escolas": 23,
+          "n_alunos": 4376
         }
       },
       "32": {
         "AI": {
-          "ideb": 5.89,
+          "ideb": 5.91,
           "n_escolas": 35,
-          "n_alunos": 3101
+          "n_alunos": 3095
         },
         "AF": {
-          "ideb": 4.49,
-          "n_escolas": 24,
-          "n_alunos": 2052
+          "ideb": 4.53,
+          "n_escolas": 25,
+          "n_alunos": 2312
         },
         "EM": {
-          "ideb": 3.91,
+          "ideb": 3.81,
           "n_escolas": 11,
-          "n_alunos": 984
+          "n_alunos": 1347
         }
       },
       "08": {
         "AI": {
-          "ideb": 5.91,
-          "n_escolas": 96,
-          "n_alunos": 11712
+          "ideb": 5.9,
+          "n_escolas": 103,
+          "n_alunos": 12640
         },
         "AF": {
-          "ideb": 4.79,
-          "n_escolas": 58,
-          "n_alunos": 6411
+          "ideb": 4.72,
+          "n_escolas": 60,
+          "n_alunos": 7504
         },
         "EM": {
-          "ideb": 4.06,
+          "ideb": 3.89,
           "n_escolas": 14,
-          "n_alunos": 1644
+          "n_alunos": 2103
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.48,
-          "n_escolas": 117,
-          "n_alunos": 24287
+          "ideb": 5.46,
+          "n_escolas": 121,
+          "n_alunos": 27192
         },
         "AF": {
-          "ideb": 4.3,
-          "n_escolas": 77,
-          "n_alunos": 14319
+          "ideb": 4.29,
+          "n_escolas": 81,
+          "n_alunos": 16723
         },
         "EM": {
-          "ideb": 3.63,
-          "n_escolas": 4,
-          "n_alunos": 1026
+          "ideb": 3.6,
+          "n_escolas": 6,
+          "n_alunos": 1201
         }
       },
       "35": {
         "AI": {
-          "ideb": 5.78,
-          "n_escolas": 32,
-          "n_alunos": 4389
+          "ideb": 5.75,
+          "n_escolas": 34,
+          "n_alunos": 4550
         },
         "AF": {
-          "ideb": 4.3,
+          "ideb": 4.25,
           "n_escolas": 22,
-          "n_alunos": 2150
+          "n_alunos": 2725
         },
         "EM": {
-          "ideb": 4.53,
+          "ideb": 4.38,
           "n_escolas": 3,
-          "n_alunos": 652
+          "n_alunos": 657
         }
       },
       "14": {
         "AI": {
-          "ideb": 5.81,
-          "n_escolas": 42,
-          "n_alunos": 5179
+          "ideb": 5.83,
+          "n_escolas": 43,
+          "n_alunos": 4804
         },
         "AF": {
-          "ideb": 4.66,
-          "n_escolas": 29,
-          "n_alunos": 2962
+          "ideb": 4.6,
+          "n_escolas": 30,
+          "n_alunos": 3544
         },
         "EM": {
-          "ideb": 4.26,
+          "ideb": 4.01,
           "n_escolas": 11,
-          "n_alunos": 1498
+          "n_alunos": 1597
         }
       },
       "18": {
         "AI": {
-          "ideb": 5.3,
-          "n_escolas": 50,
-          "n_alunos": 8110
+          "ideb": 5.29,
+          "n_escolas": 53,
+          "n_alunos": 8897
         },
         "AF": {
-          "ideb": 4.37,
+          "ideb": 4.32,
           "n_escolas": 28,
-          "n_alunos": 3860
+          "n_alunos": 4856
         },
         "EM": {
-          "ideb": 4.31,
+          "ideb": 4.34,
           "n_escolas": 2,
-          "n_alunos": 427
+          "n_alunos": 288
         }
       },
       "01": {
         "AI": {
-          "ideb": 5.2,
-          "n_escolas": 101,
-          "n_alunos": 18620
+          "ideb": 5.18,
+          "n_escolas": 105,
+          "n_alunos": 23431
         },
         "AF": {
-          "ideb": 4.23,
-          "n_escolas": 58,
-          "n_alunos": 8749
+          "ideb": 4.16,
+          "n_escolas": 62,
+          "n_alunos": 11728
         },
         "EM": {
-          "ideb": 5.73,
+          "ideb": 5.48,
           "n_escolas": 8,
-          "n_alunos": 2417
+          "n_alunos": 2275
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.36,
-          "n_escolas": 46,
-          "n_alunos": 7080
+          "ideb": 5.34,
+          "n_escolas": 47,
+          "n_alunos": 7264
         },
         "AF": {
-          "ideb": 4.29,
+          "ideb": 4.23,
           "n_escolas": 29,
-          "n_alunos": 3662
+          "n_alunos": 4442
         },
         "EM": {
-          "ideb": 4.35,
+          "ideb": 4.18,
           "n_escolas": 5,
-          "n_alunos": 577
+          "n_alunos": 521
         }
       }
     },
@@ -57278,1515 +57278,1515 @@
       "13": {
         "AI": {
           "ideb": 5.76,
-          "n_escolas": 54,
-          "n_alunos": 6733
+          "n_escolas": 55,
+          "n_alunos": 7012
         },
         "AF": {
-          "ideb": 4.62,
+          "ideb": 4.58,
           "n_escolas": 39,
-          "n_alunos": 3857
+          "n_alunos": 4886
         },
         "EM": {
-          "ideb": 3.45,
+          "ideb": 3.43,
           "n_escolas": 4,
-          "n_alunos": 702
+          "n_alunos": 873
         }
       },
       "07": {
         "AI": {
-          "ideb": 6.1,
-          "n_escolas": 98,
-          "n_alunos": 17143
+          "ideb": 6.12,
+          "n_escolas": 104,
+          "n_alunos": 16456
         },
         "AF": {
-          "ideb": 4.9,
-          "n_escolas": 79,
-          "n_alunos": 10324
+          "ideb": 4.88,
+          "n_escolas": 82,
+          "n_alunos": 10242
         },
         "EM": {
-          "ideb": 4.4,
+          "ideb": 4.41,
           "n_escolas": 31,
-          "n_alunos": 5292
+          "n_alunos": 5743
         }
       },
       "24": {
         "AI": {
-          "ideb": 5.82,
-          "n_escolas": 54,
-          "n_alunos": 5592
+          "ideb": 5.8,
+          "n_escolas": 55,
+          "n_alunos": 6131
         },
         "AF": {
-          "ideb": 4.49,
-          "n_escolas": 43,
-          "n_alunos": 3682
+          "ideb": 4.5,
+          "n_escolas": 44,
+          "n_alunos": 4683
         },
         "EM": {
-          "ideb": 4.29,
+          "ideb": 4.32,
           "n_escolas": 6,
-          "n_alunos": 789
+          "n_alunos": 956
         }
       },
       "36": {
         "AI": {
           "ideb": 6.67,
-          "n_escolas": 57,
-          "n_alunos": 8695
+          "n_escolas": 59,
+          "n_alunos": 8018
         },
         "AF": {
-          "ideb": 5.32,
-          "n_escolas": 49,
-          "n_alunos": 5965
+          "ideb": 5.29,
+          "n_escolas": 51,
+          "n_alunos": 5972
         },
         "EM": {
-          "ideb": 4.87,
+          "ideb": 4.76,
           "n_escolas": 19,
-          "n_alunos": 3391
+          "n_alunos": 3563
         }
       },
       "17": {
         "AI": {
-          "ideb": 6.34,
-          "n_escolas": 65,
-          "n_alunos": 10046
+          "ideb": 6.37,
+          "n_escolas": 68,
+          "n_alunos": 9107
         },
         "AF": {
-          "ideb": 5.02,
-          "n_escolas": 57,
-          "n_alunos": 7365
+          "ideb": 4.99,
+          "n_escolas": 62,
+          "n_alunos": 7288
         },
         "EM": {
-          "ideb": 4.76,
+          "ideb": 4.6,
           "n_escolas": 18,
-          "n_alunos": 2030
+          "n_alunos": 2536
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.56,
-          "n_escolas": 51,
-          "n_alunos": 9197
+          "ideb": 5.53,
+          "n_escolas": 52,
+          "n_alunos": 9995
         },
         "AF": {
-          "ideb": 4.58,
+          "ideb": 4.56,
           "n_escolas": 39,
-          "n_alunos": 5655
+          "n_alunos": 6558
         },
         "EM": {
-          "ideb": 3.88,
+          "ideb": 3.96,
           "n_escolas": 3,
-          "n_alunos": 1162
+          "n_alunos": 1261
         }
       },
       "39": {
         "AI": {
-          "ideb": 6.45,
-          "n_escolas": 51,
-          "n_alunos": 6290
+          "ideb": 6.42,
+          "n_escolas": 54,
+          "n_alunos": 6319
         },
         "AF": {
-          "ideb": 4.93,
-          "n_escolas": 38,
-          "n_alunos": 4202
+          "ideb": 4.9,
+          "n_escolas": 40,
+          "n_alunos": 4590
         },
         "EM": {
-          "ideb": 3.97,
+          "ideb": 4.0,
           "n_escolas": 12,
-          "n_alunos": 1926
+          "n_alunos": 2081
         }
       },
       "20": {
         "AI": {
-          "ideb": 6.32,
-          "n_escolas": 62,
-          "n_alunos": 7255
+          "ideb": 6.28,
+          "n_escolas": 65,
+          "n_alunos": 7058
         },
         "AF": {
-          "ideb": 5.05,
-          "n_escolas": 44,
-          "n_alunos": 4334
+          "ideb": 4.98,
+          "n_escolas": 46,
+          "n_alunos": 4694
         },
         "EM": {
-          "ideb": 4.37,
+          "ideb": 4.4,
           "n_escolas": 12,
-          "n_alunos": 1398
+          "n_alunos": 1788
         }
       },
       "25": {
         "AI": {
-          "ideb": 6.31,
-          "n_escolas": 39,
-          "n_alunos": 4373
+          "ideb": 6.3,
+          "n_escolas": 40,
+          "n_alunos": 4201
         },
         "AF": {
-          "ideb": 4.95,
-          "n_escolas": 31,
-          "n_alunos": 3002
+          "ideb": 4.88,
+          "n_escolas": 32,
+          "n_alunos": 3515
         },
         "EM": {
-          "ideb": 4.24,
+          "ideb": 4.22,
           "n_escolas": 13,
-          "n_alunos": 1638
+          "n_alunos": 2116
         }
       },
       "02": {
         "AI": {
-          "ideb": 6.22,
-          "n_escolas": 288,
-          "n_alunos": 54728
+          "ideb": 6.21,
+          "n_escolas": 291,
+          "n_alunos": 54755
         },
         "AF": {
-          "ideb": 5.0,
-          "n_escolas": 197,
-          "n_alunos": 33829
+          "ideb": 4.96,
+          "n_escolas": 198,
+          "n_alunos": 37142
         },
         "EM": {
-          "ideb": 4.33,
-          "n_escolas": 34,
-          "n_alunos": 9088
+          "ideb": 4.37,
+          "n_escolas": 35,
+          "n_alunos": 10736
         }
       },
       "28": {
         "AI": {
           "ideb": 5.63,
-          "n_escolas": 144,
-          "n_alunos": 35185
+          "n_escolas": 152,
+          "n_alunos": 36021
         },
         "AF": {
-          "ideb": 4.39,
-          "n_escolas": 82,
-          "n_alunos": 17875
+          "ideb": 4.38,
+          "n_escolas": 85,
+          "n_alunos": 19641
         },
         "EM": {
-          "ideb": 3.38,
+          "ideb": 3.42,
           "n_escolas": 8,
-          "n_alunos": 2152
+          "n_alunos": 2498
         }
       },
       "05": {
         "AI": {
           "ideb": 5.41,
-          "n_escolas": 125,
-          "n_alunos": 17710
+          "n_escolas": 126,
+          "n_alunos": 18307
         },
         "AF": {
-          "ideb": 4.68,
+          "ideb": 4.67,
           "n_escolas": 86,
-          "n_alunos": 9293
+          "n_alunos": 10703
         },
         "EM": {
-          "ideb": 4.27,
+          "ideb": 4.26,
           "n_escolas": 12,
-          "n_alunos": 1958
+          "n_alunos": 1997
         }
       },
       "16": {
         "AI": {
-          "ideb": 6.67,
-          "n_escolas": 83,
-          "n_alunos": 13523
+          "ideb": 6.62,
+          "n_escolas": 86,
+          "n_alunos": 11621
         },
         "AF": {
-          "ideb": 5.21,
-          "n_escolas": 66,
-          "n_alunos": 9062
+          "ideb": 5.19,
+          "n_escolas": 69,
+          "n_alunos": 9066
         },
         "EM": {
-          "ideb": 4.61,
+          "ideb": 4.56,
           "n_escolas": 22,
-          "n_alunos": 4551
+          "n_alunos": 4825
         }
       },
       "03": {
         "AI": {
-          "ideb": 6.46,
-          "n_escolas": 102,
-          "n_alunos": 13920
+          "ideb": 6.42,
+          "n_escolas": 105,
+          "n_alunos": 12407
         },
         "AF": {
-          "ideb": 5.26,
-          "n_escolas": 66,
-          "n_alunos": 8238
+          "ideb": 5.19,
+          "n_escolas": 72,
+          "n_alunos": 8787
         },
         "EM": {
-          "ideb": 4.69,
+          "ideb": 4.66,
           "n_escolas": 23,
-          "n_alunos": 4534
+          "n_alunos": 4535
         }
       },
       "04": {
         "AI": {
-          "ideb": 6.39,
-          "n_escolas": 184,
-          "n_alunos": 33735
+          "ideb": 6.37,
+          "n_escolas": 190,
+          "n_alunos": 33582
         },
         "AF": {
-          "ideb": 5.23,
-          "n_escolas": 137,
-          "n_alunos": 19372
+          "ideb": 5.15,
+          "n_escolas": 140,
+          "n_alunos": 20505
         },
         "EM": {
-          "ideb": 4.69,
+          "ideb": 4.54,
           "n_escolas": 23,
-          "n_alunos": 5232
+          "n_alunos": 4894
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.74,
-          "n_escolas": 93,
-          "n_alunos": 14255
+          "ideb": 5.72,
+          "n_escolas": 101,
+          "n_alunos": 14872
         },
         "AF": {
-          "ideb": 4.55,
-          "n_escolas": 64,
-          "n_alunos": 7664
+          "ideb": 4.49,
+          "n_escolas": 70,
+          "n_alunos": 9351
         },
         "EM": {
-          "ideb": 4.16,
+          "ideb": 4.14,
           "n_escolas": 6,
-          "n_alunos": 1329
+          "n_alunos": 1524
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.6,
-          "n_escolas": 79,
-          "n_alunos": 11819
+          "ideb": 6.65,
+          "n_escolas": 85,
+          "n_alunos": 10770
         },
         "AF": {
-          "ideb": 5.14,
-          "n_escolas": 60,
-          "n_alunos": 7160
+          "ideb": 5.19,
+          "n_escolas": 68,
+          "n_alunos": 8051
         },
         "EM": {
-          "ideb": 4.48,
+          "ideb": 4.5,
           "n_escolas": 33,
-          "n_alunos": 3354
+          "n_alunos": 4181
         }
       },
       "11": {
         "AI": {
-          "ideb": 5.76,
-          "n_escolas": 101,
-          "n_alunos": 19073
+          "ideb": 5.74,
+          "n_escolas": 104,
+          "n_alunos": 18229
         },
         "AF": {
-          "ideb": 4.63,
-          "n_escolas": 78,
-          "n_alunos": 10800
+          "ideb": 4.64,
+          "n_escolas": 79,
+          "n_alunos": 10734
         },
         "EM": {
           "ideb": 3.92,
           "n_escolas": 14,
-          "n_alunos": 2184
+          "n_alunos": 2388
         }
       },
       "21": {
         "AI": {
-          "ideb": 6.01,
-          "n_escolas": 42,
-          "n_alunos": 5840
+          "ideb": 6.07,
+          "n_escolas": 49,
+          "n_alunos": 5092
         },
         "AF": {
-          "ideb": 5.0,
-          "n_escolas": 34,
-          "n_alunos": 3748
+          "ideb": 4.98,
+          "n_escolas": 36,
+          "n_alunos": 3733
         },
         "EM": {
-          "ideb": 4.34,
+          "ideb": 4.26,
           "n_escolas": 13,
-          "n_alunos": 1758
+          "n_alunos": 2113
         }
       },
       "09": {
         "AI": {
-          "ideb": 6.07,
-          "n_escolas": 38,
-          "n_alunos": 5164
+          "ideb": 6.08,
+          "n_escolas": 39,
+          "n_alunos": 5050
         },
         "AF": {
-          "ideb": 4.69,
-          "n_escolas": 24,
-          "n_alunos": 3035
+          "ideb": 4.73,
+          "n_escolas": 25,
+          "n_alunos": 3144
         },
         "EM": {
-          "ideb": 4.79,
+          "ideb": 4.76,
           "n_escolas": 9,
-          "n_alunos": 1416
+          "n_alunos": 1389
         }
       },
       "23": {
         "AI": {
-          "ideb": 6.08,
+          "ideb": 6.0,
           "n_escolas": 24,
-          "n_alunos": 3951
+          "n_alunos": 3963
         },
         "AF": {
-          "ideb": 4.69,
+          "ideb": 4.64,
           "n_escolas": 21,
-          "n_alunos": 2758
+          "n_alunos": 3063
         },
         "EM": {
-          "ideb": 4.64,
+          "ideb": 4.58,
           "n_escolas": 9,
-          "n_alunos": 1296
+          "n_alunos": 1455
         }
       },
       "06": {
         "AI": {
-          "ideb": 6.24,
-          "n_escolas": 102,
-          "n_alunos": 13442
+          "ideb": 6.27,
+          "n_escolas": 107,
+          "n_alunos": 13031
         },
         "AF": {
-          "ideb": 4.9,
+          "ideb": 4.85,
           "n_escolas": 99,
-          "n_alunos": 10435
+          "n_alunos": 11934
         },
         "EM": {
-          "ideb": 4.59,
-          "n_escolas": 25,
-          "n_alunos": 5012
+          "ideb": 4.54,
+          "n_escolas": 26,
+          "n_alunos": 5920
         }
       },
       "32": {
         "AI": {
           "ideb": 5.99,
           "n_escolas": 28,
-          "n_alunos": 2746
+          "n_alunos": 2594
         },
         "AF": {
-          "ideb": 4.8,
+          "ideb": 4.76,
           "n_escolas": 27,
-          "n_alunos": 2149
+          "n_alunos": 2465
         },
         "EM": {
-          "ideb": 4.52,
+          "ideb": 4.48,
           "n_escolas": 9,
-          "n_alunos": 973
+          "n_alunos": 1196
         }
       },
       "08": {
         "AI": {
           "ideb": 5.95,
-          "n_escolas": 100,
-          "n_alunos": 12158
+          "n_escolas": 105,
+          "n_alunos": 13161
         },
         "AF": {
-          "ideb": 4.82,
-          "n_escolas": 61,
-          "n_alunos": 7492
+          "ideb": 4.8,
+          "n_escolas": 63,
+          "n_alunos": 8207
         },
         "EM": {
-          "ideb": 4.28,
+          "ideb": 4.17,
           "n_escolas": 18,
-          "n_alunos": 2561
+          "n_alunos": 2843
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.72,
-          "n_escolas": 100,
-          "n_alunos": 21632
+          "ideb": 5.69,
+          "n_escolas": 102,
+          "n_alunos": 22515
         },
         "AF": {
-          "ideb": 4.61,
-          "n_escolas": 82,
-          "n_alunos": 15089
+          "ideb": 4.59,
+          "n_escolas": 84,
+          "n_alunos": 16627
         },
         "EM": {
-          "ideb": 3.97,
+          "ideb": 3.91,
           "n_escolas": 3,
-          "n_alunos": 755
+          "n_alunos": 943
         }
       },
       "35": {
         "AI": {
-          "ideb": 6.01,
-          "n_escolas": 33,
-          "n_alunos": 3945
+          "ideb": 6.04,
+          "n_escolas": 34,
+          "n_alunos": 4000
         },
         "AF": {
-          "ideb": 4.39,
+          "ideb": 4.29,
           "n_escolas": 16,
-          "n_alunos": 2112
+          "n_alunos": 2348
         },
         "EM": {
           "ideb": 4.9,
           "n_escolas": 1,
-          "n_alunos": 390
+          "n_alunos": 323
         }
       },
       "14": {
         "AI": {
-          "ideb": 6.03,
-          "n_escolas": 33,
-          "n_alunos": 4356
+          "ideb": 6.01,
+          "n_escolas": 35,
+          "n_alunos": 4367
         },
         "AF": {
           "ideb": 4.79,
-          "n_escolas": 30,
-          "n_alunos": 3051
+          "n_escolas": 31,
+          "n_alunos": 3470
         },
         "EM": {
-          "ideb": 4.99,
+          "ideb": 4.91,
           "n_escolas": 7,
-          "n_alunos": 782
+          "n_alunos": 855
         }
       },
       "18": {
         "AI": {
-          "ideb": 5.29,
-          "n_escolas": 43,
-          "n_alunos": 6703
+          "ideb": 5.25,
+          "n_escolas": 45,
+          "n_alunos": 7130
         },
         "AF": {
-          "ideb": 4.29,
+          "ideb": 4.22,
           "n_escolas": 27,
-          "n_alunos": 3307
+          "n_alunos": 4038
         },
         "EM": {
-          "ideb": 4.71,
+          "ideb": 4.67,
           "n_escolas": 2,
-          "n_alunos": 611
+          "n_alunos": 696
         }
       },
       "01": {
         "AI": {
-          "ideb": 5.29,
-          "n_escolas": 141,
-          "n_alunos": 30457
+          "ideb": 5.31,
+          "n_escolas": 144,
+          "n_alunos": 35245
         },
         "AF": {
-          "ideb": 4.27,
-          "n_escolas": 85,
-          "n_alunos": 15631
+          "ideb": 4.23,
+          "n_escolas": 87,
+          "n_alunos": 17822
         },
         "EM": {
-          "ideb": 4.28,
+          "ideb": 4.4,
           "n_escolas": 8,
-          "n_alunos": 1972
+          "n_alunos": 2072
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.66,
+          "ideb": 5.65,
           "n_escolas": 33,
-          "n_alunos": 5652
+          "n_alunos": 5552
         },
         "AF": {
-          "ideb": 4.53,
+          "ideb": 4.46,
           "n_escolas": 25,
-          "n_alunos": 3397
+          "n_alunos": 3803
         },
         "EM": {
           "ideb": 5.27,
           "n_escolas": 2,
-          "n_alunos": 279
+          "n_alunos": 315
         }
       }
     },
     "2021": {
       "13": {
         "AI": {
-          "ideb": 5.52,
-          "n_escolas": 45,
-          "n_alunos": 5883
+          "ideb": 5.51,
+          "n_escolas": 46,
+          "n_alunos": 6046
         },
         "AF": {
-          "ideb": 5.03,
+          "ideb": 4.98,
           "n_escolas": 25,
-          "n_alunos": 3185
+          "n_alunos": 3424
         },
         "EM": {
           "ideb": 3.6,
           "n_escolas": 1,
-          "n_alunos": 91
+          "n_alunos": 113
         }
       },
       "07": {
         "AI": {
-          "ideb": 5.91,
-          "n_escolas": 96,
-          "n_alunos": 16561
+          "ideb": 5.93,
+          "n_escolas": 99,
+          "n_alunos": 15821
         },
         "AF": {
-          "ideb": 5.25,
-          "n_escolas": 58,
-          "n_alunos": 6895
+          "ideb": 5.24,
+          "n_escolas": 59,
+          "n_alunos": 6731
         },
         "EM": {
-          "ideb": 5.28,
+          "ideb": 5.26,
           "n_escolas": 6,
-          "n_alunos": 1037
+          "n_alunos": 1157
         }
       },
       "24": {
         "AI": {
-          "ideb": 6.13,
+          "ideb": 6.14,
           "n_escolas": 51,
-          "n_alunos": 5275
+          "n_alunos": 5459
         },
         "AF": {
-          "ideb": 5.27,
+          "ideb": 5.22,
           "n_escolas": 30,
-          "n_alunos": 2462
+          "n_alunos": 2800
         },
         "EM": {
-          "ideb": 4.67,
+          "ideb": 4.65,
           "n_escolas": 6,
-          "n_alunos": 1037
+          "n_alunos": 1114
         }
       },
       "36": {
         "AI": {
           "ideb": 6.52,
-          "n_escolas": 52,
-          "n_alunos": 7934
+          "n_escolas": 53,
+          "n_alunos": 7737
         },
         "AF": {
-          "ideb": 5.71,
-          "n_escolas": 37,
-          "n_alunos": 4591
+          "ideb": 5.69,
+          "n_escolas": 38,
+          "n_alunos": 4433
         },
         "EM": {
-          "ideb": 5.89,
+          "ideb": 5.61,
           "n_escolas": 4,
-          "n_alunos": 490
+          "n_alunos": 569
         }
       },
       "17": {
         "AI": {
           "ideb": 6.45,
-          "n_escolas": 69,
-          "n_alunos": 10149
+          "n_escolas": 72,
+          "n_alunos": 9405
         },
         "AF": {
           "ideb": 5.52,
           "n_escolas": 41,
-          "n_alunos": 5472
+          "n_alunos": 5431
         },
         "EM": {
-          "ideb": 5.01,
+          "ideb": 5.02,
           "n_escolas": 14,
-          "n_alunos": 1366
+          "n_alunos": 1740
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.79,
+          "ideb": 5.8,
           "n_escolas": 29,
-          "n_alunos": 4172
+          "n_alunos": 4401
         },
         "AF": {
-          "ideb": 5.3,
+          "ideb": 5.2,
           "n_escolas": 9,
-          "n_alunos": 1197
+          "n_alunos": 1128
         },
         "EM": {
           "ideb": 3.4,
           "n_escolas": 1,
-          "n_alunos": 129
+          "n_alunos": 206
         }
       },
       "20": {
         "AI": {
           "ideb": 6.27,
-          "n_escolas": 56,
-          "n_alunos": 6716
+          "n_escolas": 61,
+          "n_alunos": 6756
         },
         "AF": {
-          "ideb": 5.71,
-          "n_escolas": 31,
-          "n_alunos": 3194
+          "ideb": 5.67,
+          "n_escolas": 33,
+          "n_alunos": 3143
         },
         "EM": {
-          "ideb": 4.32,
+          "ideb": 4.34,
           "n_escolas": 10,
-          "n_alunos": 995
+          "n_alunos": 1179
         }
       },
       "25": {
         "AI": {
-          "ideb": 6.08,
+          "ideb": 6.06,
           "n_escolas": 44,
-          "n_alunos": 4635
+          "n_alunos": 4433
         },
         "AF": {
-          "ideb": 5.32,
+          "ideb": 5.28,
           "n_escolas": 25,
-          "n_alunos": 2117
+          "n_alunos": 2296
         },
         "EM": {
-          "ideb": 4.42,
+          "ideb": 4.46,
           "n_escolas": 7,
-          "n_alunos": 554
+          "n_alunos": 667
         }
       },
       "02": {
         "AI": {
-          "ideb": 6.2,
-          "n_escolas": 240,
-          "n_alunos": 44244
+          "ideb": 6.19,
+          "n_escolas": 241,
+          "n_alunos": 43826
         },
         "AF": {
-          "ideb": 5.54,
-          "n_escolas": 116,
-          "n_alunos": 18209
+          "ideb": 5.5,
+          "n_escolas": 117,
+          "n_alunos": 18653
         },
         "EM": {
-          "ideb": 4.47,
+          "ideb": 4.48,
           "n_escolas": 10,
-          "n_alunos": 980
+          "n_alunos": 1226
         }
       },
       "28": {
         "AI": {
-          "ideb": 5.47,
-          "n_escolas": 78,
-          "n_alunos": 15741
+          "ideb": 5.51,
+          "n_escolas": 79,
+          "n_alunos": 15282
         },
         "AF": {
-          "ideb": 4.88,
-          "n_escolas": 25,
-          "n_alunos": 4421
+          "ideb": 4.92,
+          "n_escolas": 27,
+          "n_alunos": 4517
         },
         "EM": {
-          "ideb": 4.39,
+          "ideb": 4.28,
           "n_escolas": 3,
-          "n_alunos": 571
+          "n_alunos": 545
         }
       },
       "05": {
         "AI": {
-          "ideb": 5.75,
+          "ideb": 5.76,
           "n_escolas": 51,
-          "n_alunos": 4813
+          "n_alunos": 4957
         },
         "AF": {
-          "ideb": 4.96,
+          "ideb": 4.95,
           "n_escolas": 42,
-          "n_alunos": 3488
+          "n_alunos": 3866
         },
         "EM": {
-          "ideb": 4.73,
+          "ideb": 4.63,
           "n_escolas": 2,
-          "n_alunos": 186
+          "n_alunos": 213
         }
       },
       "16": {
         "AI": {
-          "ideb": 6.48,
-          "n_escolas": 77,
-          "n_alunos": 12975
+          "ideb": 6.42,
+          "n_escolas": 78,
+          "n_alunos": 11447
         },
         "AF": {
-          "ideb": 5.7,
+          "ideb": 5.68,
           "n_escolas": 43,
-          "n_alunos": 5526
+          "n_alunos": 5131
         },
         "EM": {
-          "ideb": 5.18,
+          "ideb": 5.13,
           "n_escolas": 10,
-          "n_alunos": 1090
+          "n_alunos": 954
         }
       },
       "03": {
         "AI": {
           "ideb": 6.25,
-          "n_escolas": 96,
-          "n_alunos": 13146
+          "n_escolas": 98,
+          "n_alunos": 12551
         },
         "AF": {
-          "ideb": 5.52,
-          "n_escolas": 58,
-          "n_alunos": 7293
+          "ideb": 5.5,
+          "n_escolas": 60,
+          "n_alunos": 6733
         },
         "EM": {
-          "ideb": 5.37,
+          "ideb": 5.22,
           "n_escolas": 12,
-          "n_alunos": 1282
+          "n_alunos": 1096
         }
       },
       "04": {
         "AI": {
-          "ideb": 6.43,
-          "n_escolas": 145,
-          "n_alunos": 26272
+          "ideb": 6.41,
+          "n_escolas": 147,
+          "n_alunos": 25351
         },
         "AF": {
-          "ideb": 5.8,
-          "n_escolas": 82,
-          "n_alunos": 10818
+          "ideb": 5.77,
+          "n_escolas": 84,
+          "n_alunos": 11120
         },
         "EM": {
-          "ideb": 5.13,
+          "ideb": 5.12,
           "n_escolas": 3,
-          "n_alunos": 208
+          "n_alunos": 301
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.65,
-          "n_escolas": 59,
-          "n_alunos": 8208
+          "ideb": 5.64,
+          "n_escolas": 64,
+          "n_alunos": 8440
         },
         "AF": {
-          "ideb": 4.81,
-          "n_escolas": 40,
-          "n_alunos": 3637
+          "ideb": 4.82,
+          "n_escolas": 42,
+          "n_alunos": 4314
         },
         "EM": {
-          "ideb": 4.08,
+          "ideb": 4.07,
           "n_escolas": 4,
-          "n_alunos": 796
+          "n_alunos": 962
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.53,
-          "n_escolas": 72,
-          "n_alunos": 10889
+          "ideb": 6.54,
+          "n_escolas": 75,
+          "n_alunos": 10246
         },
         "AF": {
-          "ideb": 5.51,
-          "n_escolas": 56,
-          "n_alunos": 6475
+          "ideb": 5.55,
+          "n_escolas": 59,
+          "n_alunos": 6389
         },
         "EM": {
           "ideb": 4.73,
           "n_escolas": 16,
-          "n_alunos": 1347
+          "n_alunos": 1559
         }
       },
       "11": {
         "AI": {
-          "ideb": 6.08,
-          "n_escolas": 71,
-          "n_alunos": 11285
+          "ideb": 6.07,
+          "n_escolas": 72,
+          "n_alunos": 10816
         },
         "AF": {
-          "ideb": 5.32,
-          "n_escolas": 36,
-          "n_alunos": 4099
+          "ideb": 5.33,
+          "n_escolas": 37,
+          "n_alunos": 4063
         },
         "EM": {
           "ideb": 4.69,
           "n_escolas": 3,
-          "n_alunos": 415
+          "n_alunos": 444
         }
       },
       "21": {
         "AI": {
-          "ideb": 6.03,
-          "n_escolas": 35,
-          "n_alunos": 5075
+          "ideb": 6.05,
+          "n_escolas": 36,
+          "n_alunos": 4778
         },
         "AF": {
-          "ideb": 5.01,
-          "n_escolas": 26,
-          "n_alunos": 2638
+          "ideb": 4.98,
+          "n_escolas": 28,
+          "n_alunos": 2573
         },
         "EM": {
-          "ideb": 4.36,
+          "ideb": 4.34,
           "n_escolas": 7,
-          "n_alunos": 589
+          "n_alunos": 661
         }
       },
       "39": {
         "AI": {
-          "ideb": 6.3,
-          "n_escolas": 51,
-          "n_alunos": 6165
+          "ideb": 6.29,
+          "n_escolas": 53,
+          "n_alunos": 6416
         },
         "AF": {
-          "ideb": 5.52,
-          "n_escolas": 21,
-          "n_alunos": 2184
+          "ideb": 5.51,
+          "n_escolas": 22,
+          "n_alunos": 2127
         },
         "EM": {
-          "ideb": 4.91,
+          "ideb": 4.92,
           "n_escolas": 6,
-          "n_alunos": 810
+          "n_alunos": 826
         }
       },
       "09": {
         "AI": {
-          "ideb": 6.01,
+          "ideb": 6.04,
           "n_escolas": 33,
-          "n_alunos": 4197
+          "n_alunos": 4306
         },
         "AF": {
-          "ideb": 5.16,
-          "n_escolas": 19,
-          "n_alunos": 1864
+          "ideb": 5.09,
+          "n_escolas": 20,
+          "n_alunos": 2005
         },
         "EM": {
-          "ideb": 2.76,
+          "ideb": 2.85,
           "n_escolas": 2,
-          "n_alunos": 203
+          "n_alunos": 221
         }
       },
       "23": {
         "AI": {
-          "ideb": 5.95,
+          "ideb": 5.94,
           "n_escolas": 19,
-          "n_alunos": 3143
+          "n_alunos": 3056
         },
         "AF": {
-          "ideb": 5.55,
+          "ideb": 5.35,
           "n_escolas": 9,
-          "n_alunos": 1164
+          "n_alunos": 978
         }
       },
       "06": {
         "AI": {
-          "ideb": 6.15,
-          "n_escolas": 101,
-          "n_alunos": 13244
+          "ideb": 6.14,
+          "n_escolas": 104,
+          "n_alunos": 12881
         },
         "AF": {
-          "ideb": 5.28,
-          "n_escolas": 68,
-          "n_alunos": 7006
+          "ideb": 5.27,
+          "n_escolas": 69,
+          "n_alunos": 7354
         },
         "EM": {
-          "ideb": 4.65,
+          "ideb": 4.66,
           "n_escolas": 6,
-          "n_alunos": 1094
+          "n_alunos": 1253
         }
       },
       "32": {
         "AI": {
-          "ideb": 6.09,
+          "ideb": 6.08,
           "n_escolas": 33,
-          "n_alunos": 2988
+          "n_alunos": 3013
         },
         "AF": {
-          "ideb": 5.39,
-          "n_escolas": 20,
-          "n_alunos": 1543
+          "ideb": 5.3,
+          "n_escolas": 21,
+          "n_alunos": 1717
         },
         "EM": {
-          "ideb": 4.81,
+          "ideb": 4.82,
           "n_escolas": 7,
-          "n_alunos": 706
+          "n_alunos": 862
         }
       },
       "08": {
         "AI": {
-          "ideb": 5.8,
-          "n_escolas": 70,
-          "n_alunos": 8398
+          "ideb": 5.81,
+          "n_escolas": 73,
+          "n_alunos": 9050
         },
         "AF": {
-          "ideb": 5.38,
+          "ideb": 5.36,
           "n_escolas": 37,
-          "n_alunos": 3840
+          "n_alunos": 3924
         },
         "EM": {
-          "ideb": 5.62,
+          "ideb": 5.49,
           "n_escolas": 4,
-          "n_alunos": 467
+          "n_alunos": 496
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.71,
-          "n_escolas": 63,
-          "n_alunos": 14128
+          "ideb": 5.73,
+          "n_escolas": 66,
+          "n_alunos": 14562
         },
         "AF": {
-          "ideb": 5.01,
-          "n_escolas": 34,
-          "n_alunos": 5808
+          "ideb": 4.96,
+          "n_escolas": 35,
+          "n_alunos": 6168
         }
       },
       "35": {
         "AI": {
-          "ideb": 5.96,
-          "n_escolas": 27,
-          "n_alunos": 3680
+          "ideb": 6.03,
+          "n_escolas": 28,
+          "n_alunos": 3553
         },
         "AF": {
-          "ideb": 4.73,
+          "ideb": 4.71,
           "n_escolas": 10,
-          "n_alunos": 717
+          "n_alunos": 822
         },
         "EM": {
           "ideb": 3.9,
           "n_escolas": 1,
-          "n_alunos": 56
+          "n_alunos": 85
         }
       },
       "14": {
         "AI": {
-          "ideb": 6.04,
-          "n_escolas": 31,
-          "n_alunos": 4132
+          "ideb": 6.03,
+          "n_escolas": 32,
+          "n_alunos": 4123
         },
         "AF": {
-          "ideb": 5.31,
-          "n_escolas": 19,
-          "n_alunos": 2088
+          "ideb": 5.32,
+          "n_escolas": 20,
+          "n_alunos": 2066
         },
         "EM": {
-          "ideb": 6.28,
+          "ideb": 6.3,
           "n_escolas": 2,
-          "n_alunos": 343
+          "n_alunos": 327
         }
       },
       "18": {
         "AI": {
-          "ideb": 5.51,
+          "ideb": 5.44,
           "n_escolas": 8,
-          "n_alunos": 866
+          "n_alunos": 893
         },
         "AF": {
-          "ideb": 5.1,
+          "ideb": 5.07,
           "n_escolas": 7,
-          "n_alunos": 713
+          "n_alunos": 797
         }
       },
       "01": {
         "AI": {
           "ideb": 5.47,
-          "n_escolas": 61,
-          "n_alunos": 10150
+          "n_escolas": 62,
+          "n_alunos": 10552
         },
         "AF": {
-          "ideb": 4.64,
+          "ideb": 4.66,
           "n_escolas": 25,
-          "n_alunos": 3539
+          "n_alunos": 3249
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.9,
+          "ideb": 5.92,
           "n_escolas": 28,
-          "n_alunos": 4258
+          "n_alunos": 4157
         },
         "AF": {
-          "ideb": 5.09,
+          "ideb": 5.08,
           "n_escolas": 19,
-          "n_alunos": 2530
+          "n_alunos": 2605
         },
         "EM": {
           "ideb": 6.1,
           "n_escolas": 1,
-          "n_alunos": 179
+          "n_alunos": 201
         }
       }
     },
     "2023": {
       "13": {
         "AI": {
-          "ideb": 5.66,
+          "ideb": 5.67,
           "n_escolas": 66,
-          "n_alunos": 8631
+          "n_alunos": 8625
         },
         "AF": {
-          "ideb": 4.64,
+          "ideb": 4.6,
           "n_escolas": 45,
-          "n_alunos": 5167
+          "n_alunos": 5456
         },
         "EM": {
-          "ideb": 3.99,
+          "ideb": 4.01,
           "n_escolas": 7,
-          "n_alunos": 804
+          "n_alunos": 934
         }
       },
       "07": {
         "AI": {
           "ideb": 6.09,
           "n_escolas": 106,
-          "n_alunos": 18278
+          "n_alunos": 17823
         },
         "AF": {
-          "ideb": 5.01,
-          "n_escolas": 93,
-          "n_alunos": 12728
+          "ideb": 4.99,
+          "n_escolas": 94,
+          "n_alunos": 12426
         },
         "EM": {
-          "ideb": 4.42,
+          "ideb": 4.41,
           "n_escolas": 27,
-          "n_alunos": 3743
+          "n_alunos": 3870
         }
       },
       "24": {
         "AI": {
-          "ideb": 6.06,
+          "ideb": 6.05,
           "n_escolas": 54,
-          "n_alunos": 6166
+          "n_alunos": 6177
         },
         "AF": {
-          "ideb": 4.98,
+          "ideb": 4.94,
           "n_escolas": 47,
-          "n_alunos": 4052
+          "n_alunos": 4501
         },
         "EM": {
-          "ideb": 4.58,
+          "ideb": 4.55,
           "n_escolas": 10,
-          "n_alunos": 1478
+          "n_alunos": 1684
         }
       },
       "36": {
         "AI": {
-          "ideb": 6.59,
+          "ideb": 6.58,
           "n_escolas": 58,
-          "n_alunos": 8887
+          "n_alunos": 8839
         },
         "AF": {
-          "ideb": 5.5,
+          "ideb": 5.49,
           "n_escolas": 50,
-          "n_alunos": 6172
+          "n_alunos": 5991
         },
         "EM": {
-          "ideb": 4.62,
+          "ideb": 4.56,
           "n_escolas": 19,
-          "n_alunos": 3191
+          "n_alunos": 3620
         }
       },
       "17": {
         "AI": {
-          "ideb": 6.54,
-          "n_escolas": 72,
-          "n_alunos": 10798
+          "ideb": 6.55,
+          "n_escolas": 74,
+          "n_alunos": 10454
         },
         "AF": {
-          "ideb": 5.26,
+          "ideb": 5.25,
           "n_escolas": 59,
-          "n_alunos": 7429
+          "n_alunos": 7361
         },
         "EM": {
-          "ideb": 4.54,
+          "ideb": 4.5,
           "n_escolas": 22,
-          "n_alunos": 3304
+          "n_alunos": 3506
         }
       },
       "10": {
         "AI": {
-          "ideb": 5.55,
+          "ideb": 5.54,
           "n_escolas": 50,
-          "n_alunos": 8574
+          "n_alunos": 8592
         },
         "AF": {
-          "ideb": 4.71,
+          "ideb": 4.66,
           "n_escolas": 35,
-          "n_alunos": 4990
+          "n_alunos": 5286
         },
         "EM": {
-          "ideb": 3.82,
+          "ideb": 3.76,
           "n_escolas": 3,
-          "n_alunos": 672
+          "n_alunos": 790
         }
       },
       "20": {
         "AI": {
-          "ideb": 6.37,
-          "n_escolas": 74,
-          "n_alunos": 9005
+          "ideb": 6.36,
+          "n_escolas": 75,
+          "n_alunos": 8684
         },
         "AF": {
-          "ideb": 5.27,
-          "n_escolas": 61,
-          "n_alunos": 6344
+          "ideb": 5.23,
+          "n_escolas": 62,
+          "n_alunos": 6348
         },
         "EM": {
-          "ideb": 4.43,
+          "ideb": 4.38,
           "n_escolas": 32,
-          "n_alunos": 4768
+          "n_alunos": 5257
         }
       },
       "25": {
         "AI": {
-          "ideb": 6.46,
+          "ideb": 6.45,
           "n_escolas": 45,
-          "n_alunos": 4783
+          "n_alunos": 4785
         },
         "AF": {
-          "ideb": 5.08,
+          "ideb": 5.07,
           "n_escolas": 41,
-          "n_alunos": 3820
+          "n_alunos": 3818
         },
         "EM": {
-          "ideb": 3.91,
+          "ideb": 3.93,
           "n_escolas": 15,
-          "n_alunos": 1582
+          "n_alunos": 1951
         }
       },
       "02": {
         "AI": {
-          "ideb": 6.15,
-          "n_escolas": 323,
-          "n_alunos": 59659
+          "ideb": 6.14,
+          "n_escolas": 325,
+          "n_alunos": 59911
         },
         "AF": {
-          "ideb": 5.21,
+          "ideb": 5.19,
           "n_escolas": 236,
-          "n_alunos": 40040
+          "n_alunos": 40336
         },
         "EM": {
-          "ideb": 4.14,
+          "ideb": 4.11,
           "n_escolas": 52,
-          "n_alunos": 14217
+          "n_alunos": 15487
         }
       },
       "28": {
         "AI": {
-          "ideb": 5.44,
-          "n_escolas": 177,
-          "n_alunos": 42401
+          "ideb": 5.43,
+          "n_escolas": 178,
+          "n_alunos": 44015
         },
         "AF": {
-          "ideb": 4.38,
-          "n_escolas": 102,
-          "n_alunos": 20510
+          "ideb": 4.36,
+          "n_escolas": 105,
+          "n_alunos": 20828
         },
         "EM": {
-          "ideb": 3.78,
+          "ideb": 3.76,
           "n_escolas": 9,
-          "n_alunos": 2364
+          "n_alunos": 2678
         }
       },
       "05": {
         "AI": {
-          "ideb": 5.29,
-          "n_escolas": 127,
-          "n_alunos": 17545
+          "ideb": 5.28,
+          "n_escolas": 128,
+          "n_alunos": 17839
         },
         "AF": {
-          "ideb": 4.42,
+          "ideb": 4.43,
           "n_escolas": 87,
-          "n_alunos": 10263
+          "n_alunos": 10809
         },
         "EM": {
-          "ideb": 4.26,
+          "ideb": 4.21,
           "n_escolas": 13,
-          "n_alunos": 1727
+          "n_alunos": 2104
         }
       },
       "16": {
         "AI": {
           "ideb": 6.5,
-          "n_escolas": 89,
-          "n_alunos": 14695
+          "n_escolas": 90,
+          "n_alunos": 13938
         },
         "AF": {
-          "ideb": 5.59,
+          "ideb": 5.55,
           "n_escolas": 71,
-          "n_alunos": 9609
+          "n_alunos": 9190
         },
         "EM": {
-          "ideb": 4.52,
+          "ideb": 4.44,
           "n_escolas": 15,
-          "n_alunos": 2366
+          "n_alunos": 2512
         }
       },
       "03": {
         "AI": {
-          "ideb": 6.43,
-          "n_escolas": 97,
-          "n_alunos": 14220
+          "ideb": 6.4,
+          "n_escolas": 98,
+          "n_alunos": 14105
         },
         "AF": {
-          "ideb": 5.38,
+          "ideb": 5.36,
           "n_escolas": 86,
-          "n_alunos": 10851
+          "n_alunos": 10364
         },
         "EM": {
-          "ideb": 4.57,
+          "ideb": 4.56,
           "n_escolas": 26,
-          "n_alunos": 4325
+          "n_alunos": 4434
         }
       },
       "04": {
         "AI": {
           "ideb": 6.2,
-          "n_escolas": 188,
-          "n_alunos": 34051
+          "n_escolas": 190,
+          "n_alunos": 33763
         },
         "AF": {
-          "ideb": 5.34,
-          "n_escolas": 133,
-          "n_alunos": 18829
+          "ideb": 5.32,
+          "n_escolas": 136,
+          "n_alunos": 18868
         },
         "EM": {
-          "ideb": 4.23,
+          "ideb": 4.21,
           "n_escolas": 18,
-          "n_alunos": 5957
+          "n_alunos": 6271
         }
       },
       "12": {
         "AI": {
-          "ideb": 5.58,
-          "n_escolas": 119,
-          "n_alunos": 18806
+          "ideb": 5.56,
+          "n_escolas": 121,
+          "n_alunos": 19116
         },
         "AF": {
-          "ideb": 4.68,
-          "n_escolas": 99,
-          "n_alunos": 12417
+          "ideb": 4.66,
+          "n_escolas": 101,
+          "n_alunos": 13076
         },
         "EM": {
-          "ideb": 3.85,
+          "ideb": 3.84,
           "n_escolas": 23,
-          "n_alunos": 5218
+          "n_alunos": 6325
         }
       },
       "15": {
         "AI": {
-          "ideb": 6.63,
+          "ideb": 6.65,
           "n_escolas": 89,
-          "n_alunos": 12750
+          "n_alunos": 12056
         },
         "AF": {
           "ideb": 5.48,
-          "n_escolas": 81,
-          "n_alunos": 9432
+          "n_escolas": 82,
+          "n_alunos": 9284
         },
         "EM": {
-          "ideb": 4.62,
+          "ideb": 4.54,
           "n_escolas": 35,
-          "n_alunos": 4230
+          "n_alunos": 4622
         }
       },
       "11": {
         "AI": {
           "ideb": 5.81,
-          "n_escolas": 125,
-          "n_alunos": 23698
+          "n_escolas": 126,
+          "n_alunos": 23024
         },
         "AF": {
-          "ideb": 4.9,
-          "n_escolas": 99,
-          "n_alunos": 14663
+          "ideb": 4.91,
+          "n_escolas": 100,
+          "n_alunos": 14814
         },
         "EM": {
-          "ideb": 4.3,
+          "ideb": 4.29,
           "n_escolas": 27,
-          "n_alunos": 7387
+          "n_alunos": 7782
         }
       },
       "39": {
         "AI": {
-          "ideb": 6.39,
-          "n_escolas": 63,
-          "n_alunos": 7100
+          "ideb": 6.38,
+          "n_escolas": 64,
+          "n_alunos": 7217
         },
         "AF": {
-          "ideb": 5.22,
+          "ideb": 5.2,
           "n_escolas": 49,
-          "n_alunos": 5521
+          "n_alunos": 5444
         },
         "EM": {
-          "ideb": 4.45,
+          "ideb": 4.42,
           "n_escolas": 17,
-          "n_alunos": 2056
+          "n_alunos": 2142
         }
       },
       "09": {
         "AI": {
-          "ideb": 6.15,
-          "n_escolas": 54,
-          "n_alunos": 6431
+          "ideb": 6.09,
+          "n_escolas": 55,
+          "n_alunos": 6504
         },
         "AF": {
-          "ideb": 4.7,
+          "ideb": 4.68,
           "n_escolas": 39,
-          "n_alunos": 4662
+          "n_alunos": 4718
         },
         "EM": {
-          "ideb": 4.02,
+          "ideb": 3.92,
           "n_escolas": 15,
-          "n_alunos": 2530
+          "n_alunos": 2948
         }
       },
       "23": {
         "AI": {
           "ideb": 5.97,
           "n_escolas": 33,
-          "n_alunos": 5309
+          "n_alunos": 5227
         },
         "AF": {
-          "ideb": 5.05,
+          "ideb": 5.0,
           "n_escolas": 25,
-          "n_alunos": 3287
+          "n_alunos": 3343
         },
         "EM": {
           "ideb": 4.13,
           "n_escolas": 10,
-          "n_alunos": 1560
+          "n_alunos": 1912
         }
       },
       "06": {
         "AI": {
           "ideb": 6.31,
-          "n_escolas": 121,
-          "n_alunos": 16726
+          "n_escolas": 125,
+          "n_alunos": 16719
         },
         "AF": {
-          "ideb": 5.1,
+          "ideb": 5.08,
           "n_escolas": 99,
-          "n_alunos": 11077
+          "n_alunos": 11119
         },
         "EM": {
-          "ideb": 4.51,
-          "n_escolas": 26,
-          "n_alunos": 5657
+          "ideb": 4.5,
+          "n_escolas": 27,
+          "n_alunos": 6271
         }
       },
       "32": {
         "AI": {
-          "ideb": 6.28,
+          "ideb": 6.25,
           "n_escolas": 32,
-          "n_alunos": 3378
+          "n_alunos": 3335
         },
         "AF": {
-          "ideb": 5.03,
+          "ideb": 5.05,
           "n_escolas": 27,
-          "n_alunos": 2258
+          "n_alunos": 2260
         },
         "EM": {
-          "ideb": 4.34,
+          "ideb": 4.29,
           "n_escolas": 14,
-          "n_alunos": 1555
+          "n_alunos": 1878
         }
       },
       "21": {
         "AI": {
           "ideb": 6.25,
-          "n_escolas": 45,
-          "n_alunos": 6008
+          "n_escolas": 46,
+          "n_alunos": 5948
         },
         "AF": {
-          "ideb": 4.97,
-          "n_escolas": 40,
-          "n_alunos": 4281
+          "ideb": 4.91,
+          "n_escolas": 41,
+          "n_alunos": 4264
         },
         "EM": {
-          "ideb": 4.08,
+          "ideb": 4.06,
           "n_escolas": 20,
-          "n_alunos": 2502
+          "n_alunos": 2829
         }
       },
       "08": {
         "AI": {
-          "ideb": 5.88,
-          "n_escolas": 100,
-          "n_alunos": 13858
+          "ideb": 5.89,
+          "n_escolas": 101,
+          "n_alunos": 13844
         },
         "AF": {
-          "ideb": 4.74,
-          "n_escolas": 72,
-          "n_alunos": 9184
+          "ideb": 4.73,
+          "n_escolas": 73,
+          "n_alunos": 9608
         },
         "EM": {
           "ideb": 4.17,
-          "n_escolas": 20,
-          "n_alunos": 3410
+          "n_escolas": 21,
+          "n_alunos": 4119
         }
       },
       "27": {
         "AI": {
-          "ideb": 5.69,
+          "ideb": 5.68,
           "n_escolas": 139,
-          "n_alunos": 31033
+          "n_alunos": 32401
         },
         "AF": {
-          "ideb": 4.86,
-          "n_escolas": 119,
-          "n_alunos": 22512
+          "ideb": 4.85,
+          "n_escolas": 120,
+          "n_alunos": 23336
         },
         "EM": {
-          "ideb": 3.95,
+          "ideb": 3.91,
           "n_escolas": 21,
-          "n_alunos": 8119
+          "n_alunos": 8892
         }
       },
       "14": {
         "AI": {
-          "ideb": 6.02,
-          "n_escolas": 44,
-          "n_alunos": 5181
+          "ideb": 5.99,
+          "n_escolas": 45,
+          "n_alunos": 5244
         },
         "AF": {
-          "ideb": 4.96,
+          "ideb": 4.94,
           "n_escolas": 30,
-          "n_alunos": 3434
+          "n_alunos": 3489
         },
         "EM": {
-          "ideb": 4.56,
+          "ideb": 4.49,
           "n_escolas": 12,
-          "n_alunos": 2107
+          "n_alunos": 2346
         }
       },
       "18": {
         "AI": {
-          "ideb": 5.35,
+          "ideb": 5.33,
           "n_escolas": 54,
-          "n_alunos": 8464
+          "n_alunos": 8536
         },
         "AF": {
-          "ideb": 4.28,
+          "ideb": 4.25,
           "n_escolas": 24,
-          "n_alunos": 3370
+          "n_alunos": 3627
         },
         "EM": {
           "ideb": 3.97,
           "n_escolas": 5,
-          "n_alunos": 1731
+          "n_alunos": 1826
         }
       },
       "35": {
         "AI": {
-          "ideb": 6.03,
+          "ideb": 6.05,
           "n_escolas": 40,
-          "n_alunos": 5201
+          "n_alunos": 5197
         },
         "AF": {
-          "ideb": 4.89,
+          "ideb": 4.86,
           "n_escolas": 28,
-          "n_alunos": 3051
+          "n_alunos": 3274
         },
         "EM": {
-          "ideb": 4.22,
+          "ideb": 4.23,
           "n_escolas": 9,
-          "n_alunos": 1763
+          "n_alunos": 1902
         }
       },
       "01": {
         "AI": {
           "ideb": 5.04,
-          "n_escolas": 143,
-          "n_alunos": 28630
+          "n_escolas": 144,
+          "n_alunos": 30366
         },
         "AF": {
-          "ideb": 4.55,
-          "n_escolas": 71,
-          "n_alunos": 13302
+          "ideb": 4.52,
+          "n_escolas": 72,
+          "n_alunos": 14181
         },
         "EM": {
-          "ideb": 4.43,
+          "ideb": 4.39,
           "n_escolas": 9,
-          "n_alunos": 2909
+          "n_alunos": 3033
         }
       },
       "19": {
         "AI": {
-          "ideb": 5.62,
+          "ideb": 5.61,
           "n_escolas": 56,
-          "n_alunos": 8780
+          "n_alunos": 8640
         },
         "AF": {
-          "ideb": 4.57,
+          "ideb": 4.53,
           "n_escolas": 35,
-          "n_alunos": 4394
+          "n_alunos": 4519
         },
         "EM": {
-          "ideb": 4.28,
+          "ideb": 4.26,
           "n_escolas": 9,
-          "n_alunos": 1912
+          "n_alunos": 2188
         }
       }
     },
