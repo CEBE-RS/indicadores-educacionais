@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Privada RS",
-    "gerado_em": "2026-08-18T16:51:39.605015",
+    "gerado_em": "2026-08-20T08:52:03.672030",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
     "serie_temporal_fonte": "Valores oficiais agregados por UF/rede (INEP — divulgacao_regioes_ufs_ideb_2025). IDEB de rede = N x P calculado pelo INEP no nivel do aluno (nao e media das escolas)."
   },
@@ -364,112 +364,105 @@
         "EM": {
           "ideb": 5.3,
           "n_escolas": 1,
-          "n_alunos": 20
+          "n_alunos": 57
         }
       },
       "24": {
         "EM": {
-          "ideb": 6.25,
+          "ideb": 6.26,
           "n_escolas": 2,
-          "n_alunos": 93
+          "n_alunos": 297
         }
       },
       "06": {
         "EM": {
           "ideb": 5.9,
           "n_escolas": 1,
-          "n_alunos": 45
+          "n_alunos": 174
         }
       },
       "27": {
         "EM": {
           "ideb": 6.1,
           "n_escolas": 1,
-          "n_alunos": 30
+          "n_alunos": 171
         }
       },
       "39": {
         "EM": {
-          "ideb": 6.75,
+          "ideb": 6.82,
           "n_escolas": 2,
-          "n_alunos": 66
+          "n_alunos": 234
         }
       },
       "36": {
         "EM": {
           "ideb": 3.8,
           "n_escolas": 1,
-          "n_alunos": 24
+          "n_alunos": 102
         }
       },
       "04": {
         "EM": {
           "ideb": 6.7,
           "n_escolas": 1,
-          "n_alunos": 32
+          "n_alunos": 116
         }
       },
       "09": {
         "EM": {
           "ideb": 5.8,
           "n_escolas": 1,
-          "n_alunos": 25
-        }
-      },
-      "15": {
-        "EM": {
-          "ideb": 6.6,
-          "n_escolas": 1,
-          "n_alunos": 1
-        }
-      },
-      "02": {
-        "EM": {
-          "ideb": 6.15,
-          "n_escolas": 2,
-          "n_alunos": 2
+          "n_alunos": 96
         }
       },
       "03": {
         "EM": {
-          "ideb": 6.78,
+          "ideb": 6.83,
           "n_escolas": 3,
-          "n_alunos": 117
+          "n_alunos": 381
         }
       },
       "16": {
         "EM": {
-          "ideb": 6.51,
+          "ideb": 6.19,
           "n_escolas": 3,
-          "n_alunos": 26
+          "n_alunos": 245
+        }
+      },
+      "02": {
+        "EM": {
+          "ideb": 6.1,
+          "n_escolas": 1,
+          "n_alunos": 95
         }
       },
       "01": {
         "EM": {
-          "ideb": 6.37,
+          "ideb": 6.44,
           "n_escolas": 5,
-          "n_alunos": 415
+          "n_alunos": 1347
         }
       },
       "18": {
         "EM": {
           "ideb": 5.2,
           "n_escolas": 1,
-          "n_alunos": 59
+          "n_alunos": 190
         }
       },
       "19": {
         "EM": {
           "ideb": 5.6,
           "n_escolas": 1,
-          "n_alunos": 48
+          "n_alunos": 145
         }
       },
       "17": {
         "EM": {
-          "ideb": 6.58,
+          "ideb": 6.57,
           "n_escolas": 2,
-          "n_alunos": 65
+          "n_alunos": 244
         }
       }
     }

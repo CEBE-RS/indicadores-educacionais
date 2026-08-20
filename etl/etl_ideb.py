@@ -20,13 +20,14 @@ import json, os, time
 IDEB_DIR = os.path.join(BASE, "00. Bases de Dados", "02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)", "02. IDEB")
 MICRO_DIR = os.path.join(BASE, "00. Bases de Dados", "01. Acesso e Matrículas (Censo Escolar_2010_2025)", "01. extrações_2010_2025")
 
-# Colunas de matricula por SERIE AVALIADA no SAEB (Censo 2025), usadas como
-# peso da media ponderada por escola no nivel da CRE (regional).
-#   AI -> 5o ano do Fundamental | AF -> 9o ano | EM -> 3a serie do Medio
+# Colunas de matricula TOTAL da etapa (Censo 2025), usadas como peso da media
+# ponderada por escola no nivel da CRE (regional) — metodo SEDUC-RS: cada
+# indicador e ponderado pelas matriculas do segmento correspondente.
+#   AI -> total dos Anos Iniciais | AF -> total dos Anos Finais | EM -> total do Medio
 SERIE_COLS = {
-    "AI": ["QT_MAT_FUND_AI_5"],
-    "AF": ["QT_MAT_FUND_AF_9"],
-    "EM": ["QT_MAT_MED_NM_3", "QT_MAT_MED_PROP_3", "QT_MAT_MED_IFTP_CT_3"],
+    "AI": ["QT_MAT_FUND_AI"],
+    "AF": ["QT_MAT_FUND_AF"],
+    "EM": ["QT_MAT_MED"],
 }
 
 # Files and etapa config
@@ -318,7 +319,7 @@ def extract_mun_all_years_oficial(mun_df, esc_df, etapa_key, rede_rotulo):
     return por_ano, lookup
 
 def load_serie_weights():
-    """Peso por escola = matricula na SERIE AVALIADA (5o/9o/3oEM) no Censo 2025.
+    """Peso por escola = matricula TOTAL da etapa (AI/AF/EM) no Censo 2025.
     Retorna {id_escola: {'AI': n, 'AF': n, 'EM': n}}."""
     f = os.path.join(MICRO_DIR, "Tabela_Matricula_2025.csv")
     if not os.path.exists(f):
@@ -342,7 +343,7 @@ def load_serie_weights():
     for _, row in df.iterrows():
         eid = str(int(row["CO_ENTIDADE"]))
         weights[eid] = {et: soma(row, cols) for et, cols in SERIE_COLS.items()}
-    print(f"  Pesos (matricula por serie) carregados p/ {len(weights)} escolas (Censo 2025)")
+    print(f"  Pesos (matricula total da etapa) carregados p/ {len(weights)} escolas (Censo 2025)")
     return weights
 
 
@@ -359,8 +360,9 @@ def load_mun_to_cre():
 
 def extract_cre_all_years(df, etapa_key, rede_filter, weights, mun_to_cre):
     """IDEB por CRE, todos os anos: media PONDERADA das escolas pela matricula
-    na serie avaliada (peso). Fiel ao metodo da SEDUC-RS (media ponderada,
-    escola a escola), em vez de media simples de municipios."""
+    TOTAL da etapa (peso). Fiel ao metodo da SEDUC-RS (media ponderada por
+    volume de matriculas, escola a escola). Escolas sem nota OU sem matricula
+    na etapa sao desconsideradas do numerador e do denominador."""
     cfg = ETAPAS[etapa_key]
     if rede_filter:
         df = df[df["REDE"].isin(rede_filter)].copy()
@@ -384,7 +386,7 @@ def extract_cre_all_years(df, etapa_key, rede_filter, weights, mun_to_cre):
             eid = str(int(row["ID_ESCOLA"]))
             w = (weights.get(eid, {}) or {}).get(etapa_key, 0) or 0
             if w <= 0:
-                w = 1  # fallback: escola sem matricula 2025 na serie (ex.: fechada)
+                continue  # sem matricula na etapa: desconsiderada (num e denom)
             a = acc.setdefault(cre, [0.0, 0.0, 0])
             a[0] += row["_ideb"] * w
             a[1] += w
