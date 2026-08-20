@@ -318,33 +318,54 @@ def extract_mun_all_years_oficial(mun_df, esc_df, etapa_key, rede_rotulo):
 
     return por_ano, lookup
 
-def load_serie_weights():
-    """Peso por escola = matricula TOTAL da etapa (AI/AF/EM) no Censo 2025.
+def censo_year_for_ideb(ano):
+    """Ano do Censo cuja matricula pondera o IDEB do ano informado.
+    Usa o proprio ano; para 2005/2007/2009 (sem Censo na base) usa 2010."""
+    ano = int(ano)
+    return 2010 if ano < 2010 else ano
+
+
+def load_weights_for_year(censo_year):
+    """Peso por escola = matricula TOTAL da etapa (AI/AF/EM) no Censo do ano.
+    2025 -> Tabela_Matricula_2025.csv | demais -> microdados_ed_basica_AAAA.csv (RS).
     Retorna {id_escola: {'AI': n, 'AF': n, 'EM': n}}."""
-    f = os.path.join(MICRO_DIR, "Tabela_Matricula_2025.csv")
+    if censo_year == 2025:
+        f = os.path.join(MICRO_DIR, "Tabela_Matricula_2025.csv")
+        filtra_uf = False
+    else:
+        f = os.path.join(MICRO_DIR, f"microdados_ed_basica_{censo_year}.csv")
+        filtra_uf = True
     if not os.path.exists(f):
-        print(f"  [AVISO] {os.path.basename(f)} nao encontrada — por_cre usara peso 1 por escola")
+        print(f"  [AVISO] {os.path.basename(f)} nao encontrada — pesos {censo_year} vazios")
         return {}
+
     todas_cols = [c for cols in SERIE_COLS.values() for c in cols]
     h = pd.read_csv(f, sep=";", encoding="latin-1", nrows=0)
     use = ["CO_ENTIDADE"] + [c for c in todas_cols if c in h.columns]
+    if filtra_uf and "CO_UF" in h.columns:
+        use = ["CO_UF"] + use
     df = pd.read_csv(f, sep=";", encoding="latin-1", usecols=use)
+    if filtra_uf and "CO_UF" in df.columns:
+        df = df[df["CO_UF"] == 43]
 
-    def soma(row, cols):
-        tot = 0
-        for c in cols:
-            if c in df.columns:
-                v = row[c]
-                if not pd.isna(v):
-                    tot += int(v)
-        return tot
-
-    weights = {}
-    for _, row in df.iterrows():
-        eid = str(int(row["CO_ENTIDADE"]))
-        weights[eid] = {et: soma(row, cols) for et, cols in SERIE_COLS.items()}
-    print(f"  Pesos (matricula total da etapa) carregados p/ {len(weights)} escolas (Censo 2025)")
+    eids = df["CO_ENTIDADE"].astype("int64").astype(str).tolist()
+    per_et = {}
+    for et, cols in SERIE_COLS.items():
+        present = [c for c in cols if c in df.columns]
+        per_et[et] = (df[present].fillna(0).astype("int64").sum(axis=1).tolist()
+                      if present else [0] * len(eids))
+    weights = {e: {et: per_et[et][i] for et in SERIE_COLS} for i, e in enumerate(eids)}
     return weights
+
+
+def load_weights_all_years(anos_ideb):
+    """Carrega o peso de cada Censo necessario (uma vez por ano)."""
+    anos_censo = sorted({censo_year_for_ideb(a) for a in anos_ideb})
+    out = {}
+    for cy in anos_censo:
+        out[cy] = load_weights_for_year(cy)
+        print(f"  Pesos Censo {cy}: {len(out[cy])} escolas")
+    return out
 
 
 def load_mun_to_cre():
@@ -358,11 +379,11 @@ def load_mun_to_cre():
     return {k: v.get("cod_cre") for k, v in d.get("mun_to_cre", {}).items()}
 
 
-def extract_cre_all_years(df, etapa_key, rede_filter, weights, mun_to_cre):
+def extract_cre_all_years(df, etapa_key, rede_filter, weights_by_year, mun_to_cre):
     """IDEB por CRE, todos os anos: media PONDERADA das escolas pela matricula
-    TOTAL da etapa (peso). Fiel ao metodo da SEDUC-RS (media ponderada por
-    volume de matriculas, escola a escola). Escolas sem nota OU sem matricula
-    na etapa sao desconsideradas do numerador e do denominador."""
+    TOTAL da etapa (peso do respectivo ano). Fiel ao metodo da SEDUC-RS (media
+    ponderada por volume de matriculas, escola a escola). Escolas sem nota OU
+    sem matricula na etapa sao desconsideradas do numerador e do denominador."""
     cfg = ETAPAS[etapa_key]
     if rede_filter:
         df = df[df["REDE"].isin(rede_filter)].copy()
@@ -377,6 +398,7 @@ def extract_cre_all_years(df, etapa_key, rede_filter, weights, mun_to_cre):
         if len(dv) == 0:
             continue
 
+        weights = weights_by_year.get(censo_year_for_ideb(ano), {})
         acc = {}  # cre -> [sum(ideb*peso), sum(peso), n_escolas]
         for _, row in dv.iterrows():
             mun = str(int(row["CO_MUNICIPIO"]))[:7]
@@ -424,9 +446,10 @@ def main():
     if OFICIAL:
         print(f"  Redes oficiais disponiveis p/ RS: {sorted(OFICIAL.keys())}")
 
-    # Pesos (matricula por serie avaliada) + mapa municipio->CRE para o por_cre
-    print("\n  Carregando pesos e mapa de CREs (para media ponderada por regional)...")
-    SERIE_WEIGHTS = load_serie_weights()
+    # Pesos (matricula total da etapa, por ANO) + mapa municipio->CRE para o por_cre
+    print("\n  Carregando pesos (matricula por ano) e mapa de CREs...")
+    anos_todos = sorted({a for cfg in ETAPAS.values() for a in cfg["anos_ideb"]})
+    WEIGHTS_BY_YEAR = load_weights_all_years(anos_todos)
     MUN_TO_CRE = load_mun_to_cre()
     
     # Generate per-rede JSONs
@@ -482,7 +505,7 @@ def main():
             # na serie avaliada (5o/9o/3oEM). Substitui a media por municipio no
             # nivel da regional, alinhando com o metodo da SEDUC-RS.
             if MUN_TO_CRE:
-                cre_por_ano = extract_cre_all_years(df, etapa_key, rede_filter, SERIE_WEIGHTS, MUN_TO_CRE)
+                cre_por_ano = extract_cre_all_years(df, etapa_key, rede_filter, WEIGHTS_BY_YEAR, MUN_TO_CRE)
                 for ano, cre_data in cre_por_ano.items():
                     if ano not in resultado["por_cre"]:
                         resultado["por_cre"][ano] = {}
