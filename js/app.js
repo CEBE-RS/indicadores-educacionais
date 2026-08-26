@@ -2015,7 +2015,7 @@ function buildMap(d, ano, metric) {
   }).setView([-29.7, -53.5], 6.5);
 
   // Light basemap
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 14,
   }).addTo(S.map);
 
@@ -2828,7 +2828,7 @@ function buildInfraMap(infra, metricKey) {
   destroyMap();
   
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(map);
   
   const munData = infra.por_municipio?.[infraLatestMunYear(infra)] || {};
   const lookup = S.data?.lookup_municipios || {};
@@ -2898,7 +2898,7 @@ function buildInfraMapCre(infra, metricKey) {
   destroyMap();
 
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(map);
 
   const munData = infra.por_municipio?.[infraLatestMunYear(infra)] || {};
   const label = infra.labels?.[metricKey] || metricKey;
@@ -3153,8 +3153,8 @@ function buildDocEscolaLayer(doc) {
 
   // Init map
   S.map = L.map(mapEl).setView([-29.5, -53.5], 7);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 18, attribution: '&copy; CARTO'
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18, maxNativeZoom: 16, attribution: '&copy; Esri'
   }).addTo(S.map);
 
   const ed = S.escolasData;
@@ -3271,7 +3271,7 @@ function buildDocMap(doc) {
   destroyMap();
 
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 14
   }).addTo(map);
 
@@ -4393,7 +4393,7 @@ function renderSaeb() {
       destroyMap();
       S.map = L.map('saeb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
         .setView([-29.7, -53.5], 6.5);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
       const info = L.control({ position: 'topright' });
       info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
@@ -5147,7 +5147,7 @@ function renderIdeb() {
     destroyMap();
     S.map = L.map('ideb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     const info = L.control({ position: 'topright' });
     info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
@@ -6317,7 +6317,7 @@ function buildFluxoMap(f, anoSel, metricKey) {
   destroyMap();
 
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(map);
 
   const munData = f.por_municipio[anoSel] || {};
   const tdiData = f.tdi_por_municipio || {};
@@ -6730,7 +6730,7 @@ function fluxoBuildEscMap(f, anoSel, metricKey) {
 
   // Create fresh map
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, attributionControl: false }).setView([-29.7, -53.5], 6.5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(map);
 
   // Background polygons (faint)
   S.mapLayer = L.geoJSON(S.geo, {
@@ -7284,7 +7284,7 @@ function renderInse() {
     destroyMap();
     S.map = L.map('inse-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     // Info panel
     const info = L.control({ position: 'topright' });
@@ -8150,7 +8150,7 @@ function renderIcg() {
     destroyMap();
     S.map = L.map('icg-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     const info = L.control({ position: 'topright' });
     info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
@@ -8987,7 +8987,7 @@ function renderAfd() {
     destroyMap();
     S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     const info = L.control({ position: 'topright' });
     info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
@@ -9135,7 +9135,7 @@ function renderAfd() {
     destroyMap();
     S.map = L.map('afd-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     // Add polygon outline for RS
     L.geoJSON(S.geo, {
@@ -9731,7 +9731,7 @@ function renderTdi() {
     destroyMap();
     S.map = L.map('tdi-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     const info = L.control({ position: 'topright' });
     info.onAdd = function () { this._div = L.DomUtil.create('div', 'map-info-panel'); this.update(); return this._div; };
@@ -9914,7 +9914,7 @@ function renderTdi() {
 
     S.map = L.map('tdi-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     const markers = L.featureGroup();
     withCoords.forEach(e => {
@@ -13432,7 +13432,7 @@ function renderEscolas() {
 
   // Initialize map
   const mapEl = document.getElementById('escola-map');
-  const layerCarto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 18 });
+  const layerCarto = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri', maxZoom: 18, maxNativeZoom: 16 });
   const layerSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri', maxZoom: 18 });
   
   const map = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true, layers: [layerSat] }).setView([-29.5, -53.5], 7);
@@ -14786,7 +14786,7 @@ function renderSaers() {
 
     S.map = L.map('map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
       .setView([-29.7, -53.5], 6.5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(S.map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 14 }).addTo(S.map);
 
     // Color scale for proficiency
     const getColor = (v) => {
@@ -15429,8 +15429,9 @@ function buildSaersMap(sd) {
   }
 
   S.map = L.map(mapEl).setView([-29.8, -53.5], 6);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '© CartoDB © OSM',
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '&copy; Esri',
+    maxNativeZoom: 16,
     maxZoom: 18,
   }).addTo(S.map);
 
