@@ -455,7 +455,7 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
       </div>
       <div class="section-banner-right" style="flex-direction:column;align-items:flex-end;gap:4px">
         <div class="banner-filters">
-          <div class="banner-filter-group">
+          <div class="banner-filter-group"${opts.hideAno ? ' style="display:none"' : ''}>
             <label class="banner-filter-label">Ano</label>
             <select id="sel-ano" class="banner-filter-select"></select>
           </div>
@@ -681,7 +681,8 @@ function updateActiveFilters() {
   // Rede badge (always shown, informational — no close button)
   const redeLabel = REDE_LABELS[S.redeSel] || 'Rede Estadual';
   html += `<span class="filter-chip filter-chip-rede" title="Rede selecionada">🏛 ${redeLabel}</span>`;
-  if (S.anoSel) {
+  // Docencia nao usa filtro de Ano (perfil fixo em 2025) — nao exibir o chip.
+  if (S.anoSel && S._currentView !== 'docencia') {
     html += `<span class="filter-chip filter-chip-ano" data-clear="ano" title="Clique para remover">📅 ${S.anoSel} <span class="close">✕</span></span>`;
   }
   if (S.etapaSel) {
@@ -2993,7 +2994,7 @@ function renderDocencia() {
 
   main.innerHTML = `
     <div class="section-sticky">
-    ${sectionBanner('img/icons/sec_docentes.png', 'Docência')}
+    ${sectionBanner('img/icons/sec_docentes.png', 'Docência', undefined, { hideAno: true })}
     ${redeToggleHTML()}
 
     <div class="kpi-strip" id="doc-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
@@ -3485,9 +3486,11 @@ function buildDocCharts(doc) {
   }
   if (!p) return;
 
-  // Premium KPIs for Docentes — react to year filter
+  // Premium KPIs for Docentes — sempre no ano mais recente (2025).
+  // A secao de Docencia nao tem filtro de Ano: o perfil so existe para 2025
+  // e os demais recortes sao snapshot 2025 ou series completas.
   const anosDoc = Object.keys(doc.serie_temporal_total || {}).sort();
-  const anoSelDoc = S.anoSel && doc.serie_temporal_total?.[S.anoSel] ? S.anoSel : anosDoc[anosDoc.length - 1];
+  const anoSelDoc = anosDoc[anosDoc.length - 1];
   const docAnoData = doc.serie_temporal_total[anoSelDoc] || {};
   const docTotal = p.total || 0;
   const docTotalAno = docAnoData['QT_DOC_BAS'] || docAnoData['total'] || docTotal;
