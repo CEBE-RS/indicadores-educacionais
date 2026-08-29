@@ -14,9 +14,38 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 
 import pandas as pd
 import numpy as np
-import json, os, glob, time
+import json, os, glob, time, unicodedata
 
 SAEB_DIR = os.path.join(BASE, "00. Bases de Dados", "03. Desempenho IDEB.SAEB", "01. SAEB")
+
+# Base NOVA (INEP/SEDUC) — SAEB 2025 por escola da Rede Estadual do RS.
+SAEB2025_FILE = os.path.join(
+    BASE, "00. Bases de Dados",
+    "02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)",
+    "02. IDEB", "INEP_SAEB_2025_RS (1).xlsx")
+# Base canonica de escolas estaduais (coordenadas p/ o mapa por escola).
+ESCOLAS_GEO = os.path.join(PAINEL_DIR, "escolas_estaduais.json")
+CRE_LOOKUP_FILE = os.path.join(PAINEL_DIR, "rs_cre_lookup.json")
+
+# Base (ponto inicial) dos NIVEIS da escala SAEB por etapa. Calibrado empiricamente
+# reconstruindo a MEDIA a partir da distribuicao NIVEL 0..10 (bandas de 25 pontos):
+#   Nivel 0 = abaixo da base; Nivel k = [base+(k-1)*25, base+k*25).
+# 5EF base 125 | 9EF base 200 | EM base 225 (identico p/ LP e MT nesta base 2025).
+NIVEL_BASE = {"5EF": 125, "9EF": 200, "EM": 225}
+
+# Padrao de desempenho — pontos de corte na escala SAEB por etapa/disciplina.
+# PRELIMINAR: referencia comum QEdu/Todos Pela Educacao. VALIDAR com a analise SAEB
+# (Bruna) antes de usar oficialmente.
+# [c1, c2, c3] => Insuficiente < c1 <= Basico < c2 <= Proficiente < c3 <= Avancado
+PADRAO_CORTES = {
+    "5EF": {"lp": [150, 200, 250], "mt": [175, 225, 275]},
+    "9EF": {"lp": [200, 275, 325], "mt": [225, 300, 350]},
+    "EM":  {"lp": [250, 300, 375], "mt": [275, 350, 400]},
+}
+
+def _nivel_lo(n, et):
+    """Limite inferior (pontos da escala SAEB) do NIVEL n na etapa `et`."""
+    return NIVEL_BASE[et] + (n - 1) * 25
 
 # RS UF code
 UF_RS = 43
@@ -224,6 +253,253 @@ def extract_medias(df, ano):
         }
     
     return result
+
+def _norm(s):
+    """Normaliza texto p/ matching robusto de colunas (sem acento, upper)."""
+    s = unicodedata.normalize('NFKD', str(s)).encode('ascii', 'ignore').decode('ascii')
+    return s.strip().upper()
+
+def _load_mun_to_cre():
+    """mun (7 dig) -> cod_cre (ex '18') a partir de rs_cre_lookup.json."""
+    try:
+        with open(CRE_LOOKUP_FILE, encoding='utf-8') as f:
+            d = json.load(f)
+    except Exception as e:
+        print(f"    [AVISO] rs_cre_lookup.json: {e}")
+        return {}
+    m = d.get('mun_to_cre', d)
+    out = {}
+    for k, v in m.items():
+        out[str(k)[:7]] = str(v.get('cod_cre')) if isinstance(v, dict) else str(v)
+    return out
+
+def _load_escolas_geo():
+    """inep(str) -> {lat, lng, cre} da base canonica de escolas estaduais."""
+    out = {}
+    if not os.path.exists(ESCOLAS_GEO):
+        return out
+    try:
+        with open(ESCOLAS_GEO, encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"    [AVISO] escolas_estaduais.json: {e}")
+        return out
+    lst = data.get('escolas', data) if isinstance(data, dict) else data
+    for e in lst:
+        if not isinstance(e, dict):
+            continue
+        inep = e.get('inep') or e.get('ID_ESCOLA') or e.get('cod')
+        if inep is None:
+            continue
+        out[str(int(inep))] = {
+            'lat': e.get('lat'), 'lng': e.get('lng'),
+            'cre': str(e.get('cre') or ''),
+        }
+    return out
+
+def _padrao_from_rows(rows, niv_cols, et, disc):
+    """Distribuicao (%) nos 4 padroes, ponderada por PRESENTES, p/ etapa+disciplina."""
+    cortes = PADRAO_CORTES[et][disc]
+    tot = [0.0] * 11
+    for _, r in rows.iterrows():
+        w = r['_w']
+        if not w or w <= 0:
+            continue
+        for n in range(11):
+            nc = niv_cols[n]
+            if nc is None:
+                continue
+            v = r[nc]
+            if pd.notna(v):
+                tot[n] += (float(v) / 100.0) * w
+    total = sum(tot)
+    if total <= 0:
+        return None
+    cats = {"insuf": 0.0, "basico": 0.0, "prof": 0.0, "avanc": 0.0}
+    for n in range(11):
+        lo = _nivel_lo(n, et)
+        if lo < cortes[0]:
+            cats["insuf"] += tot[n]
+        elif lo < cortes[1]:
+            cats["basico"] += tot[n]
+        elif lo < cortes[2]:
+            cats["prof"] += tot[n]
+        else:
+            cats["avanc"] += tot[n]
+    return {k: round(v / total * 100, 1) for k, v in cats.items()}
+
+def _padrao_block(rows, niv_cols):
+    """Bloco {etapa: {disc: {4 padroes}}} p/ um recorte de linhas."""
+    out = {}
+    for et in ["5EF", "9EF", "EM"]:
+        sub = rows[rows['_serie'] == et]
+        if sub.empty:
+            continue
+        block = {}
+        for disc in ["lp", "mt"]:
+            sd = sub[sub['_disc'] == disc]
+            if not sd.empty:
+                p = _padrao_from_rows(sd, niv_cols, et, disc)
+                if p:
+                    block[disc] = p
+        if block:
+            out[et] = block
+    return out
+
+def add_saeb_2025(resultado):
+    """Le a base SAEB 2025 por escola (Estadual RS) e injeta em `resultado`:
+    serie_temporal['2025'], por_municipio['2025'], por_escola_2025, padrao_desempenho_2025."""
+    if not os.path.exists(SAEB2025_FILE):
+        print(f"  [AVISO] SAEB 2025 nao encontrado: {SAEB2025_FILE}")
+        return
+    print("\n  --- SAEB 2025 por escola (Estadual) ---")
+    df = pd.read_excel(SAEB2025_FILE, sheet_name=0)
+    cols = {_norm(c): c for c in df.columns}
+
+    def col(*parts_options):
+        for parts in parts_options:
+            for nc, orig in cols.items():
+                if all(p in nc for p in parts):
+                    return orig
+        return None
+
+    c_esc = col(("CODIGO", "ESCOLA"), ("COD", "ESCOLA"))
+    c_mun = col(("CODIGO", "MUNICIPIO"), ("COD", "MUNICIPIO"))
+    c_nesc = col(("NOME", "ESCOLA"),)
+    c_disc = col(("DISCIPLINA",),)
+    c_serie = col(("SERIE",),)
+    c_med = col(("MEDIA",),)
+    c_part = col(("TAXA", "PARTICIPACAO"), ("PARTICIPACAO",))
+    c_pres = col(("PRESENTES",),)
+    c_mat = col(("MATRICULADOS",), ("MATRICULAD",))
+    niv_cols = []
+    for n in range(11):
+        target = f"NIVEL {n}"
+        found = next((orig for nc, orig in cols.items() if nc == target), None)
+        niv_cols.append(found)
+
+    missing = [name for name, c in [("cod_escola", c_esc), ("cod_mun", c_mun),
+               ("disciplina", c_disc), ("serie", c_serie), ("media", c_med)] if c is None]
+    if missing:
+        print(f"    [ERRO] colunas ausentes: {missing} — 2025 nao adicionado")
+        return
+
+    df['_serie'] = df[c_serie].astype(str).str.strip().str[0].map(
+        {"5": "5EF", "9": "9EF", "3": "EM", "4": "EM"})
+    df['_disc'] = df[c_disc].astype(str).apply(
+        lambda x: "lp" if ("PORT" in _norm(x) or "LINGUA" in _norm(x)) else ("mt" if "MAT" in _norm(x) else None))
+    df['_med'] = pd.to_numeric(df[c_med], errors='coerce')
+    df['_part'] = pd.to_numeric(df[c_part], errors='coerce') if c_part else np.nan
+    df['_pres'] = pd.to_numeric(df[c_pres], errors='coerce') if c_pres else 0
+    df['_w'] = df['_pres'].fillna(0)
+
+    d = df.dropna(subset=['_serie', '_disc'])
+    d = d[d['_med'].notna()].copy()
+    d['_cod'] = d[c_mun].astype('int64').astype(str).str[:7]
+    d['_inep'] = d[c_esc].astype('int64').astype(str)
+
+    mun_to_cre = _load_mun_to_cre()
+    geo = _load_escolas_geo()
+    d['_cre'] = d['_cod'].map(mun_to_cre).fillna('')
+
+    def simple_mean(sub):
+        return round(float(sub['_med'].mean()), 1) if not sub.empty else None
+
+    # serie_temporal['2025'] — media simples de escolas (consistente com a serie historica)
+    serie = {"n_escolas_total": int(d['_inep'].nunique())}
+    for et in ["5EF", "9EF", "EM"]:
+        sub = d[d['_serie'] == et]
+        if sub.empty:
+            continue
+        serie[et] = {
+            "media_lp": simple_mean(sub[sub['_disc'] == 'lp']),
+            "media_mt": simple_mean(sub[sub['_disc'] == 'mt']),
+            "n_escolas": int(sub['_inep'].nunique()),
+            "label": ETAPAS[et]["label"],
+        }
+    resultado.setdefault("serie_temporal", {})["2025"] = serie
+
+    # por_municipio['2025'] — media simples por municipio
+    mun2025 = {}
+    for cod, g in d.groupby('_cod'):
+        entry = {}
+        for et in ["5EF", "9EF", "EM"]:
+            s = g[g['_serie'] == et]
+            if s.empty:
+                continue
+            entry[et] = {
+                "media_lp": simple_mean(s[s['_disc'] == 'lp']),
+                "media_mt": simple_mean(s[s['_disc'] == 'mt']),
+            }
+        if entry:
+            mun2025[cod] = entry
+    resultado.setdefault("por_municipio", {})["2025"] = mun2025
+
+    # por_escola_2025 — nivel escola (mapa + tabela)
+    por_escola = {}
+    for inep, g in d.groupby('_inep'):
+        rec = {
+            "nome": str(g[c_nesc].iloc[0]) if c_nesc else inep,
+            "cod_mun": str(g['_cod'].iloc[0]),
+            "cre": str(g['_cre'].iloc[0] or (mun_to_cre.get(str(g['_cod'].iloc[0]), ''))),
+            "e": {},
+        }
+        gg = geo.get(inep)
+        if gg and gg.get('lat') is not None and gg.get('lng') is not None:
+            rec["lat"] = gg["lat"]
+            rec["lng"] = gg["lng"]
+        for et in ["5EF", "9EF", "EM"]:
+            s = g[g['_serie'] == et]
+            if s.empty:
+                continue
+            etd = {}
+            lp = s[s['_disc'] == 'lp']
+            mt = s[s['_disc'] == 'mt']
+            if not lp.empty:
+                etd["lp"] = round(float(lp['_med'].iloc[0]), 1)
+                pv = lp['_part'].iloc[0]
+                etd["part_lp"] = None if pd.isna(pv) else round(float(pv), 1)
+                pr = lp['_pres'].iloc[0]
+                etd["pres"] = 0 if pd.isna(pr) else int(pr)
+            if not mt.empty:
+                etd["mt"] = round(float(mt['_med'].iloc[0]), 1)
+                pv = mt['_part'].iloc[0]
+                etd["part_mt"] = None if pd.isna(pv) else round(float(pv), 1)
+                if "pres" not in etd:
+                    pr = mt['_pres'].iloc[0]
+                    etd["pres"] = 0 if pd.isna(pr) else int(pr)
+            if etd:
+                rec["e"][et] = etd
+        por_escola[inep] = rec
+    resultado["por_escola_2025"] = por_escola
+
+    # padrao_desempenho_2025 — estadual + por CRE + por municipio (reativo ao filtro)
+    padrao = {
+        "estadual": _padrao_block(d, niv_cols),
+        "por_cre": {},
+        "por_municipio": {},
+        "cortes": PADRAO_CORTES,
+        "obs": "Cortes preliminares (multiplos de 25, ref. QEdu). Validar com analise SAEB.",
+    }
+    for cod, g in d.groupby('_cod'):
+        b = _padrao_block(g, niv_cols)
+        if b:
+            padrao["por_municipio"][cod] = b
+    for cre, g in d.groupby('_cre'):
+        if not cre:
+            continue
+        b = _padrao_block(g, niv_cols)
+        if b:
+            padrao["por_cre"][cre] = b
+    resultado["padrao_desempenho_2025"] = padrao
+
+    n_geo = sum(1 for r in por_escola.values() if 'lat' in r)
+    print(f"    2025: {len(por_escola)} escolas ({n_geo} c/ coord) | "
+          f"municipios={len(mun2025)} | cres_padrao={len(padrao['por_cre'])}")
+    for et in ["5EF", "9EF", "EM"]:
+        if et in serie:
+            print(f"      {et}: LP={serie[et]['media_lp']} MT={serie[et]['media_mt']} "
+                  f"({serie[et]['n_escolas']} esc)")
 
 def main():
     t0 = time.time()
@@ -434,7 +710,11 @@ def main():
         
         resultado["por_municipio"] = por_municipio
         resultado["lookup_municipios"] = lookup_municipios
-        
+
+        # SAEB 2025 por escola — apenas rede Estadual (base nova e' Estadual-only)
+        if rede_key == 'estadual':
+            add_saeb_2025(resultado)
+
         # Save JSON
         out_json = os.path.join(PAINEL_DIR, f"4_6_saeb_{rede_key}.json")
         with open(out_json, "w", encoding="utf-8") as f:
