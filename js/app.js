@@ -4884,6 +4884,7 @@ function renderIdeb() {
       <div class="chart-card">
         <div class="chart-title">IDEB Observado × Meta SEDUC-RS — ${geoLabel}</div>
         <div style="height:360px"><canvas id="chart-ideb-evolucao"></canvas></div>
+        <div id="ideb-evo-nota" style="display:none;margin-top:6px;background:rgba(25,118,210,.06);border-left:3px solid #1976D2;border-radius:6px;padding:7px 11px;font-size:11px;color:#333;line-height:1.5"></div>
         <div class="chart-source">${FONTE_IDEB}</div>
       </div>
     </div>
@@ -5058,6 +5059,37 @@ function renderIdeb() {
         scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, beginAtZero: false, min: 2, suggestedMax: 8 } },
       },
     }));
+
+    // ── Nota dinamica: sinaliza anos SEM IDEB na selecao atual ──
+    // Ocorre quando o INEP nao divulga o IDEB porque o SAEB das escolas daquela
+    // etapa/ano nao foi divulgado (participacao insuficiente ou sigilo). Ex.: EM
+    // 2021 em CREs como Rio Grande, Porto Alegre, Vacaria e Canoas; EM 2019 em Sao Borja.
+    const notaEl = document.getElementById('ideb-evo-nota');
+    if (notaEl) {
+      const etLabelFull = { AI: 'Anos Iniciais', AF: 'Anos Finais', EM: 'Ensino Médio' };
+      const gaps = {};
+      idebEtapas.forEach(et => {
+        const anosComEt = anos.filter(a => getGeoData(a)?.[et]?.ideb != null);
+        if (anosComEt.length === 0) return; // etapa nunca ofertada nesta selecao
+        const minA = anosComEt[0], maxA = anosComEt[anosComEt.length - 1];
+        anos.forEach(a => {
+          if (a < minA || a > maxA) return; // fora do intervalo de oferta da etapa
+          const gd = getGeoData(a);
+          const anoTemDados = gd && (gd.AI?.ideb != null || gd.AF?.ideb != null || gd.EM?.ideb != null);
+          if (anoTemDados && gd?.[et]?.ideb == null) (gaps[et] = gaps[et] || []).push(a);
+        });
+      });
+      const partes = idebEtapas.filter(et => gaps[et]?.length)
+        .map(et => `<strong>${etLabelFull[et]}</strong> (${gaps[et].join(', ')})`);
+      if (partes.length) {
+        notaEl.style.display = 'block';
+        notaEl.innerHTML = `ℹ️ <strong>Sem IDEB em alguns anos:</strong> ${partes.join('; ')}. ` +
+          `Nesses casos o INEP não divulgou o IDEB porque o SAEB das escolas dessa etapa não foi divulgado ` +
+          `(participação insuficiente ou preservação de sigilo). Por isso o ponto fica em branco no gráfico.`;
+      } else {
+        notaEl.style.display = 'none';
+      }
+    }
   }
 
   // ════════════════════════════════════════════════════════════════
