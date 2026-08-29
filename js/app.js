@@ -15680,7 +15680,7 @@ async function init() {
     // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
     // Desigualdades — ver ensureDesig(). Mantê-lo aqui travava o boot no GitHub Pages.
     // Cache-bust por versao: garante JSON novo apos deploy (sem depender de refresh forcado)
-    const dv = '?v=105';
+    const dv = '?v=108';
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json' + dv),
       fetch('dados/rs_municipios.geojson' + dv),

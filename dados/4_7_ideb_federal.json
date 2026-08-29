@@ -2,7 +2,7 @@
   "metadata": {
     "fonte": "IDEB/INEP — Divulgação 2025",
     "recorte": "Rede Federal RS",
-    "gerado_em": "2026-08-20T10:20:29.721370",
+    "gerado_em": "2026-08-29T10:25:19.495768",
     "formula": "IDEB = N (Nota SAEB padronizada) × P (Indicador de Rendimento)",
     "serie_temporal_fonte": "Sem agregado oficial por UF para esta rede; serie_temporal = media dos IDEBs das escolas (aproximacao)."
   },
