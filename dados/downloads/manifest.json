@@ -93,10 +93,10 @@
     "id": "saeb",
     "nome": "SAEB",
     "arquivo": "dados_saeb.xlsx",
-    "descricao": "Proficiencias do SAEB em Lingua Portuguesa e Matematica por rede, etapa e municipio.",
-    "fonte": "INEP - SAEB",
+    "descricao": "Proficiencias do SAEB (Rede Estadual RS) em Lingua Portuguesa e Matematica por etapa e municipio (2017-2025).",
+    "fonte": "INEP/SEDUC-RS - SAEB por escola (Rede Estadual)",
     "abas": 5,
-    "tamanho_kb": 168
+    "tamanho_kb": 210
   },
   {
     "id": "ideb",

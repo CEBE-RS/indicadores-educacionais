@@ -1,41 +1,56 @@
 # -*- coding: utf-8 -*-
 """
 ETL SAEB — Produto 4 UNESCO RS
-Extrai proficiências por escola da Rede Estadual do RS (2013-2023).
-Gera JSON para o painel + XLSX com evolução por escola.
+Bases INEP/SEDUC por escola (Rede Estadual RS), anos 2017/2019/2021/2023/2025.
+Escolas IDENTIFICADAS (codigo real 43..., nome). Estadual-only.
+
+Gera 4_6_saeb_estadual.json (copiado p/ 4_6_saeb.json) com estrutura multi-ano:
+  - metadata, anos
+  - serie_temporal[ano]          -> media simples de escolas por etapa (LP/MT)
+  - por_municipio[ano]           -> media simples por municipio/etapa
+  - lookup_municipios            -> {cod7: nome}
+  - por_escola[inep]             -> {nome, cod_mun, cre, lat, lng, anos:{ano:{etapa:{lp,mt,part_lp,part_mt,pres}}}}
+  - padrao_desempenho[ano]       -> {estadual, por_cre, por_municipio} (ponderado por presentes)
+  - cortes                       -> PADRAO_CORTES
+Tambem gera SAEB_Evolucao_Escolas_Estaduais_RS.xlsx (nomes reais por ano).
 """
 import sys, io
 
-
-# --- caminhos portateis (repo Git + bases locais) ---
-from paths import BASE, OUT_DIR, PAINEL_DIR, BASES_DIR, BASES_BASICAS  # noqa: E402
+from paths import BASE, OUT_DIR, PAINEL_DIR  # noqa: E402
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 import pandas as pd
 import numpy as np
-import json, os, glob, time, unicodedata
+import json, os, time, unicodedata, shutil
 
-SAEB_DIR = os.path.join(BASE, "00. Bases de Dados", "03. Desempenho IDEB.SAEB", "01. SAEB")
-
-# Base NOVA (INEP/SEDUC) — SAEB 2025 por escola da Rede Estadual do RS.
-SAEB2025_FILE = os.path.join(
+# --- Bases identificadas por escola (INEP/SEDUC) ---
+IDEB_DIR = os.path.join(
     BASE, "00. Bases de Dados",
-    "02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)",
-    "02. IDEB", "INEP_SAEB_2025_RS (1).xlsx")
+    "02. Fluxo e Rendimento (Inep_2010_2024_Rendimento_TDI)", "02. IDEB")
+
+SAEB_FILES = {
+    "2017": "INEP_SAEB_2017_RS.xlsx",
+    "2019": "INEP_SAEB_2019_RS.xlsx",
+    "2021": "INEP_SAEB_2021_RS.xlsx",
+    "2023": "INEP_SAEB_2023_RS.xlsx",
+    "2025": "INEP_SAEB_2025_RS (1).xlsx",
+}
+
 # Base canonica de escolas estaduais (coordenadas p/ o mapa por escola).
 ESCOLAS_GEO = os.path.join(PAINEL_DIR, "escolas_estaduais.json")
 CRE_LOOKUP_FILE = os.path.join(PAINEL_DIR, "rs_cre_lookup.json")
 
+ETAPA_LABEL = {"5EF": "5º Ano EF", "9EF": "9º Ano EF", "EM": "Ens. Médio"}
+
 # Base (ponto inicial) dos NIVEIS da escala SAEB por etapa. Calibrado empiricamente
 # reconstruindo a MEDIA a partir da distribuicao NIVEL 0..10 (bandas de 25 pontos):
 #   Nivel 0 = abaixo da base; Nivel k = [base+(k-1)*25, base+k*25).
-# 5EF base 125 | 9EF base 200 | EM base 225 (identico p/ LP e MT nesta base 2025).
+# 5EF base 125 | 9EF base 200 | EM base 225 (escala vertical, mesmos cortes p/ todos os anos).
 NIVEL_BASE = {"5EF": 125, "9EF": 200, "EM": 225}
 
 # Padrao de desempenho — pontos de corte na escala SAEB por etapa/disciplina.
-# PRELIMINAR: referencia comum QEdu/Todos Pela Educacao. VALIDAR com a analise SAEB
-# (Bruna) antes de usar oficialmente.
+# PRELIMINAR: referencia comum QEdu/Todos Pela Educacao. VALIDAR com a analise SAEB (Bruna).
 # [c1, c2, c3] => Insuficiente < c1 <= Basico < c2 <= Proficiente < c3 <= Avancado
 PADRAO_CORTES = {
     "5EF": {"lp": [150, 200, 250], "mt": [175, 225, 275]},
@@ -43,221 +58,17 @@ PADRAO_CORTES = {
     "EM":  {"lp": [250, 300, 375], "mt": [275, 350, 400]},
 }
 
+
 def _nivel_lo(n, et):
     """Limite inferior (pontos da escala SAEB) do NIVEL n na etapa `et`."""
     return NIVEL_BASE[et] + (n - 1) * 25
 
-# RS UF code
-UF_RS = 43
-
-# Redes to generate — SAEB microdata only has IN_PUBLICA (0/1) flag,
-# not ID_DEPENDENCIA_ADM (except 2011). So we can only distinguish:
-REDES = {
-    'estadual':  {'pub': 1, 'label': 'Pública'},    # IN_PUBLICA=1 (inclui est+mun+fed)
-    'privada':   {'pub': 0, 'label': 'Privada'},     # IN_PUBLICA=0
-    'todas':     {'pub': None, 'label': 'Todas'},     # No filter
-}
-
-# Etapas e suas colunas de média (normalizadas)
-ETAPAS = {
-    "5EF": {"lp": "MEDIA_5EF_LP", "mt": "MEDIA_5EF_MT", "label": "5º Ano EF"},
-    "9EF": {"lp": "MEDIA_9EF_LP", "mt": "MEDIA_9EF_MT", "label": "9º Ano EF"},
-    "EM":  {"lp": None, "mt": None, "label": "Ens. Médio"},  # resolve dynamically
-}
-
-# Column mapping for EM (varies by year)
-EM_COL_MAP = {
-    "2013": {"lp": "MEDIA_3EM_LP", "mt": "MEDIA_3EM_MT"},
-    "2015": {"lp": "MEDIA_3EM_LP", "mt": "MEDIA_3EM_MT"},
-    "2017": {"lp": "MEDIA_3EM_LP", "mt": "MEDIA_3EM_MT"},
-    "2019": {"lp": "MEDIA_EM_LP", "mt": "MEDIA_EM_MT"},
-    "2021": {"lp": "MEDIA_EM_LP", "mt": "MEDIA_EM_MT"},
-    "2023": {"lp": "MEDIA_EM_LP", "mt": "MEDIA_EM_MT"},
-}
-
-# Lookup for Escolas Estaduais (from our canonical base)
-ESCOLAS_REF = os.path.join(BASE, "..", "000. Bases_Básicas", "Escolas_Estaduais_RS_2025.xlsx")
-
-def find_escola_csv(year_dir):
-    """Find TS_ESCOLA.csv in any subdirectory."""
-    for root, dirs, files in os.walk(year_dir):
-        for f in files:
-            if 'escola' in f.lower() and f.endswith('.csv') and 'quest' not in f.lower():
-                return os.path.join(root, f)
-    return None
-
-def find_aluno_em_csv(year_dir):
-    """Find TS_ALUNO_3EM.csv in any subdirectory."""
-    for root, dirs, files in os.walk(year_dir):
-        for f in files:
-            if '3em' in f.lower() and f.endswith('.csv') and 'aluno' in f.lower():
-                return os.path.join(root, f)
-    return None
-
-def extract_em_from_alunos(aluno_csv, pub_filter=None):
-    """Read TS_ALUNO_3EM.csv, filter RS + rede, aggregate to school-level means.
-    Returns dict matching extract_medias output for 'EM' key, or None.
-    """
-    df = pd.read_csv(aluno_csv, sep=';', encoding='latin-1')
-    if len(df.columns) < 5:
-        df = pd.read_csv(aluno_csv, sep=',', encoding='latin-1')
-
-    # Filter RS
-    if 'ID_UF' in df.columns:
-        df = df[df['ID_UF'] == UF_RS]
-    elif 'CO_UF' in df.columns:
-        df = df[df['CO_UF'] == UF_RS]
-
-    # Filter rede
-    if pub_filter is not None and 'IN_PUBLICA' in df.columns:
-        df = df[df['IN_PUBLICA'] == pub_filter]
-
-    # Only students with valid proficiency
-    if 'IN_PROFICIENCIA' in df.columns:
-        df = df[df['IN_PROFICIENCIA'] == 1]
-
-    # Find proficiency columns
-    lp_col = next((c for c in df.columns if 'PROFICIENCIA_LP_SAEB' in c), None)
-    mt_col = next((c for c in df.columns if 'PROFICIENCIA_MT_SAEB' in c), None)
-    if not lp_col:
-        lp_col = next((c for c in df.columns if 'PROFICIENCIA_LP' in c and 'DESVIO' not in c), None)
-    if not mt_col:
-        mt_col = next((c for c in df.columns if 'PROFICIENCIA_MT' in c and 'DESVIO' not in c), None)
-
-    if not lp_col or 'ID_ESCOLA' not in df.columns:
-        return None
-
-    df['lp'] = pd.to_numeric(df[lp_col], errors='coerce')
-    if mt_col:
-        df['mt'] = pd.to_numeric(df[mt_col], errors='coerce')
-
-    df = df.dropna(subset=['lp'])
-    if len(df) == 0:
-        return None
-
-    # Aggregate to school level
-    agg = df.groupby('ID_ESCOLA').agg(
-        lp=('lp', 'mean'),
-        mt=('mt', 'mean') if 'mt' in df.columns else ('lp', 'count'),  # dummy if no mt
-    ).reset_index()
-
-    if 'mt' not in df.columns:
-        agg['mt'] = np.nan
-
-    agg['lp'] = agg['lp'].round(1)
-    agg['mt'] = agg['mt'].round(1)
-
-    school_records = []
-    for _, row in agg.iterrows():
-        school_records.append({
-            'ID_ESCOLA': int(row['ID_ESCOLA']),
-            'lp': row['lp'],
-            'mt': row['mt'] if pd.notna(row['mt']) else None,
-        })
-
-    return {
-        'label': 'Ens. Médio',
-        'media_lp': round(float(agg['lp'].mean()), 1),
-        'media_mt': round(float(agg['mt'].mean()), 1) if agg['mt'].notna().any() else None,
-        'n_escolas': len(agg),
-        'escolas': school_records,
-    }
-
-def load_escola_csv(fpath, ano):
-    """Load TS_ESCOLA with correct separator detection."""
-    # Try semicolon first
-    df = pd.read_csv(fpath, sep=';', encoding='latin-1', nrows=2)
-    if len(df.columns) < 5:
-        # Probably comma-separated (2013-2017 have everything in one column)
-        df = pd.read_csv(fpath, sep=',', encoding='latin-1')
-    else:
-        df = pd.read_csv(fpath, sep=';', encoding='latin-1')
-    return df
-
-def filter_rs_rede(df, ano, dep_codes):
-    """Filter for RS schools of given rede(s).
-    dep_codes: list of ID_DEPENDENCIA_ADM values (1=Fed, 2=Est, 3=Mun, 4=Priv)
-    """
-    # UF filter
-    if 'ID_UF' in df.columns:
-        df = df[df['ID_UF'] == UF_RS]
-    elif 'CO_UF' in df.columns:
-        df = df[df['CO_UF'] == UF_RS]
-    
-    # Rede filter
-    if 'ID_DEPENDENCIA_ADM' in df.columns:
-        df = df[df['ID_DEPENDENCIA_ADM'].isin(dep_codes)]
-    elif 'IN_PUBLICA' in df.columns:
-        # Fallback: old files without ID_DEPENDENCIA_ADM
-        if dep_codes == [1, 2, 3, 4]:  # todas
-            pass  # keep all
-        elif all(d in [1, 2, 3] for d in dep_codes):
-            df = df[df['IN_PUBLICA'] == 1]
-        elif dep_codes == [4]:
-            df = df[df['IN_PUBLICA'] == 0]
-    
-    return df
-
-def extract_medias(df, ano):
-    """Extract proficiency averages for each etapa."""
-    result = {}
-    
-    for etapa_key, etapa_info in ETAPAS.items():
-        if etapa_key == "EM":
-            em_cols = EM_COL_MAP.get(ano, {})
-            lp_col = em_cols.get("lp")
-            mt_col = em_cols.get("mt")
-        else:
-            lp_col = etapa_info["lp"]
-            mt_col = etapa_info["mt"]
-        
-        if not lp_col or lp_col not in df.columns:
-            continue
-        
-        # Extract school-level data
-        school_data = df[['ID_ESCOLA']].copy()
-        if 'ID_MUNICIPIO' in df.columns:
-            school_data['ID_MUNICIPIO'] = df['ID_MUNICIPIO']
-        
-        if lp_col in df.columns:
-            school_data['lp'] = pd.to_numeric(df[lp_col], errors='coerce')
-        if mt_col and mt_col in df.columns:
-            school_data['mt'] = pd.to_numeric(df[mt_col], errors='coerce')
-        
-        # Participation data
-        mat_col = f"NU_MATRICULADOS_CENSO_{etapa_key}" if etapa_key != "EM" else "NU_MATRICULADOS_CENSO_EM"
-        pres_col = f"NU_PRESENTES_{etapa_key}" if etapa_key != "EM" else "NU_PRESENTES_EM"
-        
-        if mat_col in df.columns:
-            school_data['matriculados'] = pd.to_numeric(df[mat_col], errors='coerce')
-        if pres_col in df.columns:
-            school_data['presentes'] = pd.to_numeric(df[pres_col], errors='coerce')
-        
-        # Clean
-        school_data = school_data.dropna(subset=['lp'])
-        
-        if len(school_data) == 0:
-            continue
-        
-        # Aggregate
-        media_lp = round(school_data['lp'].mean(), 1)
-        media_mt = round(school_data['mt'].mean(), 1) if 'mt' in school_data.columns else None
-        n_escolas = len(school_data)
-        
-        result[etapa_key] = {
-            "label": etapa_info["label"],
-            "media_lp": media_lp,
-            "media_mt": media_mt,
-            "n_escolas": n_escolas,
-            "escolas": school_data.to_dict('records'),
-        }
-    
-    return result
 
 def _norm(s):
-    """Normaliza texto p/ matching robusto de colunas (sem acento, upper)."""
+    """Normaliza texto p/ matching robusto (sem acento, upper)."""
     s = unicodedata.normalize('NFKD', str(s)).encode('ascii', 'ignore').decode('ascii')
     return s.strip().upper()
+
 
 def _load_mun_to_cre():
     """mun (7 dig) -> cod_cre (ex '18') a partir de rs_cre_lookup.json."""
@@ -272,6 +83,7 @@ def _load_mun_to_cre():
     for k, v in m.items():
         out[str(k)[:7]] = str(v.get('cod_cre')) if isinstance(v, dict) else str(v)
     return out
+
 
 def _load_escolas_geo():
     """inep(str) -> {lat, lng, cre} da base canonica de escolas estaduais."""
@@ -291,13 +103,66 @@ def _load_escolas_geo():
         inep = e.get('inep') or e.get('ID_ESCOLA') or e.get('cod')
         if inep is None:
             continue
-        out[str(int(inep))] = {
-            'lat': e.get('lat'), 'lng': e.get('lng'),
-            'cre': str(e.get('cre') or ''),
-        }
+        try:
+            key = str(int(inep))
+        except Exception:
+            continue
+        out[key] = {'lat': e.get('lat'), 'lng': e.get('lng'), 'cre': str(e.get('cre') or '')}
     return out
 
-def _padrao_from_rows(rows, niv_cols, et, disc):
+
+def load_year(path):
+    """Le uma base INEP_SAEB (aba Escolas) e retorna DataFrame normalizado:
+    _inep, _cod(7), _nesc, _nmun, _serie(5EF/9EF/EM), _disc(lp/mt), _med, _part, _pres, _w, _n0.._n10."""
+    df = pd.read_excel(path, sheet_name=0)
+    cols = {_norm(c): c for c in df.columns}
+
+    def col(*parts_options):
+        for parts in parts_options:
+            for nc, orig in cols.items():
+                if all(p in nc for p in parts):
+                    return orig
+        return None
+
+    c_esc = col(("CODIGO", "ESCOLA"), ("COD", "ESCOLA"))
+    c_mun = col(("CODIGO", "MUNICIPIO"), ("COD", "MUNICIPIO"))
+    c_nesc = col(("NOME", "ESCOLA"),)
+    c_nmun = col(("NOME", "MUNICIPIO"),)
+    c_disc = col(("DISCIPLINA",),)
+    c_serie = col(("SERIE",),)
+    c_med = col(("MEDIA",),)
+    c_part = col(("TAXA", "PARTICIPACAO"), ("PARTICIPACAO",))
+    c_pres = col(("PRESENTES",),)
+    niv_cols = [next((orig for nc, orig in cols.items() if nc == f"NIVEL {n}"), None) for n in range(11)]
+
+    missing = [name for name, c in [("cod_escola", c_esc), ("cod_mun", c_mun),
+               ("disciplina", c_disc), ("serie", c_serie), ("media", c_med)] if c is None]
+    if missing:
+        raise ValueError(f"colunas ausentes em {os.path.basename(path)}: {missing}")
+
+    out = pd.DataFrame()
+    out['_serie'] = df[c_serie].astype(str).str.strip().str[0].map(
+        {"5": "5EF", "9": "9EF", "3": "EM", "4": "EM"})
+    out['_disc'] = df[c_disc].astype(str).apply(
+        lambda x: "lp" if ("PORT" in _norm(x) or "LINGUA" in _norm(x)) else ("mt" if "MAT" in _norm(x) else None))
+    out['_med'] = pd.to_numeric(df[c_med], errors='coerce')
+    out['_part'] = pd.to_numeric(df[c_part], errors='coerce') if c_part else np.nan
+    out['_pres'] = pd.to_numeric(df[c_pres], errors='coerce') if c_pres else 0
+    out['_inep'] = pd.to_numeric(df[c_esc], errors='coerce')
+    out['_cod'] = pd.to_numeric(df[c_mun], errors='coerce')
+    out['_nesc'] = df[c_nesc].astype(str) if c_nesc else out['_inep'].astype(str)
+    out['_nmun'] = df[c_nmun].astype(str) if c_nmun else ''
+    for n in range(11):
+        out[f'_n{n}'] = pd.to_numeric(df[niv_cols[n]], errors='coerce') if niv_cols[n] else np.nan
+
+    out = out.dropna(subset=['_serie', '_disc', '_med', '_inep', '_cod']).copy()
+    out['_w'] = out['_pres'].fillna(0)
+    out['_inep'] = out['_inep'].astype('int64').astype(str)
+    out['_cod'] = out['_cod'].astype('int64').astype(str).str[:7]
+    return out
+
+
+def _padrao_from_rows(rows, et, disc):
     """Distribuicao (%) nos 4 padroes, ponderada por PRESENTES, p/ etapa+disciplina."""
     cortes = PADRAO_CORTES[et][disc]
     tot = [0.0] * 11
@@ -306,10 +171,7 @@ def _padrao_from_rows(rows, niv_cols, et, disc):
         if not w or w <= 0:
             continue
         for n in range(11):
-            nc = niv_cols[n]
-            if nc is None:
-                continue
-            v = r[nc]
+            v = r.get(f'_n{n}')
             if pd.notna(v):
                 tot[n] += (float(v) / 100.0) * w
     total = sum(tot)
@@ -328,7 +190,8 @@ def _padrao_from_rows(rows, niv_cols, et, disc):
             cats["avanc"] += tot[n]
     return {k: round(v / total * 100, 1) for k, v in cats.items()}
 
-def _padrao_block(rows, niv_cols):
+
+def _padrao_block(rows):
     """Bloco {etapa: {disc: {4 padroes}}} p/ um recorte de linhas."""
     out = {}
     for et in ["5EF", "9EF", "EM"]:
@@ -339,439 +202,213 @@ def _padrao_block(rows, niv_cols):
         for disc in ["lp", "mt"]:
             sd = sub[sub['_disc'] == disc]
             if not sd.empty:
-                p = _padrao_from_rows(sd, niv_cols, et, disc)
+                p = _padrao_from_rows(sd, et, disc)
                 if p:
                     block[disc] = p
         if block:
             out[et] = block
     return out
 
-def add_saeb_2025(resultado):
-    """Le a base SAEB 2025 por escola (Estadual RS) e injeta em `resultado`:
-    serie_temporal['2025'], por_municipio['2025'], por_escola_2025, padrao_desempenho_2025."""
-    if not os.path.exists(SAEB2025_FILE):
-        print(f"  [AVISO] SAEB 2025 nao encontrado: {SAEB2025_FILE}")
-        return
-    print("\n  --- SAEB 2025 por escola (Estadual) ---")
-    df = pd.read_excel(SAEB2025_FILE, sheet_name=0)
-    cols = {_norm(c): c for c in df.columns}
 
-    def col(*parts_options):
-        for parts in parts_options:
-            for nc, orig in cols.items():
-                if all(p in nc for p in parts):
-                    return orig
-        return None
+def _simple_mean(sub):
+    return round(float(sub['_med'].mean()), 1) if not sub.empty else None
 
-    c_esc = col(("CODIGO", "ESCOLA"), ("COD", "ESCOLA"))
-    c_mun = col(("CODIGO", "MUNICIPIO"), ("COD", "MUNICIPIO"))
-    c_nesc = col(("NOME", "ESCOLA"),)
-    c_disc = col(("DISCIPLINA",),)
-    c_serie = col(("SERIE",),)
-    c_med = col(("MEDIA",),)
-    c_part = col(("TAXA", "PARTICIPACAO"), ("PARTICIPACAO",))
-    c_pres = col(("PRESENTES",),)
-    c_mat = col(("MATRICULADOS",), ("MATRICULAD",))
-    niv_cols = []
-    for n in range(11):
-        target = f"NIVEL {n}"
-        found = next((orig for nc, orig in cols.items() if nc == target), None)
-        niv_cols.append(found)
-
-    missing = [name for name, c in [("cod_escola", c_esc), ("cod_mun", c_mun),
-               ("disciplina", c_disc), ("serie", c_serie), ("media", c_med)] if c is None]
-    if missing:
-        print(f"    [ERRO] colunas ausentes: {missing} — 2025 nao adicionado")
-        return
-
-    df['_serie'] = df[c_serie].astype(str).str.strip().str[0].map(
-        {"5": "5EF", "9": "9EF", "3": "EM", "4": "EM"})
-    df['_disc'] = df[c_disc].astype(str).apply(
-        lambda x: "lp" if ("PORT" in _norm(x) or "LINGUA" in _norm(x)) else ("mt" if "MAT" in _norm(x) else None))
-    df['_med'] = pd.to_numeric(df[c_med], errors='coerce')
-    df['_part'] = pd.to_numeric(df[c_part], errors='coerce') if c_part else np.nan
-    df['_pres'] = pd.to_numeric(df[c_pres], errors='coerce') if c_pres else 0
-    df['_w'] = df['_pres'].fillna(0)
-
-    d = df.dropna(subset=['_serie', '_disc'])
-    d = d[d['_med'].notna()].copy()
-    d['_cod'] = d[c_mun].astype('int64').astype(str).str[:7]
-    d['_inep'] = d[c_esc].astype('int64').astype(str)
-
-    mun_to_cre = _load_mun_to_cre()
-    geo = _load_escolas_geo()
-    d['_cre'] = d['_cod'].map(mun_to_cre).fillna('')
-
-    def simple_mean(sub):
-        return round(float(sub['_med'].mean()), 1) if not sub.empty else None
-
-    # serie_temporal['2025'] — media simples de escolas (consistente com a serie historica)
-    serie = {"n_escolas_total": int(d['_inep'].nunique())}
-    for et in ["5EF", "9EF", "EM"]:
-        sub = d[d['_serie'] == et]
-        if sub.empty:
-            continue
-        serie[et] = {
-            "media_lp": simple_mean(sub[sub['_disc'] == 'lp']),
-            "media_mt": simple_mean(sub[sub['_disc'] == 'mt']),
-            "n_escolas": int(sub['_inep'].nunique()),
-            "label": ETAPAS[et]["label"],
-        }
-    resultado.setdefault("serie_temporal", {})["2025"] = serie
-
-    # por_municipio['2025'] — media simples por municipio
-    mun2025 = {}
-    for cod, g in d.groupby('_cod'):
-        entry = {}
-        for et in ["5EF", "9EF", "EM"]:
-            s = g[g['_serie'] == et]
-            if s.empty:
-                continue
-            entry[et] = {
-                "media_lp": simple_mean(s[s['_disc'] == 'lp']),
-                "media_mt": simple_mean(s[s['_disc'] == 'mt']),
-            }
-        if entry:
-            mun2025[cod] = entry
-    resultado.setdefault("por_municipio", {})["2025"] = mun2025
-
-    # por_escola_2025 — nivel escola (mapa + tabela)
-    por_escola = {}
-    for inep, g in d.groupby('_inep'):
-        rec = {
-            "nome": str(g[c_nesc].iloc[0]) if c_nesc else inep,
-            "cod_mun": str(g['_cod'].iloc[0]),
-            "cre": str(g['_cre'].iloc[0] or (mun_to_cre.get(str(g['_cod'].iloc[0]), ''))),
-            "e": {},
-        }
-        gg = geo.get(inep)
-        if gg and gg.get('lat') is not None and gg.get('lng') is not None:
-            rec["lat"] = gg["lat"]
-            rec["lng"] = gg["lng"]
-        for et in ["5EF", "9EF", "EM"]:
-            s = g[g['_serie'] == et]
-            if s.empty:
-                continue
-            etd = {}
-            lp = s[s['_disc'] == 'lp']
-            mt = s[s['_disc'] == 'mt']
-            if not lp.empty:
-                etd["lp"] = round(float(lp['_med'].iloc[0]), 1)
-                pv = lp['_part'].iloc[0]
-                etd["part_lp"] = None if pd.isna(pv) else round(float(pv), 1)
-                pr = lp['_pres'].iloc[0]
-                etd["pres"] = 0 if pd.isna(pr) else int(pr)
-            if not mt.empty:
-                etd["mt"] = round(float(mt['_med'].iloc[0]), 1)
-                pv = mt['_part'].iloc[0]
-                etd["part_mt"] = None if pd.isna(pv) else round(float(pv), 1)
-                if "pres" not in etd:
-                    pr = mt['_pres'].iloc[0]
-                    etd["pres"] = 0 if pd.isna(pr) else int(pr)
-            if etd:
-                rec["e"][et] = etd
-        por_escola[inep] = rec
-    resultado["por_escola_2025"] = por_escola
-
-    # padrao_desempenho_2025 — estadual + por CRE + por municipio (reativo ao filtro)
-    padrao = {
-        "estadual": _padrao_block(d, niv_cols),
-        "por_cre": {},
-        "por_municipio": {},
-        "cortes": PADRAO_CORTES,
-        "obs": "Cortes preliminares (multiplos de 25, ref. QEdu). Validar com analise SAEB.",
-    }
-    for cod, g in d.groupby('_cod'):
-        b = _padrao_block(g, niv_cols)
-        if b:
-            padrao["por_municipio"][cod] = b
-    for cre, g in d.groupby('_cre'):
-        if not cre:
-            continue
-        b = _padrao_block(g, niv_cols)
-        if b:
-            padrao["por_cre"][cre] = b
-    resultado["padrao_desempenho_2025"] = padrao
-
-    n_geo = sum(1 for r in por_escola.values() if 'lat' in r)
-    print(f"    2025: {len(por_escola)} escolas ({n_geo} c/ coord) | "
-          f"municipios={len(mun2025)} | cres_padrao={len(padrao['por_cre'])}")
-    for et in ["5EF", "9EF", "EM"]:
-        if et in serie:
-            print(f"      {et}: LP={serie[et]['media_lp']} MT={serie[et]['media_mt']} "
-                  f"({serie[et]['n_escolas']} esc)")
 
 def main():
     t0 = time.time()
     print("=" * 60)
-    print("ETL SAEB — MULTI-REDE RS")
+    print("ETL SAEB — Rede Estadual identificada por escola (2017-2025)")
     print("=" * 60)
-    
-    # Process each year dir once, cache raw DFs
-    year_dirs = sorted(os.listdir(SAEB_DIR))
-    raw_dfs = {}  # ano -> df (all RS, unfiltered by rede)
-    year_paths = {}  # ano -> year_path (for aluno CSV fallback)
-    
-    for yd in year_dirs:
-        year_path = os.path.join(SAEB_DIR, yd)
-        if not os.path.isdir(year_path):
+
+    mun_to_cre = _load_mun_to_cre()
+    geo = _load_escolas_geo()
+
+    resultado = {
+        "metadata": {
+            "fonte": "INEP/SEDUC — SAEB por escola (Rede Estadual RS)",
+            "recorte": "Rede Estadual RS",
+            "gerado_em": pd.Timestamp.now().isoformat(),
+        },
+        "anos": [],
+        "serie_temporal": {},
+        "por_municipio": {},
+        "lookup_municipios": {},
+        "por_escola": {},
+        "padrao_desempenho": {},
+        "cortes": PADRAO_CORTES,
+    }
+    lookup = resultado["lookup_municipios"]
+    por_escola = resultado["por_escola"]
+    xlsx_rows = []
+
+    for ano, fn in SAEB_FILES.items():
+        p = os.path.join(IDEB_DIR, fn)
+        if not os.path.exists(p):
+            print(f"  [AVISO] {fn} nao encontrado — pulando {ano}")
             continue
-        ano = ''.join(c for c in yd if c.isdigit())[:4]
-        if not ano or int(ano) < 2013:
+        try:
+            d = load_year(p)
+        except Exception as e:
+            print(f"  [ERRO] {ano}: {e}")
             continue
-        escola_csv = find_escola_csv(year_path)
-        if not escola_csv:
+        if d.empty:
+            print(f"  [AVISO] {ano}: base vazia")
             continue
-        print(f"  {ano}: lendo...", end=" ", flush=True)
-        df = load_escola_csv(escola_csv, ano)
-        # Filter RS only (all redes)
-        if 'ID_UF' in df.columns:
-            df = df[df['ID_UF'] == UF_RS]
-        elif 'CO_UF' in df.columns:
-            df = df[df['CO_UF'] == UF_RS]
-        print(f"{len(df)} escolas RS")
-        raw_dfs[ano] = df
-        year_paths[ano] = year_path
-    
-    # Generate per-rede JSONs
-    for rede_key, rede_cfg in REDES.items():
-        print(f"\n{'='*60}")
-        print(f"  REDE: {rede_key.upper()} ({rede_cfg['label']})")
-        print(f"{'='*60}")
-        
-        resultado = {
-            "metadata": {
-                "fonte": "Microdados SAEB/INEP",
-                "recorte": f"Rede {rede_cfg['label']} RS",
-                "gerado_em": pd.Timestamp.now().isoformat(),
-            },
-            "serie_temporal": {},
-        }
-        all_schools = []
-        
-        for ano, df_raw in sorted(raw_dfs.items()):
-            # Filter by rede using IN_PUBLICA
-            pub_filter = rede_cfg['pub']
-            if pub_filter is not None and 'IN_PUBLICA' in df_raw.columns:
-                df = df_raw[df_raw['IN_PUBLICA'] == pub_filter].copy()
-            else:
-                df = df_raw.copy()
-            
-            n_rede = len(df)
-            medias = extract_medias(df, ano)
-            
-            # Fallback: if EM missing, try TS_ALUNO_3EM.csv
-            if 'EM' not in medias and ano in year_paths:
-                aluno_em_csv = find_aluno_em_csv(year_paths[ano])
-                if aluno_em_csv:
-                    print(f"    {ano}: EM ausente em TS_ESCOLA, lendo TS_ALUNO_3EM...", end=" ", flush=True)
-                    em_data = extract_em_from_alunos(aluno_em_csv, pub_filter=rede_cfg['pub'])
-                    if em_data:
-                        medias['EM'] = em_data
-                        print(f"{em_data['n_escolas']} escolas EM")
-                    else:
-                        print("sem dados")
-            
-            ano_data = {"n_escolas_total": n_rede}
-            for etapa_key, etapa_data in medias.items():
-                ano_data[etapa_key] = {
-                    "media_lp": etapa_data["media_lp"],
-                    "media_mt": etapa_data["media_mt"],
-                    "n_escolas": etapa_data["n_escolas"],
-                    "label": etapa_data["label"],
-                }
-                if rede_key == 'estadual':
-                    for esc in etapa_data["escolas"]:
-                        row = {
-                            "ANO": int(ano),
-                            "ID_ESCOLA": int(esc["ID_ESCOLA"]),
-                            "ETAPA": etapa_data["label"],
-                            "MEDIA_LP": esc.get("lp"),
-                            "MEDIA_MT": esc.get("mt"),
-                        }
-                        if "matriculados" in esc:
-                            row["MATRICULADOS"] = esc.get("matriculados")
-                        if "presentes" in esc:
-                            row["PRESENTES"] = esc.get("presentes")
-                        all_schools.append(row)
-            
-            resultado["serie_temporal"][ano] = ano_data
-            etapas_str = ", ".join(f"{k}({v['n_escolas']} esc)" for k, v in medias.items())
-            print(f"  {ano}: {n_rede} escolas | {etapas_str}")
-        
-        # ── Per-municipality data from TS_MUNICIPIO.xlsx (official INEP) ──
-        por_municipio = {}
-        lookup_municipios = {}
-        
-        ts_mun_files = glob.glob(os.path.join(SAEB_DIR, "**/TS_MUNICIPIO.xlsx"), recursive=True)
-        # Also check for year-suffixed files like TS_MUNICIPIO_2015.xlsx
-        ts_mun_files += glob.glob(os.path.join(SAEB_DIR, "**/TS_MUNICIPIO_*.xlsx"), recursive=True)
-        
-        for mf in sorted(ts_mun_files):
-            # Determine year from parent dir
-            parent = os.path.basename(os.path.dirname(os.path.dirname(mf)))
-            yr_digits = ''.join(c for c in parent if c.isdigit())[:4]
-            if not yr_digits or int(yr_digits) < 2013:
+
+        resultado["anos"].append(ano)
+        d['_cre'] = d['_cod'].map(mun_to_cre).fillna('')
+
+        for cod, nm in zip(d['_cod'], d['_nmun']):
+            if nm and nm != 'nan':
+                lookup.setdefault(cod, nm)
+
+        # --- serie_temporal[ano] (media simples de escolas) ---
+        serie = {"n_escolas_total": int(d['_inep'].nunique())}
+        for et in ["5EF", "9EF", "EM"]:
+            sub = d[d['_serie'] == et]
+            if sub.empty:
                 continue
-            
-            try:
-                mdf = pd.read_excel(mf)
-                # Some files have header rows — detect
-                if 'CO_MUNICIPIO' not in mdf.columns and 'NO_MUNICIPIO' not in mdf.columns:
-                    # Try reading with header at row 1 or 2
-                    for skip in [1, 2, 3]:
-                        mdf = pd.read_excel(mf, header=skip)
-                        if 'CO_MUNICIPIO' in mdf.columns:
-                            break
-                
-                if 'CO_MUNICIPIO' not in mdf.columns:
-                    print(f"    SKIP {os.path.basename(mf)}: no CO_MUNICIPIO column")
+            serie[et] = {
+                "media_lp": _simple_mean(sub[sub['_disc'] == 'lp']),
+                "media_mt": _simple_mean(sub[sub['_disc'] == 'mt']),
+                "n_escolas": int(sub['_inep'].nunique()),
+                "label": ETAPA_LABEL[et],
+            }
+        resultado["serie_temporal"][ano] = serie
+
+        # --- por_municipio[ano] ---
+        mun = {}
+        for cod, g in d.groupby('_cod'):
+            entry = {}
+            for et in ["5EF", "9EF", "EM"]:
+                s = g[g['_serie'] == et]
+                if s.empty:
                     continue
-                
-                # Filter RS
-                uf_col = 'CO_UF' if 'CO_UF' in mdf.columns else None
-                if uf_col:
-                    mdf = mdf[mdf[uf_col] == UF_RS]
-                else:
-                    mdf = mdf[mdf['CO_MUNICIPIO'].astype(str).str.startswith('43')]
-                
-                # Filter by DEPENDENCIA_ADM based on rede
-                if 'DEPENDENCIA_ADM' in mdf.columns:
-                    if rede_key == 'estadual':
-                        # "Estadual" in this context = public = Est+Mun+Fed
-                        # Get Total or filter Estadual+Municipal+Federal
-                        mdf_total = mdf[mdf['DEPENDENCIA_ADM'] == 'Total']
-                        if len(mdf_total) == 0:
-                            mdf = mdf[mdf['DEPENDENCIA_ADM'].isin(['Estadual', 'Municipal', 'Federal'])]
-                        else:
-                            mdf = mdf_total
-                    elif rede_key == 'privada':
-                        mdf = mdf[mdf['DEPENDENCIA_ADM'] == 'Privada']
-                    else:  # todas
-                        mdf_total = mdf[mdf['DEPENDENCIA_ADM'] == 'Total']
-                        if len(mdf_total) > 0:
-                            mdf = mdf_total
-                
-                # Also filter LOCALIZACAO = Total (if column exists)
-                if 'LOCALIZACAO' in mdf.columns:
-                    loc_total = mdf[mdf['LOCALIZACAO'] == 'Total']
-                    if len(loc_total) > 0:
-                        mdf = loc_total
-                
-                # Build municipality data
-                mun_data = {}
-                for _, row in mdf.iterrows():
-                    cod = str(int(row['CO_MUNICIPIO']))[:7]
-                    nome = str(row.get('NO_MUNICIPIO', ''))
-                    if nome and nome != 'nan':
-                        lookup_municipios[cod] = nome
-                    
-                    entry = {}
-                    # 5EF
-                    lp5 = pd.to_numeric(row.get('MEDIA_5_LP', None), errors='coerce')
-                    mt5 = pd.to_numeric(row.get('MEDIA_5_MT', None), errors='coerce')
-                    if pd.notna(lp5):
-                        entry['5EF'] = {'media_lp': round(float(lp5), 1), 'media_mt': round(float(mt5), 1) if pd.notna(mt5) else None}
-                    
-                    # 9EF
-                    lp9 = pd.to_numeric(row.get('MEDIA_9_LP', None), errors='coerce')
-                    mt9 = pd.to_numeric(row.get('MEDIA_9_MT', None), errors='coerce')
-                    if pd.notna(lp9):
-                        entry['9EF'] = {'media_lp': round(float(lp9), 1), 'media_mt': round(float(mt9), 1) if pd.notna(mt9) else None}
-                    
-                    # EM — column varies by year
-                    for em_lp_col, em_mt_col in [('MEDIA_12_LP','MEDIA_12_MT'), ('MEDIA_3_LP','MEDIA_3_MT'), ('MEDIA_EM_LP','MEDIA_EM_MT'), ('MEDIA_EMT_LP','MEDIA_EMT_MT')]:
-                        lp_em = pd.to_numeric(row.get(em_lp_col, None), errors='coerce')
-                        mt_em = pd.to_numeric(row.get(em_mt_col, None), errors='coerce')
-                        if pd.notna(lp_em):
-                            entry['EM'] = {'media_lp': round(float(lp_em), 1), 'media_mt': round(float(mt_em), 1) if pd.notna(mt_em) else None}
-                            break
-                    
-                    if entry:
-                        if cod in mun_data:
-                            # Aggregate multiple dep_adm rows (est+mun+fed) for public
-                            for etapa, vals in entry.items():
-                                if etapa not in mun_data[cod]:
-                                    mun_data[cod][etapa] = vals
-                                else:
-                                    # Average the two (weighted would be better but we don't have n)
-                                    existing = mun_data[cod][etapa]
-                                    for metric in ['media_lp', 'media_mt']:
-                                        if vals.get(metric) is not None and existing.get(metric) is not None:
-                                            existing[metric] = round((existing[metric] + vals[metric]) / 2, 1)
-                        else:
-                            mun_data[cod] = entry
-                
-                if mun_data:
-                    por_municipio[yr_digits] = mun_data
-                    print(f"    TS_MUNICIPIO {yr_digits}: {len(mun_data)} municipios")
-            except Exception as e:
-                print(f"    ERRO TS_MUNICIPIO {mf}: {e}")
-        
-        resultado["por_municipio"] = por_municipio
-        resultado["lookup_municipios"] = lookup_municipios
+                entry[et] = {
+                    "media_lp": _simple_mean(s[s['_disc'] == 'lp']),
+                    "media_mt": _simple_mean(s[s['_disc'] == 'mt']),
+                }
+            if entry:
+                mun[cod] = entry
+        resultado["por_municipio"][ano] = mun
 
-        # SAEB 2025 por escola — apenas rede Estadual (base nova e' Estadual-only)
-        if rede_key == 'estadual':
-            add_saeb_2025(resultado)
+        # --- padrao_desempenho[ano] ---
+        padrao = {"estadual": _padrao_block(d), "por_cre": {}, "por_municipio": {}}
+        for cod, g in d.groupby('_cod'):
+            b = _padrao_block(g)
+            if b:
+                padrao["por_municipio"][cod] = b
+        for cre, g in d.groupby('_cre'):
+            if not cre:
+                continue
+            b = _padrao_block(g)
+            if b:
+                padrao["por_cre"][cre] = b
+        resultado["padrao_desempenho"][ano] = padrao
 
-        # Save JSON
-        out_json = os.path.join(PAINEL_DIR, f"4_6_saeb_{rede_key}.json")
-        with open(out_json, "w", encoding="utf-8") as f:
-            json.dump(resultado, f, ensure_ascii=False, indent=2)
-        print(f"  JSON: {os.path.basename(out_json)} ({os.path.getsize(out_json)/1024:.0f} KB)")
-        
-        # XLSX only for estadual
-        if rede_key == 'estadual' and all_schools:
-            print("\n  Gerando XLSX evolucao por escola (estadual)...")
-            df_all = pd.DataFrame(all_schools)
-            if len(df_all) > 0 and os.path.exists(ESCOLAS_REF):
-                ref = pd.read_excel(ESCOLAS_REF)
-                id_col = [c for c in ref.columns if 'INEP' in c or 'ENTIDADE' in c or 'digo' in c][0]
-                nome_col = [c for c in ref.columns if 'Nome' in c][0]
-                mun_col = [c for c in ref.columns if 'Munic' in c and 'Cód' not in c][0]
-                ref = ref.rename(columns={id_col: 'ID_ESCOLA', nome_col: 'NOME_ESCOLA', mun_col: 'MUNICIPIO'})
-                ref = ref[['ID_ESCOLA', 'NOME_ESCOLA', 'MUNICIPIO']]
-                df_all = df_all.merge(ref, on='ID_ESCOLA', how='left')
-            
-            xlsx_path = os.path.join(BASE, "SAEB_Evolucao_Escolas_Estaduais_RS.xlsx")
+        # --- por_escola (multi-ano) ---
+        for inep, g in d.groupby('_inep'):
+            rec = por_escola.get(inep)
+            if rec is None:
+                cod = str(g['_cod'].iloc[0])
+                rec = {
+                    "nome": str(g['_nesc'].iloc[0]),
+                    "cod_mun": cod,
+                    "cre": str(g['_cre'].iloc[0] or mun_to_cre.get(cod, '')),
+                    "anos": {},
+                }
+                gg = geo.get(inep)
+                if gg and gg.get('lat') is not None and gg.get('lng') is not None:
+                    rec["lat"] = gg["lat"]
+                    rec["lng"] = gg["lng"]
+                por_escola[inep] = rec
+            ad = {}
+            for et in ["5EF", "9EF", "EM"]:
+                s = g[g['_serie'] == et]
+                if s.empty:
+                    continue
+                etd = {}
+                lp = s[s['_disc'] == 'lp']
+                mt = s[s['_disc'] == 'mt']
+                if not lp.empty:
+                    etd["lp"] = round(float(lp['_med'].iloc[0]), 1)
+                    pv = lp['_part'].iloc[0]
+                    etd["part_lp"] = None if pd.isna(pv) else round(float(pv), 1)
+                    pr = lp['_pres'].iloc[0]
+                    etd["pres"] = 0 if pd.isna(pr) else int(pr)
+                if not mt.empty:
+                    etd["mt"] = round(float(mt['_med'].iloc[0]), 1)
+                    pv = mt['_part'].iloc[0]
+                    etd["part_mt"] = None if pd.isna(pv) else round(float(pv), 1)
+                    if "pres" not in etd:
+                        pr = mt['_pres'].iloc[0]
+                        etd["pres"] = 0 if pd.isna(pr) else int(pr)
+                if etd:
+                    ad[et] = etd
+            if ad:
+                rec["anos"][ano] = ad
+
+        # --- linhas p/ XLSX ---
+        for _, r in d.iterrows():
+            xlsx_rows.append({
+                "ANO": int(ano),
+                "ID_ESCOLA": int(r['_inep']),
+                "NOME_ESCOLA": r['_nesc'],
+                "MUNICIPIO": r['_nmun'],
+                "ETAPA": ETAPA_LABEL[r['_serie']],
+                "DISC": r['_disc'].upper(),
+                "MEDIA": r['_med'],
+            })
+
+        resumo = " | ".join(
+            f"{et}:LP={serie[et]['media_lp']}/MT={serie[et]['media_mt']}"
+            for et in ["5EF", "9EF", "EM"] if et in serie)
+        print(f"  {ano}: {serie['n_escolas_total']} escolas | {resumo}")
+
+    n_geo = sum(1 for r in por_escola.values() if 'lat' in r)
+    print(f"\n  por_escola: {len(por_escola)} escolas ({n_geo} c/ coord) | "
+          f"municipios={len(lookup)} | anos={resultado['anos']}")
+
+    # --- Salvar JSON ---
+    out_json = os.path.join(PAINEL_DIR, "4_6_saeb_estadual.json")
+    with open(out_json, "w", encoding="utf-8") as f:
+        json.dump(resultado, f, ensure_ascii=False, indent=2)
+    print(f"  JSON: {os.path.basename(out_json)} ({os.path.getsize(out_json)/1024:.0f} KB)")
+
+    for dst in [os.path.join(PAINEL_DIR, "4_6_saeb.json"), os.path.join(OUT_DIR, "4_6_saeb.json")]:
+        if os.path.abspath(dst) != os.path.abspath(out_json):
+            shutil.copy2(out_json, dst)
+    print("  [COMPAT] Copiado -> 4_6_saeb.json")
+
+    # --- XLSX evolucao por escola (nomes reais por ano) ---
+    if xlsx_rows:
+        print("\n  Gerando XLSX evolucao por escola...")
+        df_all = pd.DataFrame(xlsx_rows)
+        xlsx_path = os.path.join(BASE, "SAEB_Evolucao_Escolas_Estaduais_RS.xlsx")
+        try:
             with pd.ExcelWriter(xlsx_path, engine='openpyxl') as writer:
-                for etapa_label in df_all['ETAPA'].unique():
-                    de = df_all[df_all['ETAPA'] == etapa_label].copy()
-                    pivot_lp = de.pivot_table(index='ID_ESCOLA', columns='ANO', values='MEDIA_LP', aggfunc='first')
-                    pivot_lp.columns = [f"LP_{c}" for c in pivot_lp.columns]
-                    pivot_mt = de.pivot_table(index='ID_ESCOLA', columns='ANO', values='MEDIA_MT', aggfunc='first')
-                    pivot_mt.columns = [f"MT_{c}" for c in pivot_mt.columns]
-                    pivot = pivot_lp.join(pivot_mt)
-                    if 'NOME_ESCOLA' in de.columns:
-                        nomes = de.drop_duplicates('ID_ESCOLA').set_index('ID_ESCOLA')[['NOME_ESCOLA', 'MUNICIPIO']]
-                        pivot = nomes.join(pivot)
-                    pivot = pivot.reset_index()
-                    lp_cols = [c for c in pivot.columns if c.startswith('LP_')]
-                    mt_cols = [c for c in pivot.columns if c.startswith('MT_')]
-                    if len(lp_cols) >= 2:
-                        pivot['DELTA_LP'] = pivot[lp_cols[-1]] - pivot[lp_cols[0]]
-                    if len(mt_cols) >= 2:
-                        pivot['DELTA_MT'] = pivot[mt_cols[-1]] - pivot[mt_cols[0]]
-                    sheet_name = etapa_label.replace("º", "").replace(" ", "_")[:31]
-                    pivot.to_excel(writer, sheet_name=sheet_name, index=False)
-                    print(f"    Aba '{sheet_name}': {len(pivot)} escolas")
+                for etapa_label in ["5º Ano EF", "9º Ano EF", "Ens. Médio"]:
+                    de = df_all[df_all['ETAPA'] == etapa_label]
+                    if de.empty:
+                        continue
+                    piv_lp = de[de['DISC'] == 'LP'].pivot_table(
+                        index='ID_ESCOLA', columns='ANO', values='MEDIA', aggfunc='first')
+                    piv_lp.columns = [f"LP_{c}" for c in piv_lp.columns]
+                    piv_mt = de[de['DISC'] == 'MT'].pivot_table(
+                        index='ID_ESCOLA', columns='ANO', values='MEDIA', aggfunc='first')
+                    piv_mt.columns = [f"MT_{c}" for c in piv_mt.columns]
+                    piv = piv_lp.join(piv_mt, how='outer')
+                    nomes = de.drop_duplicates('ID_ESCOLA').set_index('ID_ESCOLA')[['NOME_ESCOLA', 'MUNICIPIO']]
+                    piv = nomes.join(piv, how='right').reset_index()
+                    sheet = etapa_label.replace("º", "").replace(" ", "_")[:31]
+                    piv.to_excel(writer, sheet_name=sheet, index=False)
+                    print(f"    Aba '{sheet}': {len(piv)} escolas")
             print(f"  XLSX: {xlsx_path}")
-    
-    # Backward compat
-    import shutil
-    src = os.path.join(PAINEL_DIR, "4_6_saeb_estadual.json")
-    for dst_name in ["4_6_saeb.json"]:
-        dst = os.path.join(PAINEL_DIR, dst_name)
-        if os.path.exists(src):
-            shutil.copy2(src, dst)
-    # Also copy to dados/
-    dst2 = os.path.join(OUT_DIR, "4_6_saeb.json")
-    if os.path.exists(src):
-        shutil.copy2(src, dst2)
-    print(f"\n[COMPAT] Copiado -> 4_6_saeb.json")
-    
+        except Exception as e:
+            print(f"  [AVISO] XLSX nao gerado: {e}")
+
     print(f"\nTempo total: {time.time()-t0:.1f}s")
+
 
 if __name__ == "__main__":
     main()
