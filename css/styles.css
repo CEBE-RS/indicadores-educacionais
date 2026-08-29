@@ -1430,6 +1430,18 @@ body.sidebar-hidden .main-scroll {
 
 .data-table thead { position: sticky; top: 0; z-index: 4; }
 
+/* Sticky header robusto p/ tabelas SAEB com scroll interno.
+   No modo border-collapse:collapse o cabecalho sticky "vaza" (linhas aparecem
+   por cima do header). Usa modelo separate + th opaco fixado no topo. */
+#saeb-esc-table, #saeb-mun-table { border-collapse: separate; border-spacing: 0; }
+#saeb-esc-table thead th, #saeb-mun-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: #eef2f7;
+  box-shadow: inset 0 -2px 0 var(--pri);
+}
+
 /* Sticky / frozen columns for horizontal scrolling tables */
 .data-table .sticky-col {
   position: sticky;
