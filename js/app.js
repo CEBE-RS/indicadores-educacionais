@@ -3804,8 +3804,8 @@ function renderSaeb() {
     <div class="section-sticky">
       ${sectionBanner('img/icons/sec_saeb.png', 'SAEB', geoLabel)}
       ${redeToggleHTML(
-        ['municipal', 'federal', 'filantropica'],
-        'SAEB só distingue Pública vs Privada (IN_PUBLICA). Não há separação por dependência administrativa.'
+        ['municipal', 'federal', 'filantropica', 'privada', 'todas'],
+        'SAEB por escola (INEP/SEDUC) disponível apenas para a Rede Estadual.'
       )}
       <div class="kpi-strip" id="saeb-kpis"></div>
     </div>
@@ -3868,27 +3868,20 @@ function renderSaeb() {
               </tr>
             </thead>
             <tbody>
-              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 200</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">200–249</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">250–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 300</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 225</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 325</td></tr>
-              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 225</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 325</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 250</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">250–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">300–349</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 350</td></tr>
-              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">EM</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 275</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">325–374</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 375</td></tr>
-              <tr style="background:#fafbfc"><td style="padding:4px 6px;font-weight:600">EM</td><td style="padding:4px 6px">MT</td><td style="padding:4px 6px;text-align:center">< 300</td><td style="padding:4px 6px;text-align:center">300–349</td><td style="padding:4px 6px;text-align:center">350–399</td><td style="padding:4px 6px;text-align:center">≥ 400</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 150</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">150–199</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">200–249</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 250</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">5º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 175</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">175–224</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 275</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 200</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">200–274</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">275–324</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 325</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">9º EF</td><td style="padding:4px 6px;border-bottom:1px solid #eee">MT</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 225</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">225–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">300–349</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 350</td></tr>
+              <tr><td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:600">EM</td><td style="padding:4px 6px;border-bottom:1px solid #eee">LP</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">< 250</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">250–299</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">300–374</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center">≥ 375</td></tr>
+              <tr style="background:#fafbfc"><td style="padding:4px 6px;font-weight:600">EM</td><td style="padding:4px 6px">MT</td><td style="padding:4px 6px;text-align:center">< 275</td><td style="padding:4px 6px;text-align:center">275–349</td><td style="padding:4px 6px;text-align:center">350–399</td><td style="padding:4px 6px;text-align:center">≥ 400</td></tr>
             </tbody>
           </table>
           <p style="font-size:9px;margin:6px 0 0;color:#999;line-height:1.5;font-style:italic">
-            Pontos de corte oficiais INEP/MEC. As faixas variam conforme etapa e disciplina.
+            Pontos de corte <strong>preliminares</strong> (ref. QEdu/Todos Pela Educação), os mesmos aplicados na seção "Padrão de Desempenho". A validar com a análise SAEB.
           </p>
           <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
-              <strong>Atenção:</strong> <em>"Estadual"</em> neste painel = todas as escolas <strong>públicas</strong>
-              (estaduais + municipais + federais), pois os microdados SAEB usam apenas a flag IN_PUBLICA (0/1).
-            </p>
-          </div>
-          <div style="margin-top:10px;background:rgba(255,203,4,.08);border:1px solid rgba(255,203,4,.18);border-radius:6px;padding:10px 14px">
-            <p style="font-size:10.5px;margin:0;color:#5D4037;line-height:1.7">
-              <strong>2023:</strong> O INEP <span style="position:relative;cursor:help;border-bottom:1px dotted #8D6E63" title="Leia-Me Microdados SAEB 2023, p. 11 — &quot;As máscaras, entendidas como códigos fictícios, foram utilizadas em todas as bases para evitar a identificação de escolas e municípios atendendo às regras de proteção de dados pessoais estabelecidas pela LGPD. No que diz respeito à padronização da máscara, o código fictício usado para cada escola ou município inicia com o dígito '6' e é o mesmo para todas as bases dos Microdados. O uso das máscaras se dá pela substituição dos códigos reais da escola e do município por códigos fictícios. O mascaramento dos códigos de Escolas e Municípios reduz significativamente a possibilidade de reidentificação dos alunos, professores, gestores escolares e municipais, por meio do cruzamento das bases disponibilizadas.&quot;"><strong>mascarou</strong> ⓘ</span> o código de município nos microdados.
-              Dados municipais disponíveis apenas até 2021.
+              <strong>Recorte:</strong> os dados desta seção vêm da base <strong>INEP/SEDUC por escola</strong> e referem-se à <strong>Rede Estadual do RS</strong>, com escolas identificadas em todos os anos (2017–2025).
             </p>
           </div>
           <div style="margin-top:10px;background:rgba(0,90,50,.05);border:1px solid rgba(0,90,50,.15);border-radius:6px;padding:10px 14px">
@@ -3951,24 +3944,26 @@ function renderSaeb() {
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
     </div>
-    ${saeb.serie_temporal['2025'] ? `
-    <div style="font-size:10px;color:#5D4037;background:rgba(255,203,4,.08);border:1px dashed rgba(255,203,4,.3);border-radius:6px;padding:7px 12px;margin-top:4px;line-height:1.6">
-      <strong>Nota 2025:</strong> o ponto de <strong>2025</strong> vem da base INEP/SEDUC por escola e refere-se <strong>somente à Rede Estadual</strong>;
-      os anos anteriores usam microdados SAEB com a flag pública (estaduais + municipais + federais). Compare a evolução com essa ressalva.
-    </div>` : ''}
-
-    ${saeb.padrao_desempenho_2025 ? `
-    <!-- ═══ EIXO: Padrão de Desempenho 2025 ═══ -->
+    ${(saeb.padrao_desempenho && Object.keys(saeb.padrao_desempenho).length) ? `
+    <!-- ═══ EIXO: Padrão de Desempenho (por escola) ═══ -->
     <div class="section-divider">
       <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
-      <span class="section-divider-text">Padrão de Desempenho — 2025 (por escola)</span>
+      <span class="section-divider-text">Padrão de Desempenho (por escola)</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
       <div class="chart-card">
-        <div class="chart-title">Distribuição de Alunos por Padrão de Desempenho — SAEB 2025${geoSuffix()}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+          <div class="chart-title" id="saeb-padrao-title" style="margin:0">Distribuição de Alunos por Padrão de Desempenho${geoSuffix()}</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
+            <label>Ano:</label>
+            <select id="sel-saeb-padrao-ano" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #ccc;font-family:Inter">
+              ${Object.keys(saeb.padrao_desempenho).sort().map(a => `<option value="${a}" ${a === ultimo ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+          </div>
+        </div>
         <div style="height:360px"><canvas id="chart-saeb-padrao"></canvas></div>
-        <div class="chart-source">Fonte: INEP/SEDUC-RS — SAEB 2025 por escola (Rede Estadual). Distribuição ponderada por presentes. Pontos de corte preliminares (ref. QEdu/Todos Pela Educação) — a validar.</div>
+        <div class="chart-source">Fonte: INEP/SEDUC-RS — SAEB por escola (Rede Estadual). Distribuição ponderada por presentes. Pontos de corte preliminares (ref. QEdu/Todos Pela Educação) — a validar.</div>
       </div>
     </div>` : ''}
 
@@ -4151,11 +4146,15 @@ function renderSaeb() {
   buildLine('chart-saeb-lp', 'media_lp');
   buildLine('chart-saeb-mt', 'media_mt');
 
-  // ── Padrão de Desempenho 2025 (barras 100% empilhadas, reativo ao filtro) ──
+  // ── Padrão de Desempenho (barras 100% empilhadas, reativo ao filtro e ano) ──
+  let padraoAno = (saeb.padrao_desempenho && saeb.padrao_desempenho[ultimo]) ? ultimo
+    : (saeb.padrao_desempenho ? Object.keys(saeb.padrao_desempenho).sort().pop() : null);
   function buildSaebPadrao() {
     const el = document.getElementById('chart-saeb-padrao');
-    const pd = saeb.padrao_desempenho_2025;
+    const pd = saeb.padrao_desempenho?.[padraoAno];
     if (!el || !pd) return;
+    // Destrói o gráfico de padrão anterior (troca de ano/filtro)
+    S.charts = S.charts.filter(c => { if (c.canvas?.id === 'chart-saeb-padrao') { c.destroy(); return false; } return true; });
     // Seleciona o bloco conforme filtro (município > CRE > estadual)
     let block = pd.estadual, escopo = getRedeLabel() + ' do RS';
     if (S.munSel && pd.por_municipio?.[S.munSel]) {
@@ -4179,8 +4178,8 @@ function renderSaeb() {
       { et: 'EM', disc: 'lp', label: 'EM · LP' }, { et: 'EM', disc: 'mt', label: 'EM · MT' },
     ].filter(c => block && block[c.et] && block[c.et][c.disc]);
     if (!cols.length) {
-      el.parentElement.innerHTML = `<div class="chart-title">Distribuição por Padrão de Desempenho — 2025</div>
-        <div style="text-align:center;padding:60px 20px;color:var(--text-sec);font-size:12px">Sem dados de padrão de desempenho para ${escopo}.</div>`;
+      const title0 = document.getElementById('saeb-padrao-title');
+      if (title0) title0.textContent = `Padrão de Desempenho — SAEB ${padraoAno} · sem dados para ${escopo}`;
       return;
     }
     const labels = cols.map(c => c.label);
@@ -4214,10 +4213,11 @@ function renderSaeb() {
         },
       },
     }));
-    const title = el.closest('.chart-card')?.querySelector('.chart-title');
-    if (title) title.textContent = `Distribuição de Alunos por Padrão de Desempenho — SAEB 2025 · ${escopo}`;
+    const title = document.getElementById('saeb-padrao-title');
+    if (title) title.textContent = `Distribuição de Alunos por Padrão de Desempenho — SAEB ${padraoAno} · ${escopo}`;
   }
   buildSaebPadrao();
+  document.getElementById('sel-saeb-padrao-ano')?.addEventListener('change', e => { padraoAno = e.target.value; buildSaebPadrao(); });
 
   // ── Comparison bars: user-selectable years ──
   function buildSaebCompCharts(anoBase, anoComp) {
@@ -4319,6 +4319,10 @@ function renderSaeb() {
     const anoMapaDefault = anosComMun[anosComMun.length - 1];
     const lookup = saeb.lookup_municipios || {};
 
+    // Estado compartilhado dos filtros do mapa (declarado cedo p/ a tabela por escola usar mapAno)
+    let mapAno = anoMapaDefault, mapEtapa = '9EF', mapDisc = 'lp';
+    let refreshEscTable = null; // exposto pela seção "por escola" p/ reagir à troca de ano
+
     // SAEB breaks per etapa×disc (official INEP cutoffs)
     const SAEB_BREAKS = {
       '5EF_lp': [{min:0,max:200,color:'#C62828',label:'< 200'},{min:200,max:250,color:'#F9A825',label:'200–249'},{min:250,max:300,color:'#66BB6A',label:'250–299'},{min:300,max:999,color:'#2874A6',label:'≥ 300'}],
@@ -4357,7 +4361,7 @@ function renderSaeb() {
             <div class="map-layer-toggle">
               <button class="map-layer-btn active" id="saeb-btn-layer-mun">Municípios</button>
               <button class="map-layer-btn" id="saeb-btn-layer-cre">CREs</button>
-              ${saeb.por_escola_2025 ? `<button class="map-layer-btn" id="saeb-btn-layer-esc">Escolas 2025</button>` : ''}
+              ${saeb.por_escola ? `<button class="map-layer-btn" id="saeb-btn-layer-esc">Escolas</button>` : ''}
             </div>
           </div>
           <div id="saeb-map-leaflet" style="height:340px;border-radius:8px"></div>
@@ -4386,23 +4390,22 @@ function renderSaeb() {
         </div>
       </div>
       <div style="font-size:10px;color:var(--text-sec);padding:4px 8px;font-style:italic">
-        ℹ️ Dados municipais disponíveis apenas para anos com TS_MUNICÍPIO publicado pelo INEP (${anosComMun.join(', ')}).
-        2023 usa código de município fictício nos microdados.
+        ℹ️ Dados por escola da Rede Estadual (INEP/SEDUC), agregados por município. Anos disponíveis: ${anosComMun.join(', ')}.
       </div>`;
     document.getElementById('main-content').appendChild(mapSection);
 
-    // ── Tabela por Escola (SAEB 2025) ──
-    if (saeb.por_escola_2025) {
+    // ── Tabela por Escola (SAEB, multi-ano — usa o ano selecionado no mapa) ──
+    if (saeb.por_escola) {
       const escSection = document.createElement('div');
       escSection.innerHTML = `
         <div class="section-divider">
           <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
-          <span class="section-divider-text">Proficiência por Escola — SAEB 2025</span>
+          <span class="section-divider-text">Proficiência por Escola — SAEB</span>
           <span class="section-divider-line"></span>
         </div>
         <div class="chart-card">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
-            <div class="chart-title" id="saeb-esc-title" style="margin:0">Escolas Estaduais — SAEB 2025</div>
+            <div class="chart-title" id="saeb-esc-title" style="margin:0">Escolas Estaduais — SAEB</div>
             <input type="text" id="saeb-esc-search" placeholder="Buscar escola ou município..." style="flex:1;min-width:200px;max-width:340px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:Inter">
           </div>
           <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
@@ -4429,7 +4432,7 @@ function renderSaeb() {
 
       let escSortCol = 'nome', escSortAsc = true, escSearchStr = '';
       const escVal = (e, col) => {
-        const g = (et, d) => e.e?.[et]?.[d];
+        const g = (et, d) => e.anos?.[mapAno]?.[et]?.[d];
         switch (col) {
           case 'nome': return e.nome || '';
           case 'mun': return lookup[e.cod_mun] || e.cod_mun || '';
@@ -4446,7 +4449,8 @@ function renderSaeb() {
         const tbody = document.querySelector('#saeb-esc-table tbody');
         if (!tbody) return;
         const creMuns = S.creSel ? new Set(getCreMuns(S.creSel)) : null;
-        let rows = Object.entries(saeb.por_escola_2025).map(([inep, e]) => ({ inep, ...e }));
+        let rows = Object.entries(saeb.por_escola).map(([inep, e]) => ({ inep, ...e }));
+        rows = rows.filter(e => e.anos && e.anos[mapAno]); // só escolas avaliadas no ano do mapa
         if (S.munSel) rows = rows.filter(e => e.cod_mun === S.munSel);
         else if (creMuns) rows = rows.filter(e => creMuns.has(e.cod_mun));
         if (escSearchStr) rows = rows.filter(e => norm(e.nome).includes(escSearchStr) || norm(lookup[e.cod_mun] || e.cod_mun).includes(escSearchStr));
@@ -4457,7 +4461,7 @@ function renderSaeb() {
           return escSortAsc ? va - vb : vb - va;
         });
         const tt = document.getElementById('saeb-esc-title');
-        if (tt) tt.textContent = `Escolas Estaduais — SAEB 2025 (${rows.length})`;
+        if (tt) tt.textContent = `Escolas Estaduais — SAEB ${mapAno} (${rows.length})`;
         tbody.innerHTML = rows.map((e, i) => `
           <tr data-cod="${e.cod_mun}" style="cursor:pointer" class="${S.munSel === e.cod_mun ? 'selected' : ''}" title="Clique para filtrar por ${lookup[e.cod_mun] || e.cod_mun}">
             <td>${i + 1}</td>
@@ -4484,11 +4488,11 @@ function renderSaeb() {
         updateSaebEscTable();
       });
       document.getElementById('saeb-esc-search')?.addEventListener('input', e => { escSearchStr = norm(e.target.value); updateSaebEscTable(); });
+      refreshEscTable = updateSaebEscTable; // permite reagir à troca de ano no seletor do mapa
       updateSaebEscTable();
     }
 
-    // Shared state for map filters
-    let mapAno = anoMapaDefault, mapEtapa = '9EF', mapDisc = 'lp';
+    // Shared state for map filters (mapAno/mapEtapa/mapDisc declarados acima)
     let saebSortCol = 'lp9', saebSortAsc = false, saebSearchStr = '';
 
     const saebSearchInput = document.getElementById('saeb-mun-search');
@@ -4717,9 +4721,9 @@ function renderSaeb() {
       if (mt) mt.textContent = `Mapa SAEB por CRE — ${etLabel} ${discLabel} (${mapAno})`;
     }
 
-    // Build/update map — camada Escolas (2025, por escola)
+    // Build/update map — camada Escolas (por escola, ano selecionado no mapa)
     function updateSaebEscMap() {
-      const escs = saeb.por_escola_2025 || {};
+      const escs = saeb.por_escola || {};
       const breakKey = `${mapEtapa}_${mapDisc}`;
       const breaks = SAEB_BREAKS[breakKey] || SAEB_BREAKS['9EF_lp'];
       const field = mapDisc; // 'lp' | 'mt'
@@ -4736,7 +4740,7 @@ function renderSaeb() {
         if (e.lat == null || e.lng == null) continue;
         if (S.munSel && e.cod_mun !== S.munSel) continue;
         if (creMuns && !creMuns.has(e.cod_mun)) continue;
-        const etd = e.e?.[mapEtapa];
+        const etd = e.anos?.[mapAno]?.[mapEtapa];
         const v = etd ? etd[field] : null;
         if (v == null) continue;
         const part = etd['part_' + mapDisc];
@@ -4752,7 +4756,7 @@ function renderSaeb() {
       const legend = L.control({ position: 'bottomleft' });
       legend.onAdd = function () {
         const div = L.DomUtil.create('div', 'map-legend');
-        div.innerHTML = `<h4>Escolas — ${etLabel} ${discLabel} (2025)</h4>` +
+        div.innerHTML = `<h4>Escolas — ${etLabel} ${discLabel} (${mapAno})</h4>` +
           breaks.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('') +
           `<div class="map-legend-row" style="margin-top:4px;color:#777">${markers.length} escolas</div>`;
         return div;
@@ -4761,7 +4765,7 @@ function renderSaeb() {
       if (markers.length) { try { S.map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [25, 25] }); } catch (e) {} }
 
       const mt = document.getElementById('saeb-map-title');
-      if (mt) mt.textContent = `Mapa SAEB por Escola — ${etLabel} ${discLabel} (2025)${(S.creSel || S.munSel) ? ' · filtrado' : ''}`;
+      if (mt) mt.textContent = `Mapa SAEB por Escola — ${etLabel} ${discLabel} (${mapAno})${(S.creSel || S.munSel) ? ' · filtrado' : ''}`;
     }
 
     updateSaebTable();
@@ -4777,7 +4781,7 @@ function renderSaeb() {
     };
 
     // Bind map filter selectors
-    document.getElementById('sel-saeb-map-ano')?.addEventListener('change', e => { mapAno = e.target.value; updateSaebTable(); updateSaebActiveMap(); });
+    document.getElementById('sel-saeb-map-ano')?.addEventListener('change', e => { mapAno = e.target.value; updateSaebTable(); refreshEscTable?.(); updateSaebActiveMap(); });
     document.getElementById('sel-saeb-map-etapa')?.addEventListener('change', e => { mapEtapa = e.target.value; updateSaebActiveMap(); });
     document.getElementById('sel-saeb-map-disc')?.addEventListener('change', e => { mapDisc = e.target.value; updateSaebActiveMap(); });
 
@@ -15949,7 +15953,7 @@ async function init() {
     // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
     // Desigualdades — ver ensureDesig(). Mantê-lo aqui travava o boot no GitHub Pages.
     // Cache-bust por versao: garante JSON novo apos deploy (sem depender de refresh forcado)
-    const dv = '?v=110';
+    const dv = '?v=113';
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json' + dv),
       fetch('dados/rs_municipios.geojson' + dv),
