@@ -14094,6 +14094,18 @@ function renderEscolas() {
       </div>
     `;
 
+    // SEÇÃO SAEB (Full width inside Boletim) — proficiência por escola (INEP/SEDUC, 2017-2025)
+    cHtml += `
+      <div style="background:#fafbfc;border:1px solid #e0e0e0;border-radius:12px;padding:24px;margin-bottom:24px">
+        <div style="font-size:16px;font-weight:800;color:#0D47A1;display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <img src="img/icons/nav_saeb.png" style="width:24px;height:24px;filter:opacity(0.9)">
+          Desempenho no SAEB (Proficiência por Escola)
+        </div>
+        <div style="font-size:11px;color:#777;margin-bottom:16px">Proficiência média (TRI) em Língua Portuguesa e Matemática, por etapa — Rede Estadual (INEP/SEDUC), 2017–2025.</div>
+        <div id="boletim-saeb-content"></div>
+      </div>
+    `;
+
     // SEÇÃO SAERS (Full width inside Boletim)
     cHtml += `
       <div style="background:#fafbfc;border:1px solid #e0e0e0;border-radius:12px;padding:24px">
@@ -14129,6 +14141,7 @@ function renderEscolas() {
     window.renderBoletimIdeb(e.inep);
     window.renderBoletimTdi(e.inep);
     window.renderBoletimFluxo(e.inep);
+    window.renderBoletimSaeb(e.inep);
   };
 
   window.renderBoletimIdeb = function(inep) {
@@ -14175,6 +14188,92 @@ function renderEscolas() {
         }
       }
     });
+  };
+
+  window.renderBoletimSaeb = function(inep) {
+    const content = document.getElementById('boletim-saeb-content');
+    if (!content) return;
+    if (window.boletimSaebCharts) { window.boletimSaebCharts.forEach(c => { try { c.destroy(); } catch (e) {} }); }
+    window.boletimSaebCharts = [];
+
+    // Boletim é sempre de escolas estaduais — usa a base SAEB estadual (independente da rede selecionada)
+    const saebSrc = S.redeCache?.estadual?.saeb || S.saeb;
+    const rec = saebSrc?.por_escola?.[String(inep)];
+    if (!rec || !rec.anos || !Object.keys(rec.anos).length) {
+      content.innerHTML = `<div style="text-align:center;padding:30px 20px;color:#999;font-size:12px">Sem resultados do SAEB divulgados para esta escola no período 2017–2025. <br><span style="font-size:10px">O INEP não divulga proficiência de escolas que não atingem os critérios mínimos de participação (Portaria INEP nº 250/2021).</span></div>`;
+      return;
+    }
+
+    const anos = Object.keys(rec.anos).sort();
+    const etapas = [
+      { key: '5EF', label: '5º Ano EF', color: '#0D47A1' },
+      { key: '9EF', label: '9º Ano EF', color: '#1565C0' },
+      { key: 'EM',  label: 'Ens. Médio', color: '#C62828' },
+    ];
+    const ultimo = anos[anos.length - 1];
+    const ud = rec.anos[ultimo] || {};
+    const resumo = etapas.map(et => {
+      const d = ud[et.key]; if (!d) return '';
+      const parts = [];
+      if (d.lp != null) parts.push(`LP <strong>${d.lp.toFixed(1)}</strong>`);
+      if (d.mt != null) parts.push(`MT <strong>${d.mt.toFixed(1)}</strong>`);
+      if (!parts.length) return '';
+      return `<div><span style="color:${et.color};font-weight:700">${et.label}:</span> ${parts.join(' / ')}</div>`;
+    }).filter(Boolean).join('');
+
+    content.innerHTML = `
+      <div style="display:flex;justify-content:flex-start;gap:20px;flex-wrap:wrap;font-size:11.5px;color:#333;margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed #e0e0e0">
+        <div style="font-weight:700;color:#0D47A1">Resultados ${ultimo}:</div>
+        ${resumo || '<div style="color:#999">Sem médias divulgadas no último ano</div>'}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <div class="chart-card" style="padding:14px;background:#fff;border:1px solid #eee;border-radius:8px">
+          <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:10px">Língua Portuguesa</div>
+          <div style="height:210px;position:relative"><canvas id="boletim-chart-saeb-lp"></canvas></div>
+        </div>
+        <div class="chart-card" style="padding:14px;background:#fff;border:1px solid #eee;border-radius:8px">
+          <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:10px">Matemática</div>
+          <div style="height:210px;position:relative"><canvas id="boletim-chart-saeb-mt"></canvas></div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:#aaa;margin-top:8px;text-align:right">Fonte: INEP/SEDUC-RS — SAEB por escola (Rede Estadual). Proficiência média (TRI).</div>
+    `;
+
+    const build = (canvasId, disc) => {
+      const cctx = document.getElementById(canvasId);
+      if (!cctx) return;
+      const datasets = etapas.map(et => ({
+        label: et.label,
+        data: anos.map(a => rec.anos[a]?.[et.key]?.[disc] ?? null),
+        borderColor: et.color,
+        backgroundColor: et.color + '22',
+        borderWidth: 2.5, tension: 0.3, pointRadius: 4, spanGaps: true, fill: false,
+      })).filter(ds => ds.data.some(v => v != null));
+      if (!datasets.length) {
+        cctx.parentElement.innerHTML = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0">Sem dados nesta disciplina.</div>';
+        return;
+      }
+      const chart = new Chart(cctx, {
+        type: 'line',
+        data: { labels: anos, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          layout: { padding: { top: 22 } },
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 9 } } },
+            datalabels: { ...DL_LINE, formatter: v => v != null ? v.toFixed(0) : '' },
+            tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y != null ? c.parsed.y.toFixed(1) : '—'}` } },
+          },
+          scales: {
+            y: { beginAtZero: false, ticks: { font: { size: 10 } } },
+            x: { grid: { display: false } },
+          },
+        },
+      });
+      window.boletimSaebCharts.push(chart);
+    };
+    build('boletim-chart-saeb-lp', 'lp');
+    build('boletim-chart-saeb-mt', 'mt');
   };
 
   window.renderBoletimTdi = function(inep) {
