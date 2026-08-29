@@ -4362,7 +4362,7 @@ function renderSaeb() {
           </div>
           <div id="saeb-map-leaflet" style="height:340px;border-radius:8px"></div>
         </div>
-        <div class="chart-card" style="max-height:400px;overflow:auto">
+        <div class="chart-card">
           <div class="chart-title" id="saeb-table-title">Tabela Municipal — SAEB ${anoMapaDefault}</div>
           <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
             📍 Clique em qualquer município — na tabela ou no mapa — para filtrar <strong>todas as visualizações</strong> desta seção. Clique novamente para desfiltrar.
@@ -4370,17 +4370,19 @@ function renderSaeb() {
           <div style="margin-bottom:6px">
             <input type="text" id="saeb-mun-search" placeholder="Buscar município..." style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:Inter">
           </div>
-          <table class="data-table" id="saeb-mun-table">
-            <thead><tr>
-              <th>#</th>
-              <th data-col="nome" class="sortable" style="cursor:pointer">Município \u25b2\u25bc</th>
-              <th data-col="lp5" class="sortable" style="cursor:pointer">LP 5EF \u25b2\u25bc</th>
-              <th data-col="mt5" class="sortable" style="cursor:pointer">MT 5EF \u25b2\u25bc</th>
-              <th data-col="lp9" class="sortable" style="cursor:pointer">LP 9EF \u25b2\u25bc</th>
-              <th data-col="mt9" class="sortable" style="cursor:pointer">MT 9EF \u25b2\u25bc</th>
-            </tr></thead>
-            <tbody></tbody>
-          </table>
+          <div style="max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:6px">
+            <table class="data-table" id="saeb-mun-table">
+              <thead><tr>
+                <th>#</th>
+                <th data-col="nome" class="sortable" style="cursor:pointer">Município \u25b2\u25bc</th>
+                <th data-col="lp5" class="sortable" style="cursor:pointer">LP 5EF \u25b2\u25bc</th>
+                <th data-col="mt5" class="sortable" style="cursor:pointer">MT 5EF \u25b2\u25bc</th>
+                <th data-col="lp9" class="sortable" style="cursor:pointer">LP 9EF \u25b2\u25bc</th>
+                <th data-col="mt9" class="sortable" style="cursor:pointer">MT 9EF \u25b2\u25bc</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div style="font-size:10px;color:var(--text-sec);padding:4px 8px;font-style:italic">
