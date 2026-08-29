@@ -3951,6 +3951,26 @@ function renderSaeb() {
         <div class="chart-source">${FONTE_SAEB}</div>
       </div>
     </div>
+    ${saeb.serie_temporal['2025'] ? `
+    <div style="font-size:10px;color:#5D4037;background:rgba(255,203,4,.08);border:1px dashed rgba(255,203,4,.3);border-radius:6px;padding:7px 12px;margin-top:4px;line-height:1.6">
+      <strong>Nota 2025:</strong> o ponto de <strong>2025</strong> vem da base INEP/SEDUC por escola e refere-se <strong>somente à Rede Estadual</strong>;
+      os anos anteriores usam microdados SAEB com a flag pública (estaduais + municipais + federais). Compare a evolução com essa ressalva.
+    </div>` : ''}
+
+    ${saeb.padrao_desempenho_2025 ? `
+    <!-- ═══ EIXO: Padrão de Desempenho 2025 ═══ -->
+    <div class="section-divider">
+      <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+      <span class="section-divider-text">Padrão de Desempenho — 2025 (por escola)</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="charts-grid" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div class="chart-card">
+        <div class="chart-title">Distribuição de Alunos por Padrão de Desempenho — SAEB 2025${geoSuffix()}</div>
+        <div style="height:360px"><canvas id="chart-saeb-padrao"></canvas></div>
+        <div class="chart-source">Fonte: INEP/SEDUC-RS — SAEB 2025 por escola (Rede Estadual). Distribuição ponderada por presentes. Pontos de corte preliminares (ref. QEdu/Todos Pela Educação) — a validar.</div>
+      </div>
+    </div>` : ''}
 
     <!-- ═══ EIXO: Comparativo ═══ -->
     <div class="section-divider">
@@ -4131,6 +4151,74 @@ function renderSaeb() {
   buildLine('chart-saeb-lp', 'media_lp');
   buildLine('chart-saeb-mt', 'media_mt');
 
+  // ── Padrão de Desempenho 2025 (barras 100% empilhadas, reativo ao filtro) ──
+  function buildSaebPadrao() {
+    const el = document.getElementById('chart-saeb-padrao');
+    const pd = saeb.padrao_desempenho_2025;
+    if (!el || !pd) return;
+    // Seleciona o bloco conforme filtro (município > CRE > estadual)
+    let block = pd.estadual, escopo = getRedeLabel() + ' do RS';
+    if (S.munSel && pd.por_municipio?.[S.munSel]) {
+      block = pd.por_municipio[S.munSel];
+      escopo = (saeb.lookup_municipios?.[S.munSel]) || S.munSel;
+    } else if (S.creSel && pd.por_cre?.[S.creSel]) {
+      block = pd.por_cre[S.creSel];
+      escopo = (S.creLookup?.cre_list?.find(c => c.cod_cre === S.creSel)?.nome_cre) || `CRE ${S.creSel}`;
+    } else if (S.munSel || S.creSel) {
+      block = null; // filtro ativo sem dados
+    }
+    const cats = [
+      { key: 'insuf', label: 'Insuficiente', color: '#C62828' },
+      { key: 'basico', label: 'Básico', color: '#F9A825' },
+      { key: 'prof', label: 'Proficiente', color: '#66BB6A' },
+      { key: 'avanc', label: 'Avançado', color: '#2E7D32' },
+    ];
+    const cols = [
+      { et: '5EF', disc: 'lp', label: '5º EF · LP' }, { et: '5EF', disc: 'mt', label: '5º EF · MT' },
+      { et: '9EF', disc: 'lp', label: '9º EF · LP' }, { et: '9EF', disc: 'mt', label: '9º EF · MT' },
+      { et: 'EM', disc: 'lp', label: 'EM · LP' }, { et: 'EM', disc: 'mt', label: 'EM · MT' },
+    ].filter(c => block && block[c.et] && block[c.et][c.disc]);
+    if (!cols.length) {
+      el.parentElement.innerHTML = `<div class="chart-title">Distribuição por Padrão de Desempenho — 2025</div>
+        <div style="text-align:center;padding:60px 20px;color:var(--text-sec);font-size:12px">Sem dados de padrão de desempenho para ${escopo}.</div>`;
+      return;
+    }
+    const labels = cols.map(c => c.label);
+    const datasets = cats.map(cat => ({
+      label: cat.label,
+      data: cols.map(c => block[c.et][c.disc][cat.key] ?? 0),
+      backgroundColor: cat.color,
+      borderColor: '#fff', borderWidth: 1, borderRadius: 3,
+      stack: 'pad',
+    }));
+    S.charts.push(new Chart(el, {
+      type: 'bar',
+      data: { labels, datasets },
+      options: {
+        ...CHART_DEFAULTS,
+        indexAxis: 'y',
+        plugins: {
+          ...CHART_DEFAULTS.plugins,
+          legend: { display: true, position: 'top', labels: { font: { family: 'Inter', size: 11, weight: '600' }, boxWidth: 12, padding: 12, usePointStyle: true } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${(+ctx.parsed.x).toFixed(1)}%` } },
+          datalabels: {
+            display: ctx => (ctx.dataset.data[ctx.dataIndex] ?? 0) >= 6,
+            color: ctx => (ctx.datasetIndex === 1 ? '#333' : '#fff'),
+            font: { family: 'Inter', size: 11, weight: '700' },
+            formatter: v => (v >= 6 ? Math.round(v) + '%' : ''),
+          },
+        },
+        scales: {
+          x: { stacked: true, min: 0, max: 100, ticks: { callback: v => v + '%', font: { family: 'Inter', size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } },
+          y: { stacked: true, ticks: { font: { family: 'Inter', size: 11, weight: '700' } }, grid: { display: false } },
+        },
+      },
+    }));
+    const title = el.closest('.chart-card')?.querySelector('.chart-title');
+    if (title) title.textContent = `Distribuição de Alunos por Padrão de Desempenho — SAEB 2025 · ${escopo}`;
+  }
+  buildSaebPadrao();
+
   // ── Comparison bars: user-selectable years ──
   function buildSaebCompCharts(anoBase, anoComp) {
     // Destroy only comp charts
@@ -4269,6 +4357,7 @@ function renderSaeb() {
             <div class="map-layer-toggle">
               <button class="map-layer-btn active" id="saeb-btn-layer-mun">Municípios</button>
               <button class="map-layer-btn" id="saeb-btn-layer-cre">CREs</button>
+              ${saeb.por_escola_2025 ? `<button class="map-layer-btn" id="saeb-btn-layer-esc">Escolas 2025</button>` : ''}
             </div>
           </div>
           <div id="saeb-map-leaflet" style="height:340px;border-radius:8px"></div>
@@ -4299,6 +4388,100 @@ function renderSaeb() {
         2023 usa código de município fictício nos microdados.
       </div>`;
     document.getElementById('main-content').appendChild(mapSection);
+
+    // ── Tabela por Escola (SAEB 2025) ──
+    if (saeb.por_escola_2025) {
+      const escSection = document.createElement('div');
+      escSection.innerHTML = `
+        <div class="section-divider">
+          <span class="section-divider-icon"><img src="img/icons/sec_saeb.png" alt=""></span>
+          <span class="section-divider-text">Proficiência por Escola — SAEB 2025</span>
+          <span class="section-divider-line"></span>
+        </div>
+        <div class="chart-card" style="max-height:460px;overflow:auto">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+            <div class="chart-title" id="saeb-esc-title" style="margin:0">Escolas Estaduais — SAEB 2025</div>
+            <input type="text" id="saeb-esc-search" placeholder="Buscar escola ou município..." style="flex:1;min-width:200px;max-width:340px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:Inter">
+          </div>
+          <div style="font-size:10px;color:var(--accent);padding:4px 12px 6px;font-weight:600;background:rgba(255,203,4,.08);border-radius:6px;border:1px dashed rgba(255,203,4,.3);margin-bottom:6px">
+            📍 Clique em uma escola para filtrar a seção pelo seu município. Colunas: proficiência média (LP / MT) por etapa.
+          </div>
+          <table class="data-table" id="saeb-esc-table">
+            <thead><tr>
+              <th>#</th>
+              <th data-col="nome" class="sortable" style="cursor:pointer">Escola \u25b2\u25bc</th>
+              <th data-col="mun" class="sortable" style="cursor:pointer">Município \u25b2\u25bc</th>
+              <th data-col="lp5" class="sortable" style="cursor:pointer;text-align:center">5EF LP \u25b2\u25bc</th>
+              <th data-col="mt5" class="sortable" style="cursor:pointer;text-align:center">5EF MT \u25b2\u25bc</th>
+              <th data-col="lp9" class="sortable" style="cursor:pointer;text-align:center">9EF LP \u25b2\u25bc</th>
+              <th data-col="mt9" class="sortable" style="cursor:pointer;text-align:center">9EF MT \u25b2\u25bc</th>
+              <th data-col="lpm" class="sortable" style="cursor:pointer;text-align:center">EM LP \u25b2\u25bc</th>
+              <th data-col="mtm" class="sortable" style="cursor:pointer;text-align:center">EM MT \u25b2\u25bc</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>`;
+      document.getElementById('main-content').appendChild(escSection);
+
+      let escSortCol = 'nome', escSortAsc = true, escSearchStr = '';
+      const escVal = (e, col) => {
+        const g = (et, d) => e.e?.[et]?.[d];
+        switch (col) {
+          case 'nome': return e.nome || '';
+          case 'mun': return lookup[e.cod_mun] || e.cod_mun || '';
+          case 'lp5': return g('5EF', 'lp'); case 'mt5': return g('5EF', 'mt');
+          case 'lp9': return g('9EF', 'lp'); case 'mt9': return g('9EF', 'mt');
+          case 'lpm': return g('EM', 'lp'); case 'mtm': return g('EM', 'mt');
+          default: return '';
+        }
+      };
+      const fmt = v => (v == null ? '—' : v.toFixed(1));
+      const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      function updateSaebEscTable() {
+        const tbody = document.querySelector('#saeb-esc-table tbody');
+        if (!tbody) return;
+        const creMuns = S.creSel ? new Set(getCreMuns(S.creSel)) : null;
+        let rows = Object.entries(saeb.por_escola_2025).map(([inep, e]) => ({ inep, ...e }));
+        if (S.munSel) rows = rows.filter(e => e.cod_mun === S.munSel);
+        else if (creMuns) rows = rows.filter(e => creMuns.has(e.cod_mun));
+        if (escSearchStr) rows = rows.filter(e => norm(e.nome).includes(escSearchStr) || norm(lookup[e.cod_mun] || e.cod_mun).includes(escSearchStr));
+        rows.sort((a, b) => {
+          let va = escVal(a, escSortCol), vb = escVal(b, escSortCol);
+          if (escSortCol === 'nome' || escSortCol === 'mun') return escSortAsc ? String(va).localeCompare(vb) : String(vb).localeCompare(va);
+          va = va == null ? -Infinity : va; vb = vb == null ? -Infinity : vb;
+          return escSortAsc ? va - vb : vb - va;
+        });
+        const tt = document.getElementById('saeb-esc-title');
+        if (tt) tt.textContent = `Escolas Estaduais — SAEB 2025 (${rows.length})`;
+        tbody.innerHTML = rows.map((e, i) => `
+          <tr data-cod="${e.cod_mun}" style="cursor:pointer" class="${S.munSel === e.cod_mun ? 'selected' : ''}" title="Clique para filtrar por ${lookup[e.cod_mun] || e.cod_mun}">
+            <td>${i + 1}</td>
+            <td><strong>${e.nome}</strong></td>
+            <td>${lookup[e.cod_mun] || e.cod_mun}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'lp5'))}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'mt5'))}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'lp9'))}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'mt9'))}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'lpm'))}</td>
+            <td style="text-align:center">${fmt(escVal(e, 'mtm'))}</td>
+          </tr>`).join('');
+        tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => {
+          const cod = tr.dataset.cod;
+          S.munSel = S.munSel === cod ? null : cod;
+          refreshActiveTab();
+        }));
+      }
+
+      document.querySelector('#saeb-esc-table thead')?.addEventListener('click', e => {
+        const th = e.target.closest('th.sortable'); if (!th) return;
+        const col = th.dataset.col;
+        if (escSortCol === col) escSortAsc = !escSortAsc; else { escSortCol = col; escSortAsc = (col === 'nome' || col === 'mun'); }
+        updateSaebEscTable();
+      });
+      document.getElementById('saeb-esc-search')?.addEventListener('input', e => { escSearchStr = norm(e.target.value); updateSaebEscTable(); });
+      updateSaebEscTable();
+    }
 
     // Shared state for map filters
     let mapAno = anoMapaDefault, mapEtapa = '9EF', mapDisc = 'lp';
@@ -4530,13 +4713,63 @@ function renderSaeb() {
       if (mt) mt.textContent = `Mapa SAEB por CRE — ${etLabel} ${discLabel} (${mapAno})`;
     }
 
+    // Build/update map — camada Escolas (2025, por escola)
+    function updateSaebEscMap() {
+      const escs = saeb.por_escola_2025 || {};
+      const breakKey = `${mapEtapa}_${mapDisc}`;
+      const breaks = SAEB_BREAKS[breakKey] || SAEB_BREAKS['9EF_lp'];
+      const field = mapDisc; // 'lp' | 'mt'
+      const getColor = v => { if (v == null) return '#bbb'; for (const b of breaks) { if (v >= b.min && v < b.max) return b.color; } return '#f0f0f0'; };
+
+      destroyMap();
+      S.map = L.map('saeb-map-leaflet', { zoomControl: true, scrollWheelZoom: true, attributionControl: false })
+        .setView([-29.7, -53.5], 6.5);
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, maxNativeZoom: 16 }).addTo(S.map);
+
+      const creMuns = S.creSel ? new Set(getCreMuns(S.creSel)) : null;
+      const markers = [];
+      for (const [inep, e] of Object.entries(escs)) {
+        if (e.lat == null || e.lng == null) continue;
+        if (S.munSel && e.cod_mun !== S.munSel) continue;
+        if (creMuns && !creMuns.has(e.cod_mun)) continue;
+        const etd = e.e?.[mapEtapa];
+        const v = etd ? etd[field] : null;
+        if (v == null) continue;
+        const part = etd['part_' + mapDisc];
+        const mk = L.circleMarker([e.lat, e.lng], { radius: 5, fillColor: getColor(v), color: '#fff', weight: 1, fillOpacity: 0.9 });
+        mk.bindPopup(`<strong>${e.nome}</strong><br>${lookup[e.cod_mun] || e.cod_mun}<br>${SAEB_BREAK_LABELS[mapEtapa]} ${SAEB_DISC_LABELS[mapDisc]}: <strong>${v.toFixed(1)}</strong>${part != null ? `<br>Participação: ${part.toFixed(1)}%` : ''}`);
+        mk.on('click', () => { S.munSel = S.munSel === e.cod_mun ? null : e.cod_mun; refreshActiveTab(); });
+        mk.addTo(S.map);
+        markers.push(mk);
+      }
+
+      const etLabel = SAEB_BREAK_LABELS[mapEtapa] || mapEtapa;
+      const discLabel = SAEB_DISC_LABELS[mapDisc] || mapDisc.toUpperCase();
+      const legend = L.control({ position: 'bottomleft' });
+      legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = `<h4>Escolas — ${etLabel} ${discLabel} (2025)</h4>` +
+          breaks.slice().reverse().map(b => `<div class="map-legend-row"><div class="map-legend-swatch" style="background:${b.color}"></div><span>${b.label}</span></div>`).join('') +
+          `<div class="map-legend-row" style="margin-top:4px;color:#777">${markers.length} escolas</div>`;
+        return div;
+      };
+      legend.addTo(S.map);
+      if (markers.length) { try { S.map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [25, 25] }); } catch (e) {} }
+
+      const mt = document.getElementById('saeb-map-title');
+      if (mt) mt.textContent = `Mapa SAEB por Escola — ${etLabel} ${discLabel} (2025)${(S.creSel || S.munSel) ? ' · filtrado' : ''}`;
+    }
+
     updateSaebTable();
     updateSaebMap();
 
     // Helper to update map based on active layer
     const updateSaebActiveMap = () => {
       const saebBtnCre = document.getElementById('saeb-btn-layer-cre');
-      if (saebBtnCre?.classList.contains('active')) { updateSaebCreMap(); } else { updateSaebMap(); }
+      const saebBtnEsc = document.getElementById('saeb-btn-layer-esc');
+      if (saebBtnEsc?.classList.contains('active')) { updateSaebEscMap(); }
+      else if (saebBtnCre?.classList.contains('active')) { updateSaebCreMap(); }
+      else { updateSaebMap(); }
     };
 
     // Bind map filter selectors
@@ -4544,18 +4777,18 @@ function renderSaeb() {
     document.getElementById('sel-saeb-map-etapa')?.addEventListener('change', e => { mapEtapa = e.target.value; updateSaebActiveMap(); });
     document.getElementById('sel-saeb-map-disc')?.addEventListener('change', e => { mapDisc = e.target.value; updateSaebActiveMap(); });
 
-    // Bind CRE toggle
+    // Bind CRE/Escolas toggle
     const saebBtnMun = document.getElementById('saeb-btn-layer-mun');
     const saebBtnCre = document.getElementById('saeb-btn-layer-cre');
+    const saebBtnEsc = document.getElementById('saeb-btn-layer-esc');
+    const saebLayerBtns = [saebBtnMun, saebBtnCre, saebBtnEsc].filter(Boolean);
+    const setActiveSaebLayer = (btn) => saebLayerBtns.forEach(b => b.classList.toggle('active', b === btn));
     if (saebBtnMun && saebBtnCre) {
-      saebBtnMun.addEventListener('click', () => {
-        saebBtnMun.classList.add('active'); saebBtnCre.classList.remove('active');
-        updateSaebMap();
-      });
-      saebBtnCre.addEventListener('click', () => {
-        saebBtnCre.classList.add('active'); saebBtnMun.classList.remove('active');
-        updateSaebCreMap();
-      });
+      saebBtnMun.addEventListener('click', () => { setActiveSaebLayer(saebBtnMun); updateSaebMap(); });
+      saebBtnCre.addEventListener('click', () => { setActiveSaebLayer(saebBtnCre); updateSaebCreMap(); });
+    }
+    if (saebBtnEsc) {
+      saebBtnEsc.addEventListener('click', () => { setActiveSaebLayer(saebBtnEsc); updateSaebEscMap(); });
     }
 
     // Bind search
@@ -15712,7 +15945,7 @@ async function init() {
     // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
     // Desigualdades — ver ensureDesig(). Mantê-lo aqui travava o boot no GitHub Pages.
     // Cache-bust por versao: garante JSON novo apos deploy (sem depender de refresh forcado)
-    const dv = '?v=108';
+    const dv = '?v=110';
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json' + dv),
       fetch('dados/rs_municipios.geojson' + dv),
