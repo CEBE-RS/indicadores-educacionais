@@ -3861,9 +3861,9 @@ function renderSaeb() {
               <tr>
                 <th style="padding:5px 6px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Etapa</th>
                 <th style="padding:5px 6px;text-align:left;background:#f0f4f8;border-bottom:2px solid #ddd;font-weight:700;color:#333">Disc.</th>
-                <th style="padding:5px 6px;text-align:center;background:#C62828;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Insuficiente</th>
+                <th style="padding:5px 6px;text-align:center;background:#C62828;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Abaixo do Básico</th>
                 <th style="padding:5px 6px;text-align:center;background:#F9A825;border-bottom:2px solid #ddd;font-weight:700;color:#333">Básico</th>
-                <th style="padding:5px 6px;text-align:center;background:#66BB6A;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Proficiente</th>
+                <th style="padding:5px 6px;text-align:center;background:#66BB6A;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Adequado</th>
                 <th style="padding:5px 6px;text-align:center;background:#2E7D32;border-bottom:2px solid #ddd;font-weight:700;color:#fff">Avançado</th>
               </tr>
             </thead>
@@ -3876,6 +3876,9 @@ function renderSaeb() {
               <tr style="background:#fafbfc"><td style="padding:4px 6px;font-weight:600">EM</td><td style="padding:4px 6px">MT</td><td style="padding:4px 6px;text-align:center">< 275</td><td style="padding:4px 6px;text-align:center">275–349</td><td style="padding:4px 6px;text-align:center">350–399</td><td style="padding:4px 6px;text-align:center">≥ 400</td></tr>
             </tbody>
           </table>
+          <p style="font-size:9px;margin:6px 0 0;color:#999;line-height:1.5;font-style:italic">
+            Faixas de padrão de desempenho na escala SAEB. Os mesmos pontos de corte (5º/9º EF e EM) são utilizados pelo <strong>SAERS/CAED-RS</strong>, permitindo leitura comparável entre as avaliações.
+          </p>
           <div style="margin-top:14px;background:rgba(0,90,50,.05);border:1px solid rgba(0,90,50,.15);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0 0 6px;color:#1B5E20;font-weight:700">
               📋 Critérios de Divulgação Municipal (Art. 19, Portaria INEP nº 250/2021)
@@ -3955,7 +3958,7 @@ function renderSaeb() {
           </div>
         </div>
         <div style="height:360px"><canvas id="chart-saeb-padrao"></canvas></div>
-        <div class="chart-source">Fonte: INEP/SEDUC-RS — SAEB por escola (Rede Estadual). Distribuição ponderada por presentes. Pontos de corte preliminares (ref. QEdu/Todos Pela Educação) — a validar.</div>
+        <div class="chart-source">Fonte: INEP/SEDUC-RS — SAEB por escola (Rede Estadual). Distribuição ponderada por presentes. Padrões na escala SAEB (Abaixo do Básico/Básico/Adequado/Avançado), com os mesmos pontos de corte do SAERS/CAED-RS.</div>
       </div>
     </div>` : ''}
 
@@ -4159,9 +4162,9 @@ function renderSaeb() {
       block = null; // filtro ativo sem dados
     }
     const cats = [
-      { key: 'insuf', label: 'Insuficiente', color: '#C62828' },
+      { key: 'insuf', label: 'Abaixo do Básico', color: '#C62828' },
       { key: 'basico', label: 'Básico', color: '#F9A825' },
-      { key: 'prof', label: 'Proficiente', color: '#66BB6A' },
+      { key: 'prof', label: 'Adequado', color: '#66BB6A' },
       { key: 'avanc', label: 'Avançado', color: '#2E7D32' },
     ];
     const cols = [
