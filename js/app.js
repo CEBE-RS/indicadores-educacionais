@@ -3876,15 +3876,7 @@ function renderSaeb() {
               <tr style="background:#fafbfc"><td style="padding:4px 6px;font-weight:600">EM</td><td style="padding:4px 6px">MT</td><td style="padding:4px 6px;text-align:center">< 275</td><td style="padding:4px 6px;text-align:center">275–349</td><td style="padding:4px 6px;text-align:center">350–399</td><td style="padding:4px 6px;text-align:center">≥ 400</td></tr>
             </tbody>
           </table>
-          <p style="font-size:9px;margin:6px 0 0;color:#999;line-height:1.5;font-style:italic">
-            Pontos de corte <strong>preliminares</strong> (ref. QEdu/Todos Pela Educação), os mesmos aplicados na seção "Padrão de Desempenho". A validar com a análise SAEB.
-          </p>
-          <div style="margin-top:14px;background:rgba(21,101,192,.06);border:1px solid rgba(21,101,192,.15);border-radius:6px;padding:10px 14px">
-            <p style="font-size:11px;margin:0;color:#0D47A1;line-height:1.7">
-              <strong>Recorte:</strong> os dados desta seção vêm da base <strong>INEP/SEDUC por escola</strong> e referem-se à <strong>Rede Estadual do RS</strong>, com escolas identificadas em todos os anos (2017–2025).
-            </p>
-          </div>
-          <div style="margin-top:10px;background:rgba(0,90,50,.05);border:1px solid rgba(0,90,50,.15);border-radius:6px;padding:10px 14px">
+          <div style="margin-top:14px;background:rgba(0,90,50,.05);border:1px solid rgba(0,90,50,.15);border-radius:6px;padding:10px 14px">
             <p style="font-size:11px;margin:0 0 6px;color:#1B5E20;font-weight:700">
               📋 Critérios de Divulgação Municipal (Art. 19, Portaria INEP nº 250/2021)
             </p>
