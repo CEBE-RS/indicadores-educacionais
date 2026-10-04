@@ -454,7 +454,7 @@ function sectionBanner(icon, title, subtitle, opts = {}) {
         <span id="mun-filter-slot" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:12px"></span>
       </div>
       <div class="section-banner-right" style="flex-direction:column;align-items:flex-end;gap:4px">
-        <div class="banner-filters">
+        <div class="banner-filters"${opts.hideFilters ? ' style="display:none"' : ''}>
           <div class="banner-filter-group"${opts.hideAno ? ' style="display:none"' : ''}>
             <label class="banner-filter-label">Ano</label>
             <select id="sel-ano" class="banner-filter-select"></select>
@@ -5787,7 +5787,7 @@ const DADOS_TEMAS = [
     arquivo: 'dados_docencia.xlsx',
     desc: 'Perfil docente: escolaridade, vínculo, faixa etária e razão aluno-professor.',
     fonte: 'INEP — Censo Escolar' },
-  { id: 'afd', icon: 'img/icons/nav_afd.png', nome: 'Formação Docente (AFD)',
+  { id: 'afd', icon: 'img/icons/professor.png', nome: 'Formação Docente (AFD)',
     arquivo: 'dados_afd.xlsx',
     desc: 'Adequação da Formação Docente (AFD) por etapa de ensino e por município.',
     fonte: 'INEP — Adequação da Formação Docente' },
@@ -5842,7 +5842,7 @@ function renderDados() {
 
   main.innerHTML = `
     <div class="section-sticky">
-      ${sectionBanner('img/icons/territorial.png', 'Central de Dados Abertos', 'Extraia as bases do painel em planilha (.xlsx)')}
+      ${sectionBanner('img/icons/territorial.png', 'Central de Dados Abertos', 'Extraia as bases do painel em planilha (.xlsx)', { hideFilters: true, redeToggle: false })}
     </div>
 
     <div class="dados-intro">
@@ -5850,13 +5850,14 @@ function renderDados() {
       organizadas por tema. Cada arquivo traz <strong>abas separadas por rede</strong> (Estadual, Municipal, Federal, Privada e Todas),
       com a <strong>série histórica</strong> (nível estado/rede) e a <strong>base por município com coluna Ano</strong>
       (todos os anos disponíveis — use o autofiltro do Excel para selecionar município e período). A aba <em>"Sobre"</em> de cada planilha descreve o conteúdo e a fonte.</p>
+      ${S.escolasData?.escolas ? `<p style="margin-top:10px"><strong>Novidade:</strong> além das planilhas por tema, agora dá para baixar os dados de <strong>uma escola específica</strong> da Rede Estadual. No fim desta página, use os filtros <strong>CRE → Município → Escola</strong> e exporte em CSV (retrato do ano atual ou série histórica por escola).</p>` : ''}
     </div>
-
-    ${S.escolasData?.escolas ? escolaFiltroHTML() : ''}
 
     <div class="dados-grid">
       ${cardsHTML}
     </div>
+
+    ${S.escolasData?.escolas ? escolaFiltroHTML() : ''}
   `;
 
   if (S.escolasData?.escolas) initEscolaFiltro();
