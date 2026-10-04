@@ -2191,7 +2191,7 @@ body.sidebar-hidden .main-scroll {
   border-left: 4px solid var(--pri);
   border-radius: var(--radius);
   padding: 16px 18px;
-  margin: 4px 0 18px;
+  margin: 22px 0 8px;
   box-shadow: var(--shadow-sm);
 }
 .escola-filtro-title { font-size: 15px; font-weight: 800; color: var(--text); }
