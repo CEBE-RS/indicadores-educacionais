@@ -522,11 +522,11 @@ def load_matriculas_by_school():
     return {}
 
 def load_censo_history_by_school():
-    """Load historical QT_MAT_BAS and QT_DOC_BAS from 2021 to 2024 microdados."""
+    """Load historical QT_MAT_BAS and QT_DOC_BAS from 2010 to 2024 microdados."""
     MICRO_DIR = os.path.join(BASE, "00. Bases de Dados", "01. Acesso e Matrículas (Censo Escolar_2010_2025)", "01. extrações_2010_2025")
     result = {}
     
-    for year in range(2021, 2025):
+    for year in range(2010, 2025):
         pattern = os.path.join(MICRO_DIR, f"microdados_ed_basica_{year}.*")
         import glob
         matches = glob.glob(pattern)
@@ -557,7 +557,7 @@ def load_censo_history_by_school():
             print(f"    Erro ao ler {year}: {e}")
             
     # Also add 2025 to history from the previously loaded dictionaries, but we will do that in the main loop to avoid re-reading
-    print(f"    → {len(result)} escolas com histórico do Censo (2021-2024)")
+    print(f"    → {len(result)} escolas com histórico do Censo (2010-2024)")
     return result
 
 def load_infra_by_school():
