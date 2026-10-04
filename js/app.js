@@ -16499,6 +16499,9 @@ async function init() {
       S.pendingView = null;
       const tab = document.querySelector(`.sidebar-tab[data-view="${view}"]`);
       if (tab) tab.click();
+    } else if (S._currentView === 'dados') {
+      // dados renderiza antes do JSON de escolas; redesenha o filtro CRE/Mun/Escola
+      renderDados();
     }
   } catch (err) {
     document.getElementById('main-content').innerHTML = `
