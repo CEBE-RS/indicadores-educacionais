@@ -5852,10 +5852,14 @@ function renderDados() {
       (todos os anos disponíveis — use o autofiltro do Excel para selecionar município e período). A aba <em>"Sobre"</em> de cada planilha descreve o conteúdo e a fonte.</p>
     </div>
 
+    ${S.escolasData?.escolas ? escolaFiltroHTML() : ''}
+
     <div class="dados-grid">
       ${cardsHTML}
     </div>
   `;
+
+  if (S.escolasData?.escolas) initEscolaFiltro();
 
   // Enriquecer chips com nº de abas e tamanho (best-effort via manifest)
   fetch('dados/downloads/manifest.json')
@@ -5869,6 +5873,385 @@ function renderDados() {
       });
     })
     .catch(() => {});
+}
+
+// ══════════════════════════════════════════════════════════
+// FILTRO POR ESCOLA (CRE → Município → Escola) — Rede Estadual
+// Base: S.escolasData (escolas_estaduais.json). Gera tabela na tela
+// e exporta a seleção em CSV. Sem filtro = todas as escolas estaduais.
+// ══════════════════════════════════════════════════════════
+
+const ESCOLA_COLS = [
+  // Identificação
+  { k: 'inep', label: 'Código INEP', type: 'text' },
+  { k: 'nome', label: 'Escola', type: 'text' },
+  { k: 'cre_nome', label: 'CRE', type: 'text' },
+  { k: 'municipio', label: 'Município', type: 'text' },
+  { k: 'loc', label: 'Localização', type: 'text' },
+  // Contexto
+  { k: 'inse_media', label: 'INSE médio', type: 'dec' },
+  { k: 'inse_nivel', label: 'INSE nível', type: 'text' },
+  { k: 'icg_nivel', label: 'ICG nível', type: 'num' },
+  // Matrículas
+  { k: 'mat_total', label: 'Matrículas (total)', type: 'num' },
+  { k: 'mat_infantil', label: 'Mat. Infantil', type: 'num' },
+  { k: 'mat_fund', label: 'Mat. Fundamental', type: 'num' },
+  { k: 'mat_fund_ai', label: 'Mat. Fund. AI', type: 'num' },
+  { k: 'mat_fund_af', label: 'Mat. Fund. AF', type: 'num' },
+  { k: 'mat_medio', label: 'Mat. Médio', type: 'num' },
+  { k: 'mat_eja', label: 'Mat. EJA', type: 'num' },
+  { k: 'mat_especial', label: 'Mat. Especial', type: 'num' },
+  { k: 'mat_tecnico', label: 'Mat. Técnico', type: 'num' },
+  { k: 'mat_noturno', label: 'Mat. Noturno', type: 'num' },
+  // Infraestrutura
+  { k: 'infra_score', label: 'Infra (score)', type: 'dec' },
+  { k: 'salas_total', label: 'Salas (total)', type: 'num' },
+  { k: 'salas_clim', label: 'Salas climatizadas', type: 'num' },
+  { k: 'internet', label: 'Internet', type: 'bool' },
+  { k: 'banda_larga', label: 'Banda larga', type: 'bool' },
+  { k: 'computador', label: 'Computador', type: 'bool' },
+  { k: 'lab_info', label: 'Lab. informática', type: 'bool' },
+  { k: 'biblioteca', label: 'Biblioteca', type: 'bool' },
+  { k: 'bib_sala_leit', label: 'Bibl./Sala de leitura', type: 'bool' },
+  { k: 'lab_ciencias', label: 'Lab. ciências', type: 'bool' },
+  { k: 'quadra', label: 'Quadra', type: 'bool' },
+  { k: 'quadra_coberta', label: 'Quadra coberta', type: 'bool' },
+  { k: 'sala_aee', label: 'Sala AEE', type: 'bool' },
+  { k: 'refeitorio', label: 'Refeitório', type: 'bool' },
+  { k: 'rampas', label: 'Rampas acessib.', type: 'bool' },
+  { k: 'banheiro_pne', label: 'Banheiro PNE', type: 'bool' },
+  { k: 'agua_potavel', label: 'Água potável', type: 'bool' },
+  { k: 'alimentacao', label: 'Alimentação', type: 'bool' },
+  { k: 'sala_diretoria', label: 'Sala diretoria', type: 'bool' },
+  { k: 'sala_professor', label: 'Sala professor', type: 'bool' },
+  // Docência
+  { k: 'doc_total', label: 'Docentes (total)', type: 'num' },
+  { k: 'doc_fund_ai', label: 'Doc. Fund. AI', type: 'num' },
+  { k: 'doc_fund_af', label: 'Doc. Fund. AF', type: 'num' },
+  { k: 'doc_medio', label: 'Doc. Médio', type: 'num' },
+  { k: 'doc_eja', label: 'Doc. EJA', type: 'num' },
+  { k: 'doc_fem', label: 'Doc. feminino', type: 'num' },
+  { k: 'doc_sup', label: 'Doc. c/ superior', type: 'num' },
+  { k: 'doc_licen', label: 'Doc. c/ licenciatura', type: 'num' },
+  { k: 'doc_concur', label: 'Doc. concursados', type: 'num' },
+  { k: 'doc_contrat', label: 'Doc. contratados', type: 'num' },
+  // Fluxo (último ano disponível por escola)
+  { k: 'fluxo_ano', label: 'Ano (fluxo)', type: 'text' },
+  { k: 'aprov_fund', label: 'Aprov. Fund (%)', type: 'pct' },
+  { k: 'aprov_med', label: 'Aprov. Médio (%)', type: 'pct' },
+  { k: 'reprov_fund', label: 'Reprov. Fund (%)', type: 'pct' },
+  { k: 'reprov_med', label: 'Reprov. Médio (%)', type: 'pct' },
+  { k: 'aband_fund', label: 'Aband. Fund (%)', type: 'pct' },
+  { k: 'aband_med', label: 'Aband. Médio (%)', type: 'pct' },
+  // TDI
+  { k: 'tdi_fund', label: 'TDI Fund (%)', type: 'pct' },
+  { k: 'tdi_ai', label: 'TDI Fund AI (%)', type: 'pct' },
+  { k: 'tdi_af', label: 'TDI Fund AF (%)', type: 'pct' },
+  { k: 'tdi_med', label: 'TDI Médio (%)', type: 'pct' },
+  // SAERS
+  { k: 'saers_2ef_lp', label: 'SAERS 2ºEF LP', type: 'dec' },
+  { k: 'saers_2ef_mt', label: 'SAERS 2ºEF MT', type: 'dec' },
+  { k: 'saers_5ef_lp', label: 'SAERS 5ºEF LP', type: 'dec' },
+  { k: 'saers_5ef_mt', label: 'SAERS 5ºEF MT', type: 'dec' },
+  { k: 'saers_9ef_lp', label: 'SAERS 9ºEF LP', type: 'dec' },
+  { k: 'saers_9ef_mt', label: 'SAERS 9ºEF MT', type: 'dec' },
+  { k: 'saers_em_lp', label: 'SAERS EM LP', type: 'dec' },
+  { k: 'saers_em_mt', label: 'SAERS EM MT', type: 'dec' },
+  // IDEB
+  { k: 'ideb_ai', label: 'IDEB AI', type: 'dec' },
+  { k: 'ideb_af', label: 'IDEB AF', type: 'dec' },
+  { k: 'ideb_em', label: 'IDEB EM', type: 'dec' },
+];
+
+/** Taxas de fluxo do ano mais recente disponível em fluxo_hist da escola. */
+function efFluxoLatest(e) {
+  const fh = e.fluxo_hist || {};
+  const anos = Object.keys(fh).sort();
+  const ano = anos.length ? anos[anos.length - 1] : null;
+  const f = ano ? (fh[ano] || {}) : {};
+  return {
+    fluxo_ano: ano || '',
+    aprov_fund: f.aprov_fund, aprov_med: f.aprov_med,
+    reprov_fund: f.reprov_fund, reprov_med: f.reprov_med,
+    aband_fund: f.aband_fund, aband_med: f.aband_med,
+  };
+}
+
+/** Valor bruto de uma coluna para uma escola (resolve cre_nome e campos de fluxo). */
+function efRaw(e, k, fluxo) {
+  if (k === 'cre_nome') return getCreNomeEscola(e.cre);
+  if (fluxo && k in fluxo) return fluxo[k];
+  return e[k];
+}
+
+/** Formata um valor para exibição/CSV (decimal com vírgula, booleanos Sim/Não). */
+function efFmt(v, type) {
+  if (v == null || v === '') return '';
+  if (type === 'bool') return v ? 'Sim' : 'Não';
+  if (type === 'dec') return (typeof v === 'number') ? v.toFixed(2).replace('.', ',') : String(v);
+  if (type === 'pct') return (typeof v === 'number') ? v.toFixed(1).replace('.', ',') : String(v);
+  return String(v);
+}
+
+function escolaFiltroHTML() {
+  return `
+    <section class="escola-filtro">
+      <div class="escola-filtro-head">
+        <div class="escola-filtro-title">Dados por escola — Rede Estadual</div>
+        <div class="escola-filtro-sub">Filtre por Coordenadoria (CRE), município e escola. Sem seleção, a tabela traz todas as escolas estaduais. Baixe a seleção em CSV: <strong>Ano atual</strong> (retrato mais recente) ou <strong>Série histórica</strong> (uma linha por escola e ano).</div>
+      </div>
+      <div class="escola-filtro-controls">
+        <label class="ef-field">Coordenadoria (CRE)<select id="ef-cre"></select></label>
+        <label class="ef-field">Município<select id="ef-mun"></select></label>
+        <label class="ef-field">Escola<select id="ef-esc"></select></label>
+        <span class="ef-count" id="ef-count"></span>
+        <button class="dados-btn ef-dl" id="ef-download" type="button"><span>Ano atual (CSV)</span><span class="dados-btn-ico">↓</span></button>
+        <button class="dados-btn ef-dl ef-dl-hist" id="ef-download-hist" type="button"><span>Série histórica (CSV)</span><span class="dados-btn-ico">↓</span></button>
+      </div>
+      <div class="ef-note" id="ef-note"></div>
+      <div class="ef-tables" id="ef-table-wrap"></div>
+    </section>
+  `;
+}
+
+/** Popula o select de município conforme a CRE selecionada. */
+function efPopulateMun() {
+  const cre = document.getElementById('ef-cre')?.value || '';
+  const sel = document.getElementById('ef-mun');
+  if (!sel) return;
+  const escolas = (S.escolasData?.escolas || []).filter(e => !cre || String(e.cre) === cre);
+  const munMap = new Map();
+  escolas.forEach(e => { if (!munMap.has(String(e.cod_mun))) munMap.set(String(e.cod_mun), e.municipio); });
+  const opts = [...munMap.entries()].sort((a, b) => (a[1] || '').localeCompare(b[1] || '', 'pt-BR'));
+  sel.innerHTML = '<option value="">Todos os municípios</option>' +
+    opts.map(([cod, nome]) => `<option value="${cod}">${nome}</option>`).join('');
+}
+
+/** Popula o select de escola conforme CRE + município selecionados. */
+function efPopulateEsc() {
+  const cre = document.getElementById('ef-cre')?.value || '';
+  const mun = document.getElementById('ef-mun')?.value || '';
+  const sel = document.getElementById('ef-esc');
+  if (!sel) return;
+  const escolas = (S.escolasData?.escolas || [])
+    .filter(e => (!cre || String(e.cre) === cre) && (!mun || String(e.cod_mun) === mun))
+    .sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+  sel.innerHTML = '<option value="">Todas as escolas</option>' +
+    escolas.map(e => `<option value="${e.inep}">${e.nome}</option>`).join('');
+}
+
+/** Aplica os filtros atuais sobre a base de escolas estaduais. */
+function efFilteredEscolas() {
+  const cre = document.getElementById('ef-cre')?.value || '';
+  const mun = document.getElementById('ef-mun')?.value || '';
+  const esc = document.getElementById('ef-esc')?.value || '';
+  return (S.escolasData?.escolas || [])
+    .filter(e => (!cre || String(e.cre) === cre) && (!mun || String(e.cod_mun) === mun) && (!esc || String(e.inep) === esc))
+    .sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+}
+
+function efUpdate() {
+  renderEscolaTabela(efFilteredEscolas());
+}
+
+/** Inicializa dropdowns e eventos do filtro por escola. */
+function initEscolaFiltro() {
+  const selCre = document.getElementById('ef-cre');
+  if (!selCre || !S.escolasData?.escolas) return;
+  const cres = [...new Set(S.escolasData.escolas.map(e => String(e.cre)))]
+    .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  selCre.innerHTML = '<option value="">Todas as CREs</option>' +
+    cres.map(c => `<option value="${c}">${getCreNomeEscola(c)}</option>`).join('');
+  efPopulateMun();
+  efPopulateEsc();
+
+  selCre.addEventListener('change', () => { efPopulateMun(); efPopulateEsc(); efUpdate(); });
+  document.getElementById('ef-mun')?.addEventListener('change', () => { efPopulateEsc(); efUpdate(); });
+  document.getElementById('ef-esc')?.addEventListener('change', () => { efUpdate(); });
+  document.getElementById('ef-download')?.addEventListener('click', () => downloadEscolasCSV(efFilteredEscolas()));
+  document.getElementById('ef-download-hist')?.addEventListener('click', () => downloadEscolasHistCSV(efFilteredEscolas()));
+
+  efUpdate();
+}
+
+/** Renderiza a tabela de pré-visualização (limite de linhas visíveis). */
+function renderEscolaTabela(rows) {
+  const wrap = document.getElementById('ef-table-wrap');
+  const countEl = document.getElementById('ef-count');
+  const noteEl = document.getElementById('ef-note');
+  if (!wrap) return;
+  const LIMIT = 200;
+  if (countEl) countEl.textContent = `${rows.length} escola${rows.length === 1 ? '' : 's'}`;
+  if (noteEl) noteEl.textContent = rows.length > LIMIT
+    ? `Mostrando as primeiras ${LIMIT} de ${rows.length} escolas na tabela. O botão "Baixar CSV" exporta todas.`
+    : '';
+  const shown = rows.slice(0, LIMIT);
+  const thead = '<tr>' + ESCOLA_COLS.map(c => `<th>${c.label}</th>`).join('') + '</tr>';
+  const tbody = shown.map(e => {
+    const fluxo = efFluxoLatest(e);
+    return '<tr>' + ESCOLA_COLS.map(c => `<td>${efFmt(efRaw(e, c.k, fluxo), c.type)}</td>`).join('') + '</tr>';
+  }).join('');
+
+  let html = `<div class="table-scroll ef-table-scroll"><table class="data-table data-table--wide"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
+
+  // Série histórica na tela quando exatamente uma escola está selecionada
+  if (rows.length === 1) {
+    const e = rows[0];
+    const histCols = ESCOLA_HIST_COLS.filter(c => !['inep', 'nome', 'cre_nome', 'municipio'].includes(c.k));
+    const hrows = efHistRows(e);
+    if (hrows.length) {
+      const hthead = '<tr>' + histCols.map(c => `<th>${c.label}</th>`).join('') + '</tr>';
+      const htbody = hrows.map(hr => '<tr>' + histCols.map(c => `<td>${efFmt(hr[c.k], c.type)}</td>`).join('') + '</tr>').join('');
+      html += `<div class="ef-hist-title">Série histórica — ${e.nome}</div>`;
+      html += `<div class="table-scroll ef-table-scroll"><table class="data-table data-table--wide"><thead>${hthead}</thead><tbody>${htbody}</tbody></table></div>`;
+    }
+  }
+
+  wrap.innerHTML = html;
+}
+
+/** Exporta as escolas filtradas em CSV (BOM + ';' + decimal com vírgula). */
+function downloadEscolasCSV(rows) {
+  const creSel = document.getElementById('ef-cre');
+  const munSel = document.getElementById('ef-mun');
+  const escSel = document.getElementById('ef-esc');
+  const selText = (sel) => (sel && sel.value) ? (sel.options[sel.selectedIndex]?.text || sel.value) : '';
+
+  const csvCell = (s) => /[;\n"]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  const header = ESCOLA_COLS.map(c => c.label).join(';');
+  const lines = rows.map(e => {
+    const fluxo = efFluxoLatest(e);
+    return ESCOLA_COLS.map(c => csvCell(efFmt(efRaw(e, c.k, fluxo), c.type))).join(';');
+  });
+
+  const recorte = selText(escSel) || selText(munSel) || selText(creSel) || 'Todas as escolas estaduais do RS';
+  const meta = [
+    ['Fonte', 'INEP / SEDUC-RS — base por escola (Rede Estadual)'],
+    ['Recorte', recorte],
+    ['Escolas', String(rows.length)],
+    [],
+  ].map(r => r.map(csvCell).join(';'));
+
+  const csv = '\uFEFF' + [...meta, header, ...lines].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  let base = 'dados_escolas_estaduais_RS';
+  if (escSel && escSel.value) base = 'dados_escola_' + selText(escSel);
+  else if (munSel && munSel.value) base = 'dados_escolas_' + selText(munSel);
+  else if (creSel && creSel.value) base = 'dados_escolas_' + selText(creSel);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = base.replace(/[^a-zA-ZÀ-ú0-9 ]/g, '').trim().replace(/\s+/g, '_') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Série histórica por escola (formato longo: uma linha por escola × ano) ──
+const ESCOLA_HIST_COLS = [
+  { k: 'inep', label: 'Código INEP', type: 'text' },
+  { k: 'nome', label: 'Escola', type: 'text' },
+  { k: 'cre_nome', label: 'CRE', type: 'text' },
+  { k: 'municipio', label: 'Município', type: 'text' },
+  { k: 'ano', label: 'Ano', type: 'text' },
+  { k: 'mat_total', label: 'Matrículas (total)', type: 'num' },
+  { k: 'doc_total', label: 'Docentes (total)', type: 'num' },
+  { k: 'aprov_fund', label: 'Aprov. Fund (%)', type: 'pct' },
+  { k: 'aprov_med', label: 'Aprov. Médio (%)', type: 'pct' },
+  { k: 'reprov_fund', label: 'Reprov. Fund (%)', type: 'pct' },
+  { k: 'reprov_med', label: 'Reprov. Médio (%)', type: 'pct' },
+  { k: 'aband_fund', label: 'Aband. Fund (%)', type: 'pct' },
+  { k: 'aband_med', label: 'Aband. Médio (%)', type: 'pct' },
+  { k: 'tdi_fund', label: 'TDI Fund (%)', type: 'pct' },
+  { k: 'tdi_ai', label: 'TDI Fund AI (%)', type: 'pct' },
+  { k: 'tdi_af', label: 'TDI Fund AF (%)', type: 'pct' },
+  { k: 'tdi_med', label: 'TDI Médio (%)', type: 'pct' },
+  { k: 'saers_2ef_lp', label: 'SAERS 2ºEF LP', type: 'dec' },
+  { k: 'saers_2ef_mt', label: 'SAERS 2ºEF MT', type: 'dec' },
+  { k: 'saers_5ef_lp', label: 'SAERS 5ºEF LP', type: 'dec' },
+  { k: 'saers_5ef_mt', label: 'SAERS 5ºEF MT', type: 'dec' },
+  { k: 'saers_9ef_lp', label: 'SAERS 9ºEF LP', type: 'dec' },
+  { k: 'saers_9ef_mt', label: 'SAERS 9ºEF MT', type: 'dec' },
+  { k: 'saers_em_lp', label: 'SAERS EM LP', type: 'dec' },
+  { k: 'saers_em_mt', label: 'SAERS EM MT', type: 'dec' },
+  { k: 'ideb_ai', label: 'IDEB AI', type: 'dec' },
+  { k: 'ideb_af', label: 'IDEB AF', type: 'dec' },
+  { k: 'ideb_em', label: 'IDEB EM', type: 'dec' },
+];
+
+/** Gera as linhas da série histórica de uma escola (uma por ano disponível). */
+function efHistRows(e) {
+  const years = new Set();
+  ['mat_hist', 'doc_hist', 'fluxo_hist', 'tdi_hist', 'saers_hist'].forEach(h => {
+    Object.keys(e[h] || {}).forEach(y => years.add(y));
+  });
+  const ideb = e.ideb_hist || {};
+  Object.values(ideb).forEach(obj => Object.keys(obj || {}).forEach(y => years.add(y)));
+
+  const creNome = getCreNomeEscola(e.cre);
+  return [...years].sort().map(ano => {
+    const fl = (e.fluxo_hist || {})[ano] || {};
+    const td = (e.tdi_hist || {})[ano] || {};
+    const sa = (e.saers_hist || {})[ano] || {};
+    return {
+      inep: e.inep, nome: e.nome, cre_nome: creNome, municipio: e.municipio, ano,
+      mat_total: (e.mat_hist || {})[ano],
+      doc_total: (e.doc_hist || {})[ano],
+      aprov_fund: fl.aprov_fund, aprov_med: fl.aprov_med,
+      reprov_fund: fl.reprov_fund, reprov_med: fl.reprov_med,
+      aband_fund: fl.aband_fund, aband_med: fl.aband_med,
+      tdi_fund: td.tdi_fund, tdi_ai: td.tdi_ai, tdi_af: td.tdi_af, tdi_med: td.tdi_med,
+      saers_2ef_lp: sa.saers_2ef_lp, saers_2ef_mt: sa.saers_2ef_mt,
+      saers_5ef_lp: sa.saers_5ef_lp, saers_5ef_mt: sa.saers_5ef_mt,
+      saers_9ef_lp: sa.saers_9ef_lp, saers_9ef_mt: sa.saers_9ef_mt,
+      saers_em_lp: sa.saers_em_lp, saers_em_mt: sa.saers_em_mt,
+      ideb_ai: (ideb.ideb_ai || {})[ano],
+      ideb_af: (ideb.ideb_af || {})[ano],
+      ideb_em: (ideb.ideb_em || {})[ano],
+    };
+  });
+}
+
+/** Exporta a série histórica das escolas filtradas em CSV (formato longo). */
+function downloadEscolasHistCSV(rows) {
+  const creSel = document.getElementById('ef-cre');
+  const munSel = document.getElementById('ef-mun');
+  const escSel = document.getElementById('ef-esc');
+  const selText = (sel) => (sel && sel.value) ? (sel.options[sel.selectedIndex]?.text || sel.value) : '';
+  const csvCell = (s) => /[;\n"]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+
+  const header = ESCOLA_HIST_COLS.map(c => c.label).join(';');
+  const lines = [];
+  rows.forEach(e => {
+    efHistRows(e).forEach(hr => {
+      lines.push(ESCOLA_HIST_COLS.map(c => csvCell(efFmt(hr[c.k], c.type))).join(';'));
+    });
+  });
+
+  const recorte = selText(escSel) || selText(munSel) || selText(creSel) || 'Todas as escolas estaduais do RS';
+  const meta = [
+    ['Fonte', 'INEP / SEDUC-RS — base por escola (Rede Estadual), série histórica'],
+    ['Recorte', recorte],
+    ['Escolas', String(rows.length)],
+    ['Linhas (escola x ano)', String(lines.length)],
+    [],
+  ].map(r => r.map(csvCell).join(';'));
+
+  const csv = '\uFEFF' + [...meta, header, ...lines].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  let base = 'serie_historica_escolas_estaduais_RS';
+  if (escSel && escSel.value) base = 'serie_historica_' + selText(escSel);
+  else if (munSel && munSel.value) base = 'serie_historica_' + selText(munSel);
+  else if (creSel && creSel.value) base = 'serie_historica_' + selText(creSel);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = base.replace(/[^a-zA-ZÀ-ú0-9 ]/g, '').trim().replace(/\s+/g, '_') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ══════════════════════════════════════════════════════════
