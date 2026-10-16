@@ -357,75 +357,92 @@ def _desig_split(ed):
     return etapa, disc
 
 def build_desig_sheets(wb, index_entries):
-    path = os.path.join(DADOS, "4_11_desigualdades.json")
-    if not os.path.exists(path):
+    est_path = os.path.join(DADOS, "4_11_desigualdades.json")
+    if not os.path.exists(est_path):
         return
-    data = json.load(open(path, encoding="utf-8"))
-    anos = data.get("anos", [])
-    if not anos:
+    est_data = json.load(open(est_path, encoding="utf-8"))
+    est_anos = est_data.get("anos", [])
+    if not est_anos:
         return
-    etapa_labels = (data.get("metadata", {}) or {}).get("etapa_labels", {})
-    # Nome dos municipios a partir de um dataset que tenha o lookup
+    etapa_labels = (est_data.get("metadata", {}) or {}).get("etapa_labels", {})
+
+    # Rede municipal (opcional) — apenas para o download na Central de Dados.
+    mun_path = os.path.join(DADOS, "4_11_desigualdades_municipal.json")
+    mun_anos = []
+    if os.path.exists(mun_path):
+        mun_anos = (json.load(open(mun_path, encoding="utf-8")) or {}).get("anos", [])
+
+    # Nome dos municipios cobrindo todas as redes (497).
     mun_lookup = {}
-    acesso = load("estadual", "4_1_acesso_{rede}.json")
+    acesso = load("todas", "4_1_acesso_{rede}.json") or load("estadual", "4_1_acesso_{rede}.json")
     if acesso:
         mun_lookup = acesso.get("lookup_municipios", {})
 
     def etapa_nome(e):
         return etapa_labels.get(e, e)
 
-    # Aba 1: Geral (Estado) - serie por ano/etapa/disciplina
+    # Estadual sempre primeiro; municipal logo abaixo (coluna "Rede" identifica).
+    datasets = [("Estadual", est_anos)]
+    if mun_anos:
+        datasets.append(("Municipal", mun_anos))
+
+    # Aba 1: Geral - serie por rede/ano/etapa/disciplina
     grows = []
-    for a in anos:
-        ano = a.get("ano")
-        for ed, rec in (a.get("geral", {}) or {}).items():
-            etapa, disc = _desig_split(ed)
-            row = {"Ano": ano, "Etapa": etapa_nome(etapa),
-                   "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
-            row.update(_desig_metrics(rec))
-            grows.append(row)
+    for rede_label, anos in datasets:
+        for a in anos:
+            ano = a.get("ano")
+            for ed, rec in (a.get("geral", {}) or {}).items():
+                etapa, disc = _desig_split(ed)
+                row = {"Rede": rede_label, "Ano": ano, "Etapa": etapa_nome(etapa),
+                       "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
+                row.update(_desig_metrics(rec))
+                grows.append(row)
     if grows:
         headers = ordered_cols(grows)
-        write_simple_sheet(wb, "Geral (Estado)", headers, grows)
-        index_entries.append(("Geral (Estado)", "SAERS - proficiencia geral por ano, etapa e disciplina"))
+        write_simple_sheet(wb, "Geral", headers, grows)
+        index_entries.append(("Geral", "SAERS - proficiencia geral por rede, ano, etapa e disciplina"))
 
-    # Aba 2: Por grupo (Estado) - recortes de equidade
+    # Aba 2: Por grupo - recortes de equidade
     drows = []
-    for a in anos:
-        ano = a.get("ano")
-        for dim, grupos in (a.get("dimensoes", {}) or {}).items():
-            for grupo, eds in (grupos or {}).items():
-                for ed, rec in (eds or {}).items():
-                    etapa, disc = _desig_split(ed)
-                    row = {"Ano": ano, "Recorte": _DESIG_DIM_LABELS.get(dim, dim),
-                           "Grupo": grupo, "Etapa": etapa_nome(etapa),
-                           "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
-                    row.update(_desig_metrics(rec))
-                    drows.append(row)
+    for rede_label, anos in datasets:
+        for a in anos:
+            ano = a.get("ano")
+            for dim, grupos in (a.get("dimensoes", {}) or {}).items():
+                for grupo, eds in (grupos or {}).items():
+                    for ed, rec in (eds or {}).items():
+                        etapa, disc = _desig_split(ed)
+                        row = {"Rede": rede_label, "Ano": ano,
+                               "Recorte": _DESIG_DIM_LABELS.get(dim, dim),
+                               "Grupo": grupo, "Etapa": etapa_nome(etapa),
+                               "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
+                        row.update(_desig_metrics(rec))
+                        drows.append(row)
     if drows:
         headers = ordered_cols(drows)
-        write_simple_sheet(wb, "Por Grupo (Estado)", headers, drows)
-        index_entries.append(("Por Grupo (Estado)", "SAERS - recortes por sexo, raca, deficiencia, localizacao e turno"))
+        write_simple_sheet(wb, "Por Grupo", headers, drows)
+        index_entries.append(("Por Grupo", "SAERS - recortes por sexo, raca, deficiencia, localizacao e turno (por rede)"))
 
     # Aba 3: Por municipio — serie historica (todos os anos disponiveis)
     mrows = []
-    for a in anos:
-        ano = a.get("ano")
-        pm = a.get("por_municipio", {}) or {}
-        for cod in sorted(pm.keys()):
-            geral = (pm[cod] or {}).get("geral", {}) or {}
-            for ed, rec in geral.items():
-                etapa, disc = _desig_split(ed)
-                row = {"Ano": ano, "Codigo IBGE": cod, "Municipio": mun_lookup.get(cod, cod),
-                       "Etapa": etapa_nome(etapa), "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
-                row.update(_desig_metrics(rec))
-                mrows.append(row)
+    for rede_label, anos in datasets:
+        for a in anos:
+            ano = a.get("ano")
+            pm = a.get("por_municipio", {}) or {}
+            for cod in sorted(pm.keys()):
+                geral = (pm[cod] or {}).get("geral", {}) or {}
+                for ed, rec in geral.items():
+                    etapa, disc = _desig_split(ed)
+                    row = {"Rede": rede_label, "Ano": ano, "Codigo IBGE": cod,
+                           "Municipio": mun_lookup.get(cod, cod),
+                           "Etapa": etapa_nome(etapa), "Disciplina": _DESIG_DISC_LABELS.get(disc, disc)}
+                    row.update(_desig_metrics(rec))
+                    mrows.append(row)
     if mrows:
         headers = ordered_cols(mrows)
         write_simple_sheet(wb, "Por Municipio", headers, mrows)
-        anos_list = [a.get("ano") for a in anos if a.get("ano")]
+        anos_list = [a.get("ano") for a in est_anos if a.get("ano")]
         arange = f"{anos_list[0]}-{anos_list[-1]}" if len(anos_list) > 1 else str(anos_list[0] if anos_list else "")
-        index_entries.append(("Por Municipio", f"SAERS - proficiencia geral por municipio, serie historica ({arange})"))
+        index_entries.append(("Por Municipio", f"SAERS - proficiencia por municipio e rede, serie historica ({arange})"))
 
 def build_saers_sheets(wb, index_entries):
     for rede, rede_label in [("estadual", "Estadual"), ("municipal", "Municipal"), ("todas", "Todas")]:

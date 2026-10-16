@@ -217,8 +217,9 @@ def rearrange_dimensoes(dim_list):
                 res[dim_name][group_name][key] = stats
     return res
 
-def process_year(year):
-    # Try multiple filename patterns
+def load_prepared_df(year):
+    """Le e normaliza os microdados SAERS de um ano, SEM filtrar rede.
+    Mantem a coluna rede_norm para a filtragem posterior por rede."""
     candidates = [
         os.path.join(SAERS_DIR, f'Microdados_SAERS_{year}_V3.csv'),
         os.path.join(SAERS_DIR, f'SAERS_{year}.csv'),
@@ -238,11 +239,11 @@ def process_year(year):
     df = pd.read_csv(fname, sep=';', encoding=enc, low_memory=False, usecols=usecol_filter)
     df.columns = [c.strip().strip('\ufeff').strip('\xef\xbb\xbf') for c in df.columns]
     
-    # Filter state network only (assuming Desigualdades is mainly Estadual, wait, Produto 4 is usually State network)
-    # Actually, we should filter for ESTADUAL network
+    # rede_norm fica disponivel para filtrar por rede (ESTADUAL/MUNICIPAL) depois.
     if 'DC_REDE' in df.columns:
         df['rede_norm'] = df['DC_REDE'].astype(str).str.strip().str.upper()
-        df = df[df['rede_norm'] == 'ESTADUAL']
+    else:
+        df['rede_norm'] = ''
     
     df['etapa'] = df.get('DC_ETAPA_AVALIADA', pd.Series(dtype=str)).apply(norm_etapa)
     df['disc'] = df.get('NM_DISCIPLINA', pd.Series(dtype=str)).apply(norm_disc)
@@ -266,6 +267,18 @@ def process_year(year):
     
     # Drop rows without etapa or disc
     df = df[(df['etapa'] != '') & (df['disc'] != '')]
+    
+    return df
+
+def process_year(df_all, year, rede='ESTADUAL', include_escola=True):
+    """Filtra a rede e agrega (geral/dimensoes/CRE/municipio/escola).
+    rede: 'ESTADUAL' | 'MUNICIPAL' | None (todas as redes)."""
+    if rede:
+        df = df_all[df_all['rede_norm'] == rede]
+    else:
+        df = df_all
+    if len(df) == 0:
+        return None
     
     result = {'ano': year, 'total_registros': len(df)}
     
@@ -344,7 +357,7 @@ def process_year(year):
     print("  Aggregating Escola...", flush=True)
     por_esc = {}
     escola_lookup = {}
-    if 'CD_ESCOLA' in df.columns:
+    if include_escola and 'CD_ESCOLA' in df.columns:
         for (cod, etapa, disc), g in df.groupby(['CD_ESCOLA', 'etapa', 'disc']):
             cod = str(cod).strip()
             if cod not in por_esc:
@@ -374,19 +387,39 @@ def process_year(year):
 
 def main():
     t0 = time.time()
-    anos_data = []
+    anos_est, anos_mun = [], []
     for y in YEARS:
-        res = process_year(y)
-        if res: anos_data.append(res)
-        
-    out_path = os.path.join(OUT_DIR, '4_11_desigualdades.json')
+        df = load_prepared_df(y)
+        if df is None:
+            continue
+        # Estadual: usado pelo painel e pelo download (com dados por escola).
+        est = process_year(df, y, rede='ESTADUAL', include_escola=True)
+        if est: anos_est.append(est)
+        # Municipal: apenas para o download na Central de Dados (sem por-escola,
+        # que o download nao usa, evitando inflar o JSON).
+        mun = process_year(df, y, rede='MUNICIPAL', include_escola=False)
+        if mun: anos_mun.append(mun)
+
     os.makedirs(OUT_DIR, exist_ok=True)
-    
-    meta = {'fonte': 'SAERS/CAED - Microdados da Avaliação do Estado do Rio Grande do Sul', 'etapa_labels': {'2_EF': '2º ano EF', '5_EF': '5º ano EF', '9_EF': '9º ano EF', '3_EM': '3ª série EM'}}
-    with open(out_path, 'w', encoding='utf-8') as f:
-        json.dump({'metadata': meta, 'anos': anos_data}, f, ensure_ascii=False, separators=(',', ':'))
-        
-    print(f"Done in {time.time()-t0:.1f}s. Saved to {out_path}")
+    etapa_labels = {'2_EF': '2º ano EF', '5_EF': '5º ano EF', '9_EF': '9º ano EF', '3_EM': '3ª série EM'}
+
+    # Estadual — estrutura inalterada (painel + download)
+    out_est = os.path.join(OUT_DIR, '4_11_desigualdades.json')
+    meta_est = {'fonte': 'SAERS/CAED - Microdados da Avaliação do Estado do Rio Grande do Sul',
+                'recorte': 'Rede Estadual', 'etapa_labels': etapa_labels}
+    with open(out_est, 'w', encoding='utf-8') as f:
+        json.dump({'metadata': meta_est, 'anos': anos_est}, f, ensure_ascii=False, separators=(',', ':'))
+    print(f"  Estadual  -> {out_est} ({os.path.getsize(out_est)/1024:.0f} KB)")
+
+    # Municipal — somente para o download (nao usado no painel de desigualdades)
+    out_mun = os.path.join(OUT_DIR, '4_11_desigualdades_municipal.json')
+    meta_mun = {'fonte': 'SAERS/CAED - Microdados da Avaliação do Estado do Rio Grande do Sul',
+                'recorte': 'Rede Municipal', 'etapa_labels': etapa_labels}
+    with open(out_mun, 'w', encoding='utf-8') as f:
+        json.dump({'metadata': meta_mun, 'anos': anos_mun}, f, ensure_ascii=False, separators=(',', ':'))
+    print(f"  Municipal -> {out_mun} ({os.path.getsize(out_mun)/1024:.0f} KB)")
+
+    print(f"Done in {time.time()-t0:.1f}s.")
 
 if __name__ == '__main__':
     main()
