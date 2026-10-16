@@ -3730,6 +3730,10 @@ function buildFunilTurma(ano) {
 // ══════════════════════════════════════════════════════════
 
 const FONTE_SAEB = 'Fonte: ' + fonteLink(URL_SAEB, 'Microdados SAEB — INEP', 'Acessar o SAEB no portal INEP');
+// Rodapé dos gráficos de nível de rede: os valores estaduais seguem a divulgação oficial
+// do IDEB/SAEB (INEP). Recortes por município/CRE são médias das escolas com resultado
+// publicado e podem diferir levemente do total oficial da rede.
+const FONTE_SAEB_REDE = FONTE_SAEB + ' · Valores estaduais conforme a divulgação oficial do IDEB/SAEB (INEP). Recortes por município/CRE são médias das escolas com resultado publicado e podem diferir do total oficial.';
 const FONTE_IDEB = 'Fonte: ' + fonteLink(URL_IDEB, 'IDEB/INEP — Divulgação 2025', 'Acessar o IDEB no portal INEP') + ' · ' + fonteLink(URL_IDEB_NOTA, '📘 Nota Técnica do IDEB', 'Nota Técnica nº 1 — Concepção do IDEB (INEP)');
 
 function renderSaeb() {
@@ -3931,12 +3935,12 @@ function renderSaeb() {
       <div class="chart-card">
         <div class="chart-title">Língua Portuguesa — Evolução por Etapa${geoSuffix()}</div>
         <div style="height:300px"><canvas id="chart-saeb-lp"></canvas></div>
-        <div class="chart-source">${FONTE_SAEB}</div>
+        <div class="chart-source">${FONTE_SAEB_REDE}</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Matemática — Evolução por Etapa${geoSuffix()}</div>
         <div style="height:300px"><canvas id="chart-saeb-mt"></canvas></div>
-        <div class="chart-source">${FONTE_SAEB}</div>
+        <div class="chart-source">${FONTE_SAEB_REDE}</div>
       </div>
     </div>
     ${(saeb.padrao_desempenho && Object.keys(saeb.padrao_desempenho).length) ? `
@@ -3985,12 +3989,12 @@ function renderSaeb() {
           </div>
         </div>
         <div style="height:200px"><canvas id="chart-saeb-comp-lp"></canvas></div>
-        <div class="chart-source">${FONTE_SAEB}</div>
+        <div class="chart-source">${FONTE_SAEB_REDE}</div>
       </div>
       <div class="chart-card">
         <div id="saeb-comp-title-mt" class="chart-title">Matemática — Comparativo</div>
         <div style="height:200px"><canvas id="chart-saeb-comp-mt"></canvas></div>
-        <div class="chart-source">${FONTE_SAEB}</div>
+        <div class="chart-source">${FONTE_SAEB_REDE}</div>
       </div>
     </div>
 
@@ -16431,7 +16435,7 @@ async function init() {
     // NOTE: 4_11_desigualdades.json (~100 MB) é carregado sob demanda (lazy) ao abrir a aba
     // Desigualdades — ver ensureDesig(). Mantê-lo aqui travava o boot no GitHub Pages.
     // Cache-bust por versao: garante JSON novo apos deploy (sem depender de refresh forcado)
-    const dv = '?v=114';
+    const dv = '?v=115';
     const [respData, respGeo, respInfra, respDoc, respFtl, respSaeb, respFluxo, respCreGeo, respCreLookup, respInse, respIcg, respAfd, respIdeb, respTdi, respEscolas, respSaers, respSaersEsc] = await Promise.all([
       fetch('dados/4_1_acesso_estadual.json' + dv),
       fetch('dados/rs_municipios.geojson' + dv),

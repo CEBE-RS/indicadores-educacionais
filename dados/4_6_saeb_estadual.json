@@ -2,7 +2,8 @@
   "metadata": {
     "fonte": "INEP/SEDUC — SAEB por escola (Rede Estadual RS)",
     "recorte": "Rede Estadual RS",
-    "gerado_em": "2026-08-29T15:58:02.730466"
+    "nota_serie_estadual": "A serie_temporal estadual usa as notas SAEB oficiais da divulgacao do IDEB (INEP). As quebras por municipio/CRE/escola sao medias das escolas estaduais com media individual publicada e podem diferir levemente do total oficial da rede.",
+    "gerado_em": "2026-10-16T09:43:15.054402"
   },
   "anos": [
     "2017",
@@ -15,100 +16,114 @@
     "2017": {
       "n_escolas_total": 1337,
       "5EF": {
-        "media_lp": 218.8,
-        "media_mt": 228.2,
+        "media_lp": 216.6,
+        "media_mt": 224.5,
         "n_escolas": 1100,
-        "label": "5º Ano EF"
+        "label": "5º Ano EF",
+        "fonte_nota": "oficial"
       },
       "9EF": {
-        "media_lp": 267.3,
-        "media_mt": 267.9,
+        "media_lp": 263.3,
+        "media_mt": 261.9,
         "n_escolas": 800,
-        "label": "9º Ano EF"
+        "label": "9º Ano EF",
+        "fonte_nota": "oficial"
       }
     },
     "2019": {
       "n_escolas_total": 1430,
       "5EF": {
-        "media_lp": 222.1,
-        "media_mt": 232.1,
+        "media_lp": 218.6,
+        "media_mt": 227.6,
         "n_escolas": 1025,
-        "label": "5º Ano EF"
+        "label": "5º Ano EF",
+        "fonte_nota": "oficial"
       },
       "9EF": {
-        "media_lp": 266.5,
-        "media_mt": 268.8,
+        "media_lp": 262.8,
+        "media_mt": 262.8,
         "n_escolas": 866,
-        "label": "9º Ano EF"
+        "label": "9º Ano EF",
+        "fonte_nota": "oficial"
       },
       "EM": {
-        "media_lp": 288.8,
-        "media_mt": 291.9,
+        "media_lp": 283.0,
+        "media_mt": 282.2,
         "n_escolas": 391,
-        "label": "Ens. Médio"
+        "label": "Ens. Médio",
+        "fonte_nota": "oficial"
       }
     },
     "2021": {
       "n_escolas_total": 1033,
       "5EF": {
-        "media_lp": 216.9,
-        "media_mt": 223.0,
+        "media_lp": 212.2,
+        "media_mt": 217.2,
         "n_escolas": 774,
-        "label": "5º Ano EF"
+        "label": "5º Ano EF",
+        "fonte_nota": "oficial"
       },
       "9EF": {
-        "media_lp": 262.8,
-        "media_mt": 263.3,
+        "media_lp": 259.5,
+        "media_mt": 256.2,
         "n_escolas": 513,
-        "label": "9º Ano EF"
+        "label": "9º Ano EF",
+        "fonte_nota": "oficial"
       },
       "EM": {
-        "media_lp": 287.4,
-        "media_mt": 289.0,
+        "media_lp": 279.2,
+        "media_mt": 273.2,
         "n_escolas": 146,
-        "label": "Ens. Médio"
+        "label": "Ens. Médio",
+        "fonte_nota": "oficial"
       }
     },
     "2023": {
       "n_escolas_total": 1508,
       "5EF": {
-        "media_lp": 215.2,
-        "media_mt": 225.4,
+        "media_lp": 212.6,
+        "media_mt": 221.7,
         "n_escolas": 1093,
-        "label": "5º Ano EF"
+        "label": "5º Ano EF",
+        "fonte_nota": "oficial"
       },
       "9EF": {
-        "media_lp": 263.5,
-        "media_mt": 260.0,
+        "media_lp": 259.6,
+        "media_mt": 253.8,
         "n_escolas": 985,
-        "label": "9º Ano EF"
+        "label": "9º Ano EF",
+        "fonte_nota": "oficial"
       },
       "EM": {
-        "media_lp": 286.2,
-        "media_mt": 281.7,
+        "media_lp": 281.1,
+        "media_mt": 273.7,
         "n_escolas": 525,
-        "label": "Ens. Médio"
+        "label": "Ens. Médio",
+        "fonte_nota": "oficial"
       }
     },
     "2025": {
       "n_escolas_total": 1801,
       "5EF": {
-        "media_lp": 222.3,
+        "media_lp": 222.8,
         "media_mt": 234.4,
         "n_escolas": 1281,
-        "label": "5º Ano EF"
+        "label": "5º Ano EF",
+        "fonte_nota": "oficial"
       },
       "9EF": {
-        "media_lp": 271.4,
-        "media_mt": 267.9,
+        "media_lp": 272.0,
+        "media_mt": 267.2,
         "n_escolas": 1320,
-        "label": "9º Ano EF"
+        "label": "9º Ano EF",
+        "fonte_nota": "oficial"
       },
       "EM": {
-        "media_lp": 291.1,
-        "media_mt": 284.3,
+        "media_lp": 291.9,
+        "media_mt": 282.9,
         "n_escolas": 919,
-        "label": "Ens. Médio"
+        "label": "Ens. Médio",
+        "fonte_nota": "oficial"
       }
     }
   },
