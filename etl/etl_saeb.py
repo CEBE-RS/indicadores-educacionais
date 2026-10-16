@@ -37,6 +37,21 @@ SAEB_FILES = {
     "2025": "INEP_SAEB_2025_RS (1).xlsx",
 }
 
+# Divulgacao oficial do INEP (nota SAEB por UF/regiao/rede, todos os anos).
+# Usada para SOBREPOR a serie_temporal ESTADUAL com os valores oficiais, garantindo
+# que os indicadores de rede batam exatamente com a divulgacao do IDEB/SAEB.
+# A media simples de escolas (calculada da base por escola) diverge do oficial porque
+# o INEP calcula a proficiencia da rede a partir dos microdados por aluno (ponderada),
+# incluindo alunos de escolas sem media individual publicada.
+DIVULGACAO_UF_FILE = "divulgacao_regioes_ufs_ideb_2025.xlsx"
+DIVULGACAO_SHEETS = {
+    "5EF": "UF e Regiões (AI)",
+    "9EF": "UF e Regiões (AF)",
+    "EM": "UF e Regiões (EM)",
+}
+DIVULGACAO_UF_LABEL = "R. G. do Sul"   # rotulo da UF no arquivo oficial
+DIVULGACAO_REDE = "ESTADUAL"           # comparado via _norm()
+
 # Base canonica de escolas estaduais (coordenadas p/ o mapa por escola).
 ESCOLAS_GEO = os.path.join(PAINEL_DIR, "escolas_estaduais.json")
 CRE_LOOKUP_FILE = os.path.join(PAINEL_DIR, "rs_cre_lookup.json")
@@ -108,6 +123,50 @@ def _load_escolas_geo():
         except Exception:
             continue
         out[key] = {'lat': e.get('lat'), 'lng': e.get('lng'), 'cre': str(e.get('cre') or '')}
+    return out
+
+
+def load_saeb_oficial_estadual():
+    """Le o arquivo oficial de divulgacao e retorna as notas SAEB da Rede Estadual RS:
+       { ano(str): { '5EF'|'9EF'|'EM': {'media_lp': float, 'media_mt': float} } }.
+
+    Esses valores oficiais substituem a media simples de escolas na serie_temporal
+    estadual, para o painel bater com a divulgacao do IDEB/SAEB."""
+    path = os.path.join(IDEB_DIR, DIVULGACAO_UF_FILE)
+    out = {}
+    if not os.path.exists(path):
+        print(f"  [AVISO] {DIVULGACAO_UF_FILE} nao encontrado — "
+              f"serie estadual usara media simples de escolas")
+        return out
+    for et, sheet in DIVULGACAO_SHEETS.items():
+        try:
+            df = pd.read_excel(path, sheet_name=sheet, header=None)
+        except Exception as e:
+            print(f"    [AVISO] {sheet}: {e}")
+            continue
+        names = [str(x).strip() for x in df.iloc[9].tolist()]
+
+        def col(name):
+            return names.index(name) if name in names else None
+
+        col_uf = df[0].ffill()
+        for r in range(10, df.shape[0]):
+            if (str(col_uf.iat[r]).strip() == DIVULGACAO_UF_LABEL
+                    and _norm(df.iat[r, 1]) == DIVULGACAO_REDE):
+                for ano in (str(a) for a in range(2005, 2026)):
+                    iMT = col(f"VL_NOTA_MATEMATICA_{ano}")
+                    iLP = col(f"VL_NOTA_PORTUGUES_{ano}")
+                    if iMT is None or iLP is None:
+                        continue
+                    mt = pd.to_numeric(df.iat[r, iMT], errors='coerce')
+                    lp = pd.to_numeric(df.iat[r, iLP], errors='coerce')
+                    if pd.isna(mt) and pd.isna(lp):
+                        continue
+                    out.setdefault(ano, {})[et] = {
+                        "media_lp": None if pd.isna(lp) else round(float(lp), 1),
+                        "media_mt": None if pd.isna(mt) else round(float(mt), 1),
+                    }
+                break
     return out
 
 
@@ -222,11 +281,21 @@ def main():
 
     mun_to_cre = _load_mun_to_cre()
     geo = _load_escolas_geo()
+    oficial = load_saeb_oficial_estadual()
+    if oficial:
+        print(f"  [OFICIAL] nota SAEB estadual carregada p/ anos: "
+              f"{sorted(oficial.keys())}")
 
     resultado = {
         "metadata": {
             "fonte": "INEP/SEDUC — SAEB por escola (Rede Estadual RS)",
             "recorte": "Rede Estadual RS",
+            "nota_serie_estadual": (
+                "A serie_temporal estadual usa as notas SAEB oficiais da divulgacao "
+                "do IDEB (INEP). As quebras por municipio/CRE/escola sao medias das "
+                "escolas estaduais com media individual publicada e podem diferir "
+                "levemente do total oficial da rede."
+            ),
             "gerado_em": pd.Timestamp.now().isoformat(),
         },
         "anos": [],
@@ -262,17 +331,31 @@ def main():
             if nm and nm != 'nan':
                 lookup.setdefault(cod, nm)
 
-        # --- serie_temporal[ano] (media simples de escolas) ---
+        # --- serie_temporal[ano] ---
+        # Nota de rede = valor OFICIAL da divulgacao do IDEB/SAEB (INEP) quando
+        # disponivel; cai para a media simples de escolas apenas se faltar o oficial.
+        of_ano = oficial.get(ano, {})
         serie = {"n_escolas_total": int(d['_inep'].nunique())}
         for et in ["5EF", "9EF", "EM"]:
             sub = d[d['_serie'] == et]
             if sub.empty:
                 continue
+            media_lp = _simple_mean(sub[sub['_disc'] == 'lp'])
+            media_mt = _simple_mean(sub[sub['_disc'] == 'mt'])
+            of_et = of_ano.get(et)
+            fonte_nota = "escolas"
+            if of_et:
+                if of_et.get("media_lp") is not None:
+                    media_lp = of_et["media_lp"]
+                if of_et.get("media_mt") is not None:
+                    media_mt = of_et["media_mt"]
+                fonte_nota = "oficial"
             serie[et] = {
-                "media_lp": _simple_mean(sub[sub['_disc'] == 'lp']),
-                "media_mt": _simple_mean(sub[sub['_disc'] == 'mt']),
+                "media_lp": media_lp,
+                "media_mt": media_mt,
                 "n_escolas": int(sub['_inep'].nunique()),
                 "label": ETAPA_LABEL[et],
+                "fonte_nota": fonte_nota,
             }
         resultado["serie_temporal"][ano] = serie
 
