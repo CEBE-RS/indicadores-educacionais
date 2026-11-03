@@ -4287,13 +4287,28 @@ function renderSaeb() {
   // ── Schools evaluated bar chart ──
   const escolasEl = document.getElementById('chart-saeb-escolas');
   if (escolasEl) {
+    // Conta escolas com dado SAEB por etapa/ano respeitando o filtro geográfico.
+    // serie_temporal.n_escolas é só estadual (não filtra); por_escola tem cod_mun p/ filtrar.
+    const porEscolaSaeb = saeb.por_escola || {};
+    const munSetSaeb = S.munSel ? new Set([String(S.munSel)])
+      : (S.creSel ? new Set(getCreMuns(S.creSel).map(String)) : null);
+    const countEscolasSaeb = (ano, et) => {
+      if (!munSetSaeb) return saeb.serie_temporal[ano]?.[et]?.n_escolas || 0;
+      let c = 0;
+      for (const inep in porEscolaSaeb) {
+        const e = porEscolaSaeb[inep];
+        if (!munSetSaeb.has(String(e.cod_mun))) continue;
+        if (e.anos?.[ano]?.[et]) c++;
+      }
+      return c;
+    };
     S.charts.push(new Chart(escolasEl, {
       type: 'bar',
       data: {
         labels: anos,
         datasets: etapas.map((et, i) => ({
           label: etapaLabels[i],
-          data: anos.map(a => saeb.serie_temporal[a]?.[et]?.n_escolas || 0),
+          data: anos.map(a => countEscolasSaeb(a, et)),
           backgroundColor: etapaCores[i] + 'CC',
           borderColor: etapaCores[i],
           borderWidth: 1,
@@ -14405,6 +14420,55 @@ function renderEscolas() {
         </div>
       </div>
     `;
+
+    // 1b. Matrículas por Etapa de Ensino (ano atual, sem histórico)
+    {
+      const etapasMat = [
+        { label: 'Educação Infantil', val: e.mat_infantil, color: '#7E57C2' },
+        { label: 'Fundamental — Anos Iniciais', val: e.mat_fund_ai, color: '#1565C0' },
+        { label: 'Fundamental — Anos Finais', val: e.mat_fund_af, color: '#0D47A1' },
+        { label: 'Ensino Médio', val: e.mat_medio, color: '#009639' },
+        { label: 'EJA', val: e.mat_eja, color: '#D4A84B' },
+        { label: 'Educação Profissional (Técnico)', val: e.mat_tecnico, color: '#00897B' },
+      ];
+      // Fallback: se Anos Iniciais/Finais estiverem zerados mas houver fundamental total, mostra combinado
+      if (!(e.mat_fund_ai > 0) && !(e.mat_fund_af > 0) && e.mat_fund > 0) {
+        etapasMat.splice(1, 2, { label: 'Ensino Fundamental', val: e.mat_fund, color: '#0D47A1' });
+      }
+      const etapasComDado = etapasMat.filter(x => x.val > 0);
+      const totalEtapa = etapasComDado.reduce((s, x) => s + x.val, 0);
+      let rowsEtapaHtml;
+      if (!etapasComDado.length) {
+        rowsEtapaHtml = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0;flex:1;display:flex;align-items:center;justify-content:center">Sem detalhamento de matrículas por etapa.</div>';
+      } else {
+        rowsEtapaHtml = etapasComDado.map(x => {
+          const pct = totalEtapa ? (x.val / totalEtapa * 100) : 0;
+          return `
+            <div style="margin-bottom:9px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:3px">
+                <span style="color:#555"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${x.color};margin-right:6px"></span>${x.label}</span>
+                <span style="font-weight:700;color:#222">${x.val.toLocaleString('pt-BR')} <span style="color:#999;font-weight:600">(${pct.toFixed(0)}%)</span></span>
+              </div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:${x.color};border-radius:3px"></div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+      cHtml += `
+        <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
+          <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <img src="img/icons/matriculas.png" style="width:16px;height:16px;filter:opacity(0.8)"> Matrículas por Etapa (2025)
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start">
+            ${rowsEtapaHtml}
+          </div>
+          <div style="margin-top:auto;padding-top:8px;border-top:1px dashed #eee;font-size:10.5px;color:#777;display:flex;justify-content:space-between">
+            <span>Total por etapa</span><span style="font-weight:700;color:#444">${totalEtapa.toLocaleString('pt-BR')}</span>
+          </div>
+        </div>
+      `;
+    }
 
     // 2. Desempenho IDEB
     cHtml += `
