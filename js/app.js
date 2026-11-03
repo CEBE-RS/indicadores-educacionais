@@ -14423,20 +14423,29 @@ function renderEscolas() {
 
     // 1b. Matrículas por Etapa de Ensino (ano atual, sem histórico)
     {
+      // Etapas mutuamente exclusivas (somam ~ mat_total). O técnico NÃO entra na soma:
+      // no Censo, o Médio Integrado já conta essas matrículas em QT_MAT_MED, então somar
+      // QT_MAT_PROF_TEC separadamente causaria dupla contagem (Médio + Técnico).
       const etapasMat = [
         { label: 'Educação Infantil', val: e.mat_infantil, color: '#7E57C2' },
         { label: 'Fundamental — Anos Iniciais', val: e.mat_fund_ai, color: '#1565C0' },
         { label: 'Fundamental — Anos Finais', val: e.mat_fund_af, color: '#0D47A1' },
         { label: 'Ensino Médio', val: e.mat_medio, color: '#009639' },
         { label: 'EJA', val: e.mat_eja, color: '#D4A84B' },
-        { label: 'Educação Profissional (Técnico)', val: e.mat_tecnico, color: '#00897B' },
       ];
       // Fallback: se Anos Iniciais/Finais estiverem zerados mas houver fundamental total, mostra combinado
       if (!(e.mat_fund_ai > 0) && !(e.mat_fund_af > 0) && e.mat_fund > 0) {
         etapasMat.splice(1, 2, { label: 'Ensino Fundamental', val: e.mat_fund, color: '#0D47A1' });
       }
-      const etapasComDado = etapasMat.filter(x => x.val > 0);
+      let etapasComDado = etapasMat.filter(x => x.val > 0);
+      const tecnico = e.mat_tecnico || 0;
+      // Caso-limite: escola exclusivamente de Educação Profissional (sem etapa regular) → técnico vira etapa própria
+      if (!etapasComDado.length && tecnico > 0) {
+        etapasComDado = [{ label: 'Educação Profissional (Técnico)', val: tecnico, color: '#00897B' }];
+      }
       const totalEtapa = etapasComDado.reduce((s, x) => s + x.val, 0);
+      // Técnico sobreposto às etapas regulares (ex.: Médio integrado) → nota informativa, não somada
+      const tecnicoNota = tecnico > 0 && totalEtapa > 0 && !(etapasComDado.length === 1 && etapasComDado[0].label.indexOf('Técnico') >= 0);
       let rowsEtapaHtml;
       if (!etapasComDado.length) {
         rowsEtapaHtml = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0;flex:1;display:flex;align-items:center;justify-content:center">Sem detalhamento de matrículas por etapa.</div>';
@@ -14455,6 +14464,14 @@ function renderEscolas() {
             </div>`;
         }).join('');
       }
+      const tecnicoHtml = tecnicoNota ? `
+        <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #eee">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px">
+            <span style="color:#555"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#00897B;margin-right:6px"></span>Educação Profissional (Técnico)</span>
+            <span style="font-weight:700;color:#555">${tecnico.toLocaleString('pt-BR')}</span>
+          </div>
+          <div style="font-size:9.5px;color:#999;margin-top:3px;line-height:1.3">Modalidade já contabilizada nas etapas acima (ex.: Médio Integrado). Não é somada ao total para evitar dupla contagem.</div>
+        </div>` : '';
       cHtml += `
         <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
           <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
@@ -14462,6 +14479,7 @@ function renderEscolas() {
           </div>
           <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start">
             ${rowsEtapaHtml}
+            ${tecnicoHtml}
           </div>
           <div style="margin-top:auto;padding-top:8px;border-top:1px dashed #eee;font-size:10.5px;color:#777;display:flex;justify-content:space-between">
             <span>Total por etapa</span><span style="font-weight:700;color:#444">${totalEtapa.toLocaleString('pt-BR')}</span>
