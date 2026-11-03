@@ -14423,55 +14423,68 @@ function renderEscolas() {
 
     // 1b. Matrículas por Etapa de Ensino (ano atual, sem histórico)
     {
-      // Etapas mutuamente exclusivas (somam ~ mat_total). O técnico NÃO entra na soma:
-      // no Censo, o Médio Integrado já conta essas matrículas em QT_MAT_MED, então somar
-      // QT_MAT_PROF_TEC separadamente causaria dupla contagem (Médio + Técnico).
-      const etapasMat = [
-        { label: 'Educação Infantil', val: e.mat_infantil, color: '#7E57C2' },
-        { label: 'Fundamental — Anos Iniciais', val: e.mat_fund_ai, color: '#1565C0' },
-        { label: 'Fundamental — Anos Finais', val: e.mat_fund_af, color: '#0D47A1' },
-        { label: 'Ensino Médio', val: e.mat_medio, color: '#009639' },
-        { label: 'EJA', val: e.mat_eja, color: '#D4A84B' },
-      ];
-      // Fallback: se Anos Iniciais/Finais estiverem zerados mas houver fundamental total, mostra combinado
-      if (!(e.mat_fund_ai > 0) && !(e.mat_fund_af > 0) && e.mat_fund > 0) {
-        etapasMat.splice(1, 2, { label: 'Ensino Fundamental', val: e.mat_fund, color: '#0D47A1' });
+      // No Censo (campos agregados QT_MAT_*):
+      //  - mat_medio (QT_MAT_MED) já inclui o Técnico Integrado ao Ensino Médio;
+      //  - mat_tecnico (QT_MAT_PROF_TEC) = técnico de nível médio em TODAS as formas
+      //    (integrado + concomitante + subsequente);
+      //  - Concomitante/Subsequente ficam FORA do médio (entram no total, não no médio).
+      // Identidade validada em todas as escolas: total = infantil+fund+médio+EJA + (técnico fora do médio).
+      // Decompomos sem dupla contagem: gap = técnico fora do médio; integrado = mat_tecnico - gap.
+      const inf = e.mat_infantil || 0, fundAI = e.mat_fund_ai || 0, fundAF = e.mat_fund_af || 0, fundTot = e.mat_fund || 0;
+      const medio = e.mat_medio || 0, eja = e.mat_eja || 0, tec = e.mat_tecnico || 0, totGeral = e.mat_total || 0;
+      const reg = inf + fundTot + medio + eja;                 // etapas regulares (fund = AI+AF)
+      const tecFora = Math.max(0, totGeral - reg);             // concomitante + subsequente (fora do médio)
+      const integrado = Math.max(0, tec - tecFora);            // técnico integrado (dentro do médio)
+      const medioReg = Math.max(0, medio - integrado);         // médio regular/propedêutico
+      const totalEtapa = inf + fundTot + medio + eja + tecFora; // == mat_total quando os dados batem
+      const denom = totalEtapa || 1;
+
+      const barEtapa = (label, val, color, indent) => {
+        const pct = val / denom * 100;
+        return `
+          <div style="margin-bottom:9px${indent ? ';padding-left:16px' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:${indent ? '10.5' : '11'}px;margin-bottom:3px">
+              <span style="color:#555"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${color};margin-right:6px"></span>${label}</span>
+              <span style="font-weight:700;color:#222">${val.toLocaleString('pt-BR')} <span style="color:#999;font-weight:600">(${pct.toFixed(0)}%)</span></span>
+            </div>
+            <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${pct}%;background:${color};border-radius:3px"></div>
+            </div>
+          </div>`;
+      };
+
+      let rowsEtapaHtml = '';
+      if (inf > 0) rowsEtapaHtml += barEtapa('Educação Infantil', inf, '#7E57C2');
+      if (fundAI > 0 || fundAF > 0) {
+        if (fundAI > 0) rowsEtapaHtml += barEtapa('Fundamental — Anos Iniciais', fundAI, '#1565C0');
+        if (fundAF > 0) rowsEtapaHtml += barEtapa('Fundamental — Anos Finais', fundAF, '#0D47A1');
+      } else if (fundTot > 0) {
+        rowsEtapaHtml += barEtapa('Ensino Fundamental', fundTot, '#0D47A1');
       }
-      let etapasComDado = etapasMat.filter(x => x.val > 0);
-      const tecnico = e.mat_tecnico || 0;
-      // Caso-limite: escola exclusivamente de Educação Profissional (sem etapa regular) → técnico vira etapa própria
-      if (!etapasComDado.length && tecnico > 0) {
-        etapasComDado = [{ label: 'Educação Profissional (Técnico)', val: tecnico, color: '#00897B' }];
-      }
-      const totalEtapa = etapasComDado.reduce((s, x) => s + x.val, 0);
-      // Técnico sobreposto às etapas regulares (ex.: Médio integrado) → nota informativa, não somada
-      const tecnicoNota = tecnico > 0 && totalEtapa > 0 && !(etapasComDado.length === 1 && etapasComDado[0].label.indexOf('Técnico') >= 0);
-      let rowsEtapaHtml;
-      if (!etapasComDado.length) {
-        rowsEtapaHtml = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0;flex:1;display:flex;align-items:center;justify-content:center">Sem detalhamento de matrículas por etapa.</div>';
-      } else {
-        rowsEtapaHtml = etapasComDado.map(x => {
-          const pct = totalEtapa ? (x.val / totalEtapa * 100) : 0;
-          return `
-            <div style="margin-bottom:9px">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:3px">
-                <span style="color:#555"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${x.color};margin-right:6px"></span>${x.label}</span>
-                <span style="font-weight:700;color:#222">${x.val.toLocaleString('pt-BR')} <span style="color:#999;font-weight:600">(${pct.toFixed(0)}%)</span></span>
-              </div>
-              <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
-                <div style="height:100%;width:${pct}%;background:${x.color};border-radius:3px"></div>
-              </div>
+      if (medio > 0) {
+        if (integrado > 0) {
+          // Ensino Médio decomposto em duas sub-barras: Regular e Técnico Integrado
+          rowsEtapaHtml += `
+            <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:5px">
+              <span style="color:#333;font-weight:700"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#009639;margin-right:6px"></span>Ensino Médio</span>
+              <span style="font-weight:700;color:#222">${medio.toLocaleString('pt-BR')} <span style="color:#999;font-weight:600">(${(medio / denom * 100).toFixed(0)}%)</span></span>
             </div>`;
-        }).join('');
+          rowsEtapaHtml += barEtapa('Regular / Propedêutico', medioReg, '#43A047', true);
+          rowsEtapaHtml += barEtapa('Técnico Integrado', integrado, '#00897B', true);
+        } else {
+          rowsEtapaHtml += barEtapa('Ensino Médio', medio, '#009639');
+        }
       }
-      const tecnicoHtml = tecnicoNota ? `
-        <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #eee">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px">
-            <span style="color:#555"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#00897B;margin-right:6px"></span>Educação Profissional (Técnico)</span>
-            <span style="font-weight:700;color:#555">${tecnico.toLocaleString('pt-BR')}</span>
-          </div>
-          <div style="font-size:9.5px;color:#999;margin-top:3px;line-height:1.3">Modalidade já contabilizada nas etapas acima (ex.: Médio Integrado). Não é somada ao total para evitar dupla contagem.</div>
-        </div>` : '';
+      if (eja > 0) rowsEtapaHtml += barEtapa('EJA', eja, '#D4A84B');
+      if (tecFora > 0) rowsEtapaHtml += barEtapa('Ed. Profissional (Concom./Subseq.)', tecFora, '#00695C');
+      if (!rowsEtapaHtml) {
+        rowsEtapaHtml = '<div style="font-size:11px;color:#888;text-align:center;padding:24px 0;flex:1;display:flex;align-items:center;justify-content:center">Sem detalhamento de matrículas por etapa.</div>';
+      }
+
+      const notaTec = (integrado > 0 || tecFora > 0)
+        ? `<div style="font-size:9.5px;color:#999;margin-top:6px;padding-top:6px;border-top:1px dashed #f0f0f0;line-height:1.35">Técnico Integrado já faz parte do Ensino Médio; Concomitante/Subsequente contam fora do Médio. Fonte: Censo Escolar/INEP.</div>`
+        : '';
+
       cHtml += `
         <div class="chart-card" style="padding:16px;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.02)">
           <div style="font-size:12px;font-weight:800;color:#0D47A1;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">
@@ -14479,10 +14492,10 @@ function renderEscolas() {
           </div>
           <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start">
             ${rowsEtapaHtml}
-            ${tecnicoHtml}
+            ${notaTec}
           </div>
           <div style="margin-top:auto;padding-top:8px;border-top:1px dashed #eee;font-size:10.5px;color:#777;display:flex;justify-content:space-between">
-            <span>Total por etapa</span><span style="font-weight:700;color:#444">${totalEtapa.toLocaleString('pt-BR')}</span>
+            <span>Total de matrículas</span><span style="font-weight:700;color:#444">${totalEtapa.toLocaleString('pt-BR')}</span>
           </div>
         </div>
       `;
